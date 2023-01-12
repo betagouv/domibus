@@ -1,13 +1,13 @@
 package eu.domibus.property;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import eu.domibus.core.property.PropertyChangeManager;
 import eu.domibus.core.property.PropertyProviderDispatcher;
@@ -145,9 +145,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
 
     @Test
     public void testCacheEvictGlobalProperty() {
-        String propertyName = DOMIBUS_PROPERTY_LENGTH_MAX;
-
-        domainContextProvider.clearCurrentDomain();
+        String propertyName = DOMIBUS_UI_TITLE_NAME;
 
         String cachedValue = getCachedValue(propertyName);
         Assert.assertNull(cachedValue);
@@ -311,10 +309,17 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         return null;
     }
 
-    private File getPropertyFile() {
-        String configurationFileName = domibusConfigurationService.getConfigurationFileName();
+    private File getPropertyFile(Domain domain) {
+        String configurationFileName = domibusConfigurationService.getConfigurationFileName(domain);
         String fullName = domibusConfigurationService.getConfigLocation() + File.separator + configurationFileName;
         return new File(fullName);
+    }
+
+    private File getPropertyFile() {
+        return getPropertyFile(defaultDomain);
+//        String configurationFileName = domibusConfigurationService.getConfigurationFileName();
+//        String fullName = domibusConfigurationService.getConfigLocation() + File.separator + configurationFileName;
+//        return new File(fullName);
     }
 
     private String getCachedValue(Domain domain, String propertyName) {
