@@ -262,12 +262,10 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         String propertyValue = "TeamA";
         domibusPropertyProvider.setProperty(defaultDomain, DOMIBUS_UI_SUPPORT_TEAM_NAME, propertyValue);
 
-        String propVal = domibusPropertyProvider.getProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
-
         File propertyFile = getPropertyFile();
         List<String> lines = Files.readAllLines(propertyFile.toPath());
         String lastLine = lines.get(lines.size() - 1);
-        Assert.assertEquals(lastLine, DOMIBUS_UI_SUPPORT_TEAM_NAME + "=" + propertyValue);
+        Assert.assertEquals("default." + DOMIBUS_UI_SUPPORT_TEAM_NAME + "=" + propertyValue, lastLine);
     }
 
     @Test(expected = DomibusPropertyException.class)
@@ -300,6 +298,10 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     }
 
     private String findPropertyInFile(String propertyName, File propertyFile) throws IOException {
+        Domain currentD = domainContextProvider.getCurrentDomainSafely();
+        if (currentD != null) {
+            propertyName = currentD.getCode() + "." + propertyName;
+        }
         List<String> lines = Files.readAllLines(propertyFile.toPath());
         int lineNr = propertyChangeManager.findLineWithProperty(propertyName, lines);
         if (lineNr >= 0) {

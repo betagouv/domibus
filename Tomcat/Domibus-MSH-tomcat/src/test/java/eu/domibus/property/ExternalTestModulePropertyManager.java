@@ -80,7 +80,7 @@ public class ExternalTestModulePropertyManager extends DomibusPropertyExtService
 
     @Override
     public Optional<String> getConfigurationFileName(DomainDTO domain) {
-        return Optional.empty();
+        return Optional.of("default-external-module.properties");
     }
 
     @Override
