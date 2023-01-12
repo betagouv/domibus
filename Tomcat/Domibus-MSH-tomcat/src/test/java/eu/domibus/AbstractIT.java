@@ -23,7 +23,7 @@ import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
-import eu.domibus.test.common.DomibusTestDatasourceConfiguration;
+import eu.domibus.test.common.DomibusMTTestDatasourceConfiguration;
 import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -74,7 +74,7 @@ import static org.awaitility.Awaitility.with;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(initializers = PropertyOverrideContextInitializer.class,
         classes = {DomibusRootConfiguration.class, DomibusWebConfiguration.class,
-                DomibusTestDatasourceConfiguration.class, DomibusTestMocksConfiguration.class})
+                DomibusMTTestDatasourceConfiguration.class, DomibusTestMocksConfiguration.class})
 public abstract class AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
@@ -199,7 +199,7 @@ public abstract class AbstractIT {
     }
 
     protected void waitUntilMessageIsAcknowledged(String messageId) {
-        waitUntilMessageHasStatus(messageId,MSHRole.SENDING, MessageStatus.ACKNOWLEDGED);
+        waitUntilMessageHasStatus(messageId, MSHRole.SENDING, MessageStatus.ACKNOWLEDGED);
     }
 
     protected void waitUntilMessageIsReceived(String messageId) {
@@ -273,7 +273,7 @@ public abstract class AbstractIT {
     }
 
     protected void createStore(String domibusKeystoreName, String filePath) throws IOException {
-        if(truststoreDao.existsWithName(domibusKeystoreName)) {
+        if (truststoreDao.existsWithName(domibusKeystoreName)) {
             LOG.info("truststore already created");
             return;
         }
@@ -282,7 +282,7 @@ public abstract class AbstractIT {
         domibusTruststoreEntity.setName(domibusKeystoreName);
         domibusTruststoreEntity.setType("JKS");
         domibusTruststoreEntity.setPassword("test123");
-        try(InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(filePath)) {
+        try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(filePath)) {
             byte[] trustStoreBytes = IOUtils.toByteArray(resourceAsStream);
             domibusTruststoreEntity.setContent(trustStoreBytes);
             truststoreDao.create(domibusTruststoreEntity);
