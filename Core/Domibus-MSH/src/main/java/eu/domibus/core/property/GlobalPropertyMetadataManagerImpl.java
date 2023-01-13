@@ -1,10 +1,9 @@
 package eu.domibus.core.property;
 
-import eu.domibus.api.cache.CacheConstants;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
@@ -56,7 +55,7 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
         this.propertyMetadataManagers = propertyMetadataManagers;
         this.extPropertyManagers = extPropertyManagers;
         this.domibusPropertyMetadataMapper = domibusPropertyMetadataMapper;
-        this.nestedPropertiesManager=nestedPropertiesManager;
+        this.nestedPropertiesManager = nestedPropertiesManager;
     }
 
     @Override
@@ -156,7 +155,8 @@ public class GlobalPropertyMetadataManagerImpl implements GlobalPropertyMetadata
     protected DomibusPropertyMetadata getComposablePropertyMetadata(Map<String, DomibusPropertyMetadata> map, String propertyName) {
         return map.values().stream()
                 .filter(Objects::nonNull)
-                .filter(propertyMetadata -> propertyMetadata.isComposable() && propertyName.startsWith(propertyMetadata.getName() + NAME_SEPARATOR))
+                .filter(propertyMetadata -> propertyMetadata.isComposable())
+                .filter(propertyMetadata -> propertyName.startsWith(propertyMetadata.getName() + NAME_SEPARATOR))
                 .findAny()
                 .orElse(null);
     }

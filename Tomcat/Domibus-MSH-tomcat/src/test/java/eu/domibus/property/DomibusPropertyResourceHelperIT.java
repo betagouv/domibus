@@ -62,8 +62,8 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
     @Test
     public void setProperty_composable() {
         String propertyName = "composable_property_name";
-        boolean isDomain = false;
-        DomibusPropertyMetadata propertyMetadata = DomibusPropertyMetadata.getGlobalProperty(propertyName);
+        boolean isDomain = true;
+        DomibusPropertyMetadata propertyMetadata = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
         propertyMetadata.setComposable(true);
         String propertyValue = "100";
         globalPropertyMetadataManager.getAllProperties().put(propertyName, propertyMetadata);
@@ -109,7 +109,7 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
         String composablePropertyName = "composable_property_nested";
         String nestedPropertyName = composablePropertyName + ".prop1";
         boolean isDomain = true;
-        DomibusPropertyMetadata propertyMetadata = DomibusPropertyMetadata.getGlobalProperty(composablePropertyName);
+        DomibusPropertyMetadata propertyMetadata = new DomibusPropertyMetadata(composablePropertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
         propertyMetadata.setComposable(true);
         String propertyValue = "100";
 
