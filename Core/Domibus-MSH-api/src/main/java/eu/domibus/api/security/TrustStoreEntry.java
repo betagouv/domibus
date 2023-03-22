@@ -1,9 +1,9 @@
 package eu.domibus.api.security;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @author Thomas Dussart
@@ -100,6 +100,11 @@ public class TrustStoreEntry {
                 .append(validUntil, entry.validUntil)
                 .append(fingerprints, entry.fingerprints)
                 .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, subject, issuer, validFrom, validUntil, fingerprints);
     }
 
     @Override

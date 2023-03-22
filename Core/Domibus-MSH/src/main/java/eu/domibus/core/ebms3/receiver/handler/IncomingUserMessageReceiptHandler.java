@@ -115,6 +115,10 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         UserMessage sentUserMessage = null;
         try {
             sentUserMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+            if(sentUserMessage == null){
+                LOG.error("Couldn't find sent user message with message with ID [{}]", messageId);
+                return null;
+            }
             String pModeKey = pModeProvider.findUserMessageExchangeContext(sentUserMessage, MSHRole.SENDING).getPmodeKey();
             LOG.debug("PMode key found : {}", pModeKey);
 
@@ -134,11 +138,13 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
             LOG.error("EbMS3 exception occurred when handling receipt for message with ID [{}]", messageId, e);
             reliabilityChecker.handleEbms3Exception(e, sentUserMessage);
         } finally {
-            reliabilityService.handleReliability(sentUserMessage, userMessageLog, reliabilityCheckSuccessful, null, request, responseResult, legConfiguration, null);
-            if (ReliabilityChecker.CheckResult.OK == reliabilityCheckSuccessful) {
-                final Boolean isTestMessage = sentUserMessage.isTestMessage();
-                LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
-                        sentUserMessage.getPartyInfo().getFromParty(), sentUserMessage.getPartyInfo().getToParty());
+            if(sentUserMessage != null) {
+                reliabilityService.handleReliability(sentUserMessage, userMessageLog, reliabilityCheckSuccessful, null, request, responseResult, legConfiguration, null);
+                if (ReliabilityChecker.CheckResult.OK == reliabilityCheckSuccessful) {
+                    final boolean isTestMessage = sentUserMessage.isTestMessage();
+                    LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
+                            sentUserMessage.getPartyInfo().getFromParty(), sentUserMessage.getPartyInfo().getToParty());
+                }
             }
         }
         return null;

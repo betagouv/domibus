@@ -110,7 +110,7 @@ public class FaultInHandler extends AbstractFaultHandler {
         return true;
     }
 
-    private EbMS3Exception getEBMS3Exception(Exception exception, String messageId) {
+    EbMS3Exception getEBMS3Exception(Exception exception, String messageId) {
         EbMS3Exception ebMS3Exception = null;
 
         final Throwable cause = exception.getCause();
