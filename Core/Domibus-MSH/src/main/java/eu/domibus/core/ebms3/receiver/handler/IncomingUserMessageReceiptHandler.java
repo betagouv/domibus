@@ -117,7 +117,12 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
             sentUserMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             if(sentUserMessage == null){
                 LOG.error("Couldn't find sent user message with message with ID [{}]", messageId);
-                return null;
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0066)
+                        .message("Couldn't find sent user message with message with ID [" + messageId + "]")
+                        .refToMessageId(messageId)
+                        .mshRole(MSHRole.SENDING)
+                        .build();
             }
             String pModeKey = pModeProvider.findUserMessageExchangeContext(sentUserMessage, MSHRole.SENDING).getPmodeKey();
             LOG.debug("PMode key found : {}", pModeKey);
