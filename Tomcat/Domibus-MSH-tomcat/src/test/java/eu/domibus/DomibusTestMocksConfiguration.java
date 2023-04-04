@@ -54,11 +54,11 @@ public class DomibusTestMocksConfiguration {
         return new ActiveMQQueue("domibus.notification.webservice");
     }
 
-    @Primary
-    @Bean
-    MSHDispatcher mshDispatcher() {
-        return Mockito.mock(MSHDispatcher.class);
-    }
+//    @Primary
+//    @Bean
+//    MSHDispatcher mshDispatcher() {
+//        return Mockito.mock(MSHDispatcher.class);
+//    }
 
     @Primary
     @Bean
