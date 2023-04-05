@@ -201,18 +201,8 @@
 
     <changeSet author="Razvan Cretu" id="EDELIVERY-10284">
         <addColumn tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
-            <column name="MESSAGE_ENTITY_ID" type="BIGINT">
-                <constraints nullable="true"/>
-            </column>
+            <column name="MESSAGE_ENTITY_ID" type="BIGINT" />
         </addColumn>
-
-        <sql>
-            UPDATE WS_PLUGIN_TB_BACKEND_MSG_LOG
-            SET MESSAGE_ENTITY_ID = ${default_id_pk}
-            WHERE MESSAGE_ENTITY_ID IS NULL
-        </sql>
-
-        <addNotNullConstraint columnDataType="BIGINT" columnName="MESSAGE_ENTITY_ID" tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG" />
     </changeSet>
 
     <changeSet author="Francois Gautier" id="EDELIVERY-10913">
