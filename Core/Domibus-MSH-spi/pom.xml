@@ -5,7 +5,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>eu.domibus</groupId>
-        <version>5.1-SNAPSHOT</version>
+        <version>5.1.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,6 +30,11 @@
         <dependency>
             <groupId>org.apache.wss4j</groupId>
             <artifactId>wss4j-ws-security-common</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-core</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

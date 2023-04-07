@@ -57,13 +57,17 @@ public interface DomibusPropertyMetadataManagerSPI {
 
     String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.sign.alias";
     String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.sign.password";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_TYPE = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.sign.type";
     String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.decrypt.alias";
     String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.decrypt.password";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_TYPE = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.decrypt.type";
 
     String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.sign.alias";
     String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.sign.password";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_TYPE = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.sign.type";
     String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.decrypt.alias";
     String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.decrypt.password";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_TYPE = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.decrypt.type";
 
     String DOMIBUS_SECURITY_TRUSTSTORE_LOCATION = DOMIBUS_SECURITY_TRUSTSTORE_PREFIX + "location";
     String DOMIBUS_SECURITY_TRUSTSTORE_TYPE = DOMIBUS_SECURITY_TRUSTSTORE_PREFIX + "type";
@@ -72,6 +76,9 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_CONSOLE_LOGIN_MAXIMUM_ATTEMPT = "domibus.console.login.maximum.attempt";
     String DOMIBUS_CONSOLE_LOGIN_SUSPENSION_TIME = "domibus.console.login.suspension.time";
     String DOMIBUS_CERTIFICATE_REVOCATION_OFFSET = "domibus.certificate.revocation.offset";
+    String DOMIBUS_CACHE_LOCATION = "domibus.cache.location";
+    String DOMIBUS_CRL_BY_URL_CACHE_ENABLED = "domibus.certificate.crlByUrl.cache.enabled";
+    String DOMIBUS_CRL_BY_CERT_CACHE_ENABLED = "domibus.certificate.crlByCert.cache.enabled";
     String DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS = "domibus.certificate.crl.excludedProtocols";
     String DOMIBUS_CERTIFICATE_CRL_HTTP_TIMEOUT = "domibus.certificate.crl.http.timeout";
     String DOMIBUS_PLUGIN_LOGIN_MAXIMUM_ATTEMPT = "domibus.plugin.login.maximum.attempt";
@@ -436,4 +443,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DISTRIBUTED_CACHE_PORT_COUNT = "domibus.cache.distributed.port.count";
     String DOMIBUS_DISTRIBUTED_CACHE_MEMBERS = "domibus.cache.distributed.members";
     //End distributed cache properties
+
+    String DOMIBUS_MESSAGE_TEST_DELIVERY = "domibus.message.test.notification";
 }
