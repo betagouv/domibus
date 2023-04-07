@@ -8,15 +8,13 @@ import eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.earchive.*;
-import eu.domibus.ext.domain.archive.BatchDTO;
-import eu.domibus.ext.domain.archive.ExportedBatchResultDTO;
-import eu.domibus.ext.domain.archive.ExportedBatchStatusType;
-import eu.domibus.ext.domain.archive.QueuedBatchResultDTO;
+import eu.domibus.ext.domain.archive.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,6 +51,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
     public static final String TEST_ENDPOINT_RESOURCE = "/ext/archive";
     public static final String TEST_ENDPOINT_QUEUED = TEST_ENDPOINT_RESOURCE + "/batches/queued";
     public static final String TEST_ENDPOINT_EXPORTED = TEST_ENDPOINT_RESOURCE + "/batches/exported";
+    public static final String TEST_ENDPOINT_NOT_ARCHIVED = TEST_ENDPOINT_RESOURCE + "/messages/not-archived";
     public static final String TEST_ENDPOINT_BATCH = TEST_ENDPOINT_RESOURCE + "/batches/{batchId}";
 
     public static final String TEST_ENDPOINT_BATCH_EXPORT = TEST_ENDPOINT_RESOURCE + "/batches/{batchId}/export";
@@ -267,6 +266,21 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         String content = result.getResponse().getContentAsString();
         assertEquals(10100L, Long.parseLong(content));
     }
+    @Test
+    @Transactional
+    public void notArchived() throws Exception {
+        // when
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_NOT_ARCHIVED)
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+        // then
+        String content = result.getResponse().getContentAsString();
+        NotArchivedMessagesResultDTO response = objectMapper.readValue(content, NotArchivedMessagesResultDTO.class);
+
+        assertEquals(8L, response.getMessages().size());
+    }
 
     @Test
     @Transactional
@@ -277,7 +291,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         mockMvc.perform(put(TEST_ENDPOINT_SANITY_DATE)
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf())
-                        .param("messageStartDate", resultDate + "")
+                        .param("messageStartDate", String.valueOf(resultDate ))
                 )
                 .andExpect(status().is2xxSuccessful());
 
@@ -314,7 +328,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         mockMvc.perform(put(TEST_ENDPOINT_CONTINUOUS_DATE)
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf())
-                        .param("messageStartDate", resultDate + "")
+                        .param("messageStartDate", String.valueOf(resultDate))
                 )
                 .andExpect(status().is2xxSuccessful());
 
@@ -337,7 +351,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_QUEUED)
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf())
-                        .param("lastCountRequests", lastCountRequests + "")
+                        .param("lastCountRequests", String.valueOf(lastCountRequests))
                         .param("requestType", "CONTINUOUS")
                 )
                 .andExpect(status().is2xxSuccessful())
@@ -373,8 +387,8 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_EXPORTED)
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf())
-                        .param("messageStartDate", messageStartDate + "")
-                        .param("messageEndDate", messageEndDate + "")
+                        .param("messageStartDate", String.valueOf(messageStartDate))
+                        .param("messageEndDate", String.valueOf(messageEndDate))
                 )
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
@@ -397,7 +411,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         assertEquals(batch3.getRequestType().name(), responseBatch.getRequestType().name());
         // test date formatting
         LOG.info(content);
-        assertThat(content, CoreMatchers.containsString("\"enqueuedTimestamp\":\"" + batch3.getDateRequested().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime()));
+        MatcherAssert.assertThat(content, CoreMatchers.containsString("\"enqueuedTimestamp\":\"" + batch3.getDateRequested().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime()));
     }
 
     @Test
@@ -405,12 +419,26 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
     public void testGetBatchMessageIdsNoResultFound() throws Exception {
         final String batchId = "0";
 
-        mockMvc.perform(MockMvcRequestBuilders.get(TEST_ENDPOINT_EXPORTED_BATCHID_MESSAGES, "batchId")
-                        .param("batchId", batchId)
+        mockMvc.perform(MockMvcRequestBuilders.get(TEST_ENDPOINT_EXPORTED_BATCHID_MESSAGES, batchId)
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf()))
                 .andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andReturn();
+    }
+    @Test
+    @Transactional
+    public void testGetBatchMessageIdsResultFound() throws Exception {
+
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_EXPORTED_BATCHID_MESSAGES, batch3.getBatchId())
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        ExportedBatchMessagesResultDTO response = objectMapper.readValue(content, ExportedBatchMessagesResultDTO.class);
+
+        assertEquals(1L, response.getMessages().size());
     }
 
     @Test
@@ -421,7 +449,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
 
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_QUEUED)
-                        .param("lastCountRequests", lastCountRequests + "")
+                        .param("lastCountRequests", String.valueOf(lastCountRequests))
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
