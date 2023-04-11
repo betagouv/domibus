@@ -1,5 +1,6 @@
 package eu.domibus.core.ebms3.sender;
 
+import eu.domibus.api.message.SignalMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.message.UserMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
@@ -100,6 +101,9 @@ public abstract class AbstractUserMessageSender implements MessageSender {
     @Autowired
     UserMessageLogDao userMessageLogDao;
 
+    @Autowired
+    SignalMessageSoapEnvelopeSpiDelegate signalMessageSoapEnvelopeSpiDelegate;
+
     @Override
     @Timer(clazz = AbstractUserMessageSender.class, value = "outgoing_user_message")
     @Counter(clazz = AbstractUserMessageSender.class, value = "outgoing_user_message")
@@ -149,7 +153,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
 
             Policy policy;
             try {
-                policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
+                policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
             } catch (final ConfigurationException e) {
                 throw EbMS3ExceptionBuilder.getInstance()
                         .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
@@ -187,6 +191,7 @@ public abstract class AbstractUserMessageSender implements MessageSender {
             String receiverUrl = pModeProvider.getReceiverPartyEndpoint(receiverParty, userMessageServiceHelper.getFinalRecipient(userMessage));
             requestSoapMessage = userMessageSoapEnvelopeSpiDelegate.beforeSigningAndEncryption(requestSoapMessage);
             responseSoapMessage = mshDispatcher.dispatch(requestSoapMessage, receiverUrl, policy, legConfiguration, pModeKey);
+            signalMessageSoapEnvelopeSpiDelegate.afterReceiving(responseSoapMessage);
 
             requestRawXMLMessage = soapUtil.getRawXMLMessage(requestSoapMessage);
             responseResult = responseHandler.verifyResponse(responseSoapMessage, messageId);

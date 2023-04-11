@@ -1,4 +1,4 @@
-package eu.domibus.core.util;
+package eu.domibus.core.crypto;
 
 
 import eu.domibus.api.security.SecurityProfile;
@@ -13,10 +13,9 @@ import org.apache.neethi.Policy;
 import org.apache.wss4j.policy.model.AlgorithmSuite;
 import org.springframework.stereotype.Service;
 
-
 /**
  * Provides services needed by the Security Profiles feature
- *
+ * @author Lucian FURCA
  * @since 5.1
  */
 @Service
@@ -36,7 +35,7 @@ public class SecurityProfileService {
     public boolean isSecurityPolicySet(LegConfiguration legConfiguration) {
         Policy policy;
         try {
-            policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
+            policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
         } catch (final ConfigurationException e) {
             String message = String.format("Error retrieving policy for leg [%s]", legConfiguration.getName());
             throw new ConfigurationException(message);
@@ -89,5 +88,13 @@ public class SecurityProfileService {
         }
         LOG.info("The following alias was determined for encrypting: [{}]", alias);
         return alias;
+    }
+
+    public CertificatePurpose extractCertificatePurpose(String alias) {
+        return CertificatePurpose.lookupByName(StringUtils.substringAfterLast(alias, "_").toUpperCase());
+    }
+
+    public SecurityProfile extractSecurityProfile(String alias) {
+        return SecurityProfile.lookupByName(StringUtils.substringAfterLast(StringUtils.substringBeforeLast(alias,"_"), "_").toUpperCase());
     }
 }

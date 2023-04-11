@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.CertificateException;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.certificate.CertificateHelper;
@@ -74,6 +75,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     protected final SecurityUtilImpl securityUtil;
 
+    protected final SecurityProfileValidatorService securityProfileValidatorService;
+
     private final KeystorePersistenceService keystorePersistenceService;
 
     private final CertificateHelper certificateHelper;
@@ -86,13 +89,17 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                                              DomibusCoreMapper coreMapper,
                                              DomainTaskExecutor domainTaskExecutor,
                                              SecurityUtilImpl securityUtil,
-                                             KeystorePersistenceService keystorePersistenceService, CertificateHelper certificateHelper, FileServiceUtil fileServiceUtil) {
+                                             SecurityProfileValidatorService securityProfileValidatorService,
+                                             KeystorePersistenceService keystorePersistenceService,
+                                             CertificateHelper certificateHelper,
+                                             FileServiceUtil fileServiceUtil) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.signalService = signalService;
         this.coreMapper = coreMapper;
         this.domainTaskExecutor = domainTaskExecutor;
         this.securityUtil = securityUtil;
+        this.securityProfileValidatorService = securityProfileValidatorService;
         this.keystorePersistenceService = keystorePersistenceService;
         this.certificateHelper = certificateHelper;
         this.fileServiceUtil = fileServiceUtil;
@@ -337,13 +344,13 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public synchronized void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
         replaceStore(storeContent, storeFileName, storePassword, DOMIBUS_TRUSTSTORE_NAME,
-                keystorePersistenceService::getTrustStorePersistenceInfo, this::reloadTrustStore);
+                keystorePersistenceService::getTrustStorePersistenceInfo, this::reloadTrustStore, this::validateTrustStoreCertificateTypes);
     }
 
     @Override
     public synchronized void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
         replaceStore(storeContent, storeFileName, storePassword, DOMIBUS_KEYSTORE_NAME,
-                keystorePersistenceService::getKeyStorePersistenceInfo, this::reloadKeyStore);
+                keystorePersistenceService::getKeyStorePersistenceInfo, this::reloadKeyStore, this::validateKeyStoreCertificateTypes);
     }
 
     @Override
@@ -438,11 +445,16 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     protected synchronized void replaceStore(byte[] storeContent, String storeFileName, String storePassword,
-                                             String storeName, Supplier<KeystorePersistenceInfo> persistenceInfoGetter, Runnable storeReloader) throws CryptoSpiException {
+                                             String storeName, Supplier<KeystorePersistenceInfo> persistenceInfoGetter,
+                                             Runnable storeReloader, Consumer<KeyStore> certificateTypeValidator) throws CryptoSpiException {
         boolean replaced;
         try {
             KeyStoreContentInfo storeContentInfo = certificateHelper.createStoreContentInfo(storeName, storeFileName, storeContent, storePassword);
             KeystorePersistenceInfo persistenceInfo = persistenceInfoGetter.get();
+
+            final KeyStore newStore = certificateService.loadStore(storeContentInfo);
+            certificateTypeValidator.accept(newStore);
+
             replaced = certificateService.replaceStore(storeContentInfo, persistenceInfo);
         } catch (CryptoException ex) {
             throw new CryptoSpiException(String.format("Error while replacing the store [%s] with content of the file named [%s].", storeName, storeFileName), ex);
@@ -456,9 +468,13 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         storeReloader.run();
     }
 
+    protected void validateTrustStoreCertificateTypes(KeyStore trustStore) {
+        securityProfileValidatorService.validateStoreCertificateTypes(securityProfileAliasConfigurations, trustStore, StoreType.TRUSTSTORE);
+    }
+
     protected void initTrustStore() {
         initStore(DOMIBUS_TRUSTSTORE_NAME, this::loadTrustStoreProperties, keystorePersistenceService::getTrustStorePersistenceInfo,
-                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setTrustStore(keyStore));
+                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setTrustStore(keyStore), this::validateTrustStoreCertificateTypes);
     }
 
     protected void loadTrustStoreProperties() {
@@ -491,21 +507,32 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         }
     }
 
+    protected void validateKeyStoreCertificateTypes(KeyStore keystore) {
+        securityProfileValidatorService.validateStoreCertificateTypes(securityProfileAliasConfigurations, keystore, StoreType.KEYSTORE);
+    }
+
     protected void initKeyStore() {
         initStore(DOMIBUS_KEYSTORE_NAME, this::loadKeyStoreProperties, keystorePersistenceService::getKeyStorePersistenceInfo,
-                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setKeyStore(keyStore));
+                (keyStore, profileConfiguration) -> profileConfiguration.getMerlin().setKeyStore(keyStore), this::validateKeyStoreCertificateTypes);
     }
 
     protected void initStore(String storeName, Runnable propertiesLoader, Supplier<KeystorePersistenceInfo> persistenceInfoGetter,
-                             BiConsumer<KeyStore, SecurityProfileAliasConfiguration> merlinStoreSetter) {
+                             BiConsumer<KeyStore, SecurityProfileAliasConfiguration> merlinStoreSetter, Consumer<KeyStore> certificateTypeValidator) {
         LOG.debug("Initializing the [{}] certificate provider for domain [{}]", storeName, domain);
 
         domainTaskExecutor.submit(() -> {
             propertiesLoader.run();
 
-            KeyStore trustStore = certificateService.getStore(persistenceInfoGetter.get());
+            KeyStore store = certificateService.getStore(persistenceInfoGetter.get());
+
+            try {
+                certificateTypeValidator.accept(store);
+            } catch (CertificateException e) {
+                LOG.error("Error validating store [{}]: {}", storeName, e.getMessage());
+            }
+
             securityProfileAliasConfigurations.forEach(
-                    profileConfiguration -> merlinStoreSetter.accept(trustStore, profileConfiguration));
+                    profileConfiguration -> merlinStoreSetter.accept(store, profileConfiguration));
         }, domain);
 
         LOG.debug("Finished initializing the [{}] certificate provider for domain [{}]", storeName, domain);
@@ -515,24 +542,38 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         final String aliasValue = domibusPropertyProvider.getProperty(domain, aliasProperty);
         final String passwordValue = domibusPropertyProvider.getProperty(domain, passwordProperty);
 
-        String desc = StringUtils.substringBefore(StringUtils.substringAfter(aliasProperty, "key.private."), "alias=");
+        String aliasDescription = StringUtils.substringBefore(StringUtils.substringAfter(aliasProperty, "key.private."), "alias=");
 
         if (StringUtils.isNotBlank(aliasValue) && StringUtils.isBlank(passwordValue)) {
             String message = String.format("The private key password corresponding to the alias=[%s] was not set for domain [%s]: ", aliasValue, domain);
             throw new ConfigurationException(message);
         }
+
+        checkIfAliasIsDuplicated(aliasValue, aliasDescription);
+
+        if (StringUtils.isNotBlank(aliasValue)) {
+            SecurityProfileAliasConfiguration profileAliasConfiguration = new SecurityProfileAliasConfiguration(aliasValue, passwordValue, new Merlin(), securityProfile, aliasDescription);
+            securityProfileAliasConfigurations.add(profileAliasConfiguration);
+        }
+    }
+
+    private void checkIfAliasIsDuplicated(String aliasValue, String aliasDescription) {
         Optional<SecurityProfileAliasConfiguration> existing = securityProfileAliasConfigurations.stream()
                 .filter(configuration -> configuration.getAlias().equalsIgnoreCase(aliasValue))
                 .findFirst();
         if (existing.isPresent()) {
-            String message = String.format("Keystore alias [%s] for [%s] already used on domain [%s] for [%s]. All RSA and ECC aliases (decrypt, sign) must be different from each other.",
-                    aliasValue, desc, domain, existing.get().getDescription());
+            String message = getDuplicateErrorMessage(aliasValue, aliasDescription, existing.get());
             throw new ConfigurationException(message);
         }
-        if (StringUtils.isNotBlank(aliasValue)) {
-            SecurityProfileAliasConfiguration profileAliasConfiguration = new SecurityProfileAliasConfiguration(aliasValue, passwordValue, new Merlin(), securityProfile, desc);
-            securityProfileAliasConfigurations.add(profileAliasConfiguration);
+    }
+
+    private String getDuplicateErrorMessage(String aliasValue, String aliasDescription, SecurityProfileAliasConfiguration profileConfiguration) {
+        if (securityProfileValidatorService.isLegacySingleAliasKeystoreDefined()) {
+            return String.format("Both legacy single keystore alias [%s] and security profile alias [%s] for [%s] are defined for domain: [%s]",
+                    aliasValue, profileConfiguration.getAlias(), aliasDescription, domain);
         }
+        return String.format("Keystore alias [%s] for [%s] already used on domain [%s] for [%s]. All RSA and ECC aliases (decrypt, sign) must be different from each other.",
+                aliasValue, aliasDescription, domain, profileConfiguration.getDescription());
     }
 
     protected void createSecurityProfileAliasConfigurations() {
@@ -540,10 +581,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         securityProfileAliasConfigurations.clear();
 
         //without Security Profiles
-        boolean isLegacySingleAliasKeystoreDefined = false;
-        if (domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS) != null) {
+        boolean legacySingleAliasKeystore  = securityProfileValidatorService.isLegacySingleAliasKeystoreDefined();
+        if (legacySingleAliasKeystore) {
             addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, null);
-            isLegacySingleAliasKeystoreDefined = true;
         }
 
         //RSA Profile
@@ -554,11 +594,15 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_PASSWORD, SecurityProfile.ECC);
         addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_PASSWORD, SecurityProfile.ECC);
 
-        if (isLegacySingleAliasKeystoreDefined && securityProfileAliasConfigurations.size() > 1) {
+        if (legacySingleAliasKeystore && securityProfileAliasConfigurations.size() > 1) {
             LOG.error("Both legacy single keystore alias and security profiles are defined for domain [{}]. Please define only legacy single keystore alias" +
                     " or security profiles.", domain);
 
             throw new ConfigurationException("Both legacy single keystore alias and security profiles are defined for domain: " + domain);
+        }
+
+        if (securityProfileAliasConfigurations.size() == 0) {
+            throw new ConfigurationException("No keystore alias defined for domain: " + domain);
         }
 
         LOG.debug("Created security profile alias configurations for domain [{}]", domain);
@@ -618,26 +662,28 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     private synchronized void reloadKeyStore() throws CryptoSpiException {
         reloadStore(keystorePersistenceService::getKeyStorePersistenceInfo, this::getKeyStore, this::loadKeyStoreProperties,
                 (keyStore, securityProfileConfiguration) -> securityProfileConfiguration.getMerlin().setKeyStore(keyStore),
-                signalService::signalKeyStoreUpdate);
+                signalService::signalKeyStoreUpdate, this::validateKeyStoreCertificateTypes);
     }
 
     private synchronized void reloadTrustStore() throws CryptoSpiException {
         reloadStore(keystorePersistenceService::getTrustStorePersistenceInfo, this::getTrustStore, this::loadTrustStoreProperties,
                 (keyStore, securityProfileConfiguration) -> securityProfileConfiguration.getMerlin().setTrustStore(keyStore),
-                signalService::signalTrustStoreUpdate);
+                signalService::signalTrustStoreUpdate, this::validateTrustStoreCertificateTypes);
     }
 
     private synchronized void reloadStore(Supplier<KeystorePersistenceInfo> persistenceGetter,
                                           Supplier<KeyStore> storeGetter,
                                           Runnable storePropertiesLoader,
                                           BiConsumer<KeyStore, SecurityProfileAliasConfiguration> storeSetter,
-                                          Consumer<Domain> signaller) throws CryptoSpiException {
+                                          Consumer<Domain> signaller,
+                                          Consumer<KeyStore> certificateTypeValidator) throws CryptoSpiException {
         KeystorePersistenceInfo persistenceInfo = persistenceGetter.get();
         String storeLocation = persistenceInfo.getFileLocation();
         try {
             KeyStore currentStore = storeGetter.get();
             final KeyStore newStore = certificateService.getStore(persistenceInfo);
             String storeName = persistenceInfo.getName();
+            certificateTypeValidator.accept(newStore);
             if (securityUtil.areKeystoresIdentical(currentStore, newStore)) {
                 LOG.info("[{}] on disk and in memory are identical, so no reloading.", storeName);
                 return;
