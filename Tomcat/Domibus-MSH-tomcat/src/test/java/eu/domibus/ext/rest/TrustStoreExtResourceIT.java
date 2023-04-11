@@ -34,14 +34,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Pay attention with using gateway_truststore.jks because it will be overridden by 'uploadTruststore'
  */
 @EnableMethodSecurity
-public class TLSTrustStoreExtResourceIT extends AbstractIT {
+public class TrustStoreExtResourceIT extends AbstractIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSTrustStoreExtResourceIT.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(TrustStoreExtResourceIT.class);
 
     @Autowired
-    private TLSTrustStoreExtResource tlsTrustStoreExtResource;
+    private TruststoreExtResource truststoreExtResource;
 
-    public static final String TEST_ENDPOINT_RESOURCE = "/ext/tlstruststore";
+    public static final String TEST_ENDPOINT_RESOURCE = "/ext/truststore";
     public static final String TEST_ENDPOINT_DOWNLOAD = TEST_ENDPOINT_RESOURCE + "/download";
     public static final String TEST_ENDPOINT_ADD = TEST_ENDPOINT_RESOURCE + "/entries";
     public static final String TEST_ENDPOINT_DELETE = TEST_ENDPOINT_RESOURCE + "/entries/{alias}";
@@ -50,7 +50,7 @@ public class TLSTrustStoreExtResourceIT extends AbstractIT {
 
     @Before
     public void setUp() throws Exception {
-        mockMvc = MockMvcBuilders.standaloneSetup(tlsTrustStoreExtResource).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(truststoreExtResource).build();
     }
 
     @Test
@@ -79,7 +79,7 @@ public class TLSTrustStoreExtResourceIT extends AbstractIT {
         MvcResult result;
         result = uploadTrustStore("keystores/gateway_truststore2.jks", "gateway_truststore2.jks");
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals("TLS truststore file has been successfully replaced.", content);
+        Assert.assertEquals("Truststore file has been successfully replaced.", content);
 
     }
 
@@ -133,7 +133,7 @@ public class TLSTrustStoreExtResourceIT extends AbstractIT {
                     .andExpect(status().is2xxSuccessful())
                     .andReturn();
             String content = result.getResponse().getContentAsString();
-            Assert.assertEquals("Certificate [red_gw] has been successfully added to the TLS truststore.", content);
+            Assert.assertEquals("Certificate [red_gw] has been successfully added to the truststore.", content);
         }
     }
 
@@ -154,8 +154,7 @@ public class TLSTrustStoreExtResourceIT extends AbstractIT {
                     .andExpect(status().is2xxSuccessful())
                     .andReturn();
             String content = result.getResponse().getContentAsString();
-            Assert.assertEquals("Certificate [blue_gw] has been successfully removed from the [TLS.truststore].", content);
+            Assert.assertEquals("Certificate [blue_gw] has been successfully removed from the truststore.", content);
         }
     }
-
 }

@@ -34,6 +34,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -293,4 +294,7 @@ public abstract class AbstractIT {
         }
     }
 
+    public static MockMultipartFile getMultiPartFile(String originalFilename, InputStream resourceAsStream) throws IOException {
+        return new MockMultipartFile("file", originalFilename, "octetstream", IOUtils.toByteArray(resourceAsStream));
+    }
 }
