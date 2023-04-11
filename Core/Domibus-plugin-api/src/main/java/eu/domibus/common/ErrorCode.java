@@ -185,8 +185,8 @@ public enum ErrorCode {
         EBMS_0054(OriginErrorCode.EBMS_0054, "OutOfStorageSpace", SEVERITY_FAILURE, Categories.UNPACKAGING),
         EBMS_0055(OriginErrorCode.EBMS_0055, "DecompressionError", SEVERITY_FAILURE, Categories.PROCESSING),
         EBMS_0060(OriginErrorCode.EBMS_0060, "ResponseUsing-AlternateMEP", SEVERITY_WARNING, Categories.PROCESSING),
-        EBMS_0065(OriginErrorCode.EBMS_0065, "Invalid Xml", SEVERITY_FAILURE, Categories.PROCESSING),
-        EBMS_0066(OriginErrorCode.EBMS_0066, "Missing message with ID", SEVERITY_FAILURE, Categories.PROCESSING);
+        EBMS_0065(OriginErrorCode.EBMS_0065, "InvalidXml", SEVERITY_FAILURE, Categories.PROCESSING),
+        EBMS_0066(OriginErrorCode.EBMS_0066, "MissingMessageId", SEVERITY_FAILURE, Categories.PROCESSING);
 
         private final OriginErrorCode code;
 

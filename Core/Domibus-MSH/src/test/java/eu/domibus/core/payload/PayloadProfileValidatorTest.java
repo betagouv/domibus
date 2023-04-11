@@ -24,6 +24,7 @@ import static eu.domibus.api.model.Property.MIME_TYPE;
 import static eu.domibus.messaging.MessageConstants.COMPRESSION_PROPERTY_KEY;
 import static eu.domibus.messaging.MessageConstants.COMPRESSION_PROPERTY_VALUE;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(JMockit.class)
 public class PayloadProfileValidatorTest {
     private static final String MIME_TYPE_VALUE = "gzip";
@@ -46,9 +47,7 @@ public class PayloadProfileValidatorTest {
     public void validateCompressPartInfoUnexpectedCompressionType() throws EbMS3Exception {
         new Expectations() {{
             pModeProvider.getLegConfiguration(PMODE_KEY);
-            LegConfiguration legConfiguration = new LegConfiguration();
-            legConfiguration.setCompressPayloads(true);
-            result = legConfiguration;
+            result = getLegConfiguration(null);
         }};
         PartInfo partInfo = new PartInfo();
         PartProperty property = new PartProperty();
@@ -63,9 +62,7 @@ public class PayloadProfileValidatorTest {
     public void validateCompressPartInfoMissingMimeType() throws EbMS3Exception {
         new Expectations() {{
             pModeProvider.getLegConfiguration(PMODE_KEY);
-            LegConfiguration legConfiguration = new LegConfiguration();
-            legConfiguration.setCompressPayloads(true);
-            result = legConfiguration;
+            result = getLegConfiguration(null);
         }};
         PartInfo partInfo = new PartInfo();
         PartProperty property = new PartProperty();
@@ -77,16 +74,12 @@ public class PayloadProfileValidatorTest {
     }
 
     @Test(expected = EbMS3Exception.class)
-    public void validatePayloadProfileNotMatchingCid(@Mocked PayloadProfile payloadProfile) throws EbMS3Exception {
+    public void validatePayloadProfileNotMatchingCid(@Injectable PayloadProfile payloadProfile) throws EbMS3Exception {
         new Expectations() {{
             pModeProvider.getLegConfiguration(PMODE_KEY);
-            LegConfiguration legConfiguration = new LegConfiguration();
-            legConfiguration.setCompressPayloads(true);
-            legConfiguration.setPayloadProfile(payloadProfile);
-            result = legConfiguration;
+            result = getLegConfiguration(payloadProfile);
 
-            Payload payload = new Payload();
-            payload.setCid(PART_HREF);
+            Payload payload =  getPayload("", "");
             payloadProfile.getPayloads();
             result = Collections.singleton(payload);
         }};
@@ -106,20 +99,22 @@ public class PayloadProfileValidatorTest {
     public void validatePayloadProfileNotMatchingMimeType(@Mocked PayloadProfile payloadProfile) throws EbMS3Exception {
         new Expectations() {{
             pModeProvider.getLegConfiguration(PMODE_KEY);
-            LegConfiguration legConfiguration = new LegConfiguration();
-            legConfiguration.setCompressPayloads(true);
-            legConfiguration.setPayloadProfile(payloadProfile);
-            result = legConfiguration;
+            result = getLegConfiguration(payloadProfile);
 
             payloadProfile.getPayloads();
-            Payload payload = new Payload();
-            payload.setCid(PART_HREF);
-            payload.setMimeType("otherMimeType");
+            Payload payload =  getPayload("", "otherMimeType");
             result = Collections.singleton(payload);
         }};
         PartInfo partInfo = buildPartInfo(PART_HREF);
 
         payloadProfileValidator.validate(userMessage, Collections.singletonList(partInfo), PMODE_KEY);
+    }
+
+    private static LegConfiguration getLegConfiguration(PayloadProfile payloadProfile) {
+        LegConfiguration legConfiguration = new LegConfiguration();
+        legConfiguration.setCompressPayloads(true);
+        legConfiguration.setPayloadProfile(payloadProfile);
+        return legConfiguration;
     }
 
     private static PartInfo buildPartInfo(String partHref) {
@@ -139,18 +134,11 @@ public class PayloadProfileValidatorTest {
     public void validatePayloadProfileRequiredLegPayloadIsMissing(@Mocked PayloadProfile payloadProfile) throws EbMS3Exception {
         new Expectations() {{
             pModeProvider.getLegConfiguration(PMODE_KEY);
-            LegConfiguration legConfiguration = new LegConfiguration();
-            legConfiguration.setCompressPayloads(true);
-            legConfiguration.setPayloadProfile(payloadProfile);
-            result = legConfiguration;
+            result = getLegConfiguration(payloadProfile);
 
             payloadProfile.getPayloads();
-            Payload payload = new Payload();
-            payload.setCid(PART_HREF);
-            payload.setMimeType(MIME_TYPE_VALUE);
-            payload.setName("mimeTypePayload");
-            Payload requiredPartInfo = new Payload();
-            requiredPartInfo.setName("requiredPayload");
+            Payload payload =  getPayload("mimeTypePayload", MIME_TYPE_VALUE);
+            Payload requiredPartInfo = getPayload("requiredPayload", "");
             requiredPartInfo.setRequired(true);
             result = new HashSet<>(Arrays.asList(payload, requiredPartInfo));
 
@@ -164,18 +152,11 @@ public class PayloadProfileValidatorTest {
     public void validatePayloadProfileNotRequiredLegPayloadIsMissing(@Mocked PayloadProfile payloadProfile) throws EbMS3Exception {
         new Expectations() {{
             pModeProvider.getLegConfiguration(PMODE_KEY);
-            LegConfiguration legConfiguration = new LegConfiguration();
-            legConfiguration.setCompressPayloads(true);
-            legConfiguration.setPayloadProfile(payloadProfile);
-            result = legConfiguration;
+            result = getLegConfiguration(payloadProfile);
 
             payloadProfile.getPayloads();
-            Payload payload = new Payload();
-            payload.setCid(PART_HREF);
-            payload.setMimeType(MIME_TYPE_VALUE);
-            payload.setName("mimeTypePayload");
-            Payload requiredPartInfo = new Payload();
-            requiredPartInfo.setName("requiredPayload");
+            Payload payload =  getPayload("mimeTypePayload", MIME_TYPE_VALUE);
+            Payload requiredPartInfo = getPayload("requiredPayload", "");
             requiredPartInfo.setRequired(false);
             result = new HashSet<>(Arrays.asList(payload, requiredPartInfo));
 
@@ -186,23 +167,26 @@ public class PayloadProfileValidatorTest {
     }
 
     @Test
-    public void validatePayloadProfileNoPayloadIsMissing(@Mocked PayloadProfile payloadProfile) throws EbMS3Exception, NoSuchFieldException {
+    public void validatePayloadProfileNoPayloadIsMissing(@Mocked PayloadProfile payloadProfile) throws EbMS3Exception {
         new Expectations() {{
             pModeProvider.getLegConfiguration(PMODE_KEY);
-            LegConfiguration legConfiguration = new LegConfiguration();
-            legConfiguration.setCompressPayloads(true);
-            legConfiguration.setPayloadProfile(payloadProfile);
-            result = legConfiguration;
+            result = getLegConfiguration(payloadProfile);
 
             payloadProfile.getPayloads();
-            Payload payload = new Payload();
-            payload.setCid(PART_HREF);
-            payload.setMimeType(MIME_TYPE_VALUE);
+            Payload payload =  getPayload("", MIME_TYPE_VALUE);
             result = Collections.singleton(payload);
         }};
         PartInfo partInfo = buildPartInfo(PART_HREF);
 
         payloadProfileValidator.validate(userMessage, Collections.singletonList(partInfo), PMODE_KEY);
+    }
+
+    private static Payload getPayload(String name, String mimeType) {
+        Payload payload = new Payload();
+        payload.setName(name);
+        payload.setCid(PART_HREF);
+        payload.setMimeType(mimeType);
+        return payload;
     }
 
 }

@@ -116,10 +116,10 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         try {
             sentUserMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             if(sentUserMessage == null){
-                LOG.error("Couldn't find sent user message with message with ID [{}]", messageId);
+                LOG.error("Couldn't find sent user message with message ID [{}]", messageId);
                 throw EbMS3ExceptionBuilder.getInstance()
                         .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0066)
-                        .message("Couldn't find sent user message with message with ID [" + messageId + "]")
+                        .message("Couldn't find sent user message with message ID [" + messageId + "]")
                         .refToMessageId(messageId)
                         .mshRole(MSHRole.SENDING)
                         .build();
