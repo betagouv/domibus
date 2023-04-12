@@ -1485,10 +1485,6 @@
                             <destFile>${sonar.jacoco.reportPath}</destFile>
                             <propertyName>surefire.argLine</propertyName>
                             <append>true</append>
-                            <excludes>
-                                <exclude>eu/domibus/archive/client/webhook/**/*</exclude>
-                                <exclude>eu/domibus/test/**/*</exclude>
-                            </excludes>
                         </configuration>
                     </execution>
 
@@ -1503,10 +1499,6 @@
                             <destFile>${sonar.jacoco.itReportPath}</destFile>
                             <propertyName>failsafeArgLine</propertyName>
                             <append>true</append>
-                            <excludes>
-                                <exclude>eu/domibus/archive/client/webhook/**/*</exclude>
-                                <exclude>eu/domibus/test/**/*</exclude>
-                            </excludes>
                         </configuration>
                     </execution>
                 </executions>
