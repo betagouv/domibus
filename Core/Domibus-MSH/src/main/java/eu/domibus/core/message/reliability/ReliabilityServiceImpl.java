@@ -1,12 +1,18 @@
 package eu.domibus.core.message.reliability;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
+import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.CertificateException;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.crypto.DomainCryptoServiceFactory;
+import eu.domibus.core.crypto.SecurityProfileService;
+import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
@@ -16,6 +22,7 @@ import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.message.splitandjoin.SplitAndJoinService;
+import eu.domibus.core.party.PartyDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -26,6 +33,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
+import java.security.KeyStoreException;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,6 +89,39 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     @Autowired
     protected NonRepudiationService nonRepudiationService;
 
+    @Autowired
+    protected SecurityProfileService securityProfileService;
+
+    @Autowired
+    protected DomainCryptoServiceFactory domainCryptoServiceFactory;
+
+    @Autowired
+    protected PartyDao partyDao;
+
+    protected DomainCryptoService domainCryptoService;
+
+    @Autowired
+    protected DomainContextProvider domainContextProvider;
+
+    private void checkIfSigningCertificateIsInTheTrustStore(final LegConfiguration legConfiguration, String partyName) {
+        if (domainCryptoService == null) {
+            domainCryptoService = domainCryptoServiceFactory.domainCryptoService(domainContextProvider.getCurrentDomain());
+        }
+
+        String senderName = partyDao.findById(partyName).getName();
+        String aliasForSigning = securityProfileService.getAliasForSigning(legConfiguration, senderName);
+
+        try {
+            X509Certificate cert = domainCryptoService.getCertificateFromTrustStore(aliasForSigning);
+            if (cert == null) {
+                String exceptionMessage = String.format("Signing certificate for sender [%s] could not be found in the TrustStore", senderName);
+                throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
+            }
+        } catch (KeyStoreException e) {
+            String exceptionMessage = String.format("Failed to get signing certificate for sender [%s] from truststore: %s", senderName, e.getMessage());
+            throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -89,7 +131,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     public void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckResult, String requestRawXMLMessage, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
         LOG.debug("Handling reliability");
 
-        final Boolean isTestMessage = userMessage.isTestMessage();
+        checkIfSigningCertificateIsInTheTrustStore(legConfiguration, String.valueOf(userMessage.getPartyInfo().getToParty()));
 
         switch (reliabilityCheckResult) {
             case OK:
