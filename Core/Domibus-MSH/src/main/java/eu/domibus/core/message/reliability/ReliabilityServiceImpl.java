@@ -6,13 +6,13 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.CertificateException;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.crypto.DomainCryptoServiceFactory;
 import eu.domibus.core.crypto.SecurityProfileService;
-import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
@@ -98,21 +98,19 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     @Autowired
     protected PartyDao partyDao;
 
-    protected DomainCryptoService domainCryptoService;
-
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
-    private void checkIfSigningCertificateIsInTheTrustStore(final LegConfiguration legConfiguration, String partyName) {
-        if (domainCryptoService == null) {
-            domainCryptoService = domainCryptoServiceFactory.domainCryptoService(domainContextProvider.getCurrentDomain());
-        }
+    @Autowired
+    protected MultiDomainCryptoService multiDomainCertificateProvider;
 
+
+    private void checkIfSigningCertificateIsInTheTrustStore(final LegConfiguration legConfiguration, String partyName) {
         String senderName = partyDao.findById(partyName).getName();
         String aliasForSigning = securityProfileService.getAliasForSigning(legConfiguration, senderName);
 
         try {
-            X509Certificate cert = domainCryptoService.getCertificateFromTrustStore(aliasForSigning);
+            X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainContextProvider.getCurrentDomain(), aliasForSigning);
             if (cert == null) {
                 String exceptionMessage = String.format("Signing certificate for sender [%s] could not be found in the TrustStore", senderName);
                 throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
