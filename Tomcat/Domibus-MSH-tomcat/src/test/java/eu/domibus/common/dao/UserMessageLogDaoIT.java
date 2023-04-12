@@ -744,6 +744,6 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         assertEquals(2, msgs.size());
 
-        messageDaoTestUtil.clear();
+        //messageDaoTestUtil.clear();
     }
 }
