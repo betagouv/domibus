@@ -7,7 +7,6 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.MpcDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
@@ -38,7 +37,8 @@ import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Ion Perpegel
@@ -674,9 +674,9 @@ public class UserMessageLogDaoIT extends AbstractIT {
         assertEquals(5, backend.size());
     }
 
-    @Ignore
     @Test
-    public void findMessagesToDeleteInFinalStatus() {
+    public void findMessagesToDeleteInFinalStatus() throws InterruptedException {
+        Thread.sleep(30000);
         messageDaoTestUtil.clear();
 
         String originalUser = "pluginUser1";
@@ -709,9 +709,10 @@ public class UserMessageLogDaoIT extends AbstractIT {
         assertEquals(2, msgs.size());
     }
 
-    @Ignore
+
     @Test
-    public void findMessagesToDeleteNotInFinalStatus() {
+    public void findMessagesToDeleteNotInFinalStatus() throws InterruptedException {
+        Thread.sleep(30000);
         messageDaoTestUtil.clear();
 
         String originalUser = "pluginUser1";
