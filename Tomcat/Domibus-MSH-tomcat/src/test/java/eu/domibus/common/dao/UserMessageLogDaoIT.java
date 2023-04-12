@@ -677,8 +677,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findMessagesToDeleteInFinalStatus() throws InterruptedException {
-      //  Thread.sleep(30000);
-       // messageDaoTestUtil.clear();
+        Thread.sleep(30000);
 
         String originalUser = "pluginUser1";
         String originalSender = originalUser;
@@ -714,8 +713,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findMessagesToDeleteNotInFinalStatus() throws InterruptedException {
-       // Thread.sleep(30000);
-      //  messageDaoTestUtil.clear();
+        Thread.sleep(30000);
 
         String originalUser = "pluginUser1";
         String originalSender = originalUser;
@@ -745,5 +743,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         List<UserMessageLogDto> msgs = userMessageLogDao.findMessagesToDeleteNotInFinalStatus(originalUser, startDate, endDate);
 
         assertEquals(2, msgs.size());
+
+        messageDaoTestUtil.clear();
     }
 }
