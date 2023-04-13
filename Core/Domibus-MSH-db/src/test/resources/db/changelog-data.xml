@@ -244,6 +244,7 @@
             <column name="received" valueComputed="${now}"/>
             <column name="send_attempts" value="0"/>
             <column name="send_attempts_max" value="0"/>
+            <column name="backend" value="wsPlugin"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

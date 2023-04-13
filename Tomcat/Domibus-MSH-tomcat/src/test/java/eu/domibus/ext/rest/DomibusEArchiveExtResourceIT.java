@@ -279,7 +279,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         String content = result.getResponse().getContentAsString();
         NotArchivedMessagesResultDTO response = objectMapper.readValue(content, NotArchivedMessagesResultDTO.class);
 
-        assertEquals(8L, response.getMessages().size());
+        assertEquals(9L, response.getMessages().size());
     }
 
     @Test
