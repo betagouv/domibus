@@ -743,7 +743,5 @@ public class UserMessageLogDaoIT extends AbstractIT {
         List<UserMessageLogDto> msgs = userMessageLogDao.findMessagesToDeleteNotInFinalStatus(originalUser, startDate, endDate);
 
         assertEquals(2, msgs.size());
-
-        //messageDaoTestUtil.clear();
     }
 }
