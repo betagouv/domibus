@@ -99,7 +99,9 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
                 LOG.warn("MessageId [{}] not found", messageId);
             }
         }
-        userMessageDefaultService.deleteMessages(allMessages);
+        if (allMessages.size() > 0) {
+            userMessageDefaultService.deleteMessages(allMessages);
+        }
     }
 
     /**
