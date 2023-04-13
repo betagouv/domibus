@@ -143,7 +143,7 @@ public class MshWebServiceTestIT extends AbstractIT {
         final String secondReceipt = secondSignalMessage.getReceipt().getAny().iterator().next();
         assertEquals(firstReceipt, secondReceipt);
 
-        messageRetentionService.deleteAllMessages();
+        messageRetentionService.deleteAllMessages(messageId);
     }
 
     @Transactional

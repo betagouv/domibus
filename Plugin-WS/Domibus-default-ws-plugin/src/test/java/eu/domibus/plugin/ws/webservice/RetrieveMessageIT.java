@@ -21,8 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.domibus.plugin.ws.webservice.*;
-
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Holder;
 import java.io.IOException;
@@ -98,7 +96,7 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         assertEquals(messageId, userMessage.getMessageInfo().getMessageId());
         assertEquals(userMessage.getMessageProperties().getProperty().size(), 2);
 
-        messageRetentionDefaultService.deleteAllMessages();
+        messageRetentionDefaultService.deleteAllMessages(messageId);
     }
 
     private void retrieveMessageFail(String messageId, String errorMessage) throws RetrieveMessageFault {

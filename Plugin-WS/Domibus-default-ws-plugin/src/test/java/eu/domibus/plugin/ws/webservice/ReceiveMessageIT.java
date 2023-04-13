@@ -20,7 +20,6 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Dispatch;
 import java.io.IOException;
-import java.security.cert.X509Certificate;
 import java.util.UUID;
 
 
@@ -76,7 +75,7 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
 
         waitUntilMessageIsReceived(messageId);
 
-        messageRetentionDefaultService.deleteAllMessages();
+        messageRetentionDefaultService.deleteAllMessages(messageId);
     }
 
     @Test
@@ -96,7 +95,7 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
 
         waitUntilMessageIsReceived(messageId);
 
-        messageRetentionDefaultService.deleteAllMessages();
+        messageRetentionDefaultService.deleteAllMessages(messageId);
 
         Thread.sleep(1000);
 
@@ -111,7 +110,7 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
         mshWebserviceTest.invoke(soapMessage);
         waitUntilMessageIsReceived(messageId);
 
-        messageRetentionDefaultService.deleteAllMessages();
+        messageRetentionDefaultService.deleteAllMessages(messageId);
     }
 
 }

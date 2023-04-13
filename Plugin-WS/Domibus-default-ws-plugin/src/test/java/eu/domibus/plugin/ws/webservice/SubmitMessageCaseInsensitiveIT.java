@@ -8,15 +8,15 @@ import eu.domibus.plugin.ws.generated.body.SubmitRequest;
 import eu.domibus.plugin.ws.generated.body.SubmitResponse;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author venugar
@@ -58,6 +58,6 @@ public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
         //message will fail as the response message does not contain the right security details(signature, etc)
         waitUntilMessageIsInWaitingForRetry(messageId);
 
-        messageRetentionService.deleteAllMessages();
+        messageRetentionService.deleteAllMessages(message_id.getRight(), messageId);
     }
 }

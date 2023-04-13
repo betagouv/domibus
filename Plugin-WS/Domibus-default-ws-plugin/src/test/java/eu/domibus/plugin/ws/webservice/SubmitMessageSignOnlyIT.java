@@ -12,7 +12,6 @@ import eu.domibus.plugin.ws.generated.body.SubmitResponse;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -73,6 +72,6 @@ public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
                 .withRequestBody(containing("DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\""))
                 .withHeader("Content-Type", notMatching("application/soap+xml")));
 
-        messageRetentionDefaultService.deleteAllMessages();
+        messageRetentionDefaultService.deleteAllMessages(msgId);
     }
 }

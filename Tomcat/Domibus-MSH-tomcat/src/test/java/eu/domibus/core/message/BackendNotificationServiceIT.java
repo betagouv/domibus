@@ -229,8 +229,10 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     @Test
     public void testNotifyMessageDeleted() throws MessagingProcessingException {
         String messageId = itTestsService.sendMessageWithStatus(MessageStatus.ACKNOWLEDGED);
+        Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
+                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
-        deleteAllMessages();
+        deleteAllMessages(messageId);
 
         MessageDeletedBatchEvent messageDeletedBatchEvent = backendConnector.getMessageDeletedBatchEvent();
         assertEquals(1, messageDeletedBatchEvent.getMessageDeletedEvents().size());
@@ -278,7 +280,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
         Assert.assertNotNull(byMessageId);
 
-        deleteAllMessages();
+        deleteAllMessages(messageId);
     }
 
     @Test
@@ -317,7 +319,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         assertPropertiesPresentInEvent(messageSendFailedEvent);
 
-        deleteAllMessages();
+        deleteAllMessages(messageId);
     }
 
 

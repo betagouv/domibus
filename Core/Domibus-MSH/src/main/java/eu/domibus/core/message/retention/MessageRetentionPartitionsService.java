@@ -94,7 +94,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     }
 
     @Override
-    public void deleteAllMessages() {
+    public void deleteAllMessages(String... messageIds) {
         throw new DomibusCoreException("Deleting all messages not supported");
     }
 

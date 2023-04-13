@@ -10,6 +10,7 @@ import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.metrics.Counter;
@@ -69,6 +70,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
     @Autowired
     private UserMessageServiceHelper userMessageServiceHelper;
+    @Autowired
+    private UserMessageDefaultServiceHelper userMessageDefaultServiceHelper;
 
     @Autowired
     protected PartInfoService partInfoService;
@@ -83,8 +86,19 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
     @Transactional
     @Override
-    public void deleteAllMessages() {
-        final List<UserMessageLogDto> allMessages = userMessageLogDao.getAllMessages();
+    public void deleteAllMessages(String... messageIds) {
+        List<UserMessageLogDto> allMessages = new ArrayList<>();
+        for (String messageId : messageIds) {
+            UserMessageLog byMessageId = userMessageLogDao.findByMessageId(messageId);
+            if (byMessageId != null) {
+
+                UserMessageLogDto userMessageLogDto = new UserMessageLogDto(byMessageId.getUserMessage().getEntityId(), byMessageId.getUserMessage().getMessageId(), byMessageId.getBackend(), null);
+                userMessageLogDto.setProperties(userMessageDefaultServiceHelper.getProperties(byMessageId.getUserMessage()));
+                allMessages.add(userMessageLogDto);
+            } else {
+                LOG.warn("MessageId [{}] not found", messageId);
+            }
+        }
         userMessageDefaultService.deleteMessages(allMessages);
     }
 
