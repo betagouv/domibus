@@ -30,6 +30,13 @@ public interface ReliabilityService {
     void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, String requestRawXMLMessage, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
 
     /**
+     * Checks if the signing certificate of the acknowledgement message sender is in the TrustStore
+     * @param legConfiguration - the legConfiguration
+     * @param userMessage - the UserMessage that was sent
+     */
+    void checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(final LegConfiguration legConfiguration, UserMessage userMessage);
+
+    /**
      * Update the connectivity status of a remote party
      * @param status - the state of connectivity
      * @param partyName - the name of the party

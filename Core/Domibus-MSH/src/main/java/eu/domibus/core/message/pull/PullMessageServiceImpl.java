@@ -16,6 +16,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
+import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -30,9 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.Date;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_DYNAMIC_INITIATOR;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_MULTIPLE_LEGS;
 
 @Service
 public class PullMessageServiceImpl implements PullMessageService {
@@ -83,6 +81,8 @@ public class PullMessageServiceImpl implements PullMessageService {
     @Autowired
     protected UserMessageDao userMessageDao;
 
+    @Autowired
+    protected ReliabilityService reliabilityService;
 
     @Autowired
     private ReprogrammableService reprogrammableService;
@@ -102,7 +102,6 @@ public class PullMessageServiceImpl implements PullMessageService {
             LOG.warn("Message [{}] could not acquire lock when updating status, it has been handled by another process.", messageId);
             return;
         }
-
 
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         final int sendAttempts = userMessageLog.getSendAttempts() + 1;
@@ -139,6 +138,8 @@ public class PullMessageServiceImpl implements PullMessageService {
             UserMessage userMessage) {
         final String messageId = userMessage.getMessageId();
         LOG.debug("[releaseLockAfterReceipt]:Message:[{}] release lock]", messageId);
+
+        reliabilityService.checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(legConfiguration, userMessage);
 
         switch (reliabilityCheckSuccessful) {
             case OK:

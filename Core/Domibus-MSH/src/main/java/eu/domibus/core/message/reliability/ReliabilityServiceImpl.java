@@ -106,7 +106,11 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     @Autowired
     protected PModeProvider pModeProvider;
 
-    private void checkIfSigningCertificateIsInTheTrustStore(final LegConfiguration legConfiguration, UserMessage userMessage) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(final LegConfiguration legConfiguration, UserMessage userMessage) {
         String acknowledgementSenderName;
         try {
             acknowledgementSenderName = pModeProvider.findReceiverParty(userMessage);
@@ -137,7 +141,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     public void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckResult, String requestRawXMLMessage, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
         LOG.debug("Handling reliability");
 
-        checkIfSigningCertificateIsInTheTrustStore(legConfiguration, userMessage);
+        checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(legConfiguration, userMessage);
 
         switch (reliabilityCheckResult) {
             case OK:
