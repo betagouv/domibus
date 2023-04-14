@@ -1,17 +1,26 @@
 package eu.domibus.core.crypto;
 
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.exception.ConfigurationException;
+import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.neethi.Policy;
 import org.apache.wss4j.policy.model.AlgorithmSuite;
 import org.springframework.stereotype.Service;
+
+import java.security.KeyStoreException;
+import java.security.cert.X509Certificate;
 
 /**
  * Provides services needed by the Security Profiles feature
@@ -27,9 +36,18 @@ public class SecurityProfileService {
 
     protected final PolicyService policyService;
 
-    public SecurityProfileService(DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader, PolicyService policyService) {
+    protected final PModeProvider pModeProvider;
+
+    protected final MultiDomainCryptoService multiDomainCertificateProvider;
+
+    protected final DomainContextProvider domainContextProvider;
+
+    public SecurityProfileService(DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader, PolicyService policyService, PModeProvider pModeProvider, MultiDomainCryptoService multiDomainCertificateProvider, DomainContextProvider domainContextProvider) {
         this.domibusAlgorithmSuiteLoader = domibusAlgorithmSuiteLoader;
         this.policyService = policyService;
+        this.pModeProvider = pModeProvider;
+        this.multiDomainCertificateProvider = multiDomainCertificateProvider;
+        this.domainContextProvider = domainContextProvider;
     }
 
     public boolean isSecurityPolicySet(LegConfiguration legConfiguration) {
@@ -96,5 +114,33 @@ public class SecurityProfileService {
 
     public SecurityProfile extractSecurityProfile(String alias) {
         return SecurityProfile.lookupByName(StringUtils.substringAfterLast(StringUtils.substringBeforeLast(alias,"_"), "_").toUpperCase());
+    }
+
+    /**
+     * Checks if the signing certificate of the acknowledgement message sender is in the TrustStore
+     * @param legConfiguration - the legConfiguration
+     * @param userMessage - the UserMessage that was sent
+     */
+    public void checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(final LegConfiguration legConfiguration, UserMessage userMessage) {
+        String acknowledgementSenderName;
+        try {
+            acknowledgementSenderName = pModeProvider.findReceiverParty(userMessage);
+        } catch (EbMS3Exception e) {
+            String exceptionMessage = String.format("Error while retrieving senderParty from UserMessage: %s", e.getMessage());
+            throw new ConfigurationException(exceptionMessage);
+        }
+
+        String aliasForSigning = getAliasForSigning(legConfiguration, acknowledgementSenderName);
+
+        try {
+            X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainContextProvider.getCurrentDomain(), aliasForSigning);
+            if (cert == null) {
+                String exceptionMessage = String.format("Signing certificate for sender [%s] could not be found in the TrustStore", acknowledgementSenderName);
+                throw new eu.domibus.api.security.CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
+            }
+        } catch (KeyStoreException e) {
+            String exceptionMessage = String.format("Failed to get signing certificate for sender [%s] from truststore: %s", acknowledgementSenderName, e.getMessage());
+            throw new eu.domibus.api.security.CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
+        }
     }
 }
