@@ -9,8 +9,9 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.MessageDaoTestUtil;
-import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.security.AuthUtilsImpl;
+import eu.domibus.ext.domain.MessageAcknowledgementDTO;
+import eu.domibus.ext.domain.MessageAcknowledgementRequestDTO;
 import eu.domibus.messaging.XmlProcessingException;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
@@ -20,6 +21,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -35,6 +37,7 @@ import java.util.UUID;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -45,6 +48,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class MessageAcknowledgementExtResourceIT extends AbstractIT {
 
     public static final String TEST_ENDPOINT_RESOURCE = "/ext/messages/acknowledgments";
+    public static final String TEST_ENDPOINT_RESOURCE_DELIVERED = TEST_ENDPOINT_RESOURCE + "/delivered";
+    public static final String TEST_ENDPOINT_RESOURCE_PROCESSED = TEST_ENDPOINT_RESOURCE + "/processed";
 
     public static final String TEST_ENDPOINT_ACK = TEST_ENDPOINT_RESOURCE + "/{messageId}";
 
@@ -60,9 +65,6 @@ public class MessageAcknowledgementExtResourceIT extends AbstractIT {
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Autowired
-    protected UserMessageLogDao userMessageLogDao;
 
     UserMessageLog uml1;
 
@@ -124,5 +126,48 @@ public class MessageAcknowledgementExtResourceIT extends AbstractIT {
         String content = result.getResponse().getContentAsString();
         Exception resultList = objectMapper.readValue(content, Exception.class);
         MatcherAssert.assertThat(resultList.getMessage(), CoreMatchers.containsString("You are not allowed to handle this message [" + uml1.getUserMessage().getMessageId()));
+    }
+    @Test
+    public void getAck_delivered() throws Exception {
+        MessageAcknowledgementRequestDTO messageAcknowledgementRequestDTO = new MessageAcknowledgementRequestDTO();
+        messageAcknowledgementRequestDTO.setMessageId("msg_ack_100");
+        // when
+        MvcResult result = mockMvc.perform(post(TEST_ENDPOINT_RESOURCE_DELIVERED)
+                        .content(asJsonString(messageAcknowledgementRequestDTO))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(httpBasic("user", TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        MessageAcknowledgementDTO acknowledgementDTO = objectMapper.readValue(content, MessageAcknowledgementDTO.class);
+        Assert.assertNotNull(acknowledgementDTO);
+    }
+
+    @Test
+    public void getAck_processed() throws Exception {
+        MessageAcknowledgementRequestDTO messageAcknowledgementRequestDTO = new MessageAcknowledgementRequestDTO();
+        messageAcknowledgementRequestDTO.setMessageId("msg_ack_100");
+        // when
+        MvcResult result = mockMvc.perform(post(TEST_ENDPOINT_RESOURCE_PROCESSED)
+                        .content(asJsonString(messageAcknowledgementRequestDTO))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(httpBasic("user", TEST_PLUGIN_PASSWORD))
+                        .with(csrf()))
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        MessageAcknowledgementDTO acknowledgementDTO = objectMapper.readValue(content, MessageAcknowledgementDTO.class);
+        Assert.assertNotNull(acknowledgementDTO);
+    }
+
+    public String asJsonString(final Object obj) {
+        try {
+            return objectMapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

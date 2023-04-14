@@ -246,5 +246,23 @@
             <column name="send_attempts_max" value="0"/>
             <column name="backend" value="wsPlugin"/>
         </insert>
+        <insert tableName="TB_D_MESSAGE_PROPERTY">
+            <column name="ID_PK" value="230110090000001000"/>
+            <column name="NAME" value="originalSender"/>
+            <column name="VALUE" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1"/>
+        </insert>
+        <insert tableName="TB_D_MESSAGE_PROPERTY">
+            <column name="ID_PK" value="230110090000001001"/>
+            <column name="NAME" value="finalRecipient"/>
+            <column name="VALUE" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4"/>
+        </insert>
+        <insert tableName="TB_MESSAGE_PROPERTIES">
+            <column name="MESSAGE_PROPERTY_FK" value="230110090000001000"/>
+            <column name="USER_MESSAGE_ID_FK" value="230412100000000001"/>
+        </insert>
+        <insert tableName="TB_MESSAGE_PROPERTIES">
+            <column name="MESSAGE_PROPERTY_FK" value="230110090000001001"/>
+            <column name="USER_MESSAGE_ID_FK" value="230412100000000001"/>
+        </insert>
     </changeSet>
 </databaseChangeLog>

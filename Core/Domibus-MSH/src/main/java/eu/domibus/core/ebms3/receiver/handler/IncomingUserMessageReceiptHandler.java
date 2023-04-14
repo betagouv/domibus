@@ -135,8 +135,8 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
             reliabilityChecker.handleEbms3Exception(e, sentUserMessage);
         } finally {
             reliabilityService.handleReliability(sentUserMessage, userMessageLog, reliabilityCheckSuccessful, null, request, responseResult, legConfiguration, null);
-            if (ReliabilityChecker.CheckResult.OK == reliabilityCheckSuccessful) {
-                final Boolean isTestMessage = sentUserMessage != null && sentUserMessage.isTestMessage();
+            if (ReliabilityChecker.CheckResult.OK == reliabilityCheckSuccessful && sentUserMessage != null) {
+                final Boolean isTestMessage = sentUserMessage.isTestMessage();
                 LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
                         sentUserMessage.getPartyInfo().getFromParty(), sentUserMessage.getPartyInfo().getToParty());
             }
