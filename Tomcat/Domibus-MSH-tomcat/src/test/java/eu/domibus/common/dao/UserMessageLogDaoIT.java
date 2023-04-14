@@ -676,9 +676,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
-    public void findMessagesToDeleteInFinalStatus() throws InterruptedException {
-        Thread.sleep(30000);
-
+    public void findMessagesToDeleteInFinalStatus() {
         String originalUser = "pluginUser1";
         String originalSender = originalUser;
         String finalRecipient = "pluginUser2";
@@ -712,9 +710,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
-    public void findMessagesToDeleteNotInFinalStatus() throws InterruptedException {
-        Thread.sleep(30000);
-
+    public void findMessagesToDeleteNotInFinalStatus() {
         String originalUser = "pluginUser1";
         String originalSender = originalUser;
         String finalRecipient = "pluginUser2";
