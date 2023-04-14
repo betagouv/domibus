@@ -14,6 +14,7 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
+import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -80,6 +81,9 @@ public class PullMessageEbms3ServiceImplTest {
 
     @Injectable
     private ReprogrammableService reprogrammableService;
+
+    @Injectable
+    private ReliabilityService reliabilityService;
 
     @Tested
     private PullMessageServiceImpl pullMessageService;
