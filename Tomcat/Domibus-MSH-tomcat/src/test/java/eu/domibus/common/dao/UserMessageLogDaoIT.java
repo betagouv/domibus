@@ -7,7 +7,6 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.MessageLogInfo;
-import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.MpcDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
@@ -38,7 +37,8 @@ import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Ion Perpegel
@@ -674,11 +674,9 @@ public class UserMessageLogDaoIT extends AbstractIT {
         assertEquals(5, backend.size());
     }
 
-    @Ignore
     @Test
+    @Transactional
     public void findMessagesToDeleteInFinalStatus() {
-        messageDaoTestUtil.clear();
-
         String originalUser = "pluginUser1";
         String originalSender = originalUser;
         String finalRecipient = "pluginUser2";
@@ -709,11 +707,10 @@ public class UserMessageLogDaoIT extends AbstractIT {
         assertEquals(2, msgs.size());
     }
 
-    @Ignore
-    @Test
-    public void findMessagesToDeleteNotInFinalStatus() {
-        messageDaoTestUtil.clear();
 
+    @Test
+    @Transactional
+    public void findMessagesToDeleteNotInFinalStatus() {
         String originalUser = "pluginUser1";
         String originalSender = originalUser;
         String finalRecipient = "pluginUser2";
