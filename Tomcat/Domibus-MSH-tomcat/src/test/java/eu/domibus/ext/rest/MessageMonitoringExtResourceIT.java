@@ -1,6 +1,5 @@
 package eu.domibus.ext.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
@@ -63,7 +62,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     public static final String TEST_ENDPOINT_RESTORE = TEST_ENDPOINT_RESOURCE + "/failed/restore";
     public static final String TEST_ENDPOINT_ATTEMPTS = TEST_ENDPOINT_RESOURCE + "/{messageId}/attempts";
 
-    public ObjectMapper objectMapper = new ObjectMapper();
+
 
     private MockMvc mockMvc;
 
@@ -387,11 +386,5 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
         return Long.parseLong(StringUtils.substring(String.valueOf(entityId), 6, 8));
     }
 
-    public String asJsonString(final Object obj) {
-        try {
-            return objectMapper.writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+
 }

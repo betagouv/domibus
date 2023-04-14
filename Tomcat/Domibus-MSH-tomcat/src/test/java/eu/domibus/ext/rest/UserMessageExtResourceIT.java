@@ -1,7 +1,6 @@
 package eu.domibus.ext.rest;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.AbstractIT;
 import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.UserMessageDTO;
@@ -31,8 +30,6 @@ public class UserMessageExtResourceIT extends AbstractIT {
 
     @Autowired
     private WebApplicationContext webAppContext;
-
-    public ObjectMapper objectMapper = new ObjectMapper();
 
     @Before
     public void setUp() {

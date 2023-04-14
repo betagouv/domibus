@@ -1,6 +1,5 @@
 package eu.domibus.ext.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
@@ -59,8 +58,6 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
     public static final String TEST_ENDPOINT_CONTINUOUS_DATE = TEST_ENDPOINT_RESOURCE + "/continuous-mechanism/start-date";
     public static final String TEST_ENDPOINT_EXPORTED_BATCHID_MESSAGES = TEST_ENDPOINT_EXPORTED + "/{batchId}/messages";
     public static final String TEST_ENDPOINT_BATCH_CLOSE = TEST_ENDPOINT_EXPORTED + "/{batchId}/close";
-
-    public ObjectMapper objectMapper = new ObjectMapper();
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

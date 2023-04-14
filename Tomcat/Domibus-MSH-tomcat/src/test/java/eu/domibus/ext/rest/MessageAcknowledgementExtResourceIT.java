@@ -1,6 +1,5 @@
 package eu.domibus.ext.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
@@ -54,8 +53,6 @@ public class MessageAcknowledgementExtResourceIT extends AbstractIT {
     public static final String TEST_ENDPOINT_ACK = TEST_ENDPOINT_RESOURCE + "/{messageId}";
 
     private MockMvc mockMvc;
-
-    public ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     private WebApplicationContext webAppContext;
@@ -161,13 +158,5 @@ public class MessageAcknowledgementExtResourceIT extends AbstractIT {
         String content = result.getResponse().getContentAsString();
         MessageAcknowledgementDTO acknowledgementDTO = objectMapper.readValue(content, MessageAcknowledgementDTO.class);
         Assert.assertNotNull(acknowledgementDTO);
-    }
-
-    public String asJsonString(final Object obj) {
-        try {
-            return objectMapper.writeValueAsString(obj);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }

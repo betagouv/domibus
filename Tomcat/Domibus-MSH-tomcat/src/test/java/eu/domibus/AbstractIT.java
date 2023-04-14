@@ -10,11 +10,13 @@ import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Configuration;
+import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.pmode.ConfigurationDAO;
+import eu.domibus.core.pmode.ConfigurationRawDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.spring.DomibusContextRefreshedListener;
 import eu.domibus.core.spring.DomibusRootConfiguration;
@@ -58,6 +60,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -85,6 +88,7 @@ public abstract class AbstractIT {
     public static final String TEST_PLUGIN_USERNAME = "admin";
 
     public static final String TEST_PLUGIN_PASSWORD = "123456";
+    public ObjectMapper objectMapper = new ObjectMapper();
 
     @Autowired
     protected DomibusContextRefreshedListener domibusContextRefreshedListener;
@@ -97,6 +101,9 @@ public abstract class AbstractIT {
 
     @Autowired
     protected ConfigurationDAO configurationDAO;
+
+    @Autowired
+    protected ConfigurationRawDAO configurationRawDAO;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -173,8 +180,14 @@ public abstract class AbstractIT {
             pmodeText = pmodeText.replace(String.valueOf(SERVICE_PORT), String.valueOf(redHttpPort));
         }
 
-        final Configuration pModeConfiguration = pModeProvider.getPModeConfiguration(pmodeText.getBytes(UTF_8));
+        byte[] bytes = pmodeText.getBytes(UTF_8);
+        final Configuration pModeConfiguration = pModeProvider.getPModeConfiguration(bytes);
         configurationDAO.updateConfiguration(pModeConfiguration);
+        final ConfigurationRaw configurationRaw = new ConfigurationRaw();
+        configurationRaw.setConfigurationDate(Calendar.getInstance().getTime());
+        configurationRaw.setXml(bytes);
+        configurationRaw.setDescription("upload Pmode for testing on port: " + redHttpPort);
+        configurationRawDAO.create(configurationRaw);
         pModeProvider.refresh();
     }
 
@@ -296,5 +309,13 @@ public abstract class AbstractIT {
 
     public static MockMultipartFile getMultiPartFile(String originalFilename, InputStream resourceAsStream) throws IOException {
         return new MockMultipartFile("file", originalFilename, "octetstream", IOUtils.toByteArray(resourceAsStream));
+    }
+
+    public String asJsonString(final Object obj) {
+        try {
+            return objectMapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
