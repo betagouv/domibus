@@ -108,7 +108,6 @@ public class PullMessageSender {
     protected UserMessagePayloadService userMessagePayloadService;
 
     @SuppressWarnings("squid:S2583") //TODO: SONAR version updated!
-    //@TODO unit test this method.
     @Timer(clazz = PullMessageSender.class, value = "outgoing_pull_request")
     @Counter(clazz = PullMessageSender.class, value = "outgoing_pull_request")
     public void processPullRequest(final Message map) {

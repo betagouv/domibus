@@ -14,7 +14,7 @@ public enum ErrorCode {
     EBMS_0022("EBMS:0022"), EBMS_0023("EBMS:0023"), EBMS_0030("EBMS:0030"), EBMS_0031("EBMS:0031"), EBMS_0040("EBMS:0040"), EBMS_0041("EBMS:0041"), EBMS_0042("EBMS:0042"),
     EBMS_0043("EBMS:0043"), EBMS_0044("EBMS:0044"), EBMS_0045("EBMS:0045"), EBMS_0046("EBMS:0046"), EBMS_0047("EBMS:0047"), EBMS_0048("EBMS:0048"), EBMS_0049("EBMS:0049"),
     EBMS_0050("EBMS:0050"), EBMS_0051("EBMS:0051"), EBMS_0052("EBMS:0052"), EBMS_0053("EBMS:0053"), EBMS_0054("EBMS:0054"), EBMS_0055("EBMS:0055"), EBMS_0060("EBMS:0060"),
-    EBMS_0065("EBMS:0065");
+    EBMS_0065("EBMS:0065"), EBMS_0066("EBMS:0066");
 
 
     public static final String SEVERITY_FAILURE = "failure";
@@ -97,6 +97,7 @@ public enum ErrorCode {
         EBMS_0055(ORIGIN_EBMS, ErrorCode.EBMS_0055),
         EBMS_0060(ORIGIN_EBMS, ErrorCode.EBMS_0060),
         EBMS_0065(ORIGIN_EBMS, ErrorCode.EBMS_0065),
+        EBMS_0066(ORIGIN_EBMS, ErrorCode.EBMS_0066),
         EBMS_0101(ORIGIN_SECURITY, ErrorCode.EBMS_0101),
         EBMS_0102(ORIGIN_SECURITY, ErrorCode.EBMS_0102),
         EBMS_0103(ORIGIN_SECURITY, ErrorCode.EBMS_0103),
@@ -184,7 +185,8 @@ public enum ErrorCode {
         EBMS_0054(OriginErrorCode.EBMS_0054, "OutOfStorageSpace", SEVERITY_FAILURE, Categories.UNPACKAGING),
         EBMS_0055(OriginErrorCode.EBMS_0055, "DecompressionError", SEVERITY_FAILURE, Categories.PROCESSING),
         EBMS_0060(OriginErrorCode.EBMS_0060, "ResponseUsing-AlternateMEP", SEVERITY_WARNING, Categories.PROCESSING),
-        EBMS_0065(OriginErrorCode.EBMS_0065, "Invalid Xml", SEVERITY_FAILURE, Categories.PROCESSING);
+        EBMS_0065(OriginErrorCode.EBMS_0065, "InvalidXml", SEVERITY_FAILURE, Categories.PROCESSING),
+        EBMS_0066(OriginErrorCode.EBMS_0066, "MissingMessageId", SEVERITY_FAILURE, Categories.PROCESSING);
 
         private final OriginErrorCode code;
 
