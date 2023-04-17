@@ -29,6 +29,8 @@ public interface ReliabilityService {
      */
     void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, ReliabilityChecker.CheckResult reliabilityCheckSuccessful, String requestRawXMLMessage, SOAPMessage responseSoapMessage, ResponseResult responseResult, LegConfiguration legConfiguration, MessageAttempt attempt);
 
+
+
     /**
      * Update the connectivity status of a remote party
      * @param status - the state of connectivity

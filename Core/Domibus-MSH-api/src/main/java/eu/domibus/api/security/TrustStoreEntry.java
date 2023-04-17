@@ -1,9 +1,10 @@
 package eu.domibus.api.security;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @author Thomas Dussart
@@ -104,14 +105,7 @@ public class TrustStoreEntry {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-                .append(name)
-                .append(subject)
-                .append(issuer)
-                .append(validFrom)
-                .append(validUntil)
-                .append(fingerprints)
-                .toHashCode();
+        return Objects.hash(name, subject, issuer, validFrom, validUntil, fingerprints);
     }
 
     @Override

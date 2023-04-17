@@ -1,15 +1,22 @@
 package eu.domibus.core.spring;
 
+import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.api.encryption.EncryptionService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.crypto.TLSCertificateManager;
+import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
+import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
+import eu.domibus.core.metrics.JmsQueueCountSetScheduler;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
+import eu.domibus.core.plugin.initializer.PluginInitializerProvider;
 import eu.domibus.core.plugin.routing.BackendFilterInitializerService;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
+import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
@@ -18,10 +25,11 @@ import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 
+import javax.xml.ws.Endpoint;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
-import static eu.domibus.core.spring.DomibusContextRefreshedListener.SYNC_LOCK_KEY;
+import static eu.domibus.core.spring.DomibusApplicationContextListener.SYNC_LOCK_KEY;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -30,16 +38,37 @@ import static org.junit.Assert.assertTrue;
  * @since 4.1.1
  */
 @RunWith(JMockit.class)
-public class DomibusContextRefreshedListenerTest {
+public class DomibusApplicationContextListenerTest {
 
     @Tested
-    DomibusContextRefreshedListener domibusContextRefreshedListener;
+    DomibusApplicationContextListener domibusApplicationContextListener;
 
     @Injectable
     protected BackendFilterInitializerService backendFilterInitializerService;
 
     @Injectable
     protected EncryptionService encryptionService;
+
+    @Injectable
+    protected MessageListenerContainerInitializer messageListenerContainerInitializer;
+
+    @Injectable
+    protected JmsQueueCountSetScheduler jmsQueueCountSetScheduler;
+
+    @Injectable
+    protected PayloadFileStorageProvider payloadFileStorageProvider;
+
+    @Injectable
+    protected RoutingService routingService;
+
+    @Injectable
+    protected DomibusQuartzStarter domibusQuartzStarter;
+
+    @Injectable
+    protected EArchiveFileStorageProvider eArchiveFileStorageProvider;
+
+    @Injectable
+    protected PluginInitializerProvider pluginInitializerProvider;
 
     @Injectable
     protected StaticDictionaryService staticDictionaryService;
@@ -68,6 +97,9 @@ public class DomibusContextRefreshedListenerTest {
     @Injectable
     BackendConnectorService backendConnectorService;
 
+    @Injectable
+    Endpoint mshEndpoint;
+
     @Test
     public void onApplicationEventThatShouldBeDiscarded(@Injectable ContextRefreshedEvent event,
                                                         @Injectable ApplicationContext applicationContext) {
@@ -79,7 +111,7 @@ public class DomibusContextRefreshedListenerTest {
             result = null;
         }};
 
-        domibusContextRefreshedListener.onApplicationEvent(event);
+        domibusApplicationContextListener.onApplicationEvent(event);
 
         new FullVerifications() {{
             encryptionService.handleEncryption();
@@ -102,7 +134,7 @@ public class DomibusContextRefreshedListenerTest {
             result = parent;
         }};
 
-        domibusContextRefreshedListener.onApplicationEvent(event);
+        domibusApplicationContextListener.onApplicationEvent(event);
 
         new FullVerifications() {{
             tlsCertificateManager.saveStoresFromDBToDisk();
@@ -134,6 +166,31 @@ public class DomibusContextRefreshedListenerTest {
 
             backendConnectorService.ensureValidConfiguration();
             times = 1;
+
+            pluginInitializerProvider.getPluginInitializersForEnabledPlugins();
+            times = 2;
+
+            messageListenerContainerInitializer.initialize();
+            times = 1;
+
+            jmsQueueCountSetScheduler.initialize();
+            times = 1;
+
+            payloadFileStorageProvider.initialize();
+            times = 1;
+
+            routingService.initialize();
+            times = 1;
+
+            eArchiveFileStorageProvider.initialize();
+            times = 1;
+
+            domibusQuartzStarter.initialize();
+            times = 1;
+
+            mshEndpoint.publish("/msh");
+            times = 1;
+
         }};
     }
 
@@ -144,7 +201,7 @@ public class DomibusContextRefreshedListenerTest {
             result = true;
         }};
 
-        assertTrue(domibusContextRefreshedListener.useLockForExecution());
+        assertTrue(domibusApplicationContextListener.useLockForExecution());
     }
 
     @Test
@@ -154,17 +211,17 @@ public class DomibusContextRefreshedListenerTest {
             result = false;
         }};
 
-        assertFalse(domibusContextRefreshedListener.useLockForExecution());
+        assertFalse(domibusApplicationContextListener.useLockForExecution());
     }
 
     @Test
     public void handleEncryptionWithLockFile(@Injectable File fileLock, @Injectable Runnable task) {
-        new Expectations(domibusContextRefreshedListener) {{
-            domibusContextRefreshedListener.useLockForExecution();
+        new Expectations(domibusApplicationContextListener) {{
+            domibusApplicationContextListener.useLockForExecution();
             result = true;
         }};
 
-        domibusContextRefreshedListener.executeWithLockIfNeeded(task);
+        domibusApplicationContextListener.executeWithLockIfNeeded(task);
 
         new Verifications() {{
             domainTaskExecutor.submit(task, (Runnable) any, SYNC_LOCK_KEY, true, 3L, TimeUnit.MINUTES);

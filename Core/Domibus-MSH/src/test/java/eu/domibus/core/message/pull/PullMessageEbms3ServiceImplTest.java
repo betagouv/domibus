@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
@@ -14,6 +15,7 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageLogDefaultService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
+import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -80,6 +82,9 @@ public class PullMessageEbms3ServiceImplTest {
 
     @Injectable
     private ReprogrammableService reprogrammableService;
+
+    @Injectable
+    private SecurityProfileService securityProfileService;
 
     @Tested
     private PullMessageServiceImpl pullMessageService;

@@ -184,17 +184,19 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) throws MessageNotFoundException, DuplicateMessageException {
+        boolean messageExists = false;
         try {
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
-
-            UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId);
-            if (userMessageLog == null) {
-                throw new MessageNotFoundException("Message [" + messageId + "] does not exist");
-            }
+            messageExists = true;
         } catch (DuplicateMessageFoundException exception) {
             throw new DuplicateMessageException(exception.getMessage());
+        } catch (eu.domibus.api.messaging.MessageNotFoundException e) {
+            LOG.info("Message [" + messageId + "] does not exist");
         }
         List<ErrorLogEntry> errorsForMessage = errorLogService.getErrorsForMessage(messageId);
+        if(!messageExists && CollectionUtils.isEmpty(errorsForMessage)) {
+            throw new MessageNotFoundException("Message [" + messageId + "] does not exist");
+        }
 
         return errorsForMessage.stream().map(errorLogEntry -> errorLogService.convert(errorLogEntry)).collect(Collectors.toList());
     }
@@ -202,16 +204,16 @@ public class MessageRetrieverImpl implements MessageRetriever {
     @Override
     public List<? extends ErrorResult> getErrorsForMessage(String messageId, eu.domibus.common.MSHRole mshRole) throws MessageNotFoundException {
         MSHRole role = MSHRole.valueOf(mshRole.name());
-
+        boolean messageExists = false;
         try {
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, role);
+            messageExists = true;
         } catch (eu.domibus.api.messaging.MessageNotFoundException messageNotFoundException) {
-            throw new MessageNotFoundException("Message [" + messageId + "]-[" + role + "] does not exist");
+            LOG.info("Message [" + messageId + "]-[" + role + "] does not exist");
         }
 
-        UserMessageLog userMessageLog = userMessageLogService.findByMessageId(messageId, role);
         List<? extends ErrorResult> errorResults = errorLogService.getErrors(messageId, role);
-        if (userMessageLog == null && CollectionUtils.isEmpty(errorResults)) {
+        if (!messageExists && CollectionUtils.isEmpty(errorResults)) {
             throw new MessageNotFoundException("Message [" + messageId + "] does not exist");
         }
         return errorResults;
