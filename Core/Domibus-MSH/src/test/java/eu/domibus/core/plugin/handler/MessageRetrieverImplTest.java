@@ -109,33 +109,11 @@ public class MessageRetrieverImplTest {
         }};
     }
 
-//    @Test
-//    public void testDownloadMessageNoMsgFound() {
-//        new Expectations() {{
-//            userMessageService.getByMessageId(MESS_ID, MSHRole.RECEIVING);
-//            result = new eu.domibus.messaging.MessageNotFoundException(MESS_ID);
-//        }};
-//
-//        try {
-//            messageRetriever.downloadMessage(MESS_ID);
-//            Assert.fail("It should throw " + MessageNotFoundException.class.getCanonicalName());
-//        } catch (eu.domibus.messaging.MessageNotFoundException mnfEx) {
-//            //OK
-//        }
-//
-//        new Verifications() {{
-//            userMessageLogService.findByMessageId(MESS_ID);
-//            times = 0;
-//        }};
-//    }
-
     @Test
     public void testGetErrorsForMessageOk(@Injectable ErrorLogEntry errorLogEntry, @Injectable UserMessageLog userMessageLog) throws MessageNotFoundException, DuplicateMessageException {
         List<ErrorLogEntry> list = new ArrayList<>();
         list.add(errorLogEntry);
         new Expectations() {{
-            userMessageLogService.findByMessageId(MESS_ID);
-            result = userMessageLog;
             errorLogService.getErrorsForMessage(MESS_ID);
             result = list;
         }};
