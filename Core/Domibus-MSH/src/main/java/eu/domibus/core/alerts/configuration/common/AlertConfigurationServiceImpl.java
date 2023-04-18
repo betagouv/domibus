@@ -74,6 +74,9 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
     public AlertConfigurationManager getConfigurationManager(AlertType alertType) {
         if (!alertConfigurationManagers.containsKey(alertType)) {
             AlertConfigurationManager configurationManager = createConfigurationManager(alertType);
+            if (configurationManager == null) {
+                return null;
+            }
             applicationContext.getBean(DefaultAlertConfigurationChangeListener.class, alertType, this);
             alertConfigurationManagers.put(alertType, configurationManager);
         }
@@ -106,7 +109,8 @@ public class AlertConfigurationServiceImpl implements AlertConfigurationService 
                 return applicationContext.getBean(DefaultFrequencyAlertConfigurationManager.class, alertType);
             }
         }
-        throw new ConfigurationException(String.format("Could not create a configuration manager for alert [%s]: no configurationManagerClass or configurationProperty is specified.", alertType));
+        LOG.debug("Could not create a configuration manager for alert [{}]: no configurationManagerClass or configurationProperty is specified.", alertType);
+        return null;
     }
 
 }
