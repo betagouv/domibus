@@ -3,6 +3,7 @@ package eu.domibus.core.alerts.service;
 import eu.domibus.api.alerts.AlertEvent;
 import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Event;
 import mockit.Expectations;
@@ -42,9 +43,14 @@ public class PluginEventServiceImplTest {
     @Injectable
     private Queue alertMessageQueue;
 
+    @Injectable
+    private DomibusPropertyProvider domibusPropertyProvider;
+
     @Test
     public void enqueueMessageEvent_empty(@Injectable AlertEvent alertEvent) {
         new Expectations() {{
+            domibusPropertyProvider.getBooleanProperty("domibus.alert.active");
+            result = true;
             alertEvent.getAlertLevel();
             result = null;
         }};
@@ -64,6 +70,9 @@ public class PluginEventServiceImplTest {
         Map<String, String> props = new HashMap<>();
         props.put("Test", "Test");
         new Expectations() {{
+            domibusPropertyProvider.getBooleanProperty("domibus.alert.active");
+            result = true;
+            
             alertEvent.getProperties();
             result = props;
 
