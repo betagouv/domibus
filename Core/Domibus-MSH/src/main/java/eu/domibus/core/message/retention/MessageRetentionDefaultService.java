@@ -21,6 +21,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -89,14 +90,16 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     public void deleteAllMessages(String... messageIds) {
         List<UserMessageLogDto> allMessages = new ArrayList<>();
         for (String messageId : messageIds) {
-            UserMessageLog byMessageId = userMessageLogDao.findByMessageId(messageId);
-            if (byMessageId != null) {
+            if (StringUtils.isNotBlank(messageId)) {
+                UserMessageLog byMessageId = userMessageLogDao.findByMessageId(messageId);
+                if (byMessageId != null) {
 
-                UserMessageLogDto userMessageLogDto = new UserMessageLogDto(byMessageId.getUserMessage().getEntityId(), byMessageId.getUserMessage().getMessageId(), byMessageId.getBackend(), null);
-                userMessageLogDto.setProperties(userMessageDefaultServiceHelper.getProperties(byMessageId.getUserMessage()));
-                allMessages.add(userMessageLogDto);
-            } else {
-                LOG.warn("MessageId [{}] not found", messageId);
+                    UserMessageLogDto userMessageLogDto = new UserMessageLogDto(byMessageId.getUserMessage().getEntityId(), byMessageId.getUserMessage().getMessageId(), byMessageId.getBackend(), null);
+                    userMessageLogDto.setProperties(userMessageDefaultServiceHelper.getProperties(byMessageId.getUserMessage()));
+                    allMessages.add(userMessageLogDto);
+                } else {
+                    LOG.warn("MessageId [{}] not found", messageId);
+                }
             }
         }
         if (allMessages.size() > 0) {

@@ -154,10 +154,6 @@
             <column name="STATUS" value="SEND_FAILURE"/>
         </insert>
         <insert tableName="TB_D_MESSAGE_STATUS">
-            <column name="ID_PK" value="230109160000001010"/>
-            <column name="STATUS" value="NOT_FOUND"/>
-        </insert>
-        <insert tableName="TB_D_MESSAGE_STATUS">
             <column name="ID_PK" value="230109160000001011"/>
             <column name="STATUS" value="WAITING_FOR_RETRY"/>
         </insert>
