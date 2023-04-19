@@ -1,6 +1,7 @@
 package eu.domibus.ext.rest;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.ext.domain.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -42,6 +43,9 @@ public class PartyExtResourceIT extends AbstractIT {
 
     @Autowired
     private WebApplicationContext webAppContext;
+
+    @Autowired
+    DomainTaskExecutor domainTaskExecutor;
 
     @Before
     public void setUp() throws XmlProcessingException, IOException {
@@ -142,7 +146,7 @@ public class PartyExtResourceIT extends AbstractIT {
     public void getCertificate() throws Exception {
 
         // when
-        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_RESOURCE_CERTIFICATE, "cefsupportgw")
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_RESOURCE_CERTIFICATE, "blue_gw")
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
