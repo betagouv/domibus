@@ -117,7 +117,7 @@ public class MshWebServiceTestIT extends AbstractIT {
 
     @Before
     public void before() throws IOException, XmlProcessingException {
-        uploadPmode();
+        uploadPMode();
         payloadFileStorageProvider.initialize();
     }
 
@@ -148,7 +148,7 @@ public class MshWebServiceTestIT extends AbstractIT {
         final String secondReceipt = secondSignalMessage.getReceipt().getAny().iterator().next();
         assertEquals(firstReceipt, secondReceipt);
 
-        messageRetentionService.deleteAllMessages(messageId);
+        deleteAllMessages(messageId);
     }
 
     @Transactional

@@ -1,7 +1,6 @@
 package eu.domibus.common.dao;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.ITTestsService;
 import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
@@ -22,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -68,9 +66,6 @@ public class UserMessageLogDaoIT extends AbstractIT {
     private MessageDaoTestUtil messageDaoTestUtil;
 
     @Autowired
-    private ITTestsService itTestsService;
-
-    @Autowired
     private BackendConnectorProvider backendConnectorProvider;
 
     private Date before;
@@ -107,7 +102,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         after = dateUtil.fromString("2021-01-01T12:00:00Z");
         old = Date.from(before.toInstant().minusSeconds(60 * 60 * 24)); // one day older than "before"
 
-        uploadPmode();
+        uploadPMode();
         Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
                 .thenReturn(new BackendConnectorMock(WS_PLUGIN));
         String messageOneId = "msg1-" + randomUUID();

@@ -138,7 +138,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         messageId = BackendConnectorMock.MESSAGE_ID;
         filename = "SOAPMessage2.xml";
 
-        uploadPmode();
+        uploadPMode();
 
         backendConnector = new BackendConnectorMock("wsPlugin");
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class)))

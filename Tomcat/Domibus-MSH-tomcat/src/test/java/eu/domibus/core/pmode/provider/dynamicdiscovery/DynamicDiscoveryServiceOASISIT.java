@@ -147,7 +147,7 @@ public class DynamicDiscoveryServiceOASISIT extends AbstractIT {
 
     @Before
     public void setUp() throws Exception {
-        uploadPmode(SERVICE_PORT);
+        uploadPMode(SERVICE_PORT);
         createStore(DOMIBUS_TRUSTSTORE_NAME, "keystores/gateway_truststore.jks");
         createStore(DOMIBUS_KEYSTORE_NAME, "keystores/gateway_keystore.jks");
     }
@@ -163,7 +163,7 @@ public class DynamicDiscoveryServiceOASISIT extends AbstractIT {
     }
 
     @Test
-    @Ignore //EDELIVERY-10865
+    @Ignore("EDELIVERY-10865") //TODO
     public void lookupInformation() throws EbMS3Exception {
         dynamicDiscoveryServiceOASIS.lookupInformation("domain",
                 "participantId",

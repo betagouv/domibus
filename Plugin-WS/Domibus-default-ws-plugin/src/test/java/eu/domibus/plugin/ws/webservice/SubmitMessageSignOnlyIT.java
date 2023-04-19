@@ -45,7 +45,7 @@ public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
     /**
      * Test for the backend sendMessage service with payload profile enabled
      */
-    @Ignore //TODO: will be fixed by EDELIVERY-11139
+    @Ignore("will be fixed by EDELIVERY-11139") //TODO
     @Test
     public void testSubmitMessageValid() throws SubmitMessageFault {
         String msgId = UUID.randomUUID() + "@domibus.eu";
@@ -74,6 +74,6 @@ public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
                 .withRequestBody(containing("DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\""))
                 .withHeader("Content-Type", notMatching("application/soap+xml")));
 
-        messageRetentionDefaultService.deleteAllMessages(msgId);
+        deleteAllMessages(msgId);
     }
 }

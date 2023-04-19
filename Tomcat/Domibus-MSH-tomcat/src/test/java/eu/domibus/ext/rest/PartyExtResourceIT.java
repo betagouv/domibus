@@ -51,7 +51,7 @@ public class PartyExtResourceIT extends AbstractIT {
     public void setUp() throws XmlProcessingException, IOException {
         mockMvc = MockMvcBuilders.webAppContextSetup(webAppContext)
                 .build();
-        uploadPmode(SERVICE_PORT);
+        uploadPMode(SERVICE_PORT);
     }
 
     @Test

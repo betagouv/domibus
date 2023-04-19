@@ -93,11 +93,6 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
         return DeletionStrategy.PARTITIONS == DeletionStrategy.valueOf(retentionStrategy);
     }
 
-    @Override
-    public void deleteAllMessages(String... messageIds) {
-        throw new DomibusCoreException("Deleting all messages not supported");
-    }
-
     /**
      * {@inheritDoc}
      */

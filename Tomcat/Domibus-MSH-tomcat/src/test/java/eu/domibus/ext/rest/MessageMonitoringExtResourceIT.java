@@ -98,7 +98,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
         uml2_enqueued = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusDays(1).toInstant()), MSHRole.SENDING, MessageStatus.SEND_ENQUEUED, true, MessageDaoTestUtil.DEFAULT_MPC, null);
         uml3_failed = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate, MSHRole.SENDING, MessageStatus.SEND_FAILURE, true, MessageDaoTestUtil.DEFAULT_MPC, null);
         uml4_received = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), currentDate, MSHRole.SENDING, MessageStatus.RECEIVED, true, MessageDaoTestUtil.DEFAULT_MPC, null);
-        uploadPmode(SERVICE_PORT);
+        uploadPMode(SERVICE_PORT);
     }
 
     @Test

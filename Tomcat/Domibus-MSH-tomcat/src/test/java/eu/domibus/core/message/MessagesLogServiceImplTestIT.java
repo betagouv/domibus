@@ -3,13 +3,10 @@ package eu.domibus.core.message;
 import eu.domibus.AbstractIT;
 import eu.domibus.ITTestsService;
 import eu.domibus.api.model.MessageType;
-import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.messaging.XmlProcessingException;
-import eu.domibus.web.rest.ro.MessageLogRO;
-import org.junit.Assert;
+import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,11 +38,14 @@ public class MessagesLogServiceImplTestIT extends AbstractIT {
 
     @Before
     public void before() throws IOException, XmlProcessingException {
-        uploadPmode();
+        uploadPMode();
     }
 
     @Test
     public void countMessages() {
+        final HashMap<String, Object> filters = new HashMap<>();
+        filters.put("receivedTo", new Date());
+        messagesLogService.countMessages(MessageType.USER_MESSAGE, filters);
     }
 
     @Test

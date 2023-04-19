@@ -8,8 +8,6 @@ package eu.domibus.core.message.retention;
  */
 public interface MessageRetentionService {
 
-    void deleteAllMessages(String... messageIds);
-
     /**
      * Deletes the expired messages using the configured limits
      */

@@ -95,15 +95,15 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
     @Test
     public void testX() throws XmlProcessingException, IOException {
         String selfParty = "domibus-blue";
-        uploadPmode();
+        uploadPMode();
         final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
 
         List<String> list = pModeProvider.findPartiesByInitiatorServiceAndAction("domibus-blue", Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, getPushMeps());
-        assertTrue(list.size() == 1);
+        assertEquals(1, list.size());
         assertTrue(list.contains("domibus-red"));
 
         List<String> list2 = pModeProvider.findPartiesByResponderServiceAndAction("domibus-red", Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, getPushMeps());
-        assertTrue(list2.size() == 1);
+        assertEquals(1, list2.size());
         assertTrue(list2.contains("domibus-blue"));
     }
 

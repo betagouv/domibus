@@ -43,7 +43,7 @@ public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
     public void updatePmodeForSendFailure() throws IOException, XmlProcessingException {
         Map<String, String> toReplace = new HashMap<>();
         toReplace.put("retry=\"12;4;CONSTANT\"", "retry=\"1;0;CONSTANT\"");
-        uploadPmode(SERVICE_PORT, toReplace);
+        uploadPMode(SERVICE_PORT, toReplace);
     }
 
     @Test

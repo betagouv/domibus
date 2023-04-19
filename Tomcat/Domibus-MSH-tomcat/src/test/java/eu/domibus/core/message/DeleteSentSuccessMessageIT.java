@@ -43,7 +43,7 @@ public class DeleteSentSuccessMessageIT extends DeleteMessageAbstractIT {
     public void updatePmodeForAcknowledged() throws IOException, XmlProcessingException {
         Map<String, String> toReplace = new HashMap<>();
         toReplace.put("security=\"eDeliveryAS4Policy\"", "security=\"noSigNoEnc\"");
-        uploadPmode(SERVICE_PORT, toReplace);
+        uploadPMode(SERVICE_PORT, toReplace);
     }
 
     /**

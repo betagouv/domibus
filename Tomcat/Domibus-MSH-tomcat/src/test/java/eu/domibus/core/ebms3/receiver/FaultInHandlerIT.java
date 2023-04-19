@@ -5,8 +5,6 @@ import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3UserMessage;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
@@ -21,14 +19,11 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.MissingResourceException;
 
@@ -58,7 +53,7 @@ public class FaultInHandlerIT extends AbstractIT {
 
     @Before
     public void before() throws XmlProcessingException, IOException {
-        uploadPmode();
+        uploadPMode();
 
         Deencapsulation.setField(faultInHandler, soapUtil);
         Deencapsulation.setField(faultInHandler, errorLogService);

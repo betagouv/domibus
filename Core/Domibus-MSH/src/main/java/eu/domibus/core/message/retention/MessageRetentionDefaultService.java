@@ -21,12 +21,10 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
 import java.util.*;
@@ -83,28 +81,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     @Override
     public boolean handlesDeletionStrategy(String retentionStrategy) {
         return DeletionStrategy.DEFAULT == DeletionStrategy.valueOf(retentionStrategy);
-    }
-
-    @Transactional
-    @Override
-    public void deleteAllMessages(String... messageIds) {
-        List<UserMessageLogDto> allMessages = new ArrayList<>();
-        for (String messageId : messageIds) {
-            if (StringUtils.isNotBlank(messageId)) {
-                UserMessageLog byMessageId = userMessageLogDao.findByMessageId(messageId);
-                if (byMessageId != null) {
-
-                    UserMessageLogDto userMessageLogDto = new UserMessageLogDto(byMessageId.getUserMessage().getEntityId(), byMessageId.getUserMessage().getMessageId(), byMessageId.getBackend(), null);
-                    userMessageLogDto.setProperties(userMessageDefaultServiceHelper.getProperties(byMessageId.getUserMessage()));
-                    allMessages.add(userMessageLogDto);
-                } else {
-                    LOG.warn("MessageId [{}] not found", messageId);
-                }
-            }
-        }
-        if (allMessages.size() > 0) {
-            userMessageDefaultService.deleteMessages(allMessages);
-        }
     }
 
     /**

@@ -84,7 +84,7 @@ public class MessageAcknowledgementExtResourceIT extends AbstractIT {
 
         uml1 = messageDaoTestUtil.createUserMessageLog(UUID.randomUUID().toString(), MSHRole.RECEIVING, currentDate, MessageStatus.SEND_FAILURE, MessageDaoTestUtil.DEFAULT_MPC);
 
-        uploadPmode(SERVICE_PORT);
+        uploadPMode(SERVICE_PORT);
     }
 
     @Test

@@ -33,7 +33,7 @@ public class DeleteReceivedMessageIT extends DeleteMessageAbstractIT {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
 
-        uploadPmode(SERVICE_PORT);
+        uploadPMode(SERVICE_PORT);
         Map<String, Integer> initialMap = messageDBUtil.getTableCounts(tablesToExclude);
         String messageId = receiveMessageToDelete();
 
