@@ -568,7 +568,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     private String getDuplicateErrorMessage(String aliasValue, String aliasDescription, SecurityProfileAliasConfiguration profileConfiguration) {
-        if (securityProfileValidatorService.isLegacySingleAliasKeystoreDefined()) {
+        if (securityProfileValidatorService.isLegacySingleAliasKeystoreDefined(domain)) {
             return String.format("Both legacy single keystore alias [%s] and security profile alias [%s] for [%s] are defined for domain: [%s]",
                     aliasValue, profileConfiguration.getAlias(), aliasDescription, domain);
         }
@@ -581,7 +581,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         securityProfileAliasConfigurations.clear();
 
         //without Security Profiles
-        boolean legacySingleAliasKeystore  = securityProfileValidatorService.isLegacySingleAliasKeystoreDefined();
+        boolean legacySingleAliasKeystore  = securityProfileValidatorService.isLegacySingleAliasKeystoreDefined(domain);
         if (legacySingleAliasKeystore) {
             addSecurityProfileAliasConfiguration(DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS, DOMIBUS_SECURITY_KEY_PRIVATE_PASSWORD, null);
         }
