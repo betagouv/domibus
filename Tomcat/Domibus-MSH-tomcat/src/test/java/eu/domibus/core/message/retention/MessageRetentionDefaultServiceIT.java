@@ -250,7 +250,7 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
                         " delete_message_metadata=\"" + isDeleteMessageMetadata + "\"" +
                         " retention_metadata_offset=\"" + metadataOffset + "\"" +
                         "/>");
-        uploadPmode(SERVICE_PORT, "dataset/pmode/PMode_custom_mpc.xml", toReplace);
+        uploadPMode(SERVICE_PORT, "dataset/pmode/PMode_custom_mpc.xml", toReplace);
     }
 
 }

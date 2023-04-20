@@ -49,7 +49,7 @@ import java.util.List;
 public class TruststoreExtResource {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TruststoreExtResource.class);
-
+    @SuppressWarnings("squid:S2068")
     public static final String ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD = "Failed to upload the truststoreFile file since its password was empty.";
     public static final String DOMIBUS_TRUSTSTORE = "domibus.truststore";
 

@@ -10,11 +10,13 @@ import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Configuration;
+import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.pmode.ConfigurationDAO;
+import eu.domibus.core.pmode.ConfigurationRawDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.spring.DomibusApplicationContextListener;
 import eu.domibus.core.spring.DomibusRootConfiguration;
@@ -34,8 +36,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
@@ -57,6 +60,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -69,7 +73,7 @@ import static org.awaitility.Awaitility.with;
 /**
  * Created by feriaad on 02/02/2016.
  */
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(initializers = PropertyOverrideContextInitializer.class,
@@ -84,6 +88,10 @@ public abstract class AbstractIT {
     public static final String TEST_PLUGIN_USERNAME = "admin";
 
     public static final String TEST_PLUGIN_PASSWORD = "123456";
+    public ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    protected ITTestsService itTestsService;
 
     @Autowired
     protected DomibusApplicationContextListener domibusApplicationContextListener;
@@ -96,6 +104,9 @@ public abstract class AbstractIT {
 
     @Autowired
     protected ConfigurationDAO configurationDAO;
+
+    @Autowired
+    protected ConfigurationRawDAO configurationRawDAO;
 
     @Autowired
     protected DomainContextProvider domainContextProvider;
@@ -152,15 +163,15 @@ public abstract class AbstractIT {
     }
 
 
-    protected void uploadPmode(Integer redHttpPort) throws IOException, XmlProcessingException {
-        uploadPmode(redHttpPort, null);
+    protected void uploadPMode(Integer redHttpPort) throws IOException, XmlProcessingException {
+        uploadPMode(redHttpPort, null);
     }
 
-    protected void uploadPmode(Integer redHttpPort, Map<String, String> toReplace) throws IOException, XmlProcessingException {
-        uploadPmode(redHttpPort, "dataset/pmode/PModeTemplate.xml", toReplace);
+    protected void uploadPMode(Integer redHttpPort, Map<String, String> toReplace) throws IOException, XmlProcessingException {
+        uploadPMode(redHttpPort, "dataset/pmode/PModeTemplate.xml", toReplace);
     }
 
-    protected void uploadPmode(Integer redHttpPort, String pModeFilepath, Map<String, String> toReplace) throws IOException, XmlProcessingException {
+    protected void uploadPMode(Integer redHttpPort, String pModeFilepath, Map<String, String> toReplace) throws IOException, XmlProcessingException {
         final InputStream inputStream = new ClassPathResource(pModeFilepath).getInputStream();
 
         String pmodeText = IOUtils.toString(inputStream, UTF_8);
@@ -172,13 +183,19 @@ public abstract class AbstractIT {
             pmodeText = pmodeText.replace(String.valueOf(SERVICE_PORT), String.valueOf(redHttpPort));
         }
 
-        final Configuration pModeConfiguration = pModeProvider.getPModeConfiguration(pmodeText.getBytes(UTF_8));
+        byte[] bytes = pmodeText.getBytes(UTF_8);
+        final Configuration pModeConfiguration = pModeProvider.getPModeConfiguration(bytes);
         configurationDAO.updateConfiguration(pModeConfiguration);
+        final ConfigurationRaw configurationRaw = new ConfigurationRaw();
+        configurationRaw.setConfigurationDate(Calendar.getInstance().getTime());
+        configurationRaw.setXml(bytes);
+        configurationRaw.setDescription("upload Pmode for testing on port: " + redHttpPort);
+        configurationRawDAO.create(configurationRaw);
         pModeProvider.refresh();
     }
 
-    protected void uploadPmode() throws IOException, XmlProcessingException {
-        uploadPmode(null);
+    protected void uploadPMode() throws IOException, XmlProcessingException {
+        uploadPMode(null);
     }
 
     protected UserMessage getUserMessageTemplate() throws IOException {
@@ -234,8 +251,7 @@ public abstract class AbstractIT {
             InputStream is = getClass().getClassLoader().getResourceAsStream("dataset/as4/" + file);
             Document doc = db.parse(is);
             TransformerFactory tf = TransformerFactory.newInstance();
-            Transformer transformer = null;
-            transformer = tf.newTransformer();
+            Transformer transformer = tf.newTransformer();
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             StringWriter writer = new StringWriter();
             transformer.transform(new DOMSource(doc), new StreamResult(writer));
@@ -284,6 +300,9 @@ public abstract class AbstractIT {
             domibusTruststoreEntity.setType("JKS");
             domibusTruststoreEntity.setPassword("test123");
             try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream(filePath)) {
+                if (resourceAsStream == null) {
+                    throw new IllegalStateException("File not found :" + filePath);
+                }
                 byte[] trustStoreBytes = IOUtils.toByteArray(resourceAsStream);
                 domibusTruststoreEntity.setContent(trustStoreBytes);
                 truststoreDao.create(domibusTruststoreEntity);
@@ -293,4 +312,19 @@ public abstract class AbstractIT {
         }
     }
 
+    public static MockMultipartFile getMultiPartFile(String originalFilename, InputStream resourceAsStream) throws IOException {
+        return new MockMultipartFile("file", originalFilename, "octetstream", IOUtils.toByteArray(resourceAsStream));
+    }
+
+    public String asJsonString(final Object obj) {
+        try {
+            return objectMapper.writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void deleteAllMessages(String... messageIds) {
+        itTestsService.deleteAllMessages(messageIds);
+    }
 }

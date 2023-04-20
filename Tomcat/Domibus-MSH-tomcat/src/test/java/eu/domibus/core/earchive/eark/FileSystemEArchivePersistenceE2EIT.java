@@ -120,7 +120,7 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
         LOG.info("temp folder created: [{}]", temp.getAbsolutePath());
 
 
-        uploadPmode(SERVICE_PORT);
+        uploadPMode(SERVICE_PORT);
 
         mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage4.xml", messageId, false));
         mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage4_compressed.xml", messageId2, true));

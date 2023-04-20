@@ -78,8 +78,4 @@ public abstract class DeleteMessageAbstractIT extends AbstractIT {
         messageRetentionService.deleteExpiredMessages();
     }
 
-    protected void deleteAllMessages() {
-        messageRetentionService.deleteAllMessages();
-    }
-
 }

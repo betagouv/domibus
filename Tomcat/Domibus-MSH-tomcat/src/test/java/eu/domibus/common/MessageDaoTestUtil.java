@@ -160,6 +160,9 @@ public class MessageDaoTestUtil {
         UserMessageLog userMessageLog = new UserMessageLog();
         userMessageLog.setMshRole(mshRoleDao.findOrCreate(mshRole));
         userMessageLog.setMessageStatus(messageStatusDao.findOrCreate(messageStatus));
+        if(messageStatus == MessageStatus.SEND_FAILURE) {
+            userMessageLog.setFailed(new Date());
+        }
         setUserMessageLogDates(userMessageLog, received, archivedAndExported);
         userMessageLog.setNotificationStatus(notificationStatusDao.findOrCreate(NotificationStatus.NOTIFIED));
 

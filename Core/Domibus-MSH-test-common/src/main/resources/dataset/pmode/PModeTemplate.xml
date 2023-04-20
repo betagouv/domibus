@@ -52,6 +52,10 @@
 				<propertyRef property="finalRecipientProperty"/>
 				<propertyRef property="originalSenderProperty"/>
 			</propertySet>
+			<propertySet name="eDeliveryPropertySet">
+				<propertyRef property="finalRecipientProperty"/>
+				<propertyRef property="originalSenderProperty"/>
+			</propertySet>
 		</properties>
 		<payloadProfiles>
 			<payload name="businessContentPayload"

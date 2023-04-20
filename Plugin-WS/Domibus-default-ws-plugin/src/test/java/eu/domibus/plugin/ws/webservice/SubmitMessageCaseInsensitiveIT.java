@@ -11,12 +11,13 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author venugar
@@ -37,7 +38,7 @@ public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
      * The message components should be case insensitive from the PMode data
      *
      */
-    @Ignore //TODO: will be fixed by EDELIVERY-11139
+    @Ignore("will be fixed by EDELIVERY-11139") //TODO
     @Test
     public void testSubmitMessageOK() throws SubmitMessageFault {
         String payloadHref = "cid:message";
@@ -59,6 +60,6 @@ public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
         //message will fail as the response message does not contain the right security details(signature, etc)
         waitUntilMessageIsInWaitingForRetry(messageId);
 
-        messageRetentionService.deleteAllMessages();
+        deleteAllMessages(message_id.getRight(), messageId);
     }
 }

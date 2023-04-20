@@ -1,7 +1,6 @@
 package eu.domibus.ext.rest;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
@@ -60,8 +59,6 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
 
     @Autowired
     PartInfoService partInfoService;
-
-    public ObjectMapper objectMapper = new ObjectMapper();
 
     @Before
     public void setUp() {

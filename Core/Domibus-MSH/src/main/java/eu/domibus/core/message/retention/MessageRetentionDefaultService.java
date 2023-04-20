@@ -10,6 +10,7 @@ import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.metrics.Counter;
@@ -24,7 +25,6 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
 import java.util.*;
@@ -69,6 +69,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
     @Autowired
     private UserMessageServiceHelper userMessageServiceHelper;
+    @Autowired
+    private UserMessageDefaultServiceHelper userMessageDefaultServiceHelper;
 
     @Autowired
     protected PartInfoService partInfoService;
@@ -79,13 +81,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     @Override
     public boolean handlesDeletionStrategy(String retentionStrategy) {
         return DeletionStrategy.DEFAULT == DeletionStrategy.valueOf(retentionStrategy);
-    }
-
-    @Transactional
-    @Override
-    public void deleteAllMessages() {
-        final List<UserMessageLogDto> allMessages = userMessageLogDao.getAllMessages();
-        userMessageDefaultService.deleteMessages(allMessages);
     }
 
     /**

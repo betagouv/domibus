@@ -70,7 +70,7 @@ public class MessageSubmitterTestIT extends AbstractIT {
     @Test
     public void submit() throws MessagingProcessingException, IOException {
         Submission submission = submissionUtil.createSubmission();
-        uploadPmode();
+        uploadPMode();
         final String messageId = messageSubmitter.submit(submission, "mybackend");
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
@@ -86,7 +86,7 @@ public class MessageSubmitterTestIT extends AbstractIT {
         Submission submission = submissionUtil.createSubmission();
         submission.getFromParties().clear();
 
-        uploadPmode();
+        uploadPMode();
         try {
             messageSubmitter.submit(submission, "mybackend");
             Assert.fail("Messaging exception should have been thrown");
@@ -101,7 +101,7 @@ public class MessageSubmitterTestIT extends AbstractIT {
         Submission submission = submissionUtil.createSubmission();
         submission.getToParties().clear();
 
-        uploadPmode();
+        uploadPMode();
         try {
             messageSubmitter.submit(submission, "mybackend");
             Assert.fail("Messaging exception should have been thrown");

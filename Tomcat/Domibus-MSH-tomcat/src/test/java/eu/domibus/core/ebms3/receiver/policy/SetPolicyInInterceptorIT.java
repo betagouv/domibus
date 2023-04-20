@@ -51,7 +51,7 @@ public class SetPolicyInInterceptorIT extends AbstractIT {
 
     @Before
     public void before() throws IOException, XmlProcessingException {
-        uploadPmode(SERVICE_PORT);
+        uploadPMode(SERVICE_PORT);
     }
 
     @Test

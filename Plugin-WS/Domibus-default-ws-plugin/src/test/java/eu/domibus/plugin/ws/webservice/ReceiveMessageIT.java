@@ -21,7 +21,6 @@ import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Dispatch;
 import java.io.IOException;
-import java.security.cert.X509Certificate;
 import java.util.UUID;
 
 
@@ -67,7 +66,7 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
      *                        <p>
      *                        ref: Receive Message-01
      */
-    @Ignore //TODO: will be fixed by EDELIVERY-11139
+    @Ignore("will be fixed by EDELIVERY-11139") //TODO
     @Test
     public void testReceiveMessage() throws SOAPException, IOException, ParserConfigurationException, SAXException, InterruptedException {
         String filename = "SOAPMessage2.xml";
@@ -78,10 +77,10 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
 
         waitUntilMessageIsReceived(messageId);
 
-        messageRetentionDefaultService.deleteAllMessages();
+        deleteAllMessages(messageId);
     }
 
-    @Ignore //TODO: will be fixed by EDELIVERY-11139
+    @Ignore("will be fixed by EDELIVERY-11139") //TODO
     @Test
     public void testDeleteBatch() throws SOAPException, IOException, ParserConfigurationException, SAXException, InterruptedException {
         String filename = "SOAPMessage2.xml";
@@ -99,13 +98,13 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
 
         waitUntilMessageIsReceived(messageId);
 
-        messageRetentionDefaultService.deleteAllMessages();
+        deleteAllMessages(messageId);
 
         Thread.sleep(1000);
 
     }
 
-    @Ignore //TODO: will be fixed by EDELIVERY-11139
+    @Ignore("will be fixed by EDELIVERY-11139") //TODO
     @Test
     public void testReceiveTestMessage() throws Exception {
         String filename = "SOAPTestMessage.xml";
@@ -115,7 +114,7 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
         mshWebserviceTest.invoke(soapMessage);
         waitUntilMessageIsReceived(messageId);
 
-        messageRetentionDefaultService.deleteAllMessages();
+        deleteAllMessages(messageId);
     }
 
 }

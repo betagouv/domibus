@@ -72,7 +72,7 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         retrieveMessageFail("notFound", "Message not found, id [notFound]");
     }
 
-    @Ignore //TODO: will be fixed by EDELIVERY-11139
+    @Ignore("will be fixed by EDELIVERY-11139") //TODO
     @Test
     public void testRetrieveMessageOk() throws Exception {
         String filename = "SOAPMessage2.xml";
@@ -96,9 +96,9 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         final Messaging messaging = ebMSHeaderInfo.value;
         final UserMessage userMessage = messaging.getUserMessage();
         assertEquals(messageId, userMessage.getMessageInfo().getMessageId());
-        assertEquals(userMessage.getMessageProperties().getProperty().size(), 2);
+        assertEquals(2, userMessage.getMessageProperties().getProperty().size());
 
-        messageRetentionDefaultService.deleteAllMessages();
+        deleteAllMessages(messageId);
     }
 
     private void retrieveMessageFail(String messageId, String errorMessage) throws RetrieveMessageFault {

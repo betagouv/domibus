@@ -98,7 +98,7 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
         Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
                 .thenReturn(new BackendConnectorMock("name"));
         domain = new Domain("default", "default");
-        uploadPmode(SERVICE_PORT);
+        uploadPMode(SERVICE_PORT);
 
         messageId1 = UUID.randomUUID().toString();
         mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage("SOAPMessage4.xml", messageId1));

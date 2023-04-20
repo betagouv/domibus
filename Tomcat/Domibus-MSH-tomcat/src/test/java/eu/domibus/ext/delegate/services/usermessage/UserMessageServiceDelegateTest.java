@@ -17,7 +17,7 @@ import org.junit.runner.RunWith;
 import java.util.Date;
 
 @RunWith(JMockit.class)
-public class UserMessageEbms3ServiceDelegateTest {
+public class UserMessageServiceDelegateTest {
 
     public static final String FINAL_RECIPIENT = "finalRecipient";
     @Tested

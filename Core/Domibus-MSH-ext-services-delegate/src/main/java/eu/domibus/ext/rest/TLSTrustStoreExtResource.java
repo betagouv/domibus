@@ -63,8 +63,10 @@ public class TLSTrustStoreExtResource {
 
     final DomibusConfigurationExtService domibusConfigurationExtService;
 
-    public TLSTrustStoreExtResource(TLSTrustStoreExtService tlsTruststoreExtService, ExtExceptionHelper extExceptionHelper,
-                                    MultiPartFileUtil multiPartFileUtil, DomainContextExtService domainContextExtService,
+    public TLSTrustStoreExtResource(TLSTrustStoreExtService tlsTruststoreExtService,
+                                    ExtExceptionHelper extExceptionHelper,
+                                    MultiPartFileUtil multiPartFileUtil,
+                                    DomainContextExtService domainContextExtService,
                                     DomibusConfigurationExtService domibusConfigurationExtService) {
         this.tlsTruststoreExtService = tlsTruststoreExtService;
         this.extExceptionHelper = extExceptionHelper;

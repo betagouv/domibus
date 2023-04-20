@@ -2,14 +2,12 @@ package eu.domibus.test.common;
 
 import eu.domibus.common.*;
 import eu.domibus.plugin.AbstractBackendConnector;
-import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 
 import java.util.UUID;
 
 import static eu.domibus.messaging.MessageConstants.*;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Ion perpegel
@@ -27,7 +25,7 @@ public class BackendConnectorMock extends AbstractBackendConnector {
 
     private MessageResponseSentEvent messageResponseSentEvent;
 
-    public static String MESSAGE_ID = UUID.randomUUID() + "@domibus.eu";
+    public final static String MESSAGE_ID = UUID.randomUUID() + "@domibus.eu";
 
 
     public BackendConnectorMock(String name) {

@@ -38,7 +38,7 @@ public class SubmitMessageIT extends AbstractBackendWSIT {
     /**
      * Test for the backend sendMessage service with payload profile enabled
      */
-    @Ignore //TODO: will be fixed by EDELIVERY-11139
+    @Ignore("will be fixed by EDELIVERY-11139") //TODO
     @Test
     public void testSubmitMessageValid() throws SubmitMessageFault {
         String payloadHref = "cid:message";
@@ -63,6 +63,6 @@ public class SubmitMessageIT extends AbstractBackendWSIT {
                 .withRequestBody(containing("DigestMethod xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\" Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256"))
                 .withHeader("Content-Type", containing("application/soap+xml")));
 
-        messageRetentionDefaultService.deleteAllMessages();
+        deleteAllMessages(messageID.get(0));
     }
 }

@@ -13,6 +13,9 @@ public class NotArchivedMessagesResultDTO {
     protected PaginationDTO pagination;
     protected List<String> messages;
 
+    public NotArchivedMessagesResultDTO() {
+    }
+
     public NotArchivedMessagesResultDTO(NotArchivedMessagesFilterDTO filter, Integer pageStart, Integer pageSize) {
         this.filter = filter;
         this.pagination = new PaginationDTO(pageStart, pageSize);

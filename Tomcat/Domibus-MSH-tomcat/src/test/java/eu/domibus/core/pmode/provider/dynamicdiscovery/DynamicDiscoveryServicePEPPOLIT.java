@@ -102,7 +102,7 @@ public class DynamicDiscoveryServicePEPPOLIT extends AbstractIT {
 
     @Before
     public void setUp() throws Exception {
-        uploadPmode(SERVICE_PORT);
+        uploadPMode(SERVICE_PORT);
         createStore(DOMIBUS_TRUSTSTORE_NAME, "keystores/gateway_truststore.jks");
         createStore(DOMIBUS_KEYSTORE_NAME, "keystores/gateway_keystore.jks");
     }
