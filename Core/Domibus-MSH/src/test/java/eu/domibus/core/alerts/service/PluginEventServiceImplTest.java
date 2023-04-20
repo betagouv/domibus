@@ -20,6 +20,8 @@ import javax.jms.Queue;
 import java.util.HashMap;
 import java.util.Map;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_ACTIVE;
+
 /**
  * @author François Gautier
  * @since 5.0
@@ -49,7 +51,7 @@ public class PluginEventServiceImplTest {
     @Test
     public void enqueueMessageEvent_empty(@Injectable AlertEvent alertEvent) {
         new Expectations() {{
-            domibusPropertyProvider.getBooleanProperty("domibus.alert.active");
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
             result = true;
             alertEvent.getAlertLevel();
             result = null;
