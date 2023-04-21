@@ -38,6 +38,8 @@ public class DistributedCacheExtResourceIT extends AbstractIT {
     public static final String TEST_ENDPOINT_NAMES = TEST_ENDPOINT_CACHES + "/names";
     public static final String TEST_ENDPOINT_ENTRIES = TEST_ENDPOINT_RESOURCE + "/caches/{cacheName}";
     public static final String TEST_ENDPOINT_ENTRIES_EVICT = TEST_ENDPOINT_ENTRIES + "/{entryKey}";
+    public static final String DOMIBUS_PROPERTY_METADATA = "domibusPropertyMetadata";
+    public static final String DOMIBUS_DEPLOYMENT_CLUSTERED = "domibus.deployment.clustered";
 
 
     private MockMvc mockMvc;
@@ -52,7 +54,6 @@ public class DistributedCacheExtResourceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void testGetCachesName() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_NAMES)
@@ -69,10 +70,9 @@ public class DistributedCacheExtResourceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void testGetEntries() throws Exception {
         // when
-        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_ENTRIES, "domibusPropertyMetadata")
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_ENTRIES, DOMIBUS_PROPERTY_METADATA)
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
@@ -85,10 +85,9 @@ public class DistributedCacheExtResourceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void getEntry() throws Exception {
         // when
-        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_ENTRIES_EVICT, "domibusPropertyMetadata", "domibus.deployment.clustered")
+        MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_ENTRIES_EVICT, DOMIBUS_PROPERTY_METADATA, DOMIBUS_DEPLOYMENT_CLUSTERED)
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
@@ -99,7 +98,6 @@ public class DistributedCacheExtResourceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void createCache() throws Exception {
         DistributedCacheCreateRequestDto distributedCacheCreateRequestDto = new DistributedCacheCreateRequestDto();
         distributedCacheCreateRequestDto.setCacheName("newCache");
@@ -121,10 +119,9 @@ public class DistributedCacheExtResourceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void testEvictEntry() throws Exception {
         // when
-        mockMvc.perform(delete(TEST_ENDPOINT_ENTRIES_EVICT, "domibusPropertyMetadata", "domibus.deployment.clustered")
+        mockMvc.perform(delete(TEST_ENDPOINT_ENTRIES_EVICT, DOMIBUS_PROPERTY_METADATA, DOMIBUS_DEPLOYMENT_CLUSTERED)
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
@@ -132,10 +129,9 @@ public class DistributedCacheExtResourceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void testEvictEntry_error_cacheNotFound() throws Exception {
         // when
-        mockMvc.perform(delete(TEST_ENDPOINT_ENTRIES_EVICT, "cacheNotFound", "domibus.deployment.clustered")
+        mockMvc.perform(delete(TEST_ENDPOINT_ENTRIES_EVICT, "cacheNotFound", DOMIBUS_DEPLOYMENT_CLUSTERED)
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf()))
                 .andExpect(status().is4xxClientError())
@@ -143,10 +139,9 @@ public class DistributedCacheExtResourceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void testEvictEntry_error_entryNotFound() throws Exception {
         // when
-        mockMvc.perform(delete(TEST_ENDPOINT_ENTRIES_EVICT, "domibusPropertyMetadata", "entryNotFound")
+        mockMvc.perform(delete(TEST_ENDPOINT_ENTRIES_EVICT, DOMIBUS_PROPERTY_METADATA, "entryNotFound")
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf()))
                 .andExpect(status().is2xxSuccessful())
@@ -154,13 +149,12 @@ public class DistributedCacheExtResourceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void addEntry() throws Exception {
         CacheEntryDTO cacheEntryDTO = new CacheEntryDTO();
         cacheEntryDTO.setKey("newKey");
         cacheEntryDTO.setValue("newValue");
         // when
-        mockMvc.perform(post(TEST_ENDPOINT_ENTRIES, "domibusPropertyMetadata")
+        mockMvc.perform(post(TEST_ENDPOINT_ENTRIES, DOMIBUS_PROPERTY_METADATA)
                         .content(asJsonString(cacheEntryDTO))
                         .contentType(MediaType.APPLICATION_JSON)
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
