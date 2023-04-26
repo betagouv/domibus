@@ -50,13 +50,16 @@ public class MessageSenderService {
     @Timer(clazz = MessageSenderService.class,value ="sendUserMessage" )
     @Counter(clazz = MessageSenderService.class,value ="sendUserMessage" )
     public void sendUserMessage(final String messageId, Long messageEntityId, int retryCount) {
+        LOG.debug("Searching user message log with id [{}].", messageId);
         final UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(messageEntityId);
+        LOG.debug("User message log with id [{}] = [{}].", messageId, userMessageLog);
         MessageStatus messageStatus = getMessageStatus(userMessageLog);
+        LOG.debug("Status of user message with id [{}] = [{}].", messageId, messageStatus);
 
         if (MessageStatus.NOT_FOUND == messageStatus) {
             if (retryCount < MAX_RETRY_COUNT) {
-                userMessageService.scheduleSending(userMessageLog, retryCount + 1);
                 LOG.warn("MessageStatus NOT_FOUND, retry count is [{}] -> reschedule sending", retryCount);
+                userMessageService.scheduleSending(userMessageLog, retryCount + 1);
                 return;
             }
             LOG.warn("Message [{}] has a status [{}] for [{}] times and will not be sent", messageId, MessageStatus.NOT_FOUND, retryCount);
