@@ -1,5 +1,7 @@
 package eu.domibus.core.ebms3.sender;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
@@ -53,22 +55,14 @@ public class MessageSenderService {
     @Timer(clazz = MessageSenderService.class, value = "sendUserMessage")
     @Counter(clazz = MessageSenderService.class, value = "sendUserMessage")
     public void sendUserMessage(final String messageId, Long messageEntityId, int retryCount) {
-        LOG.info("Searching user message log with id [{}].", messageId);
+        LOG.debug("Searching user message log with id [{}].", messageId);
         final UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(messageEntityId);
-        LOG.info("User message log with id [{}] = [{}].", messageId, userMessageLog);
-        MessageStatus messageStatus = getMessageStatus(userMessageLog);
-        LOG.info("Status of user message with id [{}] = [{}].", messageId, messageStatus);
-
-        if (MessageStatus.NOT_FOUND == messageStatus) {
-            if (retryCount < MAX_RETRY_COUNT) {
-                LOG.warn("MessageStatus for id [{}] is NOT_FOUND, retry count is [{}] -> reschedule sending", messageId, retryCount);
-                userMessageService.scheduleSending(userMessageLog, retryCount + 1);
-                return;
-            }
-            LOG.warn("Message [{}] has a status [{}] for [{}] times and will not be sent", messageId, MessageStatus.NOT_FOUND, retryCount);
-            return;
+        if (userMessageLog == null) {
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not find message with id [" + messageId + "]");
         }
-
+        MessageStatus messageStatus = userMessageLog.getMessageStatus();
+        LOG.info("Status of user message with id [{}] is [{}].", messageId, messageStatus);
+        
         if (!ALLOWED_STATUSES_FOR_SENDING.contains(messageStatus)) {
             LOG.warn("Message [{}] has a status [{}] which is not allowed for sending. Only the statuses [{}] are allowed", messageId, messageStatus, ALLOWED_STATUSES_FOR_SENDING);
             return;
