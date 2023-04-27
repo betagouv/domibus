@@ -3,7 +3,10 @@ package eu.domibus.core.ebms3.sender;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.TestMessageValidator;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -47,18 +50,18 @@ public class MessageSenderService {
     @Autowired
     protected TestMessageValidator testMessageValidator;
 
-    @Timer(clazz = MessageSenderService.class,value ="sendUserMessage" )
-    @Counter(clazz = MessageSenderService.class,value ="sendUserMessage" )
+    @Timer(clazz = MessageSenderService.class, value = "sendUserMessage")
+    @Counter(clazz = MessageSenderService.class, value = "sendUserMessage")
     public void sendUserMessage(final String messageId, Long messageEntityId, int retryCount) {
-        LOG.debug("Searching user message log with id [{}].", messageId);
+        LOG.info("Searching user message log with id [{}].", messageId);
         final UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(messageEntityId);
-        LOG.debug("User message log with id [{}] = [{}].", messageId, userMessageLog);
+        LOG.info("User message log with id [{}] = [{}].", messageId, userMessageLog);
         MessageStatus messageStatus = getMessageStatus(userMessageLog);
-        LOG.debug("Status of user message with id [{}] = [{}].", messageId, messageStatus);
+        LOG.info("Status of user message with id [{}] = [{}].", messageId, messageStatus);
 
         if (MessageStatus.NOT_FOUND == messageStatus) {
             if (retryCount < MAX_RETRY_COUNT) {
-                LOG.warn("MessageStatus NOT_FOUND, retry count is [{}] -> reschedule sending", retryCount);
+                LOG.warn("MessageStatus for id [{}] is NOT_FOUND, retry count is [{}] -> reschedule sending", messageId, retryCount);
                 userMessageService.scheduleSending(userMessageLog, retryCount + 1);
                 return;
             }
