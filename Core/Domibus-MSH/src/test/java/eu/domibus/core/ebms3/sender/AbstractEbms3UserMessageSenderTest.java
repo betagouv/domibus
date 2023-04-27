@@ -33,7 +33,6 @@ import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.neethi.Policy;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -322,7 +321,6 @@ public class AbstractEbms3UserMessageSenderTest {
         }};
     }
 
-    @Ignore //TODO: will be fixed by EDELIVERY-11139
     @Test
     public void testSendMessage_UnmarshallingError_Exception(@Injectable final Messaging messaging,
                                                              @Injectable final UserMessage userMessage,
@@ -389,6 +387,9 @@ public class AbstractEbms3UserMessageSenderTest {
             mshDispatcher.dispatch(soapMessage, receiverURL, policy, legConfiguration, pModeKey);
             result = response;
 
+            signalMessageSoapEnvelopeSpiDelegate.afterReceiving((SOAPMessage) any);
+            result = soapMessage;
+
             responseHandler.verifyResponse(response, messageId);
             result = EbMS3ExceptionBuilder
                     .getInstance()
@@ -418,6 +419,8 @@ public class AbstractEbms3UserMessageSenderTest {
 
             policyService.isNoSecurityPolicy(policy);
 
+//            signalMessageSoapEnvelopeSpiDelegate.afterReceiving(soapMessage);
+
             EbMS3Exception ebMS3ExceptionActual;
             reliabilityChecker.handleEbms3Exception(ebMS3ExceptionActual = withCapture(), userMessage);
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0004, ebMS3ExceptionActual.getErrorCode());
@@ -440,7 +443,6 @@ public class AbstractEbms3UserMessageSenderTest {
             String ToPartyName = userMessage.getPartyInfo().getToParty();
             Assert.assertFalse(reliabilityService.isSmartRetryEnabledForParty(ToPartyName));
             Assert.assertFalse(userMessage.isTestMessage());
-
         }};
     }
 
