@@ -6,6 +6,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.*;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
@@ -16,6 +17,7 @@ import eu.domibus.plugin.webService.generated.SubmitResponse;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogDao;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageStatus;
+import eu.domibus.plugin.ws.backend.dispatch.WSPluginDispatchClientProvider;
 import eu.domibus.plugin.ws.generated.WebServicePluginInterface;
 import eu.domibus.plugin.ws.message.WSMessageLogDao;
 import eu.domibus.test.AbstractIT;
@@ -26,7 +28,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.awaitility.core.ConditionTimeoutException;
 import org.junit.Assert;
 import org.junit.Rule;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.w3c.dom.Document;
 
 import javax.activation.DataHandler;
@@ -68,7 +74,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
 
     protected static final int SERVICE_PORT = 8892;
 
-    protected static final String WS_NOT_QUEUE = "domibus.notification.webservice";
+    public static final String WS_NOT_QUEUE = "domibus.notification.webservice";
 
     @Rule
     public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort().dynamicHttpsPort());
@@ -93,6 +99,21 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
     DomibusConditionUtil domibusConditionUtil;
     @Autowired
     PModeUtil pModeUtil;
+
+    @Configuration
+    static class ContextConfiguration {
+        @Primary
+        @Bean
+        public WSPluginDispatchClientProvider wsPluginDispatchClientProvider() {
+            return Mockito.mock(WSPluginDispatchClientProvider.class);
+        }
+
+        @Primary
+        @Bean
+        public BackendConnectorProvider backendConnectorProvider() {
+            return Mockito.mock(BackendConnectorProvider.class);
+        }
+    }
 
     protected void verifySendMessageAck(eu.domibus.plugin.ws.generated.body.SubmitResponse response) {
         final List<String> messageID = response.getMessageID();

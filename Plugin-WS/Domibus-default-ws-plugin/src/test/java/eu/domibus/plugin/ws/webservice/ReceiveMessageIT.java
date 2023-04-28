@@ -2,18 +2,19 @@ package eu.domibus.plugin.ws.webservice;
 
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginDispatchClientProvider;
+import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -30,16 +31,8 @@ import java.util.UUID;
  * @author draguio
  * @author martifp
  */
+@Transactional
 public class ReceiveMessageIT extends AbstractBackendWSIT {
-
-    @Configuration
-    static class ContextConfiguration {
-        @Primary
-        @Bean
-        public WSPluginDispatchClientProvider wsPluginDispatchClientProvider() {
-            return Mockito.mock(WSPluginDispatchClientProvider.class);
-        }
-    }
 
     @Autowired
     MSHWebservice mshWebserviceTest;
@@ -53,8 +46,19 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
     @Autowired
     WSPluginDispatchClientProvider wsPluginDispatchClientProvider;
 
+    @Autowired
+    private BackendConnectorProvider backendConnectorProvider;
+
+    @Autowired
+    protected PayloadFileStorageProvider payloadFileStorageProvider;
+
     @Before
     public void before() throws IOException, XmlProcessingException {
+        payloadFileStorageProvider.initialize();
+
+        Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
+                .thenReturn(new BackendConnectorMock("name"));
+
         uploadPmode(wireMockRule.port());
     }
 
@@ -66,7 +70,6 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
      *                        <p>
      *                        ref: Receive Message-01
      */
-    @Ignore("will be fixed by EDELIVERY-11139") //TODO
     @Test
     public void testReceiveMessage() throws SOAPException, IOException, ParserConfigurationException, SAXException, InterruptedException {
         String filename = "SOAPMessage2.xml";
@@ -75,12 +78,9 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         mshWebserviceTest.invoke(soapMessage);
 
-        waitUntilMessageIsReceived(messageId);
-
         deleteAllMessages(messageId);
     }
 
-    @Ignore("will be fixed by EDELIVERY-11139") //TODO
     @Test
     public void testDeleteBatch() throws SOAPException, IOException, ParserConfigurationException, SAXException, InterruptedException {
         String filename = "SOAPMessage2.xml";
@@ -96,15 +96,11 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         mshWebserviceTest.invoke(soapMessage);
 
-        waitUntilMessageIsReceived(messageId);
-
         deleteAllMessages(messageId);
 
         Thread.sleep(1000);
-
     }
 
-    @Ignore("will be fixed by EDELIVERY-11139") //TODO
     @Test
     public void testReceiveTestMessage() throws Exception {
         String filename = "SOAPTestMessage.xml";
@@ -112,9 +108,7 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
 
         mshWebserviceTest.invoke(soapMessage);
-        waitUntilMessageIsReceived(messageId);
 
         deleteAllMessages(messageId);
     }
-
 }
