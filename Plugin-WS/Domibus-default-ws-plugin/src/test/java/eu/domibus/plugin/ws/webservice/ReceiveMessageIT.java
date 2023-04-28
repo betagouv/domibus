@@ -14,9 +14,6 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
@@ -36,15 +33,6 @@ import java.util.UUID;
  */
 @Transactional
 public class ReceiveMessageIT extends AbstractBackendWSIT {
-
-    @Configuration
-    static class ContextConfiguration {
-        @Primary
-        @Bean
-        public WSPluginDispatchClientProvider wsPluginDispatchClientProvider() {
-            return Mockito.mock(WSPluginDispatchClientProvider.class);
-        }
-    }
 
     @Autowired
     MSHWebservice mshWebserviceTest;

@@ -419,8 +419,6 @@ public class AbstractEbms3UserMessageSenderTest {
 
             policyService.isNoSecurityPolicy(policy);
 
-//            signalMessageSoapEnvelopeSpiDelegate.afterReceiving(soapMessage);
-
             EbMS3Exception ebMS3ExceptionActual;
             reliabilityChecker.handleEbms3Exception(ebMS3ExceptionActual = withCapture(), userMessage);
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0004, ebMS3ExceptionActual.getErrorCode());
