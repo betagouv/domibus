@@ -61,8 +61,8 @@ public class MessageSenderService {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not find message with id [" + messageId + "]");
         }
         MessageStatus messageStatus = userMessageLog.getMessageStatus();
-        LOG.info("Status of user message with id [{}] is [{}].", messageId, messageStatus);
-        
+        LOG.debug("Status of user message with id [{}] is [{}].", messageId, messageStatus);
+
         if (!ALLOWED_STATUSES_FOR_SENDING.contains(messageStatus)) {
             LOG.warn("Message [{}] has a status [{}] which is not allowed for sending. Only the statuses [{}] are allowed", messageId, messageStatus, ALLOWED_STATUSES_FOR_SENDING);
             return;
