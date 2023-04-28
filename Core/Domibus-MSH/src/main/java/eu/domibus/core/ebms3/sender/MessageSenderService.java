@@ -1,9 +1,13 @@
 package eu.domibus.core.ebms3.sender;
 
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.core.message.*;
+import eu.domibus.core.message.TestMessageValidator;
+import eu.domibus.core.message.UserMessageDao;
+import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -47,21 +51,16 @@ public class MessageSenderService {
     @Autowired
     protected TestMessageValidator testMessageValidator;
 
-    @Timer(clazz = MessageSenderService.class,value ="sendUserMessage" )
-    @Counter(clazz = MessageSenderService.class,value ="sendUserMessage" )
+    @Timer(clazz = MessageSenderService.class, value = "sendUserMessage")
+    @Counter(clazz = MessageSenderService.class, value = "sendUserMessage")
     public void sendUserMessage(final String messageId, Long messageEntityId, int retryCount) {
+        LOG.debug("Searching user message log with id [{}] and entity id [{}].", messageId, messageEntityId);
         final UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(messageEntityId);
-        MessageStatus messageStatus = getMessageStatus(userMessageLog);
-
-        if (MessageStatus.NOT_FOUND == messageStatus) {
-            if (retryCount < MAX_RETRY_COUNT) {
-                userMessageService.scheduleSending(userMessageLog, retryCount + 1);
-                LOG.warn("MessageStatus NOT_FOUND, retry count is [{}] -> reschedule sending", retryCount);
-                return;
-            }
-            LOG.warn("Message [{}] has a status [{}] for [{}] times and will not be sent", messageId, MessageStatus.NOT_FOUND, retryCount);
-            return;
+        if (userMessageLog == null) {
+            throw new MessageNotFoundException(messageId, " when trying to send from C2 to C3");
         }
+        MessageStatus messageStatus = userMessageLog.getMessageStatus();
+        LOG.debug("Status of user message with id [{}] is [{}].", messageId, messageStatus);
 
         if (!ALLOWED_STATUSES_FOR_SENDING.contains(messageStatus)) {
             LOG.warn("Message [{}] has a status [{}] which is not allowed for sending. Only the statuses [{}] are allowed", messageId, messageStatus, ALLOWED_STATUSES_FOR_SENDING);
