@@ -1,7 +1,6 @@
 package eu.domibus.core.ebms3.sender;
 
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.message.UserMessageException;
+import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
@@ -55,10 +54,10 @@ public class MessageSenderService {
     @Timer(clazz = MessageSenderService.class, value = "sendUserMessage")
     @Counter(clazz = MessageSenderService.class, value = "sendUserMessage")
     public void sendUserMessage(final String messageId, Long messageEntityId, int retryCount) {
-        LOG.debug("Searching user message log with id [{}].", messageId);
+        LOG.debug("Searching user message log with id [{}] and entity id [{}].", messageId, messageEntityId);
         final UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(messageEntityId);
         if (userMessageLog == null) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not find message with id [" + messageId + "]");
+            throw new MessageNotFoundException(messageId);
         }
         MessageStatus messageStatus = userMessageLog.getMessageStatus();
         LOG.debug("Status of user message with id [{}] is [{}].", messageId, messageStatus);
