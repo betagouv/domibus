@@ -57,7 +57,7 @@ public class MessageSenderService {
         LOG.debug("Searching user message log with id [{}] and entity id [{}].", messageId, messageEntityId);
         final UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(messageEntityId);
         if (userMessageLog == null) {
-            throw new MessageNotFoundException(messageId);
+            throw new MessageNotFoundException(messageId, " when trying to send from C2 to C3");
         }
         MessageStatus messageStatus = userMessageLog.getMessageStatus();
         LOG.debug("Status of user message with id [{}] is [{}].", messageId, messageStatus);
