@@ -66,6 +66,15 @@
         <vulnerabilityName>CVE-2018-12536</vulnerabilityName>
     </suppress>
     <suppress>
+        <!-- jetty-server is not used in production - used in tests -->
+        <notes><![CDATA[
+   file name: jetty-server-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-.*$</packageUrl>
+        <cve>CVE-2023-26048</cve>
+        <cve>CVE-2023-26049</cve>
+    </suppress>
+    <suppress>
         <notes><![CDATA[
    file name: cxf-rt-bindings-soap-3.5.5.jar
    ]]></notes>
@@ -165,6 +174,7 @@
         <cve>CVE-2022-41854</cve>
         <cve>CVE-2022-3064</cve>
         <cve>CVE-2021-4235</cve>
+        <cve>CVE-2023-2251</cve>
         <vulnerabilityName>CVE-2022-38752</vulnerabilityName>
         <vulnerabilityName>CVE-2022-1471</vulnerabilityName>
     </suppress>
