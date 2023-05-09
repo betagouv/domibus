@@ -65,6 +65,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultDomainCryptoServiceSpiImpl.class);
 
+    private static final Object changeLock = new Object();
+
     private static final String SYNC_LOCK_KEY = "keystore-synchronization.lock";
 
     protected Domain domain;
@@ -328,13 +330,13 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     @Override
-    public synchronized void refreshTrustStore() {
-        reloadTrustStore();
+    public void refreshTrustStore() {
+        executeWithLock(() -> reloadTrustStore());
     }
 
     @Override
-    public synchronized void refreshKeyStore() {
-        reloadKeyStore();
+    public void refreshKeyStore() {
+        executeWithLock(() -> reloadKeyStore());
     }
 
     @Override
@@ -354,19 +356,23 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     @Override
-    public synchronized void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
-        replaceStore(storeContent, storeFileName, storePassword, DOMIBUS_TRUSTSTORE_NAME,
-                keystorePersistenceService::getTrustStorePersistenceInfo, this::reloadTrustStore, this::validateTrustStoreCertificateTypes);
+    public void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
+        executeWithLock(() ->
+                replaceStore(storeContent, storeFileName, storePassword, DOMIBUS_TRUSTSTORE_NAME,
+                        keystorePersistenceService::getTrustStorePersistenceInfo, this::reloadTrustStore, this::validateTrustStoreCertificateTypes)
+        );
     }
 
     @Override
-    public synchronized void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
-        replaceStore(storeContent, storeFileName, storePassword, DOMIBUS_KEYSTORE_NAME,
-                keystorePersistenceService::getKeyStorePersistenceInfo, this::reloadKeyStore, this::validateKeyStoreCertificateTypes);
+    public void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
+        executeWithLock(() ->
+                replaceStore(storeContent, storeFileName, storePassword, DOMIBUS_KEYSTORE_NAME,
+                        keystorePersistenceService::getKeyStorePersistenceInfo, this::reloadKeyStore, this::validateKeyStoreCertificateTypes)
+        );
     }
 
     @Override
-    public synchronized void replaceTrustStore(String storeFileLocation, String storePassword) throws CryptoSpiException {
+    public void replaceTrustStore(String storeFileLocation, String storePassword) throws CryptoSpiException {
         Path path = Paths.get(storeFileLocation);
         String storeName = path.getFileName().toString();
         byte[] storeContent = getContentFromFile(storeFileLocation);
@@ -374,7 +380,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     @Override
-    public synchronized void replaceKeyStore(String storeFileLocation, String storePassword) {
+    public void replaceKeyStore(String storeFileLocation, String storePassword) {
         Path path = Paths.get(storeFileLocation);
         String storeName = path.getFileName().toString();
         byte[] storeContent = getContentFromFile(storeFileLocation);
@@ -389,26 +395,26 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     @Override
-    public synchronized boolean addCertificate(X509Certificate certificate, String alias, boolean overwrite) {
+    public boolean addCertificate(X509Certificate certificate, String alias, boolean overwrite) {
         List<CertificateEntry> certificates = Collections.singletonList(new CertificateEntry(alias, certificate));
         return addCertificates(certificates, overwrite);
     }
 
     @Override
-    public synchronized void addCertificate(List<CertificateEntrySpi> certs, boolean overwrite) {
+    public void addCertificate(List<CertificateEntrySpi> certs, boolean overwrite) {
         List<CertificateEntry> certificates = certs.stream().map(el -> new CertificateEntry(el.getAlias(), el.getCertificate()))
                 .collect(Collectors.toList());
         addCertificates(certificates, overwrite);
     }
 
     @Override
-    public synchronized boolean removeCertificate(String alias) {
+    public boolean removeCertificate(String alias) {
         List<String> aliases = Collections.singletonList(alias);
         return removeCertificates(aliases);
     }
 
     @Override
-    public synchronized void removeCertificate(List<String> aliases) {
+    public void removeCertificate(List<String> aliases) {
         removeCertificates(aliases);
     }
 
@@ -486,24 +492,32 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     private <R> R executeWithLock(Callable<R> task) {
-//        if (domibusConfigurationService.isClusterDeployment()) {
-        LOG.debug("Handling execution using db lock.");
-        try {
-            R res = domainTaskExecutor.submit(task, null, SYNC_LOCK_KEY, 3L, TimeUnit.MINUTES);
-            LOG.debug("Finished handling execution using db lock.");
-            return res;
-        } catch (DomainTaskException ex) {
-            throw new CryptoSpiException(ex.getCause());
+        if (domibusConfigurationService.isClusterDeployment()) {
+            LOG.debug("Handling execution using db lock.");
+            try {
+                R res = domainTaskExecutor.submit(task, null, SYNC_LOCK_KEY, 3L, TimeUnit.MINUTES);
+                LOG.debug("Finished handling execution using db lock.");
+                return res;
+            } catch (DomainTaskException ex) {
+                throw new CryptoSpiException(ex.getCause());
+            }
+        } else {
+            LOG.debug("Handling execution with java lock.");
+            synchronized (changeLock) {
+                try {
+                    R res = task.call();
+                    LOG.debug("Finished handling execution with java lock.");
+                    return res;
+                } catch (Exception e) {
+                    throw new CryptoSpiException(e);
+                }
+            }
         }
-//        } else {
-//            LOG.debug("Handling execution without db lock.");
-//            task.run();
-//        }
     }
 
-    protected synchronized void replaceStore(byte[] storeContent, String storeFileName, String storePassword,
-                                             String storeName, Supplier<KeystorePersistenceInfo> persistenceInfoGetter,
-                                             Runnable storeReloader, Consumer<KeyStore> certificateTypeValidator) throws CryptoSpiException {
+    protected boolean replaceStore(byte[] storeContent, String storeFileName, String storePassword,
+                                   String storeName, Supplier<KeystorePersistenceInfo> persistenceInfoGetter,
+                                   Runnable storeReloader, Consumer<KeyStore> certificateTypeValidator) throws CryptoSpiException {
         boolean replaced;
         try {
             KeyStoreContentInfo storeContentInfo = certificateHelper.createStoreContentInfo(storeName, storeFileName, storeContent, storePassword);
@@ -523,6 +537,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                             storeName, storeFileName));
         }
         storeReloader.run();
+        return true;
     }
 
     protected void validateTrustStoreCertificateTypes(KeyStore trustStore) {
@@ -724,24 +739,24 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         return result;
     }
 
-    private synchronized void reloadKeyStore() throws CryptoSpiException {
-        reloadStore(keystorePersistenceService::getKeyStorePersistenceInfo, this::getKeyStore, this::loadKeyStoreProperties,
+    private boolean reloadKeyStore() throws CryptoSpiException {
+        return reloadStore(keystorePersistenceService::getKeyStorePersistenceInfo, this::getKeyStore, this::loadKeyStoreProperties,
                 (keyStore, securityProfileConfiguration) -> securityProfileConfiguration.getMerlin().setKeyStore(keyStore),
                 signalService::signalKeyStoreUpdate, this::validateKeyStoreCertificateTypes);
     }
 
-    private void reloadTrustStore() throws CryptoSpiException {
-        reloadStore(keystorePersistenceService::getTrustStorePersistenceInfo, this::getTrustStore, this::loadTrustStoreProperties,
+    private boolean reloadTrustStore() throws CryptoSpiException {
+        return reloadStore(keystorePersistenceService::getTrustStorePersistenceInfo, this::getTrustStore, this::loadTrustStoreProperties,
                 (keyStore, securityProfileConfiguration) -> securityProfileConfiguration.getMerlin().setTrustStore(keyStore),
                 signalService::signalTrustStoreUpdate, this::validateTrustStoreCertificateTypes);
     }
 
-    private void reloadStore(Supplier<KeystorePersistenceInfo> persistenceGetter,
-                             Supplier<KeyStore> storeGetter,
-                             Runnable storePropertiesLoader,
-                             BiConsumer<KeyStore, SecurityProfileAliasConfiguration> storeSetter,
-                             Consumer<Domain> signaller,
-                             Consumer<KeyStore> certificateTypeValidator) throws CryptoSpiException {
+    private boolean reloadStore(Supplier<KeystorePersistenceInfo> persistenceGetter,
+                                Supplier<KeyStore> storeGetter,
+                                Runnable storePropertiesLoader,
+                                BiConsumer<KeyStore, SecurityProfileAliasConfiguration> storeSetter,
+                                Consumer<Domain> signaller,
+                                Consumer<KeyStore> certificateTypeValidator) throws CryptoSpiException {
         KeystorePersistenceInfo persistenceInfo = persistenceGetter.get();
         String storeLocation = persistenceInfo.getFileLocation();
         try {
@@ -751,7 +766,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             certificateTypeValidator.accept(newStore);
             if (securityUtil.areKeystoresIdentical(currentStore, newStore)) {
                 LOG.info("[{}] on disk and in memory are identical, so no reloading.", storeName);
-                return;
+                return false;
             }
 
             LOG.info("Replacing the [{}] with entries [{}] with the one from the file [{}] with entries [{}] on domain [{}].",
@@ -763,6 +778,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             });
 
             signaller.accept(domain);
+            return true;
         } catch (CryptoException ex) {
             throw new CryptoSpiException("Error while replacing the keystore from file " + storeLocation, ex);
         }
