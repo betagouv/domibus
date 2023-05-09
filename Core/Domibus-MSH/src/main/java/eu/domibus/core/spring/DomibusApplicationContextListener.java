@@ -44,36 +44,25 @@ public class DomibusApplicationContextListener {
 
     public static final String SYNC_LOCK_KEY = "bootstrap-synchronization.lock";
 
-
     protected final EncryptionService encryptionService;
-
 
     protected final BackendFilterInitializerService backendFilterInitializerService;
 
-
     protected final StaticDictionaryService messageDictionaryService;
-
 
     protected final DomibusConfigurationService domibusConfigurationService;
 
-
     protected final DomainTaskExecutor domainTaskExecutor;
-
 
     protected final GatewayConfigurationValidator gatewayConfigurationValidator;
 
-
     protected final MultiDomainCryptoService multiDomainCryptoService;
-
 
     protected final TLSCertificateManager tlsCertificateManager;
 
-
     protected final UserManagementServiceImpl userManagementService;
 
-
     protected final DomibusPropertyValidatorService domibusPropertyValidatorService;
-
 
     protected final BackendConnectorService backendConnectorService;
 

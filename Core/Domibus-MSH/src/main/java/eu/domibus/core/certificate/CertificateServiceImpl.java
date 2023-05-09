@@ -428,7 +428,7 @@ public class CertificateServiceImpl implements CertificateService {
 
     @Override
     public boolean removeCertificates(KeyStore keyStore, KeystorePersistenceInfo persistenceInfo, List<String> aliases) {
-
+        return doRemoveCertificates(keyStore, persistenceInfo, aliases);
     }
 
     @Override

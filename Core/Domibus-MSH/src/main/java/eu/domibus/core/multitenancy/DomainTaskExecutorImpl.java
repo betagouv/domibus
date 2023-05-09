@@ -1,6 +1,7 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.*;
+import eu.domibus.api.multitenancy.lock.SynchronizedCallable;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
 import eu.domibus.logging.DomibusLogger;
@@ -49,6 +50,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
             throw new DomainTaskException("Could not execute task", e);
         }
     }
+
     @Override
     public <T extends Object> T submit(Callable<T> task, Domain domain) {
         DomainCallable domainCallable = new DomainCallable(domainContextProvider, task, domain);
@@ -94,6 +96,18 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     }
 
     @Override
+    public <T> Future<T> submit(Callable<T> task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+        LOG.trace("Submitting task with lock file [{}], timeout [{}] expressed in unit [{}]", lockKey, timeout, timeUnit);
+
+        SynchronizedCallable<T> synchronizedRunnable = synchronizedRunnableFactory.synchronizedCallable(task, lockKey);
+
+        SetMDCContextTaskCallable setMDCContextTaskRunnable = new SetMDCContextTaskCallable(synchronizedRunnable, errorHandler);
+        final ClearDomainCallable clearDomainRunnable = new ClearDomainCallable(domainContextProvider, setMDCContextTaskRunnable);
+
+        return submitCallable(schedulingTaskExecutor, clearDomainRunnable, errorHandler, waitForTask, timeout, timeUnit);
+    }
+
+    @Override
     public void submit(Runnable task, Domain domain) {
         submit(schedulingTaskExecutor, task, domain, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
     }
@@ -126,6 +140,24 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
 
     protected Future<?> submitRunnable(SchedulingTaskExecutor taskExecutor, Runnable task, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
         return submitRunnable(taskExecutor, task, null, waitForTask, timeout, timeUnit);
+    }
+
+    protected <T> Future<T> submitCallable(SchedulingTaskExecutor taskExecutor, Callable<T> task, Runnable errorHandler, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+        final Future<T> utrFuture = taskExecutor.submit(task);
+
+        if (waitForTask) {
+            LOG.debug("Waiting for task to complete");
+            try {
+                T res = utrFuture.get(timeout, timeUnit);
+                LOG.debug("Task completed");
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                handleRunnableError(e, errorHandler);
+            } catch (ExecutionException | TimeoutException e) {
+                handleRunnableError(e, errorHandler);
+            }
+        }
+        return utrFuture;
     }
 
     protected Future<?> submitRunnable(SchedulingTaskExecutor taskExecutor, Runnable task, Runnable errorHandler, boolean waitForTask, Long timeout, TimeUnit timeUnit) {

@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
+import java.util.concurrent.Callable;
+
 /**
  * @author Ion Perpegel
  * @since 5.0
@@ -28,5 +30,11 @@ public class SynchronizedRunnableFactory {
     @Scope("prototype")
     public SynchronizedRunnable synchronizedRunnable(Runnable runnable, String lockKey) {
         return new SynchronizedRunnable(runnable, lockKey, synchronizationService);
+    }
+
+    @Bean(autowireCandidate = false)
+    @Scope("prototype")
+    public <T> SynchronizedCallable<T> synchronizedCallable(Callable<T> runnable, String lockKey) {
+        return new SynchronizedCallable<>(runnable, lockKey, synchronizationService);
     }
 }

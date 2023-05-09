@@ -29,6 +29,8 @@ public interface DomainTaskExecutor {
      */
     void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit);
 
+    <T extends Object> Future<T> submit(Callable<T> task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit);
+
     void submit(Runnable task, Runnable errorHandler, String lockKey);
 
     void submit(Runnable task, Domain domain);
