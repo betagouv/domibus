@@ -43,6 +43,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -341,12 +342,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     @Override
     public void resetKeyStore() {
-        reloadKeyStore();
+        executeWithLock(() -> reloadKeyStore());
     }
 
     @Override
     public void resetTrustStore() {
-        reloadTrustStore();
+        executeWithLock(() -> reloadTrustStore());
     }
 
     @Override
@@ -444,19 +445,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     //refactor to reuse code for the below 2 methods
     private boolean doAddCertificates(List<CertificateEntry> certificates, boolean overwrite) {
-        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
-
-        KeyStore diskStore = certificateService.getStore(persistenceInfo);
-        boolean outcome = certificateService.addCertificates(diskStore, persistenceInfo, certificates, overwrite);
-
-        boolean identical = securityUtil.areKeystoresIdentical(getTrustStore(), diskStore);
-        if (!identical) {
-            LOG.info("Current store [{}] is different from the persisted one, reloading", persistenceInfo.getName());
-            reloadTrustStore();
-        } else {
-            LOG.info("Current store [{}] is identical with the persisted one, no reloading.", persistenceInfo.getName());
-        }
-        return outcome;
+        BiFunction<KeystorePersistenceInfo, KeyStore, Boolean> storeChanger =
+                (persistenceInfo, diskStore) -> certificateService.addCertificates(diskStore, persistenceInfo, certificates, overwrite);
+        return changeCertificates(storeChanger);
 
 //        boolean added = certificateService.addCertificates(persistenceInfo, certificates, overwrite);
 //        if (added) {
@@ -470,10 +461,22 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     private boolean doRemoveCertificates(List<String> aliases) {
-        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+        BiFunction<KeystorePersistenceInfo, KeyStore, Boolean> storeChanger =
+                (persistenceInfo, diskStore) -> certificateService.removeCertificates(diskStore, persistenceInfo, aliases);
+        return changeCertificates(storeChanger);
 
+//        boolean removed = certificateService.removeCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), aliases);
+//        if (removed) {
+//            resetTrustStore();
+//        }
+//        return removed;
+    }
+
+    private boolean changeCertificates(BiFunction<KeystorePersistenceInfo, KeyStore, Boolean> storeChanger) {
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
         KeyStore diskStore = certificateService.getStore(persistenceInfo);
-        boolean outcome = certificateService.removeCertificates(diskStore, persistenceInfo, aliases);
+
+        boolean outcome = storeChanger.apply(persistenceInfo, diskStore);
 
         boolean identical = securityUtil.areKeystoresIdentical(getTrustStore(), diskStore);
         if (!identical) {
@@ -483,12 +486,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             LOG.info("Current store [{}] is identical with the persisted one, no reloading.", persistenceInfo.getName());
         }
         return outcome;
-
-//        boolean removed = certificateService.removeCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), aliases);
-//        if (removed) {
-//            resetTrustStore();
-//        }
-//        return removed;
     }
 
     private <R> R executeWithLock(Callable<R> task) {
