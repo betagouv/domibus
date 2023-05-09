@@ -96,15 +96,15 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     }
 
     @Override
-    public <T> Future<T> submit(Callable<T> task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+    public <T> T submit(Callable<T> task, Runnable errorHandler, String lockKey, Long timeout, TimeUnit timeUnit) {
         LOG.trace("Submitting task with lock file [{}], timeout [{}] expressed in unit [{}]", lockKey, timeout, timeUnit);
 
         SynchronizedCallable<T> synchronizedRunnable = synchronizedRunnableFactory.synchronizedCallable(task, lockKey);
 
-        SetMDCContextTaskCallable setMDCContextTaskRunnable = new SetMDCContextTaskCallable(synchronizedRunnable, errorHandler);
-        final ClearDomainCallable clearDomainRunnable = new ClearDomainCallable(domainContextProvider, setMDCContextTaskRunnable);
+        SetMDCContextTaskCallable<T> setMDCContextTaskRunnable = new SetMDCContextTaskCallable<T>(synchronizedRunnable, errorHandler);
+        final ClearDomainCallable<T> clearDomainRunnable = new ClearDomainCallable<T>(domainContextProvider, setMDCContextTaskRunnable);
 
-        return submitCallable(schedulingTaskExecutor, clearDomainRunnable, errorHandler, waitForTask, timeout, timeUnit);
+        return submitCallable(schedulingTaskExecutor, clearDomainRunnable, errorHandler, timeout, timeUnit);
     }
 
     @Override
@@ -142,22 +142,23 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         return submitRunnable(taskExecutor, task, null, waitForTask, timeout, timeUnit);
     }
 
-    protected <T> Future<T> submitCallable(SchedulingTaskExecutor taskExecutor, Callable<T> task, Runnable errorHandler, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+    protected <T> T submitCallable(SchedulingTaskExecutor taskExecutor, Callable<T> task, Runnable errorHandler, Long timeout, TimeUnit timeUnit) {
         final Future<T> utrFuture = taskExecutor.submit(task);
 
-        if (waitForTask) {
-            LOG.debug("Waiting for task to complete");
-            try {
-                T res = utrFuture.get(timeout, timeUnit);
-                LOG.debug("Task completed");
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                handleRunnableError(e, errorHandler);
-            } catch (ExecutionException | TimeoutException e) {
-                handleRunnableError(e, errorHandler);
-            }
+        LOG.debug("Waiting for task to complete");
+        T res = null;
+        try {
+            res = utrFuture.get(timeout, timeUnit);
+            LOG.debug("Task completed");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            handleRunnableError(e, errorHandler);
+        } catch (TimeoutException e) {
+            handleRunnableError(e, errorHandler);
+        } catch (ExecutionException e) {
+            handleRunnableError(e.getCause(), errorHandler);
         }
-        return utrFuture;
+        return res;
     }
 
     protected Future<?> submitRunnable(SchedulingTaskExecutor taskExecutor, Runnable task, Runnable errorHandler, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
@@ -178,7 +179,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         return utrFuture;
     }
 
-    protected void handleRunnableError(Exception exception, Runnable errorHandler) {
+    protected void handleRunnableError(Throwable exception, Runnable errorHandler) {
         if (errorHandler != null) {
             LOG.debug("Running the error handler", exception);
             errorHandler.run();

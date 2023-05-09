@@ -64,12 +64,11 @@ public class SynchronizedCallable<T> implements Callable<T> {
             throw new DomainTaskException(String.format("Lock key [%s] not found!", lockKey), nre);
         } catch (LockTimeoutException lte) {
             LOG.info("[{}] key lock could not be acquired. It is probably being used by another process.", lockKey);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("[{}] key lock could not be acquired.", lockKey, lte);
-            }
-        } catch (Exception ex) {
-            LOG.error("Error while running synchronized task.", ex);
+            LOG.debug("[{}] key lock could not be acquired.", lockKey, lte);
         }
+//        catch (Exception ex) {
+//            LOG.error("Error while running synchronized task.", ex);
+//        }
 
         Thread.currentThread().setName(threadName);
         return res;

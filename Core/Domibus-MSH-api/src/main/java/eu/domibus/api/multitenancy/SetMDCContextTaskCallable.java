@@ -41,16 +41,15 @@ public class SetMDCContextTaskCallable<T> implements Callable<T> {
             LOG.trace("Finished executing task");
         } catch (Throwable e) {
             LOG.error("Error executing task", e);
-            executeErrorHandler();
+            executeErrorHandler(e);
         }
         return res;
     }
 
-
-    protected void executeErrorHandler() {
+    protected void executeErrorHandler(Throwable ex) {
         if (errorHandler == null) {
             LOG.trace("No error handler has been set");
-            return;
+            throw new DomainTaskException("Could not execute task", ex);
         }
 
         try {

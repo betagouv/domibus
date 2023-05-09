@@ -4,6 +4,7 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -432,9 +433,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     private boolean addCertificates(List<CertificateEntry> certificates, boolean overwrite) {
-        boolean res = executeWithLock(() -> doAddCertificates(certificates, overwrite));
-//        boolean res = doAddCertificates(certificates, overwrite);
-        return res;
+        return executeWithLock(() -> doAddCertificates(certificates, overwrite));
     }
 
     //refactor to reuse code for the below 2 methods
@@ -461,6 +460,10 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     private boolean removeCertificates(List<String> aliases) {
+        return executeWithLock(() -> doRemoveCertificates(aliases));
+    }
+
+    private boolean doRemoveCertificates(List<String> aliases) {
         KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
 
         KeyStore diskStore = certificateService.getStore(persistenceInfo);
@@ -485,18 +488,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     private <R> R executeWithLock(Callable<R> task) {
 //        if (domibusConfigurationService.isClusterDeployment()) {
         LOG.debug("Handling execution using db lock.");
-        Runnable errorHandler = () -> {
-            LOG.warn("An error has occurred while executing task [{}].", task);
-        };
-        Future<R> res = (Future<R>) domainTaskExecutor.submit(task, errorHandler, SYNC_LOCK_KEY, true, 3L, TimeUnit.MINUTES);
-        LOG.debug("Finished handling execution using db lock.");
         try {
-            R result = res.get();
-            return result;
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
+            R res = domainTaskExecutor.submit(task, null, SYNC_LOCK_KEY, 3L, TimeUnit.MINUTES);
+            LOG.debug("Finished handling execution using db lock.");
+            return res;
+        } catch (DomainTaskException ex) {
+            throw new CryptoSpiException(ex.getCause());
         }
 //        } else {
 //            LOG.debug("Handling execution without db lock.");
@@ -740,11 +737,11 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     private void reloadStore(Supplier<KeystorePersistenceInfo> persistenceGetter,
-                                          Supplier<KeyStore> storeGetter,
-                                          Runnable storePropertiesLoader,
-                                          BiConsumer<KeyStore, SecurityProfileAliasConfiguration> storeSetter,
-                                          Consumer<Domain> signaller,
-                                          Consumer<KeyStore> certificateTypeValidator) throws CryptoSpiException {
+                             Supplier<KeyStore> storeGetter,
+                             Runnable storePropertiesLoader,
+                             BiConsumer<KeyStore, SecurityProfileAliasConfiguration> storeSetter,
+                             Consumer<Domain> signaller,
+                             Consumer<KeyStore> certificateTypeValidator) throws CryptoSpiException {
         KeystorePersistenceInfo persistenceInfo = persistenceGetter.get();
         String storeLocation = persistenceInfo.getFileLocation();
         try {

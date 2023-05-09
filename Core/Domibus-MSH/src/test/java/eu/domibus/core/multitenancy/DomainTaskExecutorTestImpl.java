@@ -60,7 +60,7 @@ public class DomainTaskExecutorTestImpl implements DomainTaskExecutor {
     }
 
     @Override
-    public <T> Future<T> submit(Callable<T> task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+    public <T> T submit(Callable<T> task, Runnable errorHandler, String lockKey, Long timeout, TimeUnit timeUnit) {
         return null;
     }
 
