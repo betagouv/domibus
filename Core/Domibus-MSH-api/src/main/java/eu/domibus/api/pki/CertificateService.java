@@ -152,6 +152,8 @@ public interface CertificateService {
      */
     boolean addCertificates(KeystorePersistenceInfo keystorePersistenceInfo, List<CertificateEntry> certificates, boolean overwrite);
 
+    boolean addCertificates(KeyStore keyStore, KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite);
+
     /**
      * Removes the specified certificate from the truststore pointed by the parameters
      *
@@ -171,6 +173,8 @@ public interface CertificateService {
      * @return the id of the store with {@param trustName}.
      */
     boolean removeCertificates(KeystorePersistenceInfo keystorePersistenceInfo, List<String> aliases);
+
+    boolean removeCertificates(KeyStore keyStore, KeystorePersistenceInfo persistenceInfo, List<String> aliases);
 
     KeyStoreContentInfo getStoreContent(KeystorePersistenceInfo keystorePersistenceInfo);
 
@@ -198,4 +202,5 @@ public interface CertificateService {
     boolean isStoreChangedOnDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo);
 
     KeyStore getNewKeystore(String storeType) throws KeyStoreException;
+
 }

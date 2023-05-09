@@ -421,27 +421,47 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     protected boolean addCertificates(boolean overwrite, List<CertificateEntry> certificates) {
-        boolean added = certificateService.addCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), certificates, overwrite);
-        if (added) {
-            resetTrustStore();
-        }
-        return added;
-    }
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
 
-    private byte[] getContentFromFile(String location) {
-        try {
-            return fileServiceUtil.getContentFromFile(location);
-        } catch (IOException e) {
-            throw new DomibusCertificateException("Could not read store from [" + location + "]");
+        KeyStore diskStore = certificateService.getStore(persistenceInfo);
+        certificateService.addCertificates(diskStore, persistenceInfo, certificates, overwrite);
+
+        boolean identical = securityUtil.areKeystoresIdentical(getTrustStore(), diskStore);
+        if (identical) {
+            LOG.info("Current store [{}] is identical with the persisted one.", persistenceInfo.getName());
+            return false;
         }
+
+        resetTrustStore();
+        return true;
+
+//        boolean added = certificateService.addCertificates(persistenceInfo, certificates, overwrite);
+//        if (added) {
+//            resetTrustStore();
+//        }
+//        return added;
     }
 
     protected boolean removeCertificates(List<String> aliases) {
-        boolean removed = certificateService.removeCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), aliases);
-        if (removed) {
-            resetTrustStore();
+        KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+
+        KeyStore diskStore = certificateService.getStore(persistenceInfo);
+        certificateService.removeCertificates(diskStore, persistenceInfo, aliases);
+
+        boolean identical = securityUtil.areKeystoresIdentical(getTrustStore(), diskStore);
+        if (identical) {
+            LOG.info("Current store [{}] is identical with the persisted one.", persistenceInfo.getName());
+            return false;
         }
-        return removed;
+
+        resetTrustStore();
+        return true;
+        
+//        boolean removed = certificateService.removeCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), aliases);
+//        if (removed) {
+//            resetTrustStore();
+//        }
+//        return removed;
     }
 
     protected synchronized void replaceStore(byte[] storeContent, String storeFileName, String storePassword,
@@ -495,6 +515,14 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
         securityProfileAliasConfigurations.forEach(
                 profileConfiguration -> storePropertiesLoader.accept(persistenceInfo, profileConfiguration));
+    }
+
+    private byte[] getContentFromFile(String location) {
+        try {
+            return fileServiceUtil.getContentFromFile(location);
+        } catch (IOException e) {
+            throw new DomibusCertificateException("Could not read store from [" + location + "]");
+        }
     }
 
     private void loadTrustStorePropertiesForMerlin(KeystorePersistenceInfo persistenceInfo, SecurityProfileAliasConfiguration profileAliasConfiguration) {
