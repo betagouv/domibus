@@ -3,17 +3,17 @@ package eu.domibus.api.multitenancy.lock;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.LockTimeoutException;
 import javax.persistence.NoResultException;
+import java.util.concurrent.Callable;
 
 /**
  * Wrapper for the Runnable class to be executed. Attempts to lock via db record and in case it succeeds it runs the wrapped Runnable.
- *
+ * <p>
  * IMPORTANT: Only use with tasks that are short in duration since the locking requires an active database transaction
- *
+ * <p>
  * If using the SynchronizationServiceImpl as synchronizationService then the synchronization will be done using a pessimistic lock,
  * so a transaction has to be active to acquire the lock initially and has to end only after the runnable task has finished.
  * Instantiate using SynchronizedRunnableFactory, so it can be managed by Spring which needs to start the transaction required by the run method.
@@ -23,53 +23,84 @@ import javax.persistence.NoResultException;
  * @author Ion Perpegel
  * @since 5.0
  */
-public class SynchronizedRunnable implements Runnable {
+public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnable.class);
 
-    private SynchronizationService synchronizationService;
+    private final SynchronizationService synchronizationService;
+
     private String lockKey;
+
     private Runnable runnable;
+
+    private Callable<T> callable;
+
+    private SynchronizedRunnable(String lockKey, SynchronizationService synchronizationService) {
+        this.lockKey = lockKey;
+        this.synchronizationService = synchronizationService;
+    }
 
     /**
      * Instantiate using SynchronizedRunnableFactory, so it can be managed by Spring which needs to start the transaction required by the run method.
-     * @param runnable the task to execute (short duration)
-     * @param lockKey the key for which to lock execution
+     *
+     * @param runnable               the task to execute (short duration)
+     * @param lockKey                the key for which to lock execution
      * @param synchronizationService service used to acquire the lock
      */
     protected SynchronizedRunnable(Runnable runnable, String lockKey, SynchronizationService synchronizationService) {
+        this(lockKey, synchronizationService);
         this.runnable = runnable;
-        this.lockKey = lockKey;
-        this.synchronizationService = synchronizationService;
+    }
+
+    protected SynchronizedRunnable(Callable<T> callable, String lockKey, SynchronizationService synchronizationService) {
+        this(lockKey, synchronizationService);
+        this.callable = callable;
     }
 
     @Override
     @Transactional
     public void run() {
+        try {
+            executeTask(this::wrapRunnable);
+        } catch (Exception e) {
+            throw new DomainTaskException(e);
+        }
+    }
+
+    private Boolean wrapRunnable() {
+        runnable.run();
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public T call() throws Exception {
+        return executeTask(() -> callable.call());
+    }
+
+    private <T> T executeTask(Callable<T> task) throws Exception {
         LOG.trace("Trying to lock [{}]", lockKey);
 
         String threadName = Thread.currentThread().getName();
         Thread.currentThread().setName(lockKey + "-" + System.nanoTime());
 
+        T res = null;
         try {
             // if this blocks, it means that another process has a write lock on the db record
             synchronizationService.acquireLock(lockKey);
             LOG.trace("Acquired lock on key [{}]", lockKey);
 
             LOG.trace("Start executing task");
-            runnable.run();
+            res = task.call();
             LOG.trace("Finished executing task");
         } catch (NoResultException nre) {
             throw new DomainTaskException(String.format("Lock key [%s] not found!", lockKey), nre);
         } catch (LockTimeoutException lte) {
             LOG.info("[{}] key lock could not be acquired. It is probably being used by another process.", lockKey);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("[{}] key lock could not be acquired.", lockKey, lte);
-            }
-        } catch (Exception ex) {
-            LOG.error("Error while running synchronized task.", ex);
+            LOG.debug("[{}] key lock could not be acquired.", lockKey, lte);
         }
 
         Thread.currentThread().setName(threadName);
+        return res;
     }
 }

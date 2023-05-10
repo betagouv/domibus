@@ -34,7 +34,7 @@ public class SynchronizedRunnableFactory {
 
     @Bean(autowireCandidate = false)
     @Scope("prototype")
-    public <T> SynchronizedCallable<T> synchronizedCallable(Callable<T> runnable, String lockKey) {
-        return new SynchronizedCallable<>(runnable, lockKey, synchronizationService);
+    public <T> SynchronizedRunnable<T> synchronizedCallable(Callable<T> callable, String lockKey) {
+        return new SynchronizedRunnable<>(callable, lockKey, synchronizationService);
     }
 }
