@@ -443,7 +443,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         return executeWithLock(() -> doAddCertificates(certificates, overwrite));
     }
 
-    //refactor to reuse code for the below 2 methods
     private boolean doAddCertificates(List<CertificateEntry> certificates, boolean overwrite) {
         BiFunction<KeystorePersistenceInfo, KeyStore, Boolean> storeChanger =
                 (persistenceInfo, diskStore) -> certificateService.addCertificates(diskStore, persistenceInfo, certificates, overwrite);
@@ -486,30 +485,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             LOG.info("Current store [{}] is identical with the persisted one, no reloading.", persistenceInfo.getName());
         }
         return outcome;
-    }
-
-    private <R> R executeWithLock(Callable<R> task) {
-        if (domibusConfigurationService.isClusterDeployment()) {
-            LOG.debug("Handling execution using db lock.");
-            try {
-                R res = domainTaskExecutor.submit(task, null, SYNC_LOCK_KEY, 3L, TimeUnit.MINUTES);
-                LOG.debug("Finished handling execution using db lock.");
-                return res;
-            } catch (DomainTaskException ex) {
-                throw new CryptoSpiException(ex.getCause());
-            }
-        } else {
-            LOG.debug("Handling execution with java lock.");
-            synchronized (changeLock) {
-                try {
-                    R res = task.call();
-                    LOG.debug("Finished handling execution with java lock.");
-                    return res;
-                } catch (Exception e) {
-                    throw new CryptoSpiException(e);
-                }
-            }
-        }
     }
 
     protected boolean replaceStore(byte[] storeContent, String storeFileName, String storePassword,
@@ -778,6 +753,30 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             return true;
         } catch (CryptoException ex) {
             throw new CryptoSpiException("Error while replacing the keystore from file " + storeLocation, ex);
+        }
+    }
+
+    private <R> R executeWithLock(Callable<R> task) {
+        if (domibusConfigurationService.isClusterDeployment()) {
+            LOG.debug("Handling execution using db lock.");
+            try {
+                R res = domainTaskExecutor.submit(task, null, SYNC_LOCK_KEY, 3L, TimeUnit.MINUTES);
+                LOG.debug("Finished handling execution using db lock.");
+                return res;
+            } catch (DomainTaskException ex) {
+                throw new CryptoSpiException(ex.getCause());
+            }
+        } else {
+            LOG.debug("Handling execution with java lock.");
+            synchronized (changeLock) {
+                try {
+                    R res = task.call();
+                    LOG.debug("Finished handling execution with java lock.");
+                    return res;
+                } catch (Exception e) {
+                    throw new CryptoSpiException(e);
+                }
+            }
         }
     }
 }

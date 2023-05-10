@@ -42,13 +42,13 @@ public class SetMDCContextTaskRunnable<T> implements Runnable, Callable<T> {
     @Override
     public void run() {
         try {
-            executeTask(this::wrapRunnable);
+            executeTask(this::wrappedRunnable);
         } catch (Exception e) {
             throw new DomainTaskException(e);
         }
     }
 
-    private Boolean wrapRunnable() {
+    private Boolean wrappedRunnable() {
         runnable.run();
         return true;
     }

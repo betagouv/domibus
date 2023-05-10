@@ -29,7 +29,7 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
 
     private final SynchronizationService synchronizationService;
 
-    private String lockKey;
+    private final String lockKey;
 
     private Runnable runnable;
 
@@ -61,13 +61,13 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
     @Transactional
     public void run() {
         try {
-            executeTask(this::wrapRunnable);
+            executeTask(this::wrappedRunnable);
         } catch (Exception e) {
             throw new DomainTaskException(e);
         }
     }
 
-    private Boolean wrapRunnable() {
+    private Boolean wrappedRunnable() {
         runnable.run();
         return true;
     }
