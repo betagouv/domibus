@@ -741,6 +741,12 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     private <R> R executeWithLock(Callable<R> task) {
-        return domainTaskExecutor.executeWithLock(task, SYNC_LOCK_KEY, changeLock);
+        try {
+            return domainTaskExecutor.executeWithLock(task, SYNC_LOCK_KEY, changeLock);
+        } catch (DomainTaskException ex) {
+            throw new CryptoSpiException(ex.getCause());
+        } catch (Exception e) {
+            throw new CryptoSpiException(e);
+        }
     }
 }
