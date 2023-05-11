@@ -3,6 +3,8 @@ package eu.domibus.core.multitenancy;
 import eu.domibus.api.multitenancy.*;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
+import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.core.crypto.spi.CryptoSpiException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +25,9 @@ import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_TASK_EXECUTOR_BEAN
 public class DomainTaskExecutorImpl implements DomainTaskExecutor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainTaskExecutorImpl.class);
+    
     public static final long DEFAULT_WAIT_TIMEOUT_IN_SECONDS = 60L;
-
+    
     @Autowired
     protected DomainContextProvider domainContextProvider;
 
@@ -39,6 +42,9 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     @Autowired
     SynchronizedRunnableFactory synchronizedRunnableFactory;
 
+    @Autowired
+    DomibusConfigurationService domibusConfigurationService;
+    
     @Override
     public <T extends Object> T submit(Callable<T> task) {
         DomainCallable domainCallable = new DomainCallable(domainContextProvider, task);
@@ -126,6 +132,31 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         submit(schedulingLongTaskExecutor, new SetMDCContextTaskRunnable(task, errorHandler), domain, false, null, null);
     }
 
+    @Override
+    public <R> R executeWithLock(Callable<R> task, String dbLockKey, Object javaLockKey) {
+        if (domibusConfigurationService.isClusterDeployment()) {
+            LOG.debug("Handling execution using db lock.");
+            try {
+                R res = submit(task, null, dbLockKey, 3L, TimeUnit.MINUTES);
+                LOG.debug("Finished handling execution using db lock.");
+                return res;
+            } catch (DomainTaskException ex) {
+                throw new CryptoSpiException(ex.getCause());
+            }
+        } else {
+            LOG.debug("Handling execution with java lock.");
+            synchronized (javaLockKey) {
+                try {
+                    R res = task.call();
+                    LOG.debug("Finished handling execution with java lock.");
+                    return res;
+                } catch (Exception e) {
+                    throw new CryptoSpiException(e);
+                }
+            }
+        }
+    }
+    
     protected Future<?> submit(SchedulingTaskExecutor taskExecutor, Runnable task, Domain domain, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
         LOG.trace("Submitting task for domain [{}]", domain);
 

@@ -94,8 +94,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private final FileServiceUtil fileServiceUtil;
 
-    private final DomibusConfigurationService domibusConfigurationService;
-
     public DefaultDomainCryptoServiceSpiImpl(DomibusPropertyProvider domibusPropertyProvider,
                                              CertificateService certificateService,
                                              SignalService signalService,
@@ -105,8 +103,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                                              SecurityProfileValidatorService securityProfileValidatorService,
                                              KeystorePersistenceService keystorePersistenceService,
                                              CertificateHelper certificateHelper,
-                                             FileServiceUtil fileServiceUtil,
-                                             DomibusConfigurationService domibusConfigurationService) {
+                                             FileServiceUtil fileServiceUtil) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.signalService = signalService;
@@ -117,7 +114,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         this.keystorePersistenceService = keystorePersistenceService;
         this.certificateHelper = certificateHelper;
         this.fileServiceUtil = fileServiceUtil;
-        this.domibusConfigurationService = domibusConfigurationService;
     }
 
     public void init() {
@@ -745,26 +741,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     }
 
     private <R> R executeWithLock(Callable<R> task) {
-        if (domibusConfigurationService.isClusterDeployment()) {
-            LOG.debug("Handling execution using db lock.");
-            try {
-                R res = domainTaskExecutor.submit(task, null, SYNC_LOCK_KEY, 3L, TimeUnit.MINUTES);
-                LOG.debug("Finished handling execution using db lock.");
-                return res;
-            } catch (DomainTaskException ex) {
-                throw new CryptoSpiException(ex.getCause());
-            }
-        } else {
-            LOG.debug("Handling execution with java lock.");
-            synchronized (changeLock) {
-                try {
-                    R res = task.call();
-                    LOG.debug("Finished handling execution with java lock.");
-                    return res;
-                } catch (Exception e) {
-                    throw new CryptoSpiException(e);
-                }
-            }
-        }
+        return domainTaskExecutor.executeWithLock(task, SYNC_LOCK_KEY, changeLock);
     }
 }

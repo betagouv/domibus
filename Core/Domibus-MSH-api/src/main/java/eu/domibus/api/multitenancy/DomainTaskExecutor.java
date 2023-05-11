@@ -53,4 +53,6 @@ public interface DomainTaskExecutor {
      * @param domain The domain for which the task is executed
      */
     void submitLongRunningTask(Runnable task, Domain domain);
+
+    <R> R executeWithLock(Callable<R> task, String syncLockKey, Object javaLockKey);
 }
