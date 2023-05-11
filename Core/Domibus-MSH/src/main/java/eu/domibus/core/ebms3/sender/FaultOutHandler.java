@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.message.SignalMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.SignalMessageResult;
 import eu.domibus.api.model.UserMessage;
@@ -44,6 +45,9 @@ public class FaultOutHandler extends AbstractFaultHandler {
     @Autowired
     UserMessageDao userMessageDao;
 
+    @Autowired
+    SignalMessageSoapEnvelopeSpiDelegate signalMessageSoapEnvelopeSpiDelegate;
+
     @Override
     public Set<QName> getHeaders() {
         return Collections.emptySet();
@@ -67,6 +71,8 @@ public class FaultOutHandler extends AbstractFaultHandler {
         }
 
         final SOAPMessage soapMessage = context.getMessage();
+        signalMessageSoapEnvelopeSpiDelegate.afterReceiving(soapMessage);
+
         final Ebms3Messaging ebms3Messaging = this.extractMessaging(soapMessage);
         if (ebms3Messaging == null) {
             LOG.trace("Messaging header is null, error log not created");
