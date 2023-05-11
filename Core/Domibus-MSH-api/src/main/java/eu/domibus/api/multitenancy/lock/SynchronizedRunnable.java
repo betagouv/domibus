@@ -61,7 +61,7 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
     @Transactional
     public void run() {
         try {
-            executeTask(this::wrappedRunnable);
+            executeTask(this::wrappedRunnable, true);
         } catch (Exception e) {
             throw new DomainTaskException(e);
         }
@@ -70,10 +70,10 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
     @Override
     @Transactional
     public T call() throws Exception {
-        return executeTask(() -> callable.call());
+        return executeTask(() -> callable.call(), false);
     }
 
-    private <T> T executeTask(Callable<T> task) throws Exception {
+    private <T> T executeTask(Callable<T> task, boolean swallowException) throws Exception {
         LOG.trace("Trying to lock [{}]", lockKey);
 
         String threadName = Thread.currentThread().getName();
@@ -93,6 +93,11 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
         } catch (LockTimeoutException lte) {
             LOG.info("[{}] key lock could not be acquired. It is probably being used by another process.", lockKey);
             LOG.debug("[{}] key lock could not be acquired.", lockKey, lte);
+        } catch (Exception ex) {
+            if (!swallowException) {
+                throw ex;
+            }
+            LOG.error("Error while running synchronized task.", ex);
         }
 
         Thread.currentThread().setName(threadName);
