@@ -133,7 +133,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     }
 
     @Override
-    public <R> R executeWithLock(Callable<R> task, String dbLockKey, Object javaLockKey) throws Exception {
+    public <R> R executeWithLock(Callable<R> task, String dbLockKey, Object javaLockKey) {
         if (domibusConfigurationService.isClusterDeployment()) {
             LOG.debug("Handling execution using db lock.");
             R res = submit(task, null, dbLockKey, 3L, TimeUnit.MINUTES);
@@ -142,9 +142,13 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         } else {
             LOG.debug("Handling execution with java lock.");
             synchronized (javaLockKey) {
-                R res = task.call();
-                LOG.debug("Finished handling execution with java lock.");
-                return res;
+                try {
+                    R res = task.call();
+                    LOG.debug("Finished handling execution with java lock.");
+                    return res;
+                } catch (Exception e) {
+                    throw new DomainTaskException("Error executing a callable task with java lock.", e);
+                }
             }
         }
     }

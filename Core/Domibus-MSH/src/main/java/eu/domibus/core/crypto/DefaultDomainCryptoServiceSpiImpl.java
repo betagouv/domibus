@@ -745,8 +745,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             return domainTaskExecutor.executeWithLock(task, SYNC_LOCK_KEY, changeLock);
         } catch (DomainTaskException ex) {
             throw new CryptoSpiException(ex.getCause());
-        } catch (Exception e) {
-            throw new CryptoSpiException(e);
         }
     }
 }
