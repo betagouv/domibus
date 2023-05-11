@@ -126,17 +126,10 @@ public class DomibusApplicationContextListenerTest {
     public void onApplicationEvent(@Injectable ContextRefreshedEvent event,
                                    @Injectable ApplicationContext applicationContext,
                                    @Injectable ApplicationContext parent) {
-        new Expectations() {{
-            event.getApplicationContext();
-            result = applicationContext;
 
-            applicationContext.getParent();
-            result = parent;
-        }};
+        domibusApplicationContextListener.executeSynchronized();
 
-        domibusApplicationContextListener.onApplicationEvent(event);
-
-        new FullVerifications() {{
+        new Verifications() {{
             tlsCertificateManager.saveStoresFromDBToDisk();
             times = 1;
 
@@ -149,9 +142,6 @@ public class DomibusApplicationContextListenerTest {
             staticDictionaryService.createStaticDictionaryEntries();
             times = 1;
 
-            domibusConfigurationService.isClusterDeployment();
-            times = 1;
-
             encryptionService.handleEncryption();
             times = 1;
 
@@ -161,71 +151,6 @@ public class DomibusApplicationContextListenerTest {
             domibusPropertyValidatorService.enforceValidation();
             times = 1;
 
-            gatewayConfigurationValidator.validateConfiguration();
-            times = 1;
-
-            backendConnectorService.ensureValidConfiguration();
-            times = 1;
-
-            pluginInitializerProvider.getPluginInitializersForEnabledPlugins();
-            times = 2;
-
-            messageListenerContainerInitializer.initialize();
-            times = 1;
-
-            jmsQueueCountSetScheduler.initialize();
-            times = 1;
-
-            payloadFileStorageProvider.initialize();
-            times = 1;
-
-            routingService.initialize();
-            times = 1;
-
-            eArchiveFileStorageProvider.initialize();
-            times = 1;
-
-            domibusQuartzStarter.initialize();
-            times = 1;
-
-            mshEndpoint.publish("/msh");
-            times = 1;
-
-        }};
-    }
-
-    @Test
-    public void useLockForEncryption() {
-        new Expectations() {{
-            domibusConfigurationService.isClusterDeployment();
-            result = true;
-        }};
-
-        assertTrue(domibusApplicationContextListener.useLockForExecution());
-    }
-
-    @Test
-    public void useLockForEncryptionNoCluster() {
-        new Expectations() {{
-            domibusConfigurationService.isClusterDeployment();
-            result = false;
-        }};
-
-        assertFalse(domibusApplicationContextListener.useLockForExecution());
-    }
-
-    @Test
-    public void handleEncryptionWithLockFile(@Injectable File fileLock, @Injectable Runnable task) {
-        new Expectations(domibusApplicationContextListener) {{
-            domibusApplicationContextListener.useLockForExecution();
-            result = true;
-        }};
-
-        domibusApplicationContextListener.executeWithLockIfNeeded(task);
-
-        new Verifications() {{
-            domainTaskExecutor.submit(task, (Runnable) any, SYNC_LOCK_KEY, true, 3L, TimeUnit.MINUTES);
-            times = 1;
         }};
     }
 
