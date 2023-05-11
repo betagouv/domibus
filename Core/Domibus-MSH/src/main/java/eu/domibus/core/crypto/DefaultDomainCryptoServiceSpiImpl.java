@@ -3,11 +3,11 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.*;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.CertificateException;
 import eu.domibus.api.security.SecurityProfile;
@@ -39,9 +39,6 @@ import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -744,7 +741,11 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         try {
             return domainTaskExecutor.executeWithLock(task, SYNC_LOCK_KEY, changeLock, null);
         } catch (DomainTaskException ex) {
-            throw new CryptoSpiException(ex.getCause());
+            Throwable cause = ex.getCause();
+            if (cause instanceof CryptoSpiException) {
+                throw (CryptoSpiException) cause;
+            }
+            throw new CryptoSpiException(cause);
         }
     }
 }
