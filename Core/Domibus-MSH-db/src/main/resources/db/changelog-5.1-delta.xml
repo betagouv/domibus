@@ -217,10 +217,4 @@
         </sql>
     </changeSet>
 
-    <changeSet author="ion perpegel" id="EDELIVERY-11248">
-        <insert tableName="TB_LOCK">
-            <column name="ID_PK" value="${default_id_pk}0000000003" type="BIGINT"/>
-            <column name="LOCK_KEY" value="keystore-synchronization.lock"/>
-        </insert>
-    </changeSet>
 </databaseChangeLog>

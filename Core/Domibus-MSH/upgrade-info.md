@@ -1,5 +1,7 @@
 # Domibus upgrade information
-  
+
+  ## Domibus 5.2 (from 5.1.1)
+                - Run the appropriate DB migration script(mysql-5.1.1-to-5.2-migration.ddl for MySQL or oracle-5.1.1-to-5.2-migration.ddl for Oracle)
   ## Domibus 5.1.1 (from 5.1)
                 - In all eDeliveryAS4Policy xml files, the hardcoded algorithm suite name defined in AsymmetricBinding/Policy/AlgorithSuite/ (e.g Basic128GCMSha256MgfSha256) was replaced with the placeholder: ${algorithmSuitePlaceholder} which will be automatically replaced in code according to the security setup
                 - Replace/update all policy files that have the AsymmetricBinding/Policy/AlgorithSuite tag defined(e.g. eDeliveryAS4Policy.xml, eDeliveryAS4Policy_BST.xml, eDeliveryAS4Policy_BST_PKIP.xml,eDeliveryAS4Policy_IS.xml, signOnly.xml etc.) to accomodate this change

@@ -42,6 +42,8 @@ public class DomibusApplicationContextListener {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusApplicationContextListener.class);
 
+    private static final Object initLock = new Object();
+
     public static final String SYNC_LOCK_KEY = "bootstrap-synchronization.lock";
 
     protected final EncryptionService encryptionService;
@@ -204,9 +206,6 @@ public class DomibusApplicationContextListener {
         }
     }
 
-    private static final Object initLock = new Object();
-
-    // TODO: below code to be moved to a separate service EDELIVERY-7462.
     protected void executeWithLock(Runnable task) {
         Runnable errorHandler = () -> {
             LOG.warn("An error has occurred while initializing Domibus (executing task [{}]). " +

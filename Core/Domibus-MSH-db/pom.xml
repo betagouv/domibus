@@ -169,6 +169,120 @@
                         </configuration>
                     </execution>
 
+                    <!-- delta 5.1.1 to 5.2 starts here -->
+                    <execution>
+                        <id>generate-mysql-script-delta-5.2</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/changelog-5.2-delta.xml
+                            </changeLogFile>
+                            <url>
+                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-5.2-delta.mysql
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/mysql-5.1.1-to-5.2-migration.ddl
+                            </migrationSqlOutputFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>update-mysql-script-delta-5.2</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/changelog-5.2-data-migration.xml
+                            </changeLogFile>
+                            <url>
+                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-data-migration.mysql
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/mysql-5.2-data-migration.ddl
+                            </migrationSqlOutputFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>update-oracle-script-delta-5.2</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/changelog-5.2-data-migration.xml
+                            </changeLogFile>
+                            <url>
+                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-data-migration.oracle
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/oracle-5.2-data-migration.ddl
+                            </migrationSqlOutputFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-mysql-script-delta-multi-tenancy-5.2</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/changelog-5.2-multi-tenancy-delta.xml
+                            </changeLogFile>
+                            <url>
+                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-5.2-multi-tenancy-delta.mysql
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/mysql-5.1.1-to-5.2-multi-tenancy-migration.ddl
+                            </migrationSqlOutputFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-oracle-script-delta-5.2</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/changelog-5.2-delta.xml
+                            </changeLogFile>
+                            <url>
+                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.2-delta.oracle
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/oracle-5.1.1-to-5.2-migration.ddl
+                            </migrationSqlOutputFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-oracle-script-delta-multi-tenancy-5.2</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/changelog-5.2-multi-tenancy-delta.xml
+                            </changeLogFile>
+                            <url>
+                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.2-multi-tenancy-delta.oracle
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/oracle-5.1.1-to-5.2-multi-tenancy-migration.ddl
+                            </migrationSqlOutputFile>
+                        </configuration>
+                    </execution>
+                    <!-- delta 5.1.1 to 5.2 ends here -->
+
+                    <!-- delta 5.1 to 5.1.1 starts here -->
+                    <!-- delta 5.1 to 5.1.1 ends here -->
+
                     <!-- partitioning starts here -->
                     <!-- 5.1 starts here -->
                     <execution>
