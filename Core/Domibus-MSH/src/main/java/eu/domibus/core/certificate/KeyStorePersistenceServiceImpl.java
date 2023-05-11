@@ -119,8 +119,6 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
 
     @Override
     public void saveStore(KeyStore store, KeystorePersistenceInfo persistenceInfo) {
-//        throw new CryptoException("Could not persist store:");
-
         try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
             String password = persistenceInfo.getPassword();
             String decryptedPassword = decrypt(persistenceInfo.getName(), password);

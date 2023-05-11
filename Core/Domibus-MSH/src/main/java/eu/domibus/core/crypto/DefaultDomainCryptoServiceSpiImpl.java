@@ -447,12 +447,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         BiFunction<KeystorePersistenceInfo, KeyStore, Boolean> storeChanger =
                 (persistenceInfo, diskStore) -> certificateService.addCertificates(diskStore, persistenceInfo, certificates, overwrite);
         return changeCertificates(storeChanger);
-
-//        boolean added = certificateService.addCertificates(persistenceInfo, certificates, overwrite);
-//        if (added) {
-//            resetTrustStore();
-//        }
-//        return added;
     }
 
     private boolean removeCertificates(List<String> aliases) {
@@ -463,12 +457,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         BiFunction<KeystorePersistenceInfo, KeyStore, Boolean> storeChanger =
                 (persistenceInfo, diskStore) -> certificateService.removeCertificates(diskStore, persistenceInfo, aliases);
         return changeCertificates(storeChanger);
-
-//        boolean removed = certificateService.removeCertificates(keystorePersistenceService.getTrustStorePersistenceInfo(), aliases);
-//        if (removed) {
-//            resetTrustStore();
-//        }
-//        return removed;
     }
 
     private boolean changeCertificates(BiFunction<KeystorePersistenceInfo, KeyStore, Boolean> storeChanger) {
