@@ -108,4 +108,9 @@ public class DomainTaskExecutorTestImpl implements DomainTaskExecutor {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public <R> R executeWithLock(Callable<R> task, String syncLockKey, Object javaLockKey) {
+        return null;
+    }
 }

@@ -29,7 +29,7 @@ public interface DomainTaskExecutor {
      */
     void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit);
 
-    <T extends Object> T submit(Callable<T> task, Runnable errorHandler, String lockKey, Long timeout, TimeUnit timeUnit);
+    <T> T submit(Callable<T> task, Runnable errorHandler, String lockKey, Long timeout, TimeUnit timeUnit);
 
     void submit(Runnable task, Runnable errorHandler, String lockKey);
 

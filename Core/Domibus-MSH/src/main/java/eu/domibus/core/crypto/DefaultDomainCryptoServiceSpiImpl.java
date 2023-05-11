@@ -529,7 +529,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         try {
             return fileServiceUtil.getContentFromFile(location);
         } catch (IOException e) {
-            throw new DomibusCertificateException("Could not read store from [" + location + "]");
+            throw new DomibusCertificateException("Could not read store from [" + location + "]:", e);
         }
     }
 

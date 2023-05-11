@@ -67,11 +67,6 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
         }
     }
 
-    private Boolean wrappedRunnable() {
-        runnable.run();
-        return true;
-    }
-
     @Override
     @Transactional
     public T call() throws Exception {
@@ -102,5 +97,10 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
 
         Thread.currentThread().setName(threadName);
         return res;
+    }
+
+    private Boolean wrappedRunnable() {
+        runnable.run();
+        return true;
     }
 }
