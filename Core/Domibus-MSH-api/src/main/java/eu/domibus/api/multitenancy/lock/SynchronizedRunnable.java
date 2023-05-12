@@ -74,7 +74,7 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
     }
 
     private <T> T executeTask(Callable<T> task, boolean swallowException) throws Exception {
-        LOG.trace("Trying to lock [{}]", lockKey);
+        LOG.debug("Trying to lock [{}]", lockKey);
 
         String threadName = Thread.currentThread().getName();
         Thread.currentThread().setName(lockKey + "-" + System.nanoTime());
@@ -83,7 +83,7 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
         try {
             // if this blocks, it means that another process has a write lock on the db record
             dbSynchronizationHelper.acquireLock(lockKey);
-            LOG.trace("Acquired lock on key [{}]", lockKey);
+            LOG.debug("Acquired lock on key [{}]", lockKey);
 
             LOG.debug("Start executing task with db lock");
             res = task.call();

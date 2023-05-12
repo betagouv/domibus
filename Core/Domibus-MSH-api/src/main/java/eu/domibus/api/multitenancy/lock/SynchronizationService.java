@@ -27,10 +27,12 @@ public interface SynchronizationService {
      * @param task the task to execute with lock
      * @param dbLockKey the lock key in the TB_LOCK table
      * @param javaLockKey java object instance to sync on
-     * @param errorHandler what toexcute in case of an error
      * @param <T> the type of the returned value of the task itself
      * @return the returned value of the task
      */
-    <T> T execute(final Callable<T> task, final String dbLockKey, final Object javaLockKey, final Runnable errorHandler);
+    <T> T execute(final Callable<T> task, final String dbLockKey, final Object javaLockKey);
 
+    void execute(final Runnable task, final String dbLockKey, final Object javaLockKey);
+
+    void execute(final Runnable task, final String dbLockKey);
 }

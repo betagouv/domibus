@@ -19,7 +19,7 @@ public class SynchronizedRunnableFactory {
     private static final Logger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnableFactory.class);
 
     @Autowired
-    DBSynchronizationHelper DBSynchronizationHelper;
+    DBSynchronizationHelper dbSynchronizationHelper;
 
     /**
      * Instantiates a SynchronizedRunnable
@@ -29,12 +29,12 @@ public class SynchronizedRunnableFactory {
     @Bean(autowireCandidate = false)
     @Scope("prototype")
     public SynchronizedRunnable synchronizedRunnable(Runnable runnable, String lockKey) {
-        return new SynchronizedRunnable(runnable, lockKey, DBSynchronizationHelper);
+        return new SynchronizedRunnable(runnable, lockKey, dbSynchronizationHelper);
     }
 
     @Bean(autowireCandidate = false)
     @Scope("prototype")
     public <T> SynchronizedRunnable<T> synchronizedCallable(Callable<T> callable, String lockKey) {
-        return new SynchronizedRunnable<>(callable, lockKey, DBSynchronizationHelper);
+        return new SynchronizedRunnable<>(callable, lockKey, dbSynchronizationHelper);
     }
 }

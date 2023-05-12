@@ -42,13 +42,31 @@ public class SynchronizationServiceImpl implements SynchronizationService {
     }
 
     @Override
-    public <T> T execute(Callable<T> task, String dbLockKey, Object javaLockKey, Runnable errorHandler) {
+    public <T> T execute(Callable<T> task, String dbLockKey, Object javaLockKey) {
         Callable<T> synchronizedRunnable = getSynchronizedCallable(task, dbLockKey, javaLockKey);
         try {
             return synchronizedRunnable.call();
         } catch (Exception e) {
             throw new DomibusSynchronizationException(e);
         }
+    }
+
+    @Override
+    public void execute(Runnable task, String dbLockKey, Object javaLockKey) {
+        Callable<Boolean> synchronizedRunnable = getSynchronizedCallable(() -> {
+            task.run();
+            return true;
+        }, dbLockKey, javaLockKey);
+        try {
+            synchronizedRunnable.call();
+        } catch (Exception e) {
+            throw new DomibusSynchronizationException(e);
+        }
+    }
+
+    @Override
+    public void execute(Runnable task, String dbLockKey) {
+        execute(task, dbLockKey, null);
     }
 
     private <T> Callable<T> javaSyncCallable(Callable<T> task, Object javaLockKey) {

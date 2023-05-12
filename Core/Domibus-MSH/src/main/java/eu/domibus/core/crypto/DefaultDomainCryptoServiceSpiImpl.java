@@ -765,7 +765,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private <R> R executeWithLock(Callable<R> task) {
         try {
-            return synchronizationService.execute(task, SYNC_LOCK_KEY, changeLock, null);
+            return synchronizationService.execute(task, SYNC_LOCK_KEY, changeLock);
         } catch (DomibusSynchronizationException ex) {
             Throwable cause = ExceptionUtils.getRootCause(ex);
             if (cause instanceof CryptoSpiException) {

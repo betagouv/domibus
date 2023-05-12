@@ -6,6 +6,7 @@ import eu.domibus.api.monitoring.domain.QuartzTriggerDetails;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.lock.SynchronizationService;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -88,6 +89,9 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     @Autowired
     BackendConnectorProvider backendConnectorProvider;
 
+    @Autowired
+    SynchronizationService synchronizationService;
+
     protected Map<Domain, Scheduler> schedulers = new HashMap<>();
 
     protected List<Scheduler> generalSchedulers = new ArrayList<>();
@@ -97,11 +101,9 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     protected List<DomibusDomainQuartzJob> jobsToPause = new ArrayList<>();
 
     public void initialize() {
-        boolean useLock = domibusConfigurationService.isClusterDeployment()
-                && BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_SCHEDULER_BOOTSTRAP_SYNCHRONIZED));
-        if (useLock) {
-            SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(this::initQuartzSchedulers, SCHEDULER_SYNC_LOCK_KEY);
-            synchronizedRunnable.run();
+        Boolean runSynchronized = domibusPropertyProvider.getBooleanProperty(DOMIBUS_SCHEDULER_BOOTSTRAP_SYNCHRONIZED);
+        if (runSynchronized) {
+            synchronizationService.execute(this::initQuartzSchedulers, SCHEDULER_SYNC_LOCK_KEY);
 
             if (schedulers.isEmpty()) {
                 throw new DomibusSchedulerException("Could not initialize the Quartz Scheduler in a timely manner");
