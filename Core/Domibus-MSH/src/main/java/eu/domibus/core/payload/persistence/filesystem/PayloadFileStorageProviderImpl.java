@@ -81,7 +81,7 @@ public class PayloadFileStorageProviderImpl implements PayloadFileStorageProvide
         PayloadFileStorage currentStorage = forDomain(currentDomain);
         LOG.debug("Retrieved Storage for domain [{}]", currentDomain);
         if (currentStorage == null) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not retrieve Storage for domain" + currentDomain + " is null");
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Could not retrieve Storage for domain " + currentDomain + " is null");
         }
         return currentStorage;
     }

@@ -44,6 +44,9 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     @Autowired
     DomibusConfigurationService domibusConfigurationService;
 
+    @Autowired
+    SynchronizationService synchronizationService;
+
     @Override
     public <T extends Object> T submit(Callable<T> task) {
         DomainCallable domainCallable = new DomainCallable(domainContextProvider, task);
@@ -101,9 +104,6 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     public void submitLongRunningTask(Runnable task, Runnable errorHandler, Domain domain) {
         submit(schedulingLongTaskExecutor, new SetMDCContextTaskRunnable(task, errorHandler), domain, false, null, null);
     }
-
-    @Autowired
-    SynchronizationService synchronizationService;
 
     @Override
     public <T> T executeWithLock(final Callable<T> task, final String dbLockKey, final Object javaLockKey, final Runnable errorHandler) {

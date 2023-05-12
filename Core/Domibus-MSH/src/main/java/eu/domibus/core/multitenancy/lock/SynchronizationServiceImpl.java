@@ -55,15 +55,15 @@ public class SynchronizationServiceImpl implements SynchronizationService {
         return () -> {
             if (javaLockKey != null) {
                 synchronized (javaLockKey) {
-                    return excuteTask(task);
+                    return executeTask(task);
                 }
             } else {
-                return excuteTask(task);
+                return executeTask(task);
             }
         };
     }
 
-    private <T> T excuteTask(Callable<T> task) {
+    private <T> T executeTask(Callable<T> task) {
         try {
             LOG.debug("Handling sync execution with java lock.");
             T res = task.call();
