@@ -4,8 +4,9 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.multitenancy.lock.DomibusSynchronizationException;
+import eu.domibus.api.multitenancy.lock.SynchronizationService;
 import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.CertificateException;
@@ -94,6 +95,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private final AuditService auditService;
 
+    private final SynchronizationService synchronizationService;
+
     public DefaultDomainCryptoServiceSpiImpl(DomibusPropertyProvider domibusPropertyProvider,
                                              CertificateService certificateService,
                                              SignalService signalService,
@@ -104,7 +107,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                                              KeystorePersistenceService keystorePersistenceService,
                                              CertificateHelper certificateHelper,
                                              FileServiceUtil fileServiceUtil,
-                                             AuditService auditService) {
+                                             AuditService auditService,
+                                             SynchronizationService synchronizationService) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.signalService = signalService;
@@ -116,6 +120,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         this.certificateHelper = certificateHelper;
         this.fileServiceUtil = fileServiceUtil;
         this.auditService = auditService;
+        this.synchronizationService = synchronizationService;
     }
 
     public void init() {
@@ -760,8 +765,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private <R> R executeWithLock(Callable<R> task) {
         try {
-            return domainTaskExecutor.executeWithLock(task, SYNC_LOCK_KEY, changeLock, null);
-        } catch (DomainTaskException ex) {
+            return synchronizationService.execute(task, SYNC_LOCK_KEY, changeLock, null);
+        } catch (DomibusSynchronizationException ex) {
             Throwable cause = ExceptionUtils.getRootCause(ex);
             if (cause instanceof CryptoSpiException) {
                 throw (CryptoSpiException) cause;

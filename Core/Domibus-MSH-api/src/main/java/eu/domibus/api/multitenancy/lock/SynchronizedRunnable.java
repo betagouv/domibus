@@ -27,7 +27,7 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnable.class);
 
-    private final SynchronizationService synchronizationService;
+    private final DBSynchronizationHelper DBSynchronizationHelper;
 
     private final String lockKey;
 
@@ -35,9 +35,9 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
 
     private Callable<T> callable;
 
-    private SynchronizedRunnable(String lockKey, SynchronizationService synchronizationService) {
+    private SynchronizedRunnable(String lockKey, DBSynchronizationHelper DBSynchronizationHelper) {
         this.lockKey = lockKey;
-        this.synchronizationService = synchronizationService;
+        this.DBSynchronizationHelper = DBSynchronizationHelper;
     }
 
     /**
@@ -45,15 +45,15 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
      *
      * @param runnable               the task to execute (short duration)
      * @param lockKey                the key for which to lock execution
-     * @param synchronizationService service used to acquire the lock
+     * @param DBSynchronizationHelper service used to acquire the lock
      */
-    protected SynchronizedRunnable(Runnable runnable, String lockKey, SynchronizationService synchronizationService) {
-        this(lockKey, synchronizationService);
+    protected SynchronizedRunnable(Runnable runnable, String lockKey, DBSynchronizationHelper DBSynchronizationHelper) {
+        this(lockKey, DBSynchronizationHelper);
         this.runnable = runnable;
     }
 
-    protected SynchronizedRunnable(Callable<T> callable, String lockKey, SynchronizationService synchronizationService) {
-        this(lockKey, synchronizationService);
+    protected SynchronizedRunnable(Callable<T> callable, String lockKey, DBSynchronizationHelper DBSynchronizationHelper) {
+        this(lockKey, DBSynchronizationHelper);
         this.callable = callable;
     }
 
@@ -82,20 +82,20 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
         T res = null;
         try {
             // if this blocks, it means that another process has a write lock on the db record
-            synchronizationService.acquireLock(lockKey);
+            DBSynchronizationHelper.acquireLock(lockKey);
             LOG.trace("Acquired lock on key [{}]", lockKey);
 
             LOG.debug("Start executing task with db lock");
             res = task.call();
             LOG.debug("Finished executing task with db lock");
         } catch (NoResultException nre) {
-            throw new DomainTaskException(String.format("Lock key [%s] not found!", lockKey), nre);
+            throw new DomibusSynchronizationException(String.format("Lock key [%s] not found!", lockKey), nre);
         } catch (LockTimeoutException lte) {
             LOG.info("[{}] key lock could not be acquired. It is probably being used by another process.", lockKey);
             LOG.debug("[{}] key lock could not be acquired.", lockKey, lte);
         } catch (Exception ex) {
             if (!swallowException) {
-                throw ex;
+                throw new DomibusSynchronizationException(ex);
             }
             LOG.error("Error while running synchronized task.", ex);
         }
