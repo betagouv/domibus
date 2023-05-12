@@ -1,10 +1,8 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.*;
-import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.core.crypto.spi.CryptoSpiException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,34 +81,17 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         return submitRunnable(schedulingTaskExecutor, clearDomainRunnable, waitForTask, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
     }
 
-    @Override
-    public void submit(Runnable task, Runnable errorHandler, String lockKey) {
-        submit(task, errorHandler, lockKey, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
-    }
-
-    @Override
-    public void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
-        LOG.trace("Submitting task with lock file [{}], timeout [{}] expressed in unit [{}]", lockKey, timeout, timeUnit);
-
-        Runnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(task, lockKey);
-
-        Runnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(synchronizedRunnable, errorHandler);
-        final Runnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, setMDCContextTaskRunnable);
-
-        submitRunnable(schedulingTaskExecutor, clearDomainRunnable, errorHandler, waitForTask, timeout, timeUnit);
-    }
-
-    @Override
-    public <T> T submit(Callable<T> task, Runnable errorHandler, String lockKey, Long timeout, TimeUnit timeUnit) {
-        LOG.trace("Submitting task with lock file [{}], timeout [{}] expressed in unit [{}]", lockKey, timeout, timeUnit);
-
-        Callable<T> synchronizedRunnable = synchronizedRunnableFactory.synchronizedCallable(task, lockKey);
-
-        Callable<T> setMDCContextTaskRunnable = new SetMDCContextTaskRunnable<T>(synchronizedRunnable, errorHandler);
-        final Callable<T> clearDomainRunnable = new ClearDomainRunnable<T>(domainContextProvider, setMDCContextTaskRunnable);
-
-        return submitCallable(schedulingTaskExecutor, clearDomainRunnable, errorHandler, timeout, timeUnit);
-    }
+//    @Override
+//    public void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+//        LOG.trace("Submitting task with lock file [{}], timeout [{}] expressed in unit [{}]", lockKey, timeout, timeUnit);
+//
+//        Runnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(task, lockKey);
+//
+//        Runnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(synchronizedRunnable, errorHandler);
+//        final Runnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, setMDCContextTaskRunnable);
+//
+//        submitRunnable(schedulingTaskExecutor, clearDomainRunnable, errorHandler, waitForTask, timeout, timeUnit);
+//    }
 
     @Override
     public void submit(Runnable task, Domain domain) {
@@ -133,24 +114,32 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     }
 
     @Override
-    public <R> R executeWithLock(Callable<R> task, String dbLockKey, Object javaLockKey, Runnable errorHandler) {
+    public <T> T executeWithLock(final Callable<T> task, final String dbLockKey, final Object javaLockKey, final Runnable errorHandler) {
+        Callable<T> synchronizedRunnable;
         if (domibusConfigurationService.isClusterDeployment()) {
-            LOG.debug("Handling execution using db lock.");
-            R res = submit(task, errorHandler, dbLockKey, 3L, TimeUnit.MINUTES);
-            LOG.debug("Finished handling execution using db lock.");
-            return res;
+            synchronizedRunnable = synchronizedRunnableFactory.synchronizedCallable(task, dbLockKey);
         } else {
-            LOG.debug("Handling execution with java lock.");
+            synchronizedRunnable = javaSyncCallable(task, javaLockKey);
+        }
+        Callable<T> setMDCContextTaskRunnable = new SetMDCContextTaskRunnable<T>(synchronizedRunnable, errorHandler);
+        final Callable<T> clearDomainRunnable = new ClearDomainRunnable<T>(domainContextProvider, setMDCContextTaskRunnable);
+
+        return submitCallable(schedulingTaskExecutor, clearDomainRunnable, errorHandler, 3L, TimeUnit.MINUTES);
+    }
+
+    private <T> Callable<T> javaSyncCallable(Callable<T> task, Object javaLockKey) {
+        return () -> {
             synchronized (javaLockKey) {
                 try {
-                    R res = task.call();
+                    LOG.debug("Handling execution with java lock.");
+                    T res = task.call();
                     LOG.debug("Finished handling execution with java lock.");
                     return res;
                 } catch (Exception e) {
                     throw new DomainTaskException("Error executing a callable task with java lock.", e);
                 }
             }
-        }
+        };
     }
 
     protected Future<?> submit(SchedulingTaskExecutor taskExecutor, Runnable task, Domain domain, boolean waitForTask, Long timeout, TimeUnit timeUnit) {

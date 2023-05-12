@@ -85,9 +85,9 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
             synchronizationService.acquireLock(lockKey);
             LOG.trace("Acquired lock on key [{}]", lockKey);
 
-            LOG.trace("Start executing task");
+            LOG.debug("Start executing task with db lock");
             res = task.call();
-            LOG.trace("Finished executing task");
+            LOG.debug("Finished executing task with db lock");
         } catch (NoResultException nre) {
             throw new DomainTaskException(String.format("Lock key [%s] not found!", lockKey), nre);
         } catch (LockTimeoutException lte) {
