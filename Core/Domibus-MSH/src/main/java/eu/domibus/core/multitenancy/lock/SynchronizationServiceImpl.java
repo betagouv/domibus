@@ -31,13 +31,19 @@ public class SynchronizationServiceImpl implements SynchronizationService {
     }
 
     @Override
-    public <T> T execute(Callable<T> task, String dbLockKey, Object javaLockKey, Runnable errorHandler) {
+    public <T> Callable<T> getSynchronizedCallable(Callable<T> task, String dbLockKey, Object javaLockKey) {
         Callable<T> synchronizedRunnable;
         if (domibusConfigurationService.isClusterDeployment()) {
             synchronizedRunnable = synchronizedRunnableFactory.synchronizedCallable(task, dbLockKey);
         } else {
             synchronizedRunnable = javaSyncCallable(task, javaLockKey);
         }
+        return synchronizedRunnable;
+    }
+
+    @Override
+    public <T> T execute(Callable<T> task, String dbLockKey, Object javaLockKey, Runnable errorHandler) {
+        Callable<T> synchronizedRunnable = getSynchronizedCallable(task, dbLockKey, javaLockKey);
         try {
             return synchronizedRunnable.call();
         } catch (Exception e) {

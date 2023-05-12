@@ -1,6 +1,7 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.*;
+import eu.domibus.api.multitenancy.lock.SynchronizationService;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
@@ -101,33 +102,16 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         submit(schedulingLongTaskExecutor, new SetMDCContextTaskRunnable(task, errorHandler), domain, false, null, null);
     }
 
+    @Autowired
+    SynchronizationService synchronizationService;
+
     @Override
     public <T> T executeWithLock(final Callable<T> task, final String dbLockKey, final Object javaLockKey, final Runnable errorHandler) {
-        Callable<T> synchronizedRunnable;
-        if (domibusConfigurationService.isClusterDeployment()) {
-            synchronizedRunnable = synchronizedRunnableFactory.synchronizedCallable(task, dbLockKey);
-        } else {
-            synchronizedRunnable = javaSyncCallable(task, javaLockKey);
-        }
-        Callable<T> setMDCContextTaskRunnable = new SetMDCContextTaskRunnable<T>(synchronizedRunnable, errorHandler);
+        Callable<T> synchronizedCallable = synchronizationService.getSynchronizedCallable(task, dbLockKey, javaLockKey);
+        Callable<T> setMDCContextTaskRunnable = new SetMDCContextTaskRunnable<T>(synchronizedCallable, errorHandler);
         final Callable<T> clearDomainRunnable = new ClearDomainRunnable<T>(domainContextProvider, setMDCContextTaskRunnable);
 
         return submitCallable(schedulingTaskExecutor, clearDomainRunnable, errorHandler, 3L, TimeUnit.MINUTES);
-    }
-
-    private <T> Callable<T> javaSyncCallable(Callable<T> task, Object javaLockKey) {
-        return () -> {
-            synchronized (javaLockKey) {
-                try {
-                    LOG.debug("Handling execution with java lock.");
-                    T res = task.call();
-                    LOG.debug("Finished handling execution with java lock.");
-                    return res;
-                } catch (Exception e) {
-                    throw new DomainTaskException("Error executing a callable task with java lock.", e);
-                }
-            }
-        };
     }
 
     protected Future<?> submit(SchedulingTaskExecutor taskExecutor, Runnable task, Domain domain, boolean waitForTask, Long timeout, TimeUnit timeUnit) {

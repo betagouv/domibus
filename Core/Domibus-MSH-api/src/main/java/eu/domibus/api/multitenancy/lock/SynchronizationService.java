@@ -8,6 +8,8 @@ import java.util.concurrent.Callable;
  */
 public interface SynchronizationService {
 
-    public <T> T execute(final Callable<T> task, final String dbLockKey, final Object javaLockKey, final Runnable errorHandler);
+    <T> Callable<T> getSynchronizedCallable(Callable<T> task, String dbLockKey, Object javaLockKey);
+
+    <T> T execute(final Callable<T> task, final String dbLockKey, final Object javaLockKey, final Runnable errorHandler);
 
 }
