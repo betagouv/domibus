@@ -152,7 +152,7 @@ public interface CertificateService {
      */
     boolean addCertificates(KeystorePersistenceInfo keystorePersistenceInfo, List<CertificateEntry> certificates, boolean overwrite);
 
-    boolean addCertificates(KeyStore keyStore, KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite);
+    boolean addCertificates(KeyStore keyStore, List<CertificateEntry> certificates, boolean overwrite);
 
     /**
      * Removes the specified certificate from the truststore pointed by the parameters
@@ -174,7 +174,7 @@ public interface CertificateService {
      */
     boolean removeCertificates(KeystorePersistenceInfo keystorePersistenceInfo, List<String> aliases);
 
-    boolean removeCertificates(KeyStore keyStore, KeystorePersistenceInfo persistenceInfo, List<String> aliases);
+    boolean removeCertificates(KeyStore keyStore, List<String> aliases);
 
     KeyStoreContentInfo getStoreContent(KeystorePersistenceInfo keystorePersistenceInfo);
 

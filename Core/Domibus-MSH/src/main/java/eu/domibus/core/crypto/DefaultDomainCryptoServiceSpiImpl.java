@@ -3,7 +3,6 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
@@ -12,6 +11,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.CertificateException;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.FileServiceUtil;
+import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
@@ -20,6 +20,7 @@ import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.wss4j.common.crypto.CryptoType;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -91,6 +92,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private final FileServiceUtil fileServiceUtil;
 
+    private final AuditService auditService;
+
     public DefaultDomainCryptoServiceSpiImpl(DomibusPropertyProvider domibusPropertyProvider,
                                              CertificateService certificateService,
                                              SignalService signalService,
@@ -100,7 +103,8 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
                                              SecurityProfileValidatorService securityProfileValidatorService,
                                              KeystorePersistenceService keystorePersistenceService,
                                              CertificateHelper certificateHelper,
-                                             FileServiceUtil fileServiceUtil) {
+                                             FileServiceUtil fileServiceUtil,
+                                             AuditService auditService) {
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.certificateService = certificateService;
         this.signalService = signalService;
@@ -111,6 +115,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         this.keystorePersistenceService = keystorePersistenceService;
         this.certificateHelper = certificateHelper;
         this.fileServiceUtil = fileServiceUtil;
+        this.auditService = auditService;
     }
 
     public void init() {
@@ -438,8 +443,9 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private boolean doAddCertificates(List<CertificateEntry> certificates, boolean overwrite) {
         BiFunction<KeystorePersistenceInfo, KeyStore, Boolean> storeChanger =
-                (persistenceInfo, diskStore) -> certificateService.addCertificates(diskStore, persistenceInfo, certificates, overwrite);
-        return changeCertificates(storeChanger);
+                (persistenceInfo, diskStore) -> certificateService.addCertificates(diskStore, certificates, overwrite);
+        Consumer<KeystorePersistenceInfo> auditer = persistenceInfo -> auditService.addCertificateAddedAudit(persistenceInfo.getName());
+        return changeCertificates(storeChanger, auditer);
     }
 
     private boolean removeCertificates(List<String> aliases) {
@@ -448,22 +454,37 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private boolean doRemoveCertificates(List<String> aliases) {
         BiFunction<KeystorePersistenceInfo, KeyStore, Boolean> storeChanger =
-                (persistenceInfo, diskStore) -> certificateService.removeCertificates(diskStore, persistenceInfo, aliases);
-        return changeCertificates(storeChanger);
+                (persistenceInfo, diskStore) -> certificateService.removeCertificates(diskStore, aliases);
+        Consumer<KeystorePersistenceInfo> auditer = persistenceInfo -> auditService.addCertificateRemovedAudit(persistenceInfo.getName());
+        return changeCertificates(storeChanger, auditer);
     }
 
-    private boolean changeCertificates(BiFunction<KeystorePersistenceInfo, KeyStore, Boolean> storeChanger) {
+    private boolean changeCertificates(BiFunction<KeystorePersistenceInfo, KeyStore, Boolean> storeChanger, Consumer<KeystorePersistenceInfo> auditer) {
         KeystorePersistenceInfo persistenceInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
+        String storeName = persistenceInfo.getName();
+
         KeyStore diskStore = certificateService.getStore(persistenceInfo);
 
         boolean outcome = storeChanger.apply(persistenceInfo, diskStore);
+        KeyStore newStore = diskStore;
 
-        boolean identical = securityUtil.areKeystoresIdentical(getTrustStore(), diskStore);
+        boolean identical = securityUtil.areKeystoresIdentical(getTrustStore(), newStore);
+
         if (!identical) {
-            LOG.info("Current store [{}] is different from the persisted one, reloading", persistenceInfo.getName());
+            LOG.info("Current store [{}] is different from the persisted one.", storeName);
+
+            LOG.debug("Validating store [{}] after changing.", storeName);
+            validateTrustStoreCertificateTypes(newStore);
+
+            LOG.debug("Saving store [{}] to disk.", storeName);
+            keystorePersistenceService.saveStore(newStore, persistenceInfo);
+
+            auditer.accept(persistenceInfo);
+
+            LOG.info("Reloading store [{}].", storeName);
             reloadTrustStore();
         } else {
-            LOG.info("Current store [{}] is identical with the persisted one, no reloading.", persistenceInfo.getName());
+            LOG.info("Current store [{}] is identical with the persisted one, no reloading.", storeName);
         }
         return outcome;
     }
@@ -741,7 +762,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         try {
             return domainTaskExecutor.executeWithLock(task, SYNC_LOCK_KEY, changeLock, null);
         } catch (DomainTaskException ex) {
-            Throwable cause = ex.getCause();
+            Throwable cause = ExceptionUtils.getRootCause(ex);
             if (cause instanceof CryptoSpiException) {
                 throw (CryptoSpiException) cause;
             }

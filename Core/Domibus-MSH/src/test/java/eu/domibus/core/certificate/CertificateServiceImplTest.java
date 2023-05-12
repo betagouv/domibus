@@ -827,7 +827,7 @@ public class CertificateServiceImplTest {
             result = false;
         }};
 
-        certificateService.doAddCertificates(persistenceInfo, certificates, false);
+        certificateService.doAddCertificatesAndSave(persistenceInfo, certificates, false);
 
         new Verifications() {{
             keystorePersistenceService.saveStore(store, persistenceInfo);
@@ -1013,7 +1013,7 @@ public class CertificateServiceImplTest {
             keystorePersistenceService.saveStore(store, persistenceInfo);
         }};
 
-        boolean added = certificateService.doAddCertificates(persistenceInfo, certificates, overwrite);
+        boolean added = certificateService.doAddCertificatesAndSave(persistenceInfo, certificates, overwrite);
 
         assertTrue(added);
         new Verifications() {{
@@ -1034,7 +1034,7 @@ public class CertificateServiceImplTest {
             result = false;
         }};
 
-        boolean added = certificateService.doAddCertificates(persistenceInfo, certificates, overwrite);
+        boolean added = certificateService.doAddCertificatesAndSave(persistenceInfo, certificates, overwrite);
 
         assertFalse(added);
         new Verifications() {{
@@ -1057,7 +1057,7 @@ public class CertificateServiceImplTest {
             keystorePersistenceService.saveStore(store, persistenceInfo);
         }};
 
-        boolean removed = certificateService.doRemoveCertificates(persistenceInfo, certificates);
+        boolean removed = certificateService.doRemoveCertificatesAndPersist(persistenceInfo, certificates);
 
         assertTrue(removed);
         new Verifications() {{
@@ -1080,7 +1080,7 @@ public class CertificateServiceImplTest {
             result = false;
         }};
 
-        boolean removed = certificateService.doRemoveCertificates(persistenceInfo, certificates);
+        boolean removed = certificateService.doRemoveCertificatesAndPersist(persistenceInfo, certificates);
 
         assertFalse(removed);
         new Verifications() {{
