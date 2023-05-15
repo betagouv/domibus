@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.LockTimeoutException;
 import javax.persistence.NoResultException;
+import javax.persistence.QueryTimeoutException;
 import java.util.concurrent.Callable;
 
 /**
@@ -90,14 +91,14 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
             LOG.debug("Finished executing task with db lock");
         } catch (NoResultException nre) {
             throw new DomibusSynchronizationException(String.format("Lock key [%s] not found!", lockKey), nre);
-        } catch (LockTimeoutException lte) {
+        } catch (LockTimeoutException | QueryTimeoutException te) {
             LOG.info("[{}] key lock could not be acquired. It is probably being used by another process.", lockKey);
-            LOG.debug("[{}] key lock could not be acquired.", lockKey, lte);
+            LOG.debug("[{}] key lock could not be acquired.", lockKey, te);
         } catch (Exception ex) {
-            if (!swallowException) {
+//            if (!swallowException) {
                 throw new DomibusSynchronizationException(ex);
-            }
-            LOG.error("Error while running synchronized task.", ex);
+//            }
+//            LOG.error("Error while running synchronized task.", ex);
         }
 
         Thread.currentThread().setName(threadName);

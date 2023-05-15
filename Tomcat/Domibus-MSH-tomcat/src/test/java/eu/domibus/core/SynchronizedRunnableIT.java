@@ -242,7 +242,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                assertDatabaseContainsOnly(VALUE_FROM_OWNER_THREAD, VALUE_FROM_TASK_1, VALUE_FROM_TASK_2);
+                assertDatabaseContainsOnly(VALUE_FROM_OWNER_THREAD, VALUE_FROM_TASK_1);
             }
         });
     }
@@ -416,7 +416,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                assertDatabaseContainsOnly(VALUE_FROM_TASK_1, VALUE_FROM_TASK_2);
+                assertDatabaseContainsOnly(VALUE_FROM_TASK_1);
             }
         });
     }
@@ -513,7 +513,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                assertDatabaseContainsOnly(VALUE_FROM_TASK_1, VALUE_FROM_TASK_2);
+                assertDatabaseContainsOnly(VALUE_FROM_TASK_1);
             }
         });
     }

@@ -59,6 +59,8 @@ public class SynchronizationServiceImpl implements SynchronizationService {
         }, dbLockKey, javaLockKey);
         try {
             synchronizedRunnable.call();
+        } catch (DomibusSynchronizationException se) {
+            throw se;
         } catch (Exception e) {
             throw new DomibusSynchronizationException(e);
         }
