@@ -2,7 +2,7 @@ package eu.domibus.core.multitenancy.lock;
 
 import eu.domibus.api.multitenancy.lock.DomibusSynchronizationException;
 import eu.domibus.api.multitenancy.lock.SynchronizationService;
-import eu.domibus.api.multitenancy.lock.DbSynchronizedRunnableFactory;
+import eu.domibus.api.multitenancy.lock.DbClusterSynchronizedRunnableFactory;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -22,19 +22,19 @@ public class SynchronizationServiceImpl implements SynchronizationService {
 
     private final DomibusConfigurationService domibusConfigurationService;
 
-    private final DbSynchronizedRunnableFactory dbSynchronizedRunnableFactory;
+    private final DbClusterSynchronizedRunnableFactory dbClusterSynchronizedRunnableFactory;
 
     public SynchronizationServiceImpl(DomibusConfigurationService domibusConfigurationService,
-                                      DbSynchronizedRunnableFactory dbSynchronizedRunnableFactory) {
+                                      DbClusterSynchronizedRunnableFactory dbClusterSynchronizedRunnableFactory) {
         this.domibusConfigurationService = domibusConfigurationService;
-        this.dbSynchronizedRunnableFactory = dbSynchronizedRunnableFactory;
+        this.dbClusterSynchronizedRunnableFactory = dbClusterSynchronizedRunnableFactory;
     }
 
     @Override
     public <T> Callable<T> getSynchronizedCallable(Callable<T> task, String dbLockKey, Object javaLockKey) {
         Callable<T> synchronizedRunnable;
         if (domibusConfigurationService.isClusterDeployment()) {
-            synchronizedRunnable = dbSynchronizedRunnableFactory.synchronizedCallable(task, dbLockKey);
+            synchronizedRunnable = dbClusterSynchronizedRunnableFactory.synchronizedCallable(task, dbLockKey);
         } else {
             synchronizedRunnable = javaSyncCallable(task, javaLockKey);
         }

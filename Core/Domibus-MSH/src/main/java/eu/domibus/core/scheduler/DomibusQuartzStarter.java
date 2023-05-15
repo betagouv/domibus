@@ -7,7 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.lock.SynchronizationService;
-import eu.domibus.api.multitenancy.lock.DbSynchronizedRunnableFactory;
+import eu.domibus.api.multitenancy.lock.DbClusterSynchronizedRunnableFactory;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -81,7 +81,7 @@ public class DomibusQuartzStarter implements DomibusScheduler {
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    protected DbSynchronizedRunnableFactory dbSynchronizedRunnableFactory;
+    protected DbClusterSynchronizedRunnableFactory dbClusterSynchronizedRunnableFactory;
 
     @Autowired
     BackendConnectorProvider backendConnectorProvider;

@@ -14,9 +14,9 @@ import java.util.concurrent.Callable;
  * @since 5.0
  */
 @Configuration
-public class DbSynchronizedRunnableFactory {
+public class DbClusterSynchronizedRunnableFactory {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(DbSynchronizedRunnableFactory.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(DbClusterSynchronizedRunnableFactory.class);
 
     @Autowired
     DBSynchronizationHelper dbSynchronizationHelper;
@@ -24,17 +24,17 @@ public class DbSynchronizedRunnableFactory {
     /**
      * Instantiates a SynchronizedRunnable
      * IMPORTANT: Only use with tasks that are short in duration since the locking requires an active database transaction
-     * @see DBSynchronizedRunnable
+     * @see DBClusterSynchronizedRunnable
      */
     @Bean(autowireCandidate = false)
     @Scope("prototype")
-    public DBSynchronizedRunnable synchronizedRunnable(Runnable runnable, String lockKey) {
-        return new DBSynchronizedRunnable(runnable, lockKey, dbSynchronizationHelper);
+    public DBClusterSynchronizedRunnable synchronizedRunnable(Runnable runnable, String lockKey) {
+        return new DBClusterSynchronizedRunnable(runnable, lockKey, dbSynchronizationHelper);
     }
 
     @Bean(autowireCandidate = false)
     @Scope("prototype")
-    public <T> DBSynchronizedRunnable<T> synchronizedCallable(Callable<T> callable, String lockKey) {
-        return new DBSynchronizedRunnable<>(callable, lockKey, dbSynchronizationHelper);
+    public <T> DBClusterSynchronizedRunnable<T> synchronizedCallable(Callable<T> callable, String lockKey) {
+        return new DBClusterSynchronizedRunnable<>(callable, lockKey, dbSynchronizationHelper);
     }
 }

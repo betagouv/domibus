@@ -2,7 +2,7 @@ package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.*;
 import eu.domibus.api.multitenancy.lock.SynchronizationService;
-import eu.domibus.api.multitenancy.lock.DbSynchronizedRunnableFactory;
+import eu.domibus.api.multitenancy.lock.DbClusterSynchronizedRunnableFactory;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -39,7 +39,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     protected SchedulingTaskExecutor schedulingLongTaskExecutor;
 
     @Autowired
-    DbSynchronizedRunnableFactory dbSynchronizedRunnableFactory;
+    DbClusterSynchronizedRunnableFactory dbClusterSynchronizedRunnableFactory;
 
     @Autowired
     DomibusConfigurationService domibusConfigurationService;

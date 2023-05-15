@@ -23,9 +23,9 @@ import java.util.concurrent.Callable;
  * @author Ion Perpegel
  * @since 5.0
  */
-public class DBSynchronizedRunnable<T> implements Runnable, Callable<T> {
+public class DBClusterSynchronizedRunnable<T> implements Runnable, Callable<T> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DBSynchronizedRunnable.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DBClusterSynchronizedRunnable.class);
 
     private final DBSynchronizationHelper dbSynchronizationHelper;
 
@@ -35,7 +35,7 @@ public class DBSynchronizedRunnable<T> implements Runnable, Callable<T> {
 
     private Callable<T> callable;
 
-    private DBSynchronizedRunnable(String lockKey, DBSynchronizationHelper dbSynchronizationHelper) {
+    private DBClusterSynchronizedRunnable(String lockKey, DBSynchronizationHelper dbSynchronizationHelper) {
         this.lockKey = lockKey;
         this.dbSynchronizationHelper = dbSynchronizationHelper;
     }
@@ -47,12 +47,12 @@ public class DBSynchronizedRunnable<T> implements Runnable, Callable<T> {
      * @param lockKey                 the key for which to lock execution
      * @param dbSynchronizationHelper service used to acquire the lock
      */
-    protected DBSynchronizedRunnable(Runnable runnable, String lockKey, DBSynchronizationHelper dbSynchronizationHelper) {
+    protected DBClusterSynchronizedRunnable(Runnable runnable, String lockKey, DBSynchronizationHelper dbSynchronizationHelper) {
         this(lockKey, dbSynchronizationHelper);
         this.runnable = runnable;
     }
 
-    protected DBSynchronizedRunnable(Callable<T> callable, String lockKey, DBSynchronizationHelper dbSynchronizationHelper) {
+    protected DBClusterSynchronizedRunnable(Callable<T> callable, String lockKey, DBSynchronizationHelper dbSynchronizationHelper) {
         this(lockKey, dbSynchronizationHelper);
         this.callable = callable;
     }
