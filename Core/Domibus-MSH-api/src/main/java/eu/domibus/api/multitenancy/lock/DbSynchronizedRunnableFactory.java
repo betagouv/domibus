@@ -14,9 +14,9 @@ import java.util.concurrent.Callable;
  * @since 5.0
  */
 @Configuration
-public class SynchronizedRunnableFactory {
+public class DbSynchronizedRunnableFactory {
 
-    private static final Logger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnableFactory.class);
+    private static final Logger LOG = DomibusLoggerFactory.getLogger(DbSynchronizedRunnableFactory.class);
 
     @Autowired
     DBSynchronizationHelper dbSynchronizationHelper;

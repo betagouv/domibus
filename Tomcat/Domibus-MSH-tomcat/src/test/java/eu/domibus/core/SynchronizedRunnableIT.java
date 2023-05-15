@@ -3,7 +3,7 @@ package eu.domibus.core;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.MpcEntity;
 import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
-import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
+import eu.domibus.api.multitenancy.lock.DbSynchronizedRunnableFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.mock.TransactionalTestService;
@@ -47,7 +47,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
     private static final String SCHEDULER_SYNCHRONIZATION_LOCK = "scheduler-synchronization.lock";
 
     @Autowired
-    private SynchronizedRunnableFactory synchronizedRunnableFactory;
+    private DbSynchronizedRunnableFactory dbSynchronizedRunnableFactory;
 
     @Autowired
     private TransactionalTestService testService;
@@ -556,11 +556,11 @@ public class SynchronizedRunnableIT extends AbstractIT {
      * @param task2
      */
     private void runTwoThreads(boolean useSameLock, Runnable task1, Runnable task2) {
-        SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(task1, SYNC_LOCK_KEY);
+        SynchronizedRunnable synchronizedRunnable = dbSynchronizedRunnableFactory.synchronizedRunnable(task1, SYNC_LOCK_KEY);
         Thread t1 = new Thread(synchronizedRunnable);
         t1.start();
 
-        SynchronizedRunnable synchronizedRunnable2 = synchronizedRunnableFactory.synchronizedRunnable(task2, useSameLock ? SYNC_LOCK_KEY : SCHEDULER_SYNCHRONIZATION_LOCK);
+        SynchronizedRunnable synchronizedRunnable2 = dbSynchronizedRunnableFactory.synchronizedRunnable(task2, useSameLock ? SYNC_LOCK_KEY : SCHEDULER_SYNCHRONIZATION_LOCK);
         Thread t2 = new Thread(synchronizedRunnable2);
 
         try {
