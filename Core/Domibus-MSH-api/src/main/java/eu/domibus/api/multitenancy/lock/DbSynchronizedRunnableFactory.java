@@ -24,17 +24,17 @@ public class DbSynchronizedRunnableFactory {
     /**
      * Instantiates a SynchronizedRunnable
      * IMPORTANT: Only use with tasks that are short in duration since the locking requires an active database transaction
-     * @see SynchronizedRunnable
+     * @see DBSynchronizedRunnable
      */
     @Bean(autowireCandidate = false)
     @Scope("prototype")
-    public SynchronizedRunnable synchronizedRunnable(Runnable runnable, String lockKey) {
-        return new SynchronizedRunnable(runnable, lockKey, dbSynchronizationHelper);
+    public DBSynchronizedRunnable synchronizedRunnable(Runnable runnable, String lockKey) {
+        return new DBSynchronizedRunnable(runnable, lockKey, dbSynchronizationHelper);
     }
 
     @Bean(autowireCandidate = false)
     @Scope("prototype")
-    public <T> SynchronizedRunnable<T> synchronizedCallable(Callable<T> callable, String lockKey) {
-        return new SynchronizedRunnable<>(callable, lockKey, dbSynchronizationHelper);
+    public <T> DBSynchronizedRunnable<T> synchronizedCallable(Callable<T> callable, String lockKey) {
+        return new DBSynchronizedRunnable<>(callable, lockKey, dbSynchronizationHelper);
     }
 }
