@@ -62,7 +62,7 @@ public class SynchronizationServiceImpl implements SynchronizationService {
         } catch (DomibusSynchronizationException se) {
             throw se;
         } catch (Exception e) {
-            throw new DomibusSynchronizationException(e);
+            throw new DomibusSynchronizationException("Error executing a task with locks:" + dbLockKey + ", " + javaLockKey, e);
         }
     }
 

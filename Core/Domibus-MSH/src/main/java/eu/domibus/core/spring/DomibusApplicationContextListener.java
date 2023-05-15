@@ -2,7 +2,9 @@ package eu.domibus.core.spring;
 
 import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.api.encryption.EncryptionService;
+import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.multitenancy.lock.DomibusSynchronizationException;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -22,6 +24,7 @@ import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.initialize.PluginInitializer;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -140,7 +143,12 @@ public class DomibusApplicationContextListener {
     }
 
     public void doInitialize() {
-        executeWithLock(this::executeSynchronized);
+        try {
+            executeWithLock(this::executeSynchronized);
+        } catch (DomainTaskException | DomibusSynchronizationException ex) {
+            Throwable cause = ExceptionUtils.getRootCause(ex);
+            LOG.error("Error executing application initialization code:", cause);
+        }
         executeNonSynchronized();
     }
 

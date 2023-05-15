@@ -44,8 +44,8 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
     /**
      * Instantiate using SynchronizedRunnableFactory, so it can be managed by Spring which needs to start the transaction required by the run method.
      *
-     * @param runnable               the task to execute (short duration)
-     * @param lockKey                the key for which to lock execution
+     * @param runnable                the task to execute (short duration)
+     * @param lockKey                 the key for which to lock execution
      * @param dbSynchronizationHelper service used to acquire the lock
      */
     protected SynchronizedRunnable(Runnable runnable, String lockKey, DBSynchronizationHelper dbSynchronizationHelper) {
@@ -62,9 +62,9 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
     @Transactional
     public void run() {
         try {
-            executeTask(this::wrappedRunnable, true);
+            executeTask(this::wrappedRunnable, false);
         } catch (Exception e) {
-            throw new DomainTaskException(e);
+            throw new DomibusSynchronizationException(e);
         }
     }
 
@@ -92,13 +92,13 @@ public class SynchronizedRunnable<T> implements Runnable, Callable<T> {
         } catch (NoResultException nre) {
             throw new DomibusSynchronizationException(String.format("Lock key [%s] not found!", lockKey), nre);
         } catch (LockTimeoutException | QueryTimeoutException te) {
-            LOG.info("[{}] key lock could not be acquired. It is probably being used by another process.", lockKey);
-            LOG.debug("[{}] key lock could not be acquired.", lockKey, te);
+            LOG.warn("[{}] key lock could not be acquired. It is probably being used by another process.", lockKey);
+            throw new DomibusSynchronizationException(lockKey + " key lock could not be acquired. It is probably being used by another process." , te);
         } catch (Exception ex) {
-//            if (!swallowException) {
-                throw new DomibusSynchronizationException(ex);
-//            }
-//            LOG.error("Error while running synchronized task.", ex);
+            if (!swallowException) {
+                throw new DomibusSynchronizationException("Error executing a task with db lock:" + lockKey, ex);
+            }
+            LOG.error("Error while running synchronized task.", ex);
         }
 
         Thread.currentThread().setName(threadName);
