@@ -2,6 +2,7 @@ package eu.domibus.core.spi.validation;
 
 import eu.domibus.ext.domain.UserMessageDTO;
 
+import javax.xml.soap.SOAPMessage;
 import java.io.InputStream;
 
 /**
@@ -20,6 +21,17 @@ public interface UserMessageValidatorSpi {
      * @throws UserMessageValidatorSpiException in case the validation does not pass
      */
     void validateUserMessage(UserMessageDTO userMessage) throws UserMessageValidatorSpiException;
+
+    /**
+     * Validates the incoming UserMessage before Domibus saves the message into the database.
+     *
+     * @param request The incoming SOAPMessage containing the UserMessage
+     * @param userMessage The UserMessage to be validated
+     * @throws UserMessageValidatorSpiException in case the validation does not pass
+     */
+    default void validateIncomingUserMessage(SOAPMessage request, UserMessageDTO userMessage) throws UserMessageValidatorSpiException {
+        //to be implemented by custom validation extensions
+    }
 
     /**
      * Validates the UserMessage payload on demand eg from a custom plugin. This validation can be implemented to scan the payload using an antivirus solution.
