@@ -38,20 +38,22 @@ public class UserMessageValidatorSpiServiceImpl implements UserMessageValidatorS
 
     @Override
     public void validate(SOAPMessage request, UserMessage userMessage, List<PartInfo> partInfoList) {
-        final eu.domibus.api.usermessage.domain.UserMessage userMessageModel = messageCoreMapper.userMessageToUserMessageApi(userMessage);
-
-        final PayloadInfo payloadInfo = createPayloadInfo(partInfoList);
-        userMessageModel.setPayloadInfo(payloadInfo);
+        final eu.domibus.api.usermessage.domain.UserMessage userMessageModel = convertUserMessage(userMessage, partInfoList);
 
         userMessageValidatorServiceDelegate.validateIncomingMessage(request, userMessageModel);
     }
 
-    @Override
-    public void validate(UserMessage userMessage, List<PartInfo> partInfoList) {
+    private eu.domibus.api.usermessage.domain.UserMessage convertUserMessage(UserMessage userMessage, List<PartInfo> partInfoList) {
         final eu.domibus.api.usermessage.domain.UserMessage userMessageModel = messageCoreMapper.userMessageToUserMessageApi(userMessage);
 
         final PayloadInfo payloadInfo = createPayloadInfo(partInfoList);
         userMessageModel.setPayloadInfo(payloadInfo);
+        return userMessageModel;
+    }
+
+    @Override
+    public void validate(UserMessage userMessage, List<PartInfo> partInfoList) {
+        final eu.domibus.api.usermessage.domain.UserMessage userMessageModel = convertUserMessage(userMessage, partInfoList);
 
         userMessageValidatorServiceDelegate.validate(userMessageModel);
     }
