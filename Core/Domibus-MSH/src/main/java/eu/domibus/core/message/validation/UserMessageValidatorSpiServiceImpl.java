@@ -15,6 +15,7 @@ import eu.domibus.messaging.MessageConstants;
 import org.springframework.stereotype.Service;
 
 import javax.activation.DataHandler;
+import javax.xml.soap.SOAPMessage;
 import java.util.HashSet;
 import java.util.List;
 
@@ -33,6 +34,16 @@ public class UserMessageValidatorSpiServiceImpl implements UserMessageValidatorS
         this.messageCoreMapper = messageCoreMapper;
         this.userMessageValidatorServiceDelegate = userMessageValidatorServiceDelegate;
         this.compressionService = compressionService;
+    }
+
+    @Override
+    public void validate(SOAPMessage request, UserMessage userMessage, List<PartInfo> partInfoList) {
+        final eu.domibus.api.usermessage.domain.UserMessage userMessageModel = messageCoreMapper.userMessageToUserMessageApi(userMessage);
+
+        final PayloadInfo payloadInfo = createPayloadInfo(partInfoList);
+        userMessageModel.setPayloadInfo(payloadInfo);
+
+        userMessageValidatorServiceDelegate.validateIncomingMessage(request, userMessageModel);
     }
 
     @Override

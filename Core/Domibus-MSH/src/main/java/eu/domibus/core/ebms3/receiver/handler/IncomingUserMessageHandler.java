@@ -69,7 +69,7 @@ public class IncomingUserMessageHandler extends AbstractIncomingMessageHandler {
         List<PartInfo> partInfoList = userMessagePayloadService.handlePayloads(request, ebms3Messaging, ebms3MessageFragmentType);
         partInfoList.stream().forEach(partInfo -> partInfo.setUserMessage(userMessage));
 
-        userMessageValidatorSpiService.validate(userMessage, partInfoList);
+        userMessageValidatorSpiService.validate(request, userMessage, partInfoList);
 
         if (ebms3MessageFragmentType != null) {
             userMessage.setMessageFragment(true);

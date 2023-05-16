@@ -9,6 +9,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.xml.soap.SOAPMessage;
 import java.io.InputStream;
 
 @Service
@@ -23,6 +24,20 @@ public class UserMessageValidatorServiceDelegateImpl implements UserMessageValid
                                                    DomibusExtMapper domibusExtMapper) {
         this.userMessageValidatorSpi = userMessageValidatorSpi;
         this.domibusExtMapper = domibusExtMapper;
+    }
+
+    @Override
+    public void validateIncomingMessage(SOAPMessage request, eu.domibus.api.usermessage.domain.UserMessage userMessage) {
+        if (!isUserMessageValidatorActive()) {
+            LOG.debug("Validation skipped: validator SPI is not active");
+            return;
+        }
+        LOG.debug("Validating incoming user message");
+
+        final UserMessageDTO userMessageDto = domibusExtMapper.userMessageToUserMessageDTO(userMessage);
+        userMessageValidatorSpi.validateIncomingUserMessage(request, userMessageDto);
+
+        LOG.debug("Finished validating incoming user message");
     }
 
     @Override
