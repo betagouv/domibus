@@ -344,6 +344,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Assert.assertEquals(2, initialStoreEntries.size());
         Assert.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(added_cer)));
         Assert.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+        checkDiskFileinSyncWithMemoryStore();
 
         // change trust file to simulate a cluster propagation
         String newLoc = location.replace("gateway_truststore.jks", "gateway_truststore_3_certs.jks");
@@ -353,6 +354,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
         Assert.assertEquals(2, trustStoreEntries.size());
         Assert.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+        checkDiskFileinSyncWithMemoryStore(false);
 
         // when adding or removing a cert, the store is read from the disk first to have the latest version
         Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "red_gw.cer");
@@ -364,6 +366,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Assert.assertEquals(4, trustStoreEntries.size());
         Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(added_cer)));
         Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+        checkDiskFileinSyncWithMemoryStore();
     }
 
     @Test
@@ -375,6 +378,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Assert.assertEquals(2, initialStoreEntries.size());
         Assert.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(added_cer)));
         Assert.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+        checkDiskFileinSyncWithMemoryStore();
 
         // change trust file to simulate a cluster propagation
         String newLoc = location.replace("gateway_truststore.jks", "gateway_truststore_3_certs.jks");
@@ -384,6 +388,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
         Assert.assertEquals(2, trustStoreEntries.size());
         Assert.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+        checkDiskFileinSyncWithMemoryStore(false);
 
         // when adding or removing a cert, the store is read from the disk first to have the latest version
         Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "red_gw.cer");
@@ -394,6 +399,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
         Assert.assertEquals(3, trustStoreEntries.size());
         Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+        checkDiskFileinSyncWithMemoryStore();
     }
 
     @Test
@@ -405,6 +411,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Assert.assertEquals(2, initialStoreEntries.size());
         Assert.assertTrue(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals("blue_gw")));
         Assert.assertTrue(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(removed_cer)));
+        checkDiskFileinSyncWithMemoryStore();
 
         // change trust file to simulate a cluster propagation; new trust has the green_gw cert also
         String newLoc = location.replace("gateway_truststore.jks", "gateway_truststore_3_certs.jks");
@@ -414,6 +421,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
         Assert.assertEquals(2, trustStoreEntries.size());
         Assert.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+        checkDiskFileinSyncWithMemoryStore(false);
 
         // when adding or removing a cert, the store is read from the disk first to have the latest version
         multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), removed_cer);
@@ -422,6 +430,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Assert.assertEquals(2, trustStoreEntries.size());
         Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("blue_gw")));
         Assert.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(removed_cer)));
+        checkDiskFileinSyncWithMemoryStore();
     }
 
     @Test
@@ -432,6 +441,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
         Assert.assertEquals(2, initialStoreEntries.size());
         Assert.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(added_cer)));
+        checkDiskFileinSyncWithMemoryStore();
 
         List<String> addedCertNames = new ArrayList<>();
         for (int i = 1; i <= 10; i++) {
@@ -448,11 +458,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         for (String name : addedCertNames) {
             Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(name)));
         }
-
-        KeyStoreContentInfo info = getKeystorePersistenceService.loadStore(getKeystorePersistenceService.getTrustStorePersistenceInfo());
-        KeyStore storeOnDisk = certificateService.loadStore(info);
-        KeyStore memoryStore = multiDomainCryptoService.getTrustStore(domain);
-        Assert.assertTrue(securityUtil.areKeystoresIdentical(memoryStore, storeOnDisk));
+        checkDiskFileinSyncWithMemoryStore();
 
         tasks = new ArrayList<>();
         for (String name : addedCertNames) {
@@ -465,6 +471,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         for (String name : addedCertNames) {
             Assert.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(name)));
         }
+        checkDiskFileinSyncWithMemoryStore();
     }
 
     private void removeCertificate(String name) {
@@ -522,5 +529,20 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
             }
         }
 
+    }
+
+    private void doCheckDiskFileinSyncWithMemoryStore(boolean inSync) {
+        KeyStoreContentInfo info = getKeystorePersistenceService.loadStore(getKeystorePersistenceService.getTrustStorePersistenceInfo());
+        KeyStore storeOnDisk = certificateService.loadStore(info);
+        KeyStore memoryStore = multiDomainCryptoService.getTrustStore(domain);
+        Assert.assertEquals(securityUtil.areKeystoresIdentical(memoryStore, storeOnDisk), inSync);
+    }
+
+    private void checkDiskFileinSyncWithMemoryStore() {
+        doCheckDiskFileinSyncWithMemoryStore(true);
+    }
+
+    private void checkDiskFileinSyncWithMemoryStore(boolean inSync) {
+        doCheckDiskFileinSyncWithMemoryStore(inSync);
     }
 }
