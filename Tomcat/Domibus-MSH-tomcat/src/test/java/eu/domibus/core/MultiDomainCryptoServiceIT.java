@@ -3,6 +3,7 @@ package eu.domibus.core;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.multitenancy.lock.DBClusterSynchronizedRunnable;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.KeystorePersistenceInfo;
@@ -39,14 +40,12 @@ import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static eu.domibus.api.property.DomibusConfigurationService.CLUSTER_DEPLOYMENT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
+import static eu.domibus.core.spring.DomibusApplicationContextListener.SYNC_LOCK_KEY;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
@@ -418,6 +417,54 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Files.copy(Paths.get(back), Paths.get(location), REPLACE_EXISTING);
         Files.delete(Paths.get(back));
     }
+    
+    @Test
+    public void multipleChangesToTrustStore() throws IOException {
+        domibusPropertyProvider.setProperty(CLUSTER_DEPLOYMENT, "true");
+        String added_cer = "new_cer_gw";
+
+        List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(2, initialStoreEntries.size());
+        Assert.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(added_cer)));
+
+        // save the initial trust file
+        String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+        String back = location.replace("gateway_truststore.jks", "gateway_truststore_back.jks");
+        Files.copy(Paths.get(location), Paths.get(back), REPLACE_EXISTING);
+        try {
+            List<String> addedCertNames = new ArrayList<>();
+            for (int i = 1; i <= 10; i++) {
+                addedCertNames.add("new_cert" + i);
+            }
+            List<Runnable> tasks = new ArrayList<>();
+            for (String name : addedCertNames) {
+                tasks.add(() -> addCertificate(name));
+            }
+            runThreads(tasks);
+
+            List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+            Assert.assertEquals(12, trustStoreEntries.size());
+            for (String name : addedCertNames) {
+                Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(name)));
+            }
+        } finally {
+            domibusPropertyProvider.setProperty(CLUSTER_DEPLOYMENT, "false");
+            //restore initial trust store
+            Files.copy(Paths.get(back), Paths.get(location), REPLACE_EXISTING);
+            Files.delete(Paths.get(back));
+        }
+    }
+
+    private void addCertificate(String added_cer) {
+        try {
+            Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "red_gw.cer");
+            byte[] content = Files.readAllBytes(path);
+            X509Certificate x509Certificate = certificateService.loadCertificate(Base64.getEncoder().encodeToString(content));
+            multiDomainCryptoService.addCertificate(domainContextProvider.getCurrentDomain(), Arrays.asList(new CertificateEntry(added_cer, x509Certificate)), true);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
     private void resetInitialTruststore() {
         try {
@@ -434,5 +481,30 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
 
     private Date getDate(LocalDateTime localDateTime1) {
         return Date.from(localDateTime1.atZone(ZoneOffset.UTC).toInstant());
+    }
+
+    private void runThreads(List<Runnable> tasks) {
+        List<Thread> threads = new ArrayList<>();
+
+        for (Runnable task : tasks) {
+            Thread t = new Thread(task);
+            threads.add(t);
+            t.start();
+        }
+
+//        try {
+//            Thread.sleep(1000);
+//        } catch (InterruptedException e) {
+//            LOG.error("SynchronizedRunnableIT stopped", e);
+//        }
+
+        for (Thread t : threads) {
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                LOG.error("Thread join stopped", e);
+            }
+        }
+
     }
 }
