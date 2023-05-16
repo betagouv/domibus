@@ -44,6 +44,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusConfigurationService.CLUSTER_DEPLOYMENT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SECURITY_TRUSTSTORE_LOCATION;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -314,28 +315,80 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     }
 
     @Test
-    public void multipleChanges() throws IOException {
+    public void changedFileAndAddedCertificate() throws IOException {
         Domain domain = DomainService.DEFAULT_DOMAIN;
+        domibusPropertyProvider.setProperty(CLUSTER_DEPLOYMENT, "true");
+        String added_cer = "new_cer_gw";
 
         List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
         Assert.assertEquals(2, initialStoreEntries.size());
+        Assert.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(added_cer)));
+        Assert.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
 
         // change trust file to simulate a cluster propagation
         String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+        String back = location.replace("gateway_truststore.jks", "gateway_truststore_back.jks");
+        Files.copy(Paths.get(location), Paths.get(back), REPLACE_EXISTING);
+
         String newLoc = location.replace("gateway_truststore.jks", "changed_gateway_truststore.jks");
         Files.copy(Paths.get(newLoc), Paths.get(location), REPLACE_EXISTING);
-        Files.setLastModifiedTime(Paths.get(location), FileTime.from(new Date().toInstant()));
 
+        // file changed but the trust in memory not
+        List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(2, trustStoreEntries.size());
+        Assert.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+
+        // when addid or removing a cert, the store is read from the disk first to have the latest version
         Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "red_gw.cer");
         byte[] content = Files.readAllBytes(path);
-        String new_cer = "new_cer_gw";
         X509Certificate x509Certificate = certificateService.loadCertificate(Base64.getEncoder().encodeToString(content));
-        multiDomainCryptoService.addCertificate(domainContextProvider.getCurrentDomain(), Arrays.asList(new CertificateEntry(new_cer, x509Certificate)), true);
+        multiDomainCryptoService.addCertificate(domainContextProvider.getCurrentDomain(), Arrays.asList(new CertificateEntry(added_cer, x509Certificate)), true);
 
-        List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
         Assert.assertEquals(4, trustStoreEntries.size());
-        Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(new_cer)));
+        Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(added_cer)));
         Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+
+        domibusPropertyProvider.setProperty(CLUSTER_DEPLOYMENT, "false");
+        Files.copy(Paths.get(back), Paths.get(location), REPLACE_EXISTING);
+        Files.delete(Paths.get(back));
+    }
+
+    @Test
+    public void changedFileAndAddedAndRemovedCertificate() throws IOException {
+        Domain domain = DomainService.DEFAULT_DOMAIN;
+        domibusPropertyProvider.setProperty(CLUSTER_DEPLOYMENT, "true");
+        String removed_cer = "red_gw";
+
+        List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(2, initialStoreEntries.size());
+        Assert.assertTrue(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals("blue_gw")));
+        Assert.assertTrue(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(removed_cer)));
+
+        // change trust file to simulate a cluster propagation; new trust has the green_gw cert also
+        String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+        String back = location.replace("gateway_truststore.jks", "gateway_truststore_back.jks");
+        Files.copy(Paths.get(location), Paths.get(back), REPLACE_EXISTING);
+
+        String newLoc = location.replace("gateway_truststore.jks", "changed_gateway_truststore.jks");
+        Files.copy(Paths.get(newLoc), Paths.get(location), REPLACE_EXISTING);
+
+        // file changed but the trust in memory not
+        List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(2, trustStoreEntries.size());
+        Assert.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+
+        // when adding or removing a cert, the store is read from the disk first to have the latest version
+        multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), removed_cer);
+
+        trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(2, trustStoreEntries.size());
+        Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("blue_gw")));
+        Assert.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(removed_cer)));
+
+        domibusPropertyProvider.setProperty(CLUSTER_DEPLOYMENT, "false");
+        Files.copy(Paths.get(back), Paths.get(location), REPLACE_EXISTING);
+        Files.delete(Paths.get(back));
     }
 
     private void resetInitialTruststore() {
