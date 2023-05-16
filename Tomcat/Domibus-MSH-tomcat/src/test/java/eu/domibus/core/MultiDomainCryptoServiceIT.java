@@ -18,6 +18,7 @@ import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.crypto.TruststoreDao;
+import eu.domibus.core.crypto.spi.CryptoSpiException;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -474,16 +475,45 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         checkDiskFileinSyncWithMemoryStore();
     }
 
-    private void removeCertificate(String name) {
-        multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), name);
+    @Test
+    public void tryAddingInvalidCertificate() {
+        domibusPropertyProvider.setProperty(CLUSTER_DEPLOYMENT, "true");
+        String alias = "new_cer_gw";
+
+        List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        Assert.assertEquals(2, initialStoreEntries.size());
+        Assert.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(alias)));
+        checkDiskFileinSyncWithMemoryStore();
+        try {
+            addCertificate(alias, "invalid_cert.cer");
+        } catch (CryptoSpiException ex) {
+            List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+            Assert.assertEquals(2, trustStoreEntries.size());
+            Assert.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(alias)));
+            checkDiskFileinSyncWithMemoryStore();
+            return;
+        }
+        Assert.fail();
     }
 
-    private void addCertificate(String added_cer) {
+    private void removeCertificate(String name) {
+        boolean removed = multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), name);
+        Assert.assertTrue(removed);
+    }
+
+    private void addCertificate(String alias) {
+        String certFileName = "red_gw.cer";
+        addCertificate(alias, certFileName);
+    }
+
+    private void addCertificate(String alias, String certFileName) {
         try {
-            Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "red_gw.cer");
+            Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, certFileName);
             byte[] content = Files.readAllBytes(path);
             X509Certificate x509Certificate = certificateService.loadCertificate(Base64.getEncoder().encodeToString(content));
-            multiDomainCryptoService.addCertificate(domainContextProvider.getCurrentDomain(), Arrays.asList(new CertificateEntry(added_cer, x509Certificate)), true);
+            boolean added = multiDomainCryptoService.addCertificate(domainContextProvider.getCurrentDomain(), x509Certificate, alias, true);
+            Assert.assertTrue(added);
+            checkDiskFileinSyncWithMemoryStore();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
