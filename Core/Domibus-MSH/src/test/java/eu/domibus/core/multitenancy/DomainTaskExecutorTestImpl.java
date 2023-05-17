@@ -51,24 +51,6 @@ public class DomainTaskExecutorTestImpl implements DomainTaskExecutor {
     }
 
     @Override
-    public void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
-        try {
-            task.run();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public void submit(Runnable task, Runnable errorHandler, String lockKey) {
-        try {
-            task.run();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public void submit(Runnable task, Domain domain) {
         try {
             task.run();
@@ -102,5 +84,10 @@ public class DomainTaskExecutorTestImpl implements DomainTaskExecutor {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public <R> R executeWithLock(Callable<R> task, String syncLockKey, Object javaLockKey, Runnable errorHandler) {
+        return null;
     }
 }

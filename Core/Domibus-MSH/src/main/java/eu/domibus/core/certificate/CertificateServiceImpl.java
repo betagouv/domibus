@@ -402,23 +402,33 @@ public class CertificateServiceImpl implements CertificateService {
         X509Certificate certificate = loadCertificate(certificateContent);
         List<CertificateEntry> certificates = Arrays.asList(new CertificateEntry(alias, certificate));
 
-        return doAddCertificates(persistenceInfo, certificates, overwrite);
+        return doAddCertificatesAndSave(persistenceInfo, certificates, overwrite);
     }
 
     @Override
     public boolean addCertificates(KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
-        return doAddCertificates(persistenceInfo, certificates, overwrite);
+        return doAddCertificatesAndSave(persistenceInfo, certificates, overwrite);
+    }
+
+    @Override
+    public boolean addCertificates(KeyStore keyStore, List<CertificateEntry> certificates, boolean overwrite) {
+        return doAddCertificates(keyStore, certificates, overwrite) > 0;
     }
 
     @Override
     public boolean removeCertificate(KeystorePersistenceInfo persistenceInfo, String alias) {
         List<String> aliases = Arrays.asList(alias);
-        return doRemoveCertificates(persistenceInfo, aliases);
+        return doRemoveCertificatesAndPersist(persistenceInfo, aliases);
     }
 
     @Override
     public boolean removeCertificates(KeystorePersistenceInfo persistenceInfo, List<String> aliases) {
-        return doRemoveCertificates(persistenceInfo, aliases);
+        return doRemoveCertificatesAndPersist(persistenceInfo, aliases);
+    }
+
+    @Override
+    public boolean removeCertificates(KeyStore keyStore, List<String> aliases) {
+        return doRemoveCertificates(keyStore, aliases) > 0;
     }
 
     @Override
@@ -497,10 +507,26 @@ public class CertificateServiceImpl implements CertificateService {
         return KeyStore.getInstance(storeType);
     }
 
-    
-    protected boolean doAddCertificates(KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
+
+    protected boolean doAddCertificatesAndSave(KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
         KeyStore store = getStore(persistenceInfo);
 
+        return doAddCertificatesAndSave(store, persistenceInfo, certificates, overwrite);
+    }
+
+    private boolean doAddCertificatesAndSave(KeyStore store, KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
+        int addedNr = doAddCertificates(store, certificates, overwrite);
+        if (addedNr > 0) {
+            LOG.debug("Added [{}] certificates so persisting the store.", addedNr);
+            keystorePersistenceService.saveStore(store, persistenceInfo);
+            auditService.addCertificateAddedAudit(persistenceInfo.getName());
+            return true;
+        }
+        LOG.debug("Added 0 certificates so exiting without persisting the store.");
+        return false;
+    }
+
+    private int doAddCertificates(KeyStore store, List<CertificateEntry> certificates, boolean overwrite) {
         int addedNr = 0;
         for (CertificateEntry certificateEntry : certificates) {
             boolean added = doAddCertificate(store, certificateEntry.getCertificate(), certificateEntry.getAlias(), overwrite);
@@ -508,26 +534,17 @@ public class CertificateServiceImpl implements CertificateService {
                 addedNr++;
             }
         }
-        if (addedNr > 0) {
-            LOG.debug("Added [{}] certificates so persisting the store.", addedNr);
-            keystorePersistenceService.saveStore(store, persistenceInfo);
-            auditService.addCertificateAddedAudit(persistenceInfo.getName());
-            return true;
-        }
-        LOG.trace("Added 0 certificates so exiting without persisting the store.");
-        return false;
+        return addedNr;
     }
 
-    protected boolean doRemoveCertificates(KeystorePersistenceInfo persistenceInfo, List<String> aliases) {
+    protected boolean doRemoveCertificatesAndPersist(KeystorePersistenceInfo persistenceInfo, List<String> aliases) {
         KeyStore store = getStore(persistenceInfo);
 
-        int removedNr = 0;
-        for (String alias : aliases) {
-            boolean removed = doRemoveCertificate(store, alias);
-            if (removed) {
-                removedNr++;
-            }
-        }
+        return doRemoveCertificatesAndPersist(store, persistenceInfo, aliases);
+    }
+
+    private boolean doRemoveCertificatesAndPersist(KeyStore store, KeystorePersistenceInfo persistenceInfo, List<String> aliases) {
+        int removedNr = doRemoveCertificates(store, aliases);
         if (removedNr > 0) {
             LOG.debug("Removed [{}] certificates so persisting the store.", removedNr);
             keystorePersistenceService.saveStore(store, persistenceInfo);
@@ -536,6 +553,17 @@ public class CertificateServiceImpl implements CertificateService {
         }
         LOG.trace("Removed 0 certificates so exiting without persisting the store.");
         return false;
+    }
+
+    private int doRemoveCertificates(KeyStore store, List<String> aliases) {
+        int removedNr = 0;
+        for (String alias : aliases) {
+            boolean removed = doRemoveCertificate(store, alias);
+            if (removed) {
+                removedNr++;
+            }
+        }
+        return removedNr;
     }
 
     protected boolean doAddCertificate(KeyStore keystore, X509Certificate certificate, String alias, boolean overwrite) {

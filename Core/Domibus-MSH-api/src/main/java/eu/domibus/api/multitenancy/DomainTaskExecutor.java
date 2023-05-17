@@ -20,17 +20,6 @@ public interface DomainTaskExecutor {
 
     Future<?> submit(Runnable task, boolean waitForTask);
 
-    /**
-     * Attempts to lock the file and if it succeeds submits a Runnable task for execution
-     *
-     * @param task         The Runnable task to execute
-     * @param errorHandler The Runnable task that will be executed in case an error occurs while running the main task
-     * @param lockKey      The key that will be used as lock before running the task
-     */
-    void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit);
-
-    void submit(Runnable task, Runnable errorHandler, String lockKey);
-
     void submit(Runnable task, Domain domain);
 
     void submit(Runnable task, Domain domain, boolean waitForTask, Long timeout, TimeUnit timeUnit);
@@ -51,4 +40,6 @@ public interface DomainTaskExecutor {
      * @param domain The domain for which the task is executed
      */
     void submitLongRunningTask(Runnable task, Domain domain);
+
+    <R> R executeWithLock(Callable<R> task, String syncLockKey, Object javaLockKey, Runnable errorHandler);
 }

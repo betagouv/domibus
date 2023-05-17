@@ -1,3 +1,5 @@
+Domibus 5.2
+- Executing keystore operations in cluster mode with database sync and in non-cluster mode with java synchronization mechanism
 Domibus 5.1
 - Files can be sent to WS Plugin as references to the filesystem
 - Improved the self sending mechanism

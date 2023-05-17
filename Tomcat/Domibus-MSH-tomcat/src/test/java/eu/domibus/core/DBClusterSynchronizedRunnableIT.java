@@ -2,8 +2,8 @@ package eu.domibus.core;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.MpcEntity;
-import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
-import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
+import eu.domibus.api.multitenancy.lock.DBClusterSynchronizedRunnable;
+import eu.domibus.api.multitenancy.lock.DbClusterSynchronizedRunnableFactory;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.mock.TransactionalTestService;
@@ -39,15 +39,15 @@ import static org.junit.Assert.*;
  * @author Ion Perpegel
  * @since 5.0
  */
-public class SynchronizedRunnableIT extends AbstractIT {
+public class DBClusterSynchronizedRunnableIT extends AbstractIT {
 
-    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(SynchronizedRunnableIT.class);
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DBClusterSynchronizedRunnableIT.class);
     public static final String SELECT_FROM_TABLE_WHERE_VALUE_IN_LIST = "select mpc from MpcEntity mpc where value in :TEST_VALUES";
     public static final String DELETE_TEST_DATA = "delete from MpcEntity where value in :TEST_VALUES";
     private static final String SCHEDULER_SYNCHRONIZATION_LOCK = "scheduler-synchronization.lock";
 
     @Autowired
-    private SynchronizedRunnableFactory synchronizedRunnableFactory;
+    private DbClusterSynchronizedRunnableFactory dbClusterSynchronizedRunnableFactory;
 
     @Autowired
     private TransactionalTestService testService;
@@ -242,7 +242,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                assertDatabaseContainsOnly(VALUE_FROM_OWNER_THREAD, VALUE_FROM_TASK_1, VALUE_FROM_TASK_2);
+                assertDatabaseContainsOnly(VALUE_FROM_OWNER_THREAD, VALUE_FROM_TASK_1);
             }
         });
     }
@@ -416,7 +416,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                assertDatabaseContainsOnly(VALUE_FROM_TASK_1, VALUE_FROM_TASK_2);
+                assertDatabaseContainsOnly(VALUE_FROM_TASK_1);
             }
         });
     }
@@ -513,7 +513,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                assertDatabaseContainsOnly(VALUE_FROM_TASK_1, VALUE_FROM_TASK_2);
+                assertDatabaseContainsOnly(VALUE_FROM_TASK_1);
             }
         });
     }
@@ -556,12 +556,12 @@ public class SynchronizedRunnableIT extends AbstractIT {
      * @param task2
      */
     private void runTwoThreads(boolean useSameLock, Runnable task1, Runnable task2) {
-        SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(task1, SYNC_LOCK_KEY);
-        Thread t1 = new Thread(synchronizedRunnable);
+        DBClusterSynchronizedRunnable DBClusterSynchronizedRunnable = dbClusterSynchronizedRunnableFactory.synchronizedRunnable(task1, SYNC_LOCK_KEY);
+        Thread t1 = new Thread(DBClusterSynchronizedRunnable);
         t1.start();
 
-        SynchronizedRunnable synchronizedRunnable2 = synchronizedRunnableFactory.synchronizedRunnable(task2, useSameLock ? SYNC_LOCK_KEY : SCHEDULER_SYNCHRONIZATION_LOCK);
-        Thread t2 = new Thread(synchronizedRunnable2);
+        DBClusterSynchronizedRunnable DBClusterSynchronizedRunnable2 = dbClusterSynchronizedRunnableFactory.synchronizedRunnable(task2, useSameLock ? SYNC_LOCK_KEY : SCHEDULER_SYNCHRONIZATION_LOCK);
+        Thread t2 = new Thread(DBClusterSynchronizedRunnable2);
 
         try {
             Thread.sleep(1000);
@@ -619,7 +619,7 @@ public class SynchronizedRunnableIT extends AbstractIT {
     private void changeDatabase(String newValue) {
         MpcEntity newEntity = new MpcEntity();
         newEntity.setValue(newValue);
-        newEntity.setCreatedBy(SynchronizedRunnableIT.class.getName());
+        newEntity.setCreatedBy(DBClusterSynchronizedRunnableIT.class.getName());
         em.persist(newEntity);
     }
 

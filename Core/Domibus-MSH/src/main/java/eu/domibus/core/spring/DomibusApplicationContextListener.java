@@ -2,7 +2,9 @@ package eu.domibus.core.spring;
 
 import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.api.encryption.EncryptionService;
+import eu.domibus.api.multitenancy.DomainTaskException;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.multitenancy.lock.DomibusSynchronizationException;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -22,6 +24,7 @@ import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.initialize.PluginInitializer;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -30,7 +33,7 @@ import org.springframework.stereotype.Component;
 
 import javax.xml.ws.Endpoint;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Callable;
 
 /**
  * @author Cosmin Baciu
@@ -42,38 +45,29 @@ public class DomibusApplicationContextListener {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusApplicationContextListener.class);
 
-    public static final String SYNC_LOCK_KEY = "bootstrap-synchronization.lock";
+    private static final Object initLock = new Object();
 
+    public static final String SYNC_LOCK_KEY = "bootstrap-synchronization.lock";
 
     protected final EncryptionService encryptionService;
 
-
     protected final BackendFilterInitializerService backendFilterInitializerService;
-
 
     protected final StaticDictionaryService messageDictionaryService;
 
-
     protected final DomibusConfigurationService domibusConfigurationService;
-
 
     protected final DomainTaskExecutor domainTaskExecutor;
 
-
     protected final GatewayConfigurationValidator gatewayConfigurationValidator;
-
 
     protected final MultiDomainCryptoService multiDomainCryptoService;
 
-
     protected final TLSCertificateManager tlsCertificateManager;
-
 
     protected final UserManagementServiceImpl userManagementService;
 
-
     protected final DomibusPropertyValidatorService domibusPropertyValidatorService;
-
 
     protected final BackendConnectorService backendConnectorService;
 
@@ -149,7 +143,12 @@ public class DomibusApplicationContextListener {
     }
 
     public void doInitialize() {
-        executeWithLockIfNeeded(this::executeSynchronized);
+        try {
+            executeWithLock(this::executeSynchronized);
+        } catch (DomainTaskException | DomibusSynchronizationException ex) {
+            Throwable cause = ExceptionUtils.getRootCause(ex);
+            LOG.error("Error executing application initialization code:", cause);
+        }
         executeNonSynchronized();
     }
 
@@ -215,27 +214,17 @@ public class DomibusApplicationContextListener {
         }
     }
 
-    // TODO: below code to be moved to a separate service EDELIVERY-7462.
-    protected void executeWithLockIfNeeded(Runnable task) {
-        LOG.debug("Executing in serial mode");
-        if (useLockForExecution()) {
-            LOG.debug("Handling execution using db lock.");
-            Runnable errorHandler = () -> {
-                LOG.warn("An error has occurred while initializing Domibus (executing task [{}]). " +
-                        "This does not necessarily mean that Domibus did not start correctly. Please check the Domibus logs for more info.", task);
-            };
-            domainTaskExecutor.submit(task, errorHandler, SYNC_LOCK_KEY, true, 3L, TimeUnit.MINUTES);
-            LOG.debug("Finished handling execution using db lock.");
-        } else {
-            LOG.debug("Handling execution without db lock.");
+    protected void executeWithLock(Runnable task) {
+        Runnable errorHandler = () -> {
+            LOG.warn("An error has occurred while initializing Domibus (executing task [{}]). " +
+                    "This does not necessarily mean that Domibus did not start correctly. Please check the Domibus logs for more info.", task);
+        };
+        Callable<Boolean> wrappedTask = () -> {
             task.run();
-        }
+            return true;
+        };
+        domainTaskExecutor.executeWithLock(wrappedTask, SYNC_LOCK_KEY, initLock, errorHandler);
     }
 
-    protected boolean useLockForExecution() {
-        final boolean clusterDeployment = domibusConfigurationService.isClusterDeployment();
-        LOG.debug("Cluster deployment? [{}]", clusterDeployment);
-        return clusterDeployment;
-    }
 
 }
