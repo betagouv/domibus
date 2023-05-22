@@ -56,5 +56,8 @@ public final class MessageConstants {
      */
     public static final String EMBS3_MESSAGING_OBJECT = "ebms3.messaging.obj";
 
+    /**
+     * User Message envelope content
+     */
     public static final String RAW_MESSAGE_XML = "RAW_MESSAGE_XML";
 }

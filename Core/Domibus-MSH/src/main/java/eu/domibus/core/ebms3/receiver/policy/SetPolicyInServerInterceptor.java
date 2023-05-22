@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
@@ -40,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static eu.domibus.api.exceptions.DomibusCoreErrorCode.DOM_006;
 import static eu.domibus.messaging.MessageConstants.RAW_MESSAGE_XML;
 
 
@@ -145,12 +147,13 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
     protected void saveRawMessageMessageContext(SoapMessage message) throws IOException {
         final InputStream inputStream = message.getContent(InputStream.class);
         if (inputStream instanceof ByteArrayInputStream) {
+            LOG.trace("Saving the raw message envelope content (to have the encrypted data section)");
             String rawXMLMessage = IOUtils.toString(inputStream, "UTF-8");
             ((ByteArrayInputStream) inputStream).reset();
 
             message.getExchange().put(RAW_MESSAGE_XML, rawXMLMessage);
         } else {
-            throw new IllegalStateException("Could not get the message content since it is not a byteArray stream.");
+            throw new DomibusCoreException(DOM_006, "Could not get the message content since it is not a byteArray stream.");
         }
     }
 
