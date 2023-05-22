@@ -2,6 +2,7 @@ package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.crypto.SecurityProfileService;
@@ -39,6 +40,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_ENVELOPE_SECTION_ENCCRYPTED_DATA_KEEP;
+
 
 /**
  * @author Thomas Dussart
@@ -60,14 +63,19 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     private final SecurityProfileService securityProfileService;
 
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
     public SetPolicyInServerInterceptor(ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory,
                                         TestMessageValidator testMessageValidator, Ebms3Converter ebms3Converter,
-                                        UserMessageErrorCreator userMessageErrorCreator, SecurityProfileService securityProfileService) {
+                                        UserMessageErrorCreator userMessageErrorCreator,
+                                        SecurityProfileService securityProfileService,
+                                        DomibusPropertyProvider domibusPropertyProvider) {
         this.serverInMessageLegConfigurationFactory = serverInMessageLegConfigurationFactory;
         this.testMessageValidator = testMessageValidator;
         this.ebms3Converter = ebms3Converter;
         this.userMessageErrorCreator = userMessageErrorCreator;
         this.securityProfileService = securityProfileService;
+        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     @Override
@@ -118,7 +126,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_INCOMING_USE, securityAlgorithm);
 
-            if (true) { // TODO
+            if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_MESSAGE_ENVELOPE_SECTION_ENCCRYPTED_DATA_KEEP)) {
                 saveRawMessage(message);
             }
 
