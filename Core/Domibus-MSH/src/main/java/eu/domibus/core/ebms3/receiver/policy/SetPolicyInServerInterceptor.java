@@ -40,7 +40,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_ENVELOPE_SECTION_ENCCRYPTED_DATA_KEEP;
 import static eu.domibus.messaging.MessageConstants.RAW_MESSAGE_XML;
 
 
@@ -127,9 +126,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_INCOMING_USE, securityAlgorithm);
 
-            if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_MESSAGE_ENVELOPE_SECTION_ENCCRYPTED_DATA_KEEP)) {
-                saveRawMessageMessageContext(message);
-            }
+            saveRawMessageMessageContext(message);
 
         } catch (EbMS3Exception ex) {
             setBindingOperation(message);

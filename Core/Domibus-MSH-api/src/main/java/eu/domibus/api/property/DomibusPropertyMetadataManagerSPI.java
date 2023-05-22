@@ -449,5 +449,5 @@ public interface DomibusPropertyMetadataManagerSPI {
     //End distributed cache properties
 
     String DOMIBUS_MESSAGE_TEST_DELIVERY = "domibus.message.test.notification";
-    String DOMIBUS_MESSAGE_ENVELOPE_SECTION_ENCCRYPTED_DATA_KEEP = "domibus.message.envelope.section.encryptedData.save";
+
 }

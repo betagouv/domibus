@@ -426,7 +426,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             //End distributed cache properties
 
             new DomibusPropertyMetadata(DOMIBUS_MESSAGE_TEST_DELIVERY, Type.BOOLEAN, Usage.DOMAIN, true),
-            new DomibusPropertyMetadata(DOMIBUS_MESSAGE_ENVELOPE_SECTION_ENCCRYPTED_DATA_KEEP, Type.BOOLEAN, Usage.DOMAIN, true),
+
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     /**

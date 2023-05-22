@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_ENVELOPE_SECTION_ENCCRYPTED_DATA_KEEP;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE;
 
 /**
@@ -78,9 +77,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     @Override
     public UserMessageRaw createUserMessageRaw(SOAPMessage request) throws TransformerException {
         String rawXMLMessage = soapUtil.getRawXMLMessage(request);
-        if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_MESSAGE_ENVELOPE_SECTION_ENCCRYPTED_DATA_KEEP)) {
-            rawXMLMessage = (String) PhaseInterceptorChain.getCurrentMessage().getExchange().get("RAW_MESSAGE_XML");
-        }
+        rawXMLMessage = (String) PhaseInterceptorChain.getCurrentMessage().getExchange().get("RAW_MESSAGE_XML");
 
         UserMessageRaw rawEnvelopeLog = new UserMessageRaw();
         rawEnvelopeLog.setRawXML(rawXMLMessage);
