@@ -3,6 +3,7 @@ package eu.domibus.core.ebms3.receiver.policy;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.Messaging;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -64,6 +65,9 @@ public class SetPolicyInServerInterceptorTest {
 
     @Injectable
     SecurityProfileService securityProfileService;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
     public void logIncomingMessaging(final @Injectable SoapMessage soapMessage,
