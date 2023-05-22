@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_NONREPUDIATION_AUDIT_ACTIVE;
+import static eu.domibus.messaging.MessageConstants.RAW_MESSAGE_XML;
 
 /**
  * @author Cosmin Baciu
@@ -76,8 +77,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
     @Override
     public UserMessageRaw createUserMessageRaw(SOAPMessage request) throws TransformerException {
-        String rawXMLMessage = soapUtil.getRawXMLMessage(request);
-        rawXMLMessage = (String) PhaseInterceptorChain.getCurrentMessage().getExchange().get("RAW_MESSAGE_XML");
+        String rawXMLMessage = (String) PhaseInterceptorChain.getCurrentMessage().getExchange().get(RAW_MESSAGE_XML);
 
         UserMessageRaw rawEnvelopeLog = new UserMessageRaw();
         rawEnvelopeLog.setRawXML(rawXMLMessage);
