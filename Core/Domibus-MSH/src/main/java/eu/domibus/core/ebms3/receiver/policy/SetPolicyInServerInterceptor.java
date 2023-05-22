@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_ENVELOPE_SECTION_ENCCRYPTED_DATA_KEEP;
+import static eu.domibus.messaging.MessageConstants.RAW_MESSAGE_XML;
 
 
 /**
@@ -127,7 +128,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_INCOMING_USE, securityAlgorithm);
 
             if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_MESSAGE_ENVELOPE_SECTION_ENCCRYPTED_DATA_KEEP)) {
-                saveRawMessage(message);
+                saveRawMessageMessageContext(message);
             }
 
         } catch (EbMS3Exception ex) {
@@ -148,15 +149,15 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         }
     }
 
-    private void saveRawMessage(SoapMessage message) throws IOException {
+    private void saveRawMessageMessageContext(SoapMessage message) throws IOException {
         final InputStream inputStream = message.getContent(InputStream.class);
         if (inputStream instanceof ByteArrayInputStream) {
             String rawXMLMessage = IOUtils.toString(inputStream, "UTF-8");
             ((ByteArrayInputStream) inputStream).reset();
 
-            message.getExchange().put("RAW_MESSAGE_XML", rawXMLMessage);
+            message.getExchange().put(RAW_MESSAGE_XML, rawXMLMessage);
         } else {
-            throw new IllegalStateException("todo");
+            throw new IllegalStateException("Could not get the message content synce it is not a byteArray stream.");
         }
     }
 

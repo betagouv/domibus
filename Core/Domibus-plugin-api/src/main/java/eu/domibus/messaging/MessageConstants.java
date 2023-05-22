@@ -55,4 +55,6 @@ public final class MessageConstants {
      * transmit details to plugins in case of early faults)
      */
     public static final String EMBS3_MESSAGING_OBJECT = "ebms3.messaging.obj";
+
+    public static final String RAW_MESSAGE_XML = "RAW_MESSAGE_XML";
 }
