@@ -4,6 +4,7 @@ import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
@@ -14,11 +15,11 @@ import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageErrorCreator;
-import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
@@ -33,8 +34,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.HttpMethod;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 
 /**
@@ -115,6 +118,10 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_INCOMING_USE, securityAlgorithm);
 
+            if (true) { // TODO
+                saveRawMessage(message);
+            }
+
         } catch (EbMS3Exception ex) {
             setBindingOperation(message);
             LOG.debug("", ex); // Those errors are expected (no PMode found, therefore DEBUG)
@@ -130,6 +137,18 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
                     .cause(e)
                     .mshRole(MSHRole.RECEIVING)
                     .build());
+        }
+    }
+
+    private void saveRawMessage(SoapMessage message) throws IOException {
+        final InputStream inputStream = message.getContent(InputStream.class);
+        if (inputStream instanceof ByteArrayInputStream) {
+            String rawXMLMessage = IOUtils.toString(inputStream, "UTF-8");
+            ((ByteArrayInputStream) inputStream).reset();
+
+            message.getExchange().put("RAW_MESSAGE_XML", rawXMLMessage);
+        } else {
+            throw new IllegalStateException("todo");
         }
     }
 
