@@ -63,19 +63,15 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     private final SecurityProfileService securityProfileService;
 
-    private final DomibusPropertyProvider domibusPropertyProvider;
-
     public SetPolicyInServerInterceptor(ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory,
                                         TestMessageValidator testMessageValidator, Ebms3Converter ebms3Converter,
                                         UserMessageErrorCreator userMessageErrorCreator,
-                                        SecurityProfileService securityProfileService,
-                                        DomibusPropertyProvider domibusPropertyProvider) {
+                                        SecurityProfileService securityProfileService) {
         this.serverInMessageLegConfigurationFactory = serverInMessageLegConfigurationFactory;
         this.testMessageValidator = testMessageValidator;
         this.ebms3Converter = ebms3Converter;
         this.userMessageErrorCreator = userMessageErrorCreator;
         this.securityProfileService = securityProfileService;
-        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     @Override
@@ -146,7 +142,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
         }
     }
 
-    private void saveRawMessageMessageContext(SoapMessage message) throws IOException {
+    protected void saveRawMessageMessageContext(SoapMessage message) throws IOException {
         final InputStream inputStream = message.getContent(InputStream.class);
         if (inputStream instanceof ByteArrayInputStream) {
             String rawXMLMessage = IOUtils.toString(inputStream, "UTF-8");
