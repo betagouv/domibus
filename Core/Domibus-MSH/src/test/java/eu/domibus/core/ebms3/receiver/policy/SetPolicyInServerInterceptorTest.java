@@ -3,6 +3,7 @@ package eu.domibus.core.ebms3.receiver.policy;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.Messaging;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -89,13 +90,14 @@ public class SetPolicyInServerInterceptorTest {
                               @Injectable HttpServletResponse response,
                               final @Injectable TestMessageValidator testMessageValidator) throws JAXBException, IOException, EbMS3Exception {
 
-        new Expectations() {
+        new Expectations(setPolicyInServerInterceptor) {
             {
                 Ebms3Messaging ebms3Messaging = soapService.getMessage(message);
                 LegConfigurationExtractor legConfigurationExtractor = serverInMessageLegConfigurationFactory.extractMessageConfiguration(message, ebms3Messaging);
                 LegConfiguration legConfiguration = legConfigurationExtractor.extractMessageConfiguration();
                 legConfiguration.getSecurity().getProfile();
                 result = SecurityProfile.RSA;
+                setPolicyInServerInterceptor.saveRawMessageMessageContext(message);
             }};
 
         setPolicyInServerInterceptor.handleMessage(message);
