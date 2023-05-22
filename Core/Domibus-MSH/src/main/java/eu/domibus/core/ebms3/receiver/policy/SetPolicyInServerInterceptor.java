@@ -150,7 +150,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
             message.getExchange().put(RAW_MESSAGE_XML, rawXMLMessage);
         } else {
-            throw new IllegalStateException("Could not get the message content synce it is not a byteArray stream.");
+            throw new IllegalStateException("Could not get the message content since it is not a byteArray stream.");
         }
     }
 
