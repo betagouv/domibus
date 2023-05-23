@@ -77,7 +77,14 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
     @Override
     public UserMessageRaw createUserMessageRaw(SOAPMessage request) throws TransformerException {
-        String rawXMLMessage = (String) PhaseInterceptorChain.getCurrentMessage().getExchange().get(RAW_MESSAGE_XML);
+        String rawXMLMessage = null;
+        if (PhaseInterceptorChain.getCurrentMessage() != null && PhaseInterceptorChain.getCurrentMessage().getExchange() != null) {
+            rawXMLMessage = (String) PhaseInterceptorChain.getCurrentMessage().getExchange().get(RAW_MESSAGE_XML);
+        }
+
+        if (rawXMLMessage == null) {
+            rawXMLMessage = soapUtil.getRawXMLMessage(request);
+        }
 
         UserMessageRaw rawEnvelopeLog = new UserMessageRaw();
         rawEnvelopeLog.setRawXML(rawXMLMessage);
