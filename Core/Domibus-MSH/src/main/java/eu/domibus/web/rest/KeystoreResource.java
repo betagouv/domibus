@@ -13,6 +13,7 @@ import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.PartyCoreMapper;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
@@ -50,9 +51,10 @@ public class KeystoreResource extends TruststoreResourceBase {
                             DomainContextProvider domainContextProvider,
                             DomibusConfigurationService domibusConfigurationService,
                             CertificateHelper certificateHelper,
-                            KeystorePersistenceService keystorePersistenceService) {
+                            KeystorePersistenceService keystorePersistenceService,
+                            SecurityProfileService securityProfileService) {
         super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider,
-                domibusConfigurationService, certificateHelper, keystorePersistenceService);
+                domibusConfigurationService, certificateHelper, keystorePersistenceService, securityProfileService);
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainProvider = domainProvider;

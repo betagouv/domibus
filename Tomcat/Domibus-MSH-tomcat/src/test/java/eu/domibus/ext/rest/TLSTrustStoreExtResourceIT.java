@@ -1,6 +1,8 @@
 package eu.domibus.ext.rest;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.security.CertificatePurpose;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.Assert;
@@ -44,7 +46,9 @@ public class TLSTrustStoreExtResourceIT extends AbstractIT {
     public static final String TEST_ENDPOINT_RESOURCE = "/ext/tlstruststore";
     public static final String TEST_ENDPOINT_DOWNLOAD = TEST_ENDPOINT_RESOURCE + "/download";
     public static final String TEST_ENDPOINT_ADD = TEST_ENDPOINT_RESOURCE + "/entries";
+    public static final String TEST_ENDPOINT_ADD_WITH_SECURITY_PROFILES = TEST_ENDPOINT_RESOURCE + "/entries/add";
     public static final String TEST_ENDPOINT_DELETE = TEST_ENDPOINT_RESOURCE + "/entries/{alias}";
+    public static final String TEST_ENDPOINT_DELETE_WITH_SECURITY_PROFILES = TEST_ENDPOINT_RESOURCE + "/entries/delete/{partyName:.+}";
 
     private MockMvc mockMvc;
 
@@ -140,6 +144,32 @@ public class TLSTrustStoreExtResourceIT extends AbstractIT {
     @Test
     @Transactional
     @WithMockUser(username = TEST_PLUGIN_USERNAME, roles = {"ADMIN"})
+    public void addWithSecurityProfiles() throws Exception {
+        uploadTrustStore("keystores/gateway_truststore2.jks", "gateway_truststore2.jks");
+        addCertificateWithSecurityProfiles();
+    }
+
+    protected void addCertificateWithSecurityProfiles() throws Exception {
+        try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/red_gw.cer")) {
+            MockMultipartFile multiPartFile = getMultiPartFile("red_gw.cer", resourceAsStream);
+
+            MvcResult result = mockMvc.perform(multipart(TEST_ENDPOINT_ADD_WITH_SECURITY_PROFILES)
+                            .file(multiPartFile)
+                            .param("partyName", "red_gw")
+                            .param("securityProfile", SecurityProfile.RSA.getProfile())
+                            .param("certificatePurpose", CertificatePurpose.DECRYPT.getCertificatePurpose())
+                            .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                            .with(csrf()))
+                    .andExpect(status().is2xxSuccessful())
+                    .andReturn();
+            String content = result.getResponse().getContentAsString();
+            Assert.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully added to the TLS truststore.", content);
+        }
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = TEST_PLUGIN_USERNAME, roles = {"ADMIN"})
     public void delete() throws Exception {
         uploadTrustStore("keystores/default.jks", "default.jks");
 
@@ -155,6 +185,29 @@ public class TLSTrustStoreExtResourceIT extends AbstractIT {
                     .andReturn();
             String content = result.getResponse().getContentAsString();
             Assert.assertEquals("Certificate [blue_gw] has been successfully removed from the [TLS.truststore].", content);
+        }
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser(username = TEST_PLUGIN_USERNAME, roles = {"ADMIN"})
+    public void deleteWithSecurityProfiles() throws Exception {
+        uploadTrustStore("keystores/default.jks", "default.jks");
+        addCertificateWithSecurityProfiles();
+
+        try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/default.jks")) {
+            MockMultipartFile multiPartFile = getMultiPartFile("default.jks", resourceAsStream);
+
+            MvcResult result = mockMvc.perform(multipart(HttpMethod.DELETE, TEST_ENDPOINT_DELETE_WITH_SECURITY_PROFILES, "red_gw")
+                            .file(multiPartFile)
+                            .param("securityProfile", SecurityProfile.RSA.getProfile())
+                            .param("certificatePurpose", CertificatePurpose.DECRYPT.getCertificatePurpose())
+                            .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                            .with(csrf()))
+                    .andExpect(status().is2xxSuccessful())
+                    .andReturn();
+            String content = result.getResponse().getContentAsString();
+            Assert.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully removed from the [TLS.truststore].", content);
         }
     }
 

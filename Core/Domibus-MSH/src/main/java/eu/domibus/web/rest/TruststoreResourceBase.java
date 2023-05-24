@@ -10,12 +10,15 @@ import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.security.CertificatePurpose;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.PartyCoreMapper;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -62,10 +65,12 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
     protected final KeystorePersistenceService keystorePersistenceService;
 
+    protected final SecurityProfileService securityProfileService;
+
     public TruststoreResourceBase(PartyCoreMapper partyConverter, ErrorHandlerService errorHandlerService,
                                   MultiPartFileUtil multiPartFileUtil, AuditService auditService,
                                   DomainContextProvider domainContextProvider, DomibusConfigurationService domibusConfigurationService,
-                                  CertificateHelper certificateHelper, KeystorePersistenceService keystorePersistenceService) {
+                                  CertificateHelper certificateHelper, KeystorePersistenceService keystorePersistenceService, SecurityProfileService securityProfileService) {
         this.partyConverter = partyConverter;
         this.errorHandlerService = errorHandlerService;
         this.multiPartFileUtil = multiPartFileUtil;
@@ -74,6 +79,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
         this.domibusConfigurationService = domibusConfigurationService;
         this.certificateHelper = certificateHelper;
         this.keystorePersistenceService = keystorePersistenceService;
+        this.securityProfileService = securityProfileService;
     }
 
     @ExceptionHandler({CryptoException.class})
@@ -143,6 +149,14 @@ public abstract class TruststoreResourceBase extends BaseResource {
                 Arrays.asList("fingerprints", "certificateExpiryAlertDays"), moduleName);
     }
 
+    //TODO: remove with EDELIVERY-11496
+    protected String addCertificate(MultipartFile certificateFile, String partyName,
+                                    SecurityProfile securityProfile, CertificatePurpose certificatePurpose) {
+        String alias = securityProfileService.getCertificateAliasForPurpose(partyName, securityProfile, certificatePurpose);
+
+        return addCertificate(certificateFile, alias);
+    }
+
     protected String addCertificate(MultipartFile certificateFile, String alias) {
         if (StringUtils.isBlank(alias)) {
             throw new RequestValidationException("Please provide an alias for the certificate.");
@@ -161,6 +175,13 @@ public abstract class TruststoreResourceBase extends BaseResource {
 
     protected abstract boolean doAddCertificate(String alias, byte[] fileContent);
 
+    protected String removeCertificate(String partyName, SecurityProfile securityProfile, CertificatePurpose certificatePurpose) {
+        String alias = securityProfileService.getCertificateAliasForPurpose(partyName, securityProfile, certificatePurpose);
+
+        return removeCertificate(alias);
+    }
+
+    //TODO: remove with EDELIVERY-11496
     protected String removeCertificate(String alias) {
         if (StringUtils.isBlank(alias)) {
             throw new RequestValidationException("Please provide an alias for the certificate.");
@@ -169,7 +190,7 @@ public abstract class TruststoreResourceBase extends BaseResource {
         alias = StringUtils.trim(alias);
         boolean removed = doRemoveCertificate(alias);
         if (removed) {
-            return "Certificate [" + alias + "] has been successfully removed from the [" + getStoreName() + "] truststore.";
+            return "Certificate [" + alias + "] has been successfully removed from the [" + getStoreName() + "].";
         }
         throw new DomibusCertificateException("Certificate [" + alias + "] was not removed from the [" + getStoreName() + "] because it does not exist.");
     }

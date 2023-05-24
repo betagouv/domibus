@@ -4,7 +4,9 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -28,7 +30,7 @@ import java.security.cert.X509Certificate;
  * @since 5.1
  */
 @Service
-public class SecurityProfileService {
+public class SecurityProfileService implements eu.domibus.api.pki.SecurityProfileService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityProfileService.class);
 
@@ -102,9 +104,39 @@ public class SecurityProfileService {
         SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
         if (securityProfile != null) {
             alias = receiverName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_encrypt";
-
         }
         LOG.info("The following alias was determined for encrypting: [{}]", alias);
+        return alias;
+    }
+
+    public String getCertificateAliasForPurpose(String partyName, SecurityProfile securityProfile, CertificatePurpose certificatePurpose) {
+        switch (certificatePurpose) {
+            case SIGN:
+                return getAliasForSigning(securityProfile, partyName);
+            case ENCRYPT:
+                return getAliasForEncrypting(securityProfile, partyName);
+            case DECRYPT:
+                return getAliasForDecrypting(securityProfile, partyName);
+            default:
+                throw new DomibusCertificateException("Invalid certificate usage [" + certificatePurpose +"]");
+        }
+    }
+
+    public String getAliasForEncrypting(SecurityProfile securityProfile, String receiverName) {
+        String alias = receiverName;
+        if (securityProfile != null) {
+            alias = receiverName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_encrypt";
+        }
+        LOG.info("The following alias was determined for encrypting: [{}]", alias);
+        return alias;
+    }
+
+    public String getAliasForDecrypting(SecurityProfile securityProfile, String receiverName) {
+        String alias = receiverName;
+        if (securityProfile != null) {
+            alias = receiverName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_decrypt";
+        }
+        LOG.info("The following alias was determined for decrypting: [{}]", alias);
         return alias;
     }
 

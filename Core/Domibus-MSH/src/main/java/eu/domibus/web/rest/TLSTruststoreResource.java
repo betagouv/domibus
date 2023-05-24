@@ -1,17 +1,20 @@
 package eu.domibus.web.rest;
 
+import eu.domibus.api.crypto.TLSCertificateManager;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.security.CertificatePurpose;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.PartyCoreMapper;
-import eu.domibus.api.crypto.TLSCertificateManager;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.springframework.core.io.ByteArrayResource;
@@ -43,9 +46,10 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
                                  DomainContextProvider domainContextProvider,
                                  DomibusConfigurationService domibusConfigurationService,
                                  CertificateHelper certificateHelper,
-                                 KeystorePersistenceService keystorePersistenceService) {
+                                 KeystorePersistenceService keystorePersistenceService,
+                                 SecurityProfileService securityProfileService) {
         super(coreMapper, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService,
-                certificateHelper, keystorePersistenceService);
+                certificateHelper, keystorePersistenceService, securityProfileService);
         this.tlsCertificateManager = tlsCertificateManager;
     }
 
@@ -71,15 +75,32 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
         return getEntriesAsCSV(getStoreName());
     }
 
+    //TODO: remove with EDELIVERY-11496
     @PostMapping(value = "/entries")
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
                                     @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
         return addCertificate(certificateFile, alias);
     }
 
+    @PostMapping(value = "/entries/add")
+    public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
+                                    @RequestParam("partyName") @Valid @NotNull String partyName,
+                                    @RequestParam("securityProfile") @Valid @NotNull SecurityProfile securityProfile,
+                                    @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurpose certificatePurpose) throws RequestValidationException {
+        return addCertificate(certificateFile, partyName, securityProfile, certificatePurpose);
+    }
+
+    //TODO: remove with EDELIVERY-11496
     @DeleteMapping(value = "/entries/{alias:.+}")
     public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
         return removeCertificate(alias);
+    }
+
+    @DeleteMapping(value = "/entries/delete/{partyName:.+}")
+    public String removeTLSCertificate(@PathVariable String partyName,
+                                       @RequestParam("securityProfile") @Valid @NotNull SecurityProfile securityProfile,
+                                       @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurpose certificatePurpose) throws RequestValidationException {
+        return removeCertificate(partyName, securityProfile, certificatePurpose);
     }
 
     @Override

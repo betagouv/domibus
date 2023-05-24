@@ -1,6 +1,9 @@
 package eu.domibus.ext.rest;
 
 import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.pki.SecurityProfileService;
+import eu.domibus.api.security.CertificatePurpose;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
@@ -63,14 +66,17 @@ public class TruststoreExtResource {
 
     final DomibusConfigurationExtService domibusConfigurationExtService;
 
+    final SecurityProfileService securityProfileService;
+
     public TruststoreExtResource(TrustStoreExtService truststoreExtService, ExtExceptionHelper extExceptionHelper,
                                  MultiPartFileUtil multiPartFileUtil, DomainContextExtService domainContextExtService,
-                                 DomibusConfigurationExtService domibusConfigurationExtService) {
+                                 DomibusConfigurationExtService domibusConfigurationExtService, SecurityProfileService securityProfileService) {
         this.truststoreExtService = truststoreExtService;
         this.extExceptionHelper = extExceptionHelper;
         this.multiPartFileUtil = multiPartFileUtil;
         this.domainContextExtService = domainContextExtService;
         this.domibusConfigurationExtService = domibusConfigurationExtService;
+        this.securityProfileService = securityProfileService;
     }
 
     @ExceptionHandler(CryptoExtException.class)
@@ -127,12 +133,29 @@ public class TruststoreExtResource {
         return "Truststore file has been successfully replaced.";
     }
 
+    //TODO: remove with EDELIVERY-11496
     @Operation(summary = "Add Certificate", description = "Add Certificate to the truststore",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PostMapping(value = "/entries", consumes = {"multipart/form-data"})
     public String addCertificate(@RequestPart("file") MultipartFile certificateFile,
                                  @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
 
+        return doAddCertificate(certificateFile, alias);
+    }
+
+    @Operation(summary = "Add Certificate", description = "Add Certificate to the truststore",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @PostMapping(value = "/entries/add", consumes = {"multipart/form-data"})
+    public String addCertificate(@RequestPart("file") MultipartFile certificateFile,
+                                 @RequestParam("partyName") @Valid @NotNull String partyName,
+                                 @RequestParam("securityProfile") @Valid @NotNull SecurityProfile securityProfile,
+                                 @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurpose certificatePurpose) throws RequestValidationException {
+
+        String alias = securityProfileService.getCertificateAliasForPurpose(partyName, securityProfile, certificatePurpose);
+        return doAddCertificate(certificateFile, alias);
+    }
+
+    protected String doAddCertificate(MultipartFile certificateFile, String alias) {
         if (StringUtils.isBlank(alias)) {
             throw new RequestValidationException("Please provide an alias for the certificate.");
         }
@@ -143,10 +166,25 @@ public class TruststoreExtResource {
         return "Certificate [" + alias + "] has been successfully added to the truststore.";
     }
 
+    //TODO: remove with EDELIVERY-11496
     @Operation(summary = "Remove Certificate", description = "Remove Certificate from the truststore",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @DeleteMapping(value = "/entries/{alias:.+}")
     public String removeCertificate(@PathVariable String alias) throws RequestValidationException {
+        return doRemoveCertificate(alias);
+    }
+
+    @Operation(summary = "Remove Certificate", description = "Remove Certificate from the truststore",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @DeleteMapping(value = "/entries/delete/{partyName:.+}")
+    public String removeCertificate(@PathVariable String partyName,
+                                    @RequestParam("securityProfile") @Valid @NotNull SecurityProfile securityProfile,
+                                    @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurpose certificatePurpose) throws RequestValidationException {
+        String alias = securityProfileService.getCertificateAliasForPurpose(partyName, securityProfile, certificatePurpose);
+        return doRemoveCertificate(alias);
+    }
+
+    protected String doRemoveCertificate(String alias) {
         truststoreExtService.removeCertificate(alias);
         return "Certificate [" + alias + "] has been successfully removed from the truststore.";
     }
