@@ -13,7 +13,6 @@ import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.PartyCoreMapper;
-import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.error.ErrorHandlerService;
