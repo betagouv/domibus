@@ -240,7 +240,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_USER_INPUT_WHITE_LIST, Type.REGEXP),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROPERTY_LENGTH_MAX, Type.NUMERIC),
             DomibusPropertyMetadata.getGlobalProperty(DOMIBUS_PROPERTY_VALIDATION_ENABLED, Type.BOOLEAN),
-            new DomibusPropertyMetadata(DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN, Type.POSITIVE_DECIMAL, Usage.GLOBAL_AND_DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN, Type.POSITIVE_INTEGER, Usage.GLOBAL_AND_DOMAIN, true),
             new DomibusPropertyMetadata(DOMIBUS_PROPERTY_BACKUP_HISTORY_MAX, Type.POSITIVE_INTEGER, Usage.GLOBAL_AND_DOMAIN, true),
 
             new DomibusPropertyMetadata(DOMIBUS_ACCOUNT_UNLOCK_CRON, Type.CRON, Usage.DOMAIN_AND_SUPER, true),
@@ -426,6 +426,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             //End distributed cache properties
 
             new DomibusPropertyMetadata(DOMIBUS_MESSAGE_TEST_DELIVERY, Type.BOOLEAN, Usage.DOMAIN, true),
+
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     /**
