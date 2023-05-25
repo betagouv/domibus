@@ -148,9 +148,10 @@
                                             dir="${project.build.directory}/swagger-ui-${swagger-ui.version}/dist"/>
                                 </move>
                                 <echo message="replace swagger openapi name"/>
-                                <replace file="${openapi.webapp.folder}/index.html"
-                                         token="https://petstore.swagger.io/v2/swagger.json"
-                                         value="domibus-archive-webhook-openapi.json"/>
+                                <replace file="${openapi.webapp.folder}/swagger-initializer.js"
+                                         token="https://petstore.swagger.io/v2/swagger.json" value="domibus-archive-webhook-openapi.json" />
+                                <replace file="${openapi.webapp.folder}/swagger-ui.js"
+                                         token="https://petstore.swagger.io/v2/swagger.json" value="domibus-archive-webhook-openapi.json" />
                             </target>
                         </configuration>
                     </execution>
