@@ -177,7 +177,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   }
 
   canAddCertificate() {
-    return this.storeExists  && !this.isBusy();
+    return this.storeExists && !this.isBusy();
   }
 
   canRemoveCertificate() {
@@ -194,6 +194,12 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
     if (!cert) {
       return;
     }
+
+    const confirm = await this.dialogsService.openYesNoDialog('Are you sure you want to delete the selected certificate?');
+    if (!confirm) {
+      return;
+    }
+    
     try {
       super.isLoading = true;
       let res = await this.truststoreService.removeCertificate(this.REMOVE_CERTIFICATE_URL, cert);
