@@ -3,10 +3,14 @@ package eu.domibus.core.message.retention;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.metrics.Counter;
@@ -21,10 +25,8 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.Queue;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,6 +69,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
 
     @Autowired
     private UserMessageServiceHelper userMessageServiceHelper;
+    @Autowired
+    private UserMessageDefaultServiceHelper userMessageDefaultServiceHelper;
 
     @Autowired
     protected PartInfoService partInfoService;
@@ -77,13 +81,6 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     @Override
     public boolean handlesDeletionStrategy(String retentionStrategy) {
         return DeletionStrategy.DEFAULT == DeletionStrategy.valueOf(retentionStrategy);
-    }
-
-    @Transactional
-    @Override
-    public void deleteAllMessages() {
-        final List<UserMessageLogDto> allMessages = userMessageLogDao.getAllMessages();
-        userMessageDefaultService.deleteMessages(allMessages);
     }
 
     /**
@@ -111,10 +108,10 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
     public void deleteExpiredMessages(String mpc, Integer expiredDownloadedMessagesLimit, Integer expiredNotDownloadedMessagesLimit, Integer expiredSentMessagesLimit, Integer expiredPayloadDeletedMessagesLimit, boolean eArchiveIsActive) {
         LOG.debug("Deleting expired messages for MPC [{}] using expiredDownloadedMessagesLimit [{}]" +
                 " and expiredNotDownloadedMessagesLimit [{}]", mpc, expiredDownloadedMessagesLimit, expiredNotDownloadedMessagesLimit);
-        deleteExpiredDownloadedMessages(mpc, expiredDownloadedMessagesLimit,eArchiveIsActive);
-        deleteExpiredNotDownloadedMessages(mpc, expiredNotDownloadedMessagesLimit,eArchiveIsActive);
-        deleteExpiredSentMessages(mpc, expiredSentMessagesLimit,eArchiveIsActive);
-        deleteExpiredPayloadDeletedMessages(mpc, expiredPayloadDeletedMessagesLimit,eArchiveIsActive);
+        deleteExpiredDownloadedMessages(mpc, expiredDownloadedMessagesLimit, eArchiveIsActive);
+        deleteExpiredNotDownloadedMessages(mpc, expiredNotDownloadedMessagesLimit, eArchiveIsActive);
+        deleteExpiredSentMessages(mpc, expiredSentMessagesLimit, eArchiveIsActive);
+        deleteExpiredPayloadDeletedMessages(mpc, expiredPayloadDeletedMessagesLimit, eArchiveIsActive);
     }
 
     protected void deleteExpiredDownloadedMessages(String mpc, Integer deleteMessagesLimit, boolean eArchiveIsActive) {
@@ -128,10 +125,10 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         int metadataRetentionOffset = pModeProvider.getMetadataRetentionOffsetByMpcURI(mpc);
         LOG.debug("Deleting expired downloaded messages for MPC [{}] using deleteMessagesLimit [{}], messageRetentionMinutes [{}], metadataRetentionOffset [{}]",
                 mpc, deleteMessagesLimit, messageRetentionMinutes, metadataRetentionOffset);
-        Date messageRetentionDate = DateUtils.addMinutes(new Date(), messageRetentionMinutes  * -1);
+        Date messageRetentionDate = DateUtils.addMinutes(new Date(), messageRetentionMinutes * -1);
         List<UserMessageLogDto> messagesToClean = userMessageLogDao.getDownloadedUserMessagesOlderThan(messageRetentionDate,
                 mpc, deleteMessagesLimit, eArchiveIsActive);
-        if(pModeProvider.isDeleteMessageMetadataByMpcURI(mpc) && metadataRetentionOffset == 0) {
+        if (pModeProvider.isDeleteMessageMetadataByMpcURI(mpc) && metadataRetentionOffset == 0) {
             deleteMessageMetadataAndPayload(mpc, messagesToClean);
             return;
         }
@@ -148,10 +145,10 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         int metadataRetentionOffset = pModeProvider.getMetadataRetentionOffsetByMpcURI(mpc);
         LOG.debug("Deleting expired not-downloaded messages for MPC [{}] using deleteMessagesLimit [{}], messageRetentionMinutes [{}], metadataRetentionOffset [{}]",
                 mpc, deleteMessagesLimit, messageRetentionMinutes, metadataRetentionOffset);
-        Date payloadRetentionLimit = DateUtils.addMinutes(new Date(), messageRetentionMinutes  * -1);
+        Date payloadRetentionLimit = DateUtils.addMinutes(new Date(), messageRetentionMinutes * -1);
         List<UserMessageLogDto> messagesToClean = userMessageLogDao.getUndownloadedUserMessagesOlderThan(payloadRetentionLimit,
                 mpc, deleteMessagesLimit, eArchiveIsActive);
-        if(pModeProvider.isDeleteMessageMetadataByMpcURI(mpc) && metadataRetentionOffset == 0) {
+        if (pModeProvider.isDeleteMessageMetadataByMpcURI(mpc) && metadataRetentionOffset == 0) {
             deleteMessageMetadataAndPayload(mpc, messagesToClean);
             return;
         }
@@ -169,8 +166,8 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         int metadataRetentionOffset = pModeProvider.getMetadataRetentionOffsetByMpcURI(mpc);
         LOG.debug("Deleting expired sent messages for MPC [{}] using deleteMessagesLimit [{}], messageRetentionMinutes [{}], metadataRetentionOffset [{}]",
                 mpc, deleteMessagesLimit, messageRetentionMinutes, metadataRetentionOffset);
-        Date messageRetentionDate = DateUtils.addMinutes(new Date(), messageRetentionMinutes  * -1);
-        if(pModeProvider.isDeleteMessageMetadataByMpcURI(mpc) && metadataRetentionOffset == 0) {
+        Date messageRetentionDate = DateUtils.addMinutes(new Date(), messageRetentionMinutes * -1);
+        if (pModeProvider.isDeleteMessageMetadataByMpcURI(mpc) && metadataRetentionOffset == 0) {
             List<UserMessageLogDto> messagesToClean = userMessageLogDao.getSentUserMessagesOlderThan(messageRetentionDate,
                     mpc, deleteMessagesLimit, true, eArchiveIsActive);
             deleteMessageMetadataAndPayload(mpc, messagesToClean);
@@ -206,6 +203,7 @@ public class MessageRetentionDefaultService implements MessageRetentionService {
         LOG.debug("Attempting to delete the payloads of [{}] messages", deleted);
         List<Long> entityIds = messagesToClean.stream()
                 .map(UserMessageLogDto::getEntityId)
+                .distinct()
                 .collect(Collectors.toList());
         userMessageDefaultService.clearPayloadData(entityIds);
         backendNotificationService.notifyMessageDeleted(messagesToClean);

@@ -1,7 +1,7 @@
 package eu.domibus.plugin.ws.backend.reliability.queue;
 
-import eu.domibus.api.security.AuthRole;
-import eu.domibus.api.security.AuthUtils;
+import eu.domibus.common.AuthRole;
+import eu.domibus.ext.services.AuthenticationExtService;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -43,24 +43,24 @@ public class WSSendMessageListener implements MessageListener {
     private final WSPluginMessageSender wsPluginMessageSender;
     private final WSBackendMessageLogDao wsBackendMessageLogDao;
     private final DomainContextExtService domainContextExtService;
-    private final AuthUtils authUtils;
+    private final AuthenticationExtService authenticationExtService;
 
 
     public WSSendMessageListener(WSPluginMessageSender wsPluginMessageSender,
                                  WSBackendMessageLogDao wsBackendMessageLogDao,
                                  DomainContextExtService domainContextExtService,
-                                 AuthUtils authUtils) {
+                                 AuthenticationExtService authenticationExtService) {
         this.wsPluginMessageSender = wsPluginMessageSender;
         this.wsBackendMessageLogDao = wsBackendMessageLogDao;
         this.domainContextExtService = domainContextExtService;
-        this.authUtils = authUtils;
+        this.authenticationExtService = authenticationExtService;
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 1200)// 20 minutes
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
     public void onMessage(Message message) {
-        authUtils.runWithSecurityContext(()-> doOnMessage(message),
+        authenticationExtService.runWithSecurityContext(() -> doOnMessage(message),
                 "wsplugin_backend_notif", "wsplugin_backend_notif", AuthRole.ROLE_ADMIN);
     }
 
@@ -74,7 +74,7 @@ public class WSSendMessageListener implements MessageListener {
             messageId = message.getStringProperty(MessageConstants.MESSAGE_ID);
             id = message.getLongProperty(ID);
             type = message.getStringProperty(TYPE);
-       } catch (JMSException e) {
+        } catch (JMSException e) {
             LOG.error("Unable to extract domainCode or fileName from JMS message", e);
             return;
         }
@@ -106,11 +106,10 @@ public class WSSendMessageListener implements MessageListener {
     }
 
     private void putMDCDomibusId(WSBackendMessageLogEntity backendMessage, String messageId) {
-        if(backendMessage.getType() == DELETED_BATCH){
-            LOG.info("messageId: [{}]", messageId);
+        if (backendMessage.getType() == DELETED_BATCH) {
+            LOG.debug("MessageIds for DELETED_BATCH: [{}]", backendMessage.getMessageIds());
             return;
         }
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
     }
-
 }

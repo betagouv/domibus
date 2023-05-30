@@ -7,6 +7,7 @@ import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.core.message.MessagesLogServiceImpl;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.BackendConnector;
@@ -56,16 +57,20 @@ public class MessageSubmitterTestIT extends AbstractIT {
     @Autowired
     UserMessageLogDao userMessageLogDao;
 
+    @Autowired
+    protected PayloadFileStorageProvider payloadFileStorageProvider;
+
     @Before
     public void before() {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
+        payloadFileStorageProvider.initialize();
     }
 
     @Test
     public void submit() throws MessagingProcessingException, IOException {
         Submission submission = submissionUtil.createSubmission();
-        uploadPmode();
+        uploadPMode();
         final String messageId = messageSubmitter.submit(submission, "mybackend");
 
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
@@ -81,7 +86,7 @@ public class MessageSubmitterTestIT extends AbstractIT {
         Submission submission = submissionUtil.createSubmission();
         submission.getFromParties().clear();
 
-        uploadPmode();
+        uploadPMode();
         try {
             messageSubmitter.submit(submission, "mybackend");
             Assert.fail("Messaging exception should have been thrown");
@@ -96,7 +101,7 @@ public class MessageSubmitterTestIT extends AbstractIT {
         Submission submission = submissionUtil.createSubmission();
         submission.getToParties().clear();
 
-        uploadPmode();
+        uploadPMode();
         try {
             messageSubmitter.submit(submission, "mybackend");
             Assert.fail("Messaging exception should have been thrown");

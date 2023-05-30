@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.receiver.interceptor.CheckEBMSHeaderInterceptor;
@@ -24,7 +25,6 @@ import org.springframework.stereotype.Service;
  */
 @Service("setPolicyInInterceptorClient")
 public class SetPolicyInClientInterceptor extends SetPolicyInInterceptor {
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetPolicyInClientInterceptor.class);
 
     protected PModeProvider pModeProvider;
@@ -43,12 +43,19 @@ public class SetPolicyInClientInterceptor extends SetPolicyInInterceptor {
         }
         message.put(PolicyConstants.POLICY_OVERRIDE, policy);
 
-        final String securityAlgorithm = (String) message.getExchange().get(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM);
-        if (StringUtils.isBlank(securityAlgorithm)) {
-            throwFault(message, ErrorCode.EbMS3ErrorCode.EBMS_0004, "No security algorithm found");
+        if (policyService.isNoSecurityPolicy(policy) == false) {
+            final String securityAlgorithm = (String) message.getExchange().get(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM);
+            if (StringUtils.isBlank(securityAlgorithm)) {
+                throwFault(message, ErrorCode.EbMS3ErrorCode.EBMS_0004, "No security algorithm found");
+            }
+            message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
         }
 
-        message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
+        String pModeKeyContextProperty = (String) message.getExchange().get(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
+        if (StringUtils.isBlank(pModeKeyContextProperty)) {
+            LOG.warn("PMode key context property is empty");
+        }
+        message.put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pModeKeyContextProperty);
 
         message.getInterceptorChain().add(new CheckEBMSHeaderInterceptor());
         message.getInterceptorChain().add(new SOAPMessageBuilderInterceptor());

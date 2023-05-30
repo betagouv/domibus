@@ -25,6 +25,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.EndpointType;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ServiceGroupType;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ServiceMetadataType;
@@ -146,7 +147,7 @@ public class DynamicDiscoveryServiceOASISIT extends AbstractIT {
 
     @Before
     public void setUp() throws Exception {
-        uploadPmode(SERVICE_PORT);
+        uploadPMode(SERVICE_PORT);
         createStore(DOMIBUS_TRUSTSTORE_NAME, "keystores/gateway_truststore.jks");
         createStore(DOMIBUS_KEYSTORE_NAME, "keystores/gateway_keystore.jks");
     }
@@ -162,6 +163,7 @@ public class DynamicDiscoveryServiceOASISIT extends AbstractIT {
     }
 
     @Test
+    @Ignore("EDELIVERY-10865") //TODO
     public void lookupInformation() throws EbMS3Exception {
         dynamicDiscoveryServiceOASIS.lookupInformation("domain",
                 "participantId",

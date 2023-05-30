@@ -9,10 +9,14 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.logging.MDCKey;
+import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
 import eu.domibus.plugin.exception.TransformationException;
+import eu.domibus.plugin.handler.MessagePuller;
+import eu.domibus.plugin.handler.MessageRetriever;
+import eu.domibus.plugin.handler.MessageSubmitter;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,13 +39,13 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     protected List<NotificationType> requiredNotifications;
 
     @Autowired
-    protected MessageRetrieverExtService messageRetriever;
+    protected MessageRetriever messageRetriever;
 
     @Autowired
-    protected MessageSubmitterExtService messageSubmitter;
+    protected MessageSubmitter messageSubmitter;
 
     @Autowired
-    protected MessagePullerExtService messagePuller;
+    protected MessagePuller messagePuller;
 
     @Autowired
     protected MessageExtService messageExtService;
@@ -63,7 +67,7 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     public String submit(final U message) throws MessagingProcessingException {
         try {
             final Submission messageData = getMessageSubmissionTransformer().transformToSubmission(message);
-            final String messageId = this.messageSubmitter.submit(messageData, this.getName());
+            final String messageId = messageSubmitter.submit(messageData, this.getName());
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_SUBMITTED);
             return messageId;
@@ -196,27 +200,27 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
     }
 
     @Override
-    public MessageStatus getStatus(final String messageId) {
+    public MessageStatus getStatus(final String messageId) throws MessageNotFoundException, DuplicateMessageException {
         return this.messageRetriever.getStatus(messageExtService.cleanMessageIdentifier(messageId));
     }
 
     @Override
-    public MessageStatus getStatus(final String messageId, final MSHRole mshRole) {
+    public MessageStatus getStatus(final String messageId, final MSHRole mshRole) throws MessageNotFoundException {
         return this.messageRetriever.getStatus(messageExtService.cleanMessageIdentifier(messageId), mshRole);
     }
 
     @Override
-    public MessageStatus getStatus(final Long messageEntityId) {
+    public MessageStatus getStatus(final Long messageEntityId) throws MessageNotFoundException {
         return this.messageRetriever.getStatus(messageEntityId);
     }
 
     @Override
-    public List<ErrorResult> getErrorsForMessage(final String messageId) {
+    public List<ErrorResult> getErrorsForMessage(final String messageId) throws MessageNotFoundException, DuplicateMessageException {
         return new ArrayList<>(this.messageRetriever.getErrorsForMessage(messageId));
     }
 
     @Override
-    public List<ErrorResult> getErrorsForMessage(final String messageId, final MSHRole mshRole) {
+    public List<ErrorResult> getErrorsForMessage(final String messageId, final MSHRole mshRole) throws MessageNotFoundException {
         return new ArrayList<>(this.messageRetriever.getErrorsForMessage(messageId, mshRole));
     }
 
@@ -287,33 +291,48 @@ public abstract class AbstractBackendConnector<U, T> implements BackendConnector
 
     @Override
     public boolean isEnabled(final String domainCode) {
+        LOG.debug("Should call doIsEnabled to support enabling and disabling the plugin on a domain");
+        return true;
+    }
+
+    protected boolean doIsEnabled(String domainCode) {
         DomibusPropertyManagerExt propertyManager = getPropertyManager();
+        String domainEnabledPropertyName = getDomainEnabledPropertyName();
         if (propertyManager != null) {
-            String value = propertyManager.getKnownPropertyValue(domainCode, getDomainEnabledPropertyName());
+            String value = propertyManager.getKnownPropertyValue(domainCode, domainEnabledPropertyName);
+            LOG.debug("Checking plugin property manager: reading property [{}]=[{}] to see if the plugin is enabled.", domainEnabledPropertyName, value);
             return BooleanUtils.toBoolean(value);
         }
         // fallback to the domibus property provider delegate
         DomainDTO domain = domainExtService.getDomain(domainCode);
-        String value = domibusPropertyExtService.getProperty(domain, getDomainEnabledPropertyName());
+        String value = domibusPropertyExtService.getProperty(domain, domainEnabledPropertyName);
+        LOG.info("Checking domibus property manager: reading property [{}]=[{}] to see if the plugin is enabled.", domainEnabledPropertyName, value);
         return BooleanUtils.toBoolean(value);
     }
 
     @Override
     public void setEnabled(final String domainCode, final boolean enabled) {
+        LOG.debug("Should call doSetEnabled to support enabling and disabling the plugin on a domain");
+    }
+
+    protected void doSetEnabled(String domainCode, boolean enabled) {
         String pluginName = getName();
         if (isEnabled(domainCode) == enabled) {
-            LOG.debug("Trying to set enabled as [{}] in plugin [{}] for domain [{}] but it is already so exiting;", enabled, pluginName, domainCode);
+            LOG.info("Trying to set enabled as [{}] in plugin [{}] for domain [{}] but it is already so exiting;", enabled, pluginName, domainCode);
             return;
         }
         // just set the enabled property and the change listener will call domibus relevant methods
         DomibusPropertyManagerExt propertyManager = getPropertyManager();
+        String domainEnabledPropertyName = getDomainEnabledPropertyName();
         if (propertyManager != null) {
-            propertyManager.setKnownPropertyValue(getDomainEnabledPropertyName(), BooleanUtils.toStringTrueFalse(enabled));
+            LOG.info("Calling plugin [{}] property manager: setting property [{}]=[{}] to enabled or disable plugin.", pluginName, domainEnabledPropertyName, enabled);
+            propertyManager.setKnownPropertyValue(domainEnabledPropertyName, BooleanUtils.toStringTrueFalse(enabled));
             return;
         }
         // fallback to the domibus property provider delegate
         DomainDTO domain = domainExtService.getDomain(domainCode);
-        domibusPropertyExtService.setProperty(domain, getDomainEnabledPropertyName(), BooleanUtils.toStringTrueFalse(enabled), true);
+        LOG.info("Calling domibus [{}] property manager: setting property [{}]=[{}] to enabled or disable plugin.", pluginName, domainEnabledPropertyName, enabled);
+        domibusPropertyExtService.setProperty(domain, domainEnabledPropertyName, BooleanUtils.toStringTrueFalse(enabled), true);
     }
 
     public void checkEnabled() {

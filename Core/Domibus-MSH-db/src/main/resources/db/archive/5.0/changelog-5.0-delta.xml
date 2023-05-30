@@ -3,7 +3,7 @@
 <databaseChangeLog
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <!-- properties - to be used in column definitions -->
     <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
@@ -42,6 +42,7 @@
             <column name="MESSAGE_ID" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+
             <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
             <column name="ORIGINAL_SENDER" type="VARCHAR(255)"/>
 

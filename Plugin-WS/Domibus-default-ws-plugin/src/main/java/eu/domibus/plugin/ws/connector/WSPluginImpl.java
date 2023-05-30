@@ -2,30 +2,31 @@ package eu.domibus.plugin.ws.connector;
 
 import eu.domibus.common.*;
 import eu.domibus.ext.domain.CronJobInfoDTO;
-import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.services.DomainContextExtService;
+import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
-import eu.domibus.ext.services.MessageRetrieverExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.PModeMismatchException;
+import eu.domibus.messaging.PluginMessageListenerContainer;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.exception.TransformationException;
+import eu.domibus.plugin.handler.MessageRetriever;
+import eu.domibus.plugin.initialize.PluginInitializer;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
-import eu.domibus.plugin.ws.exception.WSPluginException;
+import eu.domibus.plugin.ws.backend.reliability.queue.WSSendMessageListenerContainer;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage;
+import eu.domibus.plugin.ws.initialize.WSPluginInitializer;
 import eu.domibus.plugin.ws.message.WSMessageLogEntity;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.StubDtoTransformer;
-import org.apache.commons.lang3.BooleanUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.stream.Stream;
 
 import static eu.domibus.plugin.ws.backend.WSBackendMessageType.*;
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.DOMAIN_ENABLED;
+import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.MESSAGE_NOTIFICATIONS;
 import static eu.domibus.plugin.ws.property.listeners.WSPluginDispatcherCronExpressionChangeListener.SEND_RETRY_JOB_NAME;
 
 /**
@@ -56,15 +58,32 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
 
     private final WSPluginPropertyManager wsPluginPropertyManager;
 
+    private final WSSendMessageListenerContainer wsSendMessageListenerContainer;
+
+    protected WSPluginInitializer wsPluginInitializer;
+
     public WSPluginImpl(StubDtoTransformer defaultTransformer,
                         WSMessageLogService wsMessageLogService,
                         WSPluginBackendService wsPluginBackendService,
-                        WSPluginPropertyManager wsPluginPropertyManager) {
+                        WSPluginPropertyManager wsPluginPropertyManager,
+                        WSSendMessageListenerContainer wsSendMessageListenerContainer,
+                        DomibusPropertyExtService domibusPropertyExtService,
+                        WSPluginInitializer wsPluginInitializer) {
         super(PLUGIN_NAME);
         this.defaultTransformer = defaultTransformer;
         this.wsMessageLogService = wsMessageLogService;
         this.wsPluginBackendService = wsPluginBackendService;
         this.wsPluginPropertyManager = wsPluginPropertyManager;
+        this.wsSendMessageListenerContainer = wsSendMessageListenerContainer;
+        this.domibusPropertyExtService = domibusPropertyExtService;
+        this.wsPluginInitializer = wsPluginInitializer;
+
+        setRequiredNotifications();
+    }
+
+    @Override
+    public boolean shouldCoreManageResources() {
+        return true;
     }
 
     @Override
@@ -113,7 +132,6 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
             throw mpEx;
         }
     }
-
 
     @Override
     public void messageReceiveFailed(final MessageReceiveFailureEvent event) {
@@ -170,7 +188,7 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
         return this.defaultTransformer;
     }
 
-    public MessageRetrieverExtService getMessageRetriever() {
+    public MessageRetriever getMessageRetriever() {
         return this.messageRetriever;
     }
 
@@ -182,6 +200,16 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
     }
 
     @Override
+    public boolean isEnabled(final String domainCode) {
+        return doIsEnabled(domainCode);
+    }
+
+    @Override
+    public void setEnabled(final String domainCode, final boolean enabled) {
+        doSetEnabled(domainCode, enabled);
+    }
+
+    @Override
     public String getDomainEnabledPropertyName() {
         return DOMAIN_ENABLED;
     }
@@ -189,6 +217,22 @@ public class WSPluginImpl extends AbstractBackendConnector<Messaging, UserMessag
     @Override
     public DomibusPropertyManagerExt getPropertyManager() {
         return wsPluginPropertyManager;
+    }
+
+    @Override
+    public PluginMessageListenerContainer getMessageListenerContainerFactory() {
+        return wsSendMessageListenerContainer;
+    }
+
+    @Override
+    public PluginInitializer getPluginInitializer() {
+        return wsPluginInitializer;
+    }
+
+    public void setRequiredNotifications() {
+        List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(MESSAGE_NOTIFICATIONS);
+        LOG.debug("Using the following message notifications [{}]", messageNotifications);
+        setRequiredNotifications(messageNotifications);
     }
 
 }

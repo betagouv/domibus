@@ -7,9 +7,9 @@ import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.proxy.DomibusProxy;
 import eu.domibus.api.proxy.DomibusProxyService;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.security.X509CertificateService;
 import eu.domibus.common.DomibusCacheConstants;
-import eu.domibus.common.model.configuration.SecurityProfile;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.logging.DomibusLogger;
@@ -229,7 +229,7 @@ public class DynamicDiscoveryServiceOASIS extends AbstractDynamicDiscoveryServic
 
     protected X509Certificate getCertificateFromEndpoint(EndpointType endpoint, String documentId, String processId) {
         try {
-            return certificateService.loadCertificateFromByteArray(endpoint.getCertificate());
+            return certificateService.loadCertificate(endpoint.getCertificate());
         } catch (DomibusCertificateException exc) {
             String msg = "Invalid endpoint metadata for documentId " + documentId + " processId " + processId;
             // log error, because cause in ConfigurationException is consumed..

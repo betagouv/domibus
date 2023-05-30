@@ -13,6 +13,9 @@ public class ExportedBatchMessagesResultDTO {
     protected PaginationDTO pagination;
     protected List<String> messages;
 
+    public ExportedBatchMessagesResultDTO() {
+    }
+
     public ExportedBatchMessagesResultDTO(String batchId, Integer pageStart, Integer pageSize) {
         this.batchId = batchId;
         this.pagination = new PaginationDTO(pageStart, pageSize);

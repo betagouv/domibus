@@ -14,6 +14,7 @@ import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.util.MessageUtil;
@@ -111,9 +112,13 @@ public class MshWebServiceTestIT extends AbstractIT {
     @Autowired
     protected RoutingService routingService;
 
+    @Autowired
+    protected PayloadFileStorageProvider payloadFileStorageProvider;
+
     @Before
     public void before() throws IOException, XmlProcessingException {
-        uploadPmode();
+        uploadPMode();
+        payloadFileStorageProvider.initialize();
     }
 
     @Test
@@ -143,7 +148,7 @@ public class MshWebServiceTestIT extends AbstractIT {
         final String secondReceipt = secondSignalMessage.getReceipt().getAny().iterator().next();
         assertEquals(firstReceipt, secondReceipt);
 
-        messageRetentionService.deleteAllMessages();
+        deleteAllMessages(messageId);
     }
 
     @Transactional

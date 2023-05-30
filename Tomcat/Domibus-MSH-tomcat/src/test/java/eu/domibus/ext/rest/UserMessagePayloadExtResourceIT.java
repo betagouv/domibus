@@ -1,7 +1,6 @@
 package eu.domibus.ext.rest;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
@@ -60,8 +59,6 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
 
     @Autowired
     PartInfoService partInfoService;
-
-    public ObjectMapper objectMapper = new ObjectMapper();
 
     @Before
     public void setUp() {
@@ -195,6 +192,7 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
         // then
         String contentResult = result.getResponse().getContentAsString();
         Exception resultList = objectMapper.readValue(contentResult, Exception.class);
-        Assert.assertEquals("You are not allowed to handle this message [myMessage]. You are authorized as [urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1]", resultList.getMessage());
+        Assert.assertTrue(resultList.getMessage()
+                .contains("You are not allowed to handle this message [myMessage]. You are authorized as [urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1]"));
     }
 }

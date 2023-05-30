@@ -4,6 +4,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * Wrapper for the Runnable class to be executed. Catches any exception and executes the error handler if defined.
@@ -11,22 +12,54 @@ import java.util.Map;
  * @author Cosmin Baciu
  * @since 4.1
  */
-public class SetMDCContextTaskRunnable implements Runnable {
+public class SetMDCContextTaskRunnable<T> implements Runnable, Callable<T> {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetMDCContextTaskRunnable.class);
 
     protected Runnable runnable;
+
+    protected Callable<T> callable;
+
     protected Runnable errorHandler;
+
     protected Map<String, String> copyOfContextMap;
 
     public SetMDCContextTaskRunnable(final Runnable runnable, Runnable errorHandler) {
+        this(errorHandler);
         this.runnable = runnable;
+    }
+
+    public SetMDCContextTaskRunnable(final Callable<T> callable, Runnable errorHandler) {
+        this(errorHandler);
+        this.callable = callable;
+    }
+
+    private SetMDCContextTaskRunnable(Runnable errorHandler) {
         this.errorHandler = errorHandler;
         this.copyOfContextMap = LOG.getCopyOfContextMap();
     }
 
     @Override
     public void run() {
+        try {
+            executeTask(this::wrappedRunnable);
+        } catch (Exception e) {
+            throw new DomainTaskException(e);
+        }
+    }
+
+    private Boolean wrappedRunnable() {
+        runnable.run();
+        return true;
+    }
+
+    @Override
+    public T call() {
+        return executeTask(() -> callable.call());
+    }
+
+    private <T> T executeTask(Callable<T> task) {
+        T res = null;
         try {
             if (copyOfContextMap != null) {
                 LOG.trace("Setting MDC context map");
@@ -35,21 +68,19 @@ public class SetMDCContextTaskRunnable implements Runnable {
             }
 
             LOG.trace("Start executing task");
-            runnable.run();
+            res = task.call();
             LOG.trace("Finished executing task");
         } catch (Throwable e) {
             LOG.error("Error executing task", e);
-
-            executeErrorHandler();
+            executeErrorHandler(e);
         }
+        return res;
     }
 
-
-
-    protected void executeErrorHandler() {
+    protected void executeErrorHandler(Throwable ex) {
         if (errorHandler == null) {
             LOG.trace("No error handler has been set");
-            return;
+            throw new DomainTaskException("Could not execute task", ex);
         }
 
         try {

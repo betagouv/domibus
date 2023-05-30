@@ -32,7 +32,10 @@ import eu.domibus.test.common.SoapSampleUtil;
 import eu.domibus.test.common.SubmissionUtil;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.apache.neethi.Policy;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -54,7 +57,7 @@ import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static eu.domibus.messaging.MessageConstants.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-@Ignore
+
 @Transactional
 public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
@@ -130,11 +133,12 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
     @Transactional
     @Before
-    public void before() throws IOException, XmlProcessingException {
-        messageId = UUID.randomUUID() + "@domibus.eu";
+    public void before() throws XmlProcessingException, IOException {
+        super.before();
+        messageId = BackendConnectorMock.MESSAGE_ID;
         filename = "SOAPMessage2.xml";
 
-        uploadPmode();
+        uploadPMode();
 
         backendConnector = new BackendConnectorMock("wsPlugin");
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class)))
@@ -229,8 +233,10 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     @Test
     public void testNotifyMessageDeleted() throws MessagingProcessingException {
         String messageId = itTestsService.sendMessageWithStatus(MessageStatus.ACKNOWLEDGED);
+        Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
+                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
-        deleteAllMessages();
+        deleteAllMessages(messageId);
 
         MessageDeletedBatchEvent messageDeletedBatchEvent = backendConnector.getMessageDeletedBatchEvent();
         assertEquals(1, messageDeletedBatchEvent.getMessageDeletedEvents().size());
@@ -278,7 +284,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
         Assert.assertNotNull(byMessageId);
 
-        deleteAllMessages();
+        deleteAllMessages(messageId);
     }
 
     @Test
@@ -317,7 +323,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         assertPropertiesPresentInEvent(messageSendFailedEvent);
 
-        deleteAllMessages();
+        deleteAllMessages(messageId);
     }
 
 

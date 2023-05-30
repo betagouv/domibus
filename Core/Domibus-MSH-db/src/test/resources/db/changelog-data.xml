@@ -3,7 +3,7 @@
 <databaseChangeLog
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
     <!-- IMPORTANT: this data is intended to setup domibus integration tests and are additional data generated in
      src/main/resources/db/changelog-data.xml
      -->
@@ -122,6 +122,126 @@
             <column name="ID_PK" value="2"/>
             <column name="PRIORITY" value="2"/>
             <column name="BACKEND_NAME" value="fsPlugin"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="EDELIVERY-10711" author="maierga">
+        <insert tableName="TB_LOCK">
+            <column name="ID_PK" value="${default_id_pk}0000000002" type="BIGINT"/>
+            <column name="LOCK_KEY" value="scheduler-synchronization.lock"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="insert_messages" author="gautifr">
+        <insert tableName="TB_D_MESSAGE_STATUS">
+            <column name="ID_PK" value="230109160000001001"/>
+            <column name="STATUS" value="READY_TO_PULL"/>
+        </insert>
+        <insert tableName="TB_D_MESSAGE_STATUS">
+            <column name="ID_PK" value="230109160000001003"/>
+            <column name="STATUS" value="SEND_ENQUEUED"/>
+        </insert>
+        <insert tableName="TB_D_MESSAGE_STATUS">
+            <column name="ID_PK" value="230109160000001005"/>
+            <column name="STATUS" value="WAITING_FOR_RECEIPT"/>
+        </insert>
+        <insert tableName="TB_D_MESSAGE_STATUS">
+            <column name="ID_PK" value="230109160000001006"/>
+            <column name="STATUS" value="ACKNOWLEDGED"/>
+        </insert>
+        <insert tableName="TB_D_MESSAGE_STATUS">
+            <column name="ID_PK" value="230109160000001009"/>
+            <column name="STATUS" value="SEND_FAILURE"/>
+        </insert>
+        <insert tableName="TB_D_MESSAGE_STATUS">
+            <column name="ID_PK" value="230109160000001011"/>
+            <column name="STATUS" value="WAITING_FOR_RETRY"/>
+        </insert>
+        <insert tableName="TB_D_MESSAGE_STATUS">
+            <column name="ID_PK" value="230109160000001012"/>
+            <column name="STATUS" value="RECEIVED"/>
+        </insert>
+        <insert tableName="TB_D_MESSAGE_STATUS">
+            <column name="ID_PK" value="230109160000001014"/>
+            <column name="STATUS" value="DELETED"/>
+        </insert>
+        <insert tableName="TB_D_MESSAGE_STATUS">
+            <column name="ID_PK" value="230109160000001015"/>
+            <column name="STATUS" value="DOWNLOADED"/>
+        </insert>
+        <insert tableName="TB_D_ACTION">
+            <column name="ID_PK" value="230110090000001000"/>
+            <column name="ACTION" value="TC1Leg1"/>
+        </insert>
+        <insert tableName="TB_D_MPC">
+            <column name="ID_PK" value="230110090000001000"/>
+            <column name="VALUE" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC"/>
+        </insert>
+        <insert tableName="TB_D_SERVICE">
+            <column name="ID_PK" value="230110090000001000"/>
+            <column name="VALUE" value="bdx:noprocess"/>
+        </insert>
+        <insert tableName="TB_D_ROLE">
+            <column name="ID_PK" value="230110090000001000"/>
+            <column name="ROLE" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator"/>
+        </insert>
+        <insert tableName="TB_D_ROLE">
+            <column name="ID_PK" value="230110090000001001"/>
+            <column name="ROLE" value="http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder"/>
+        </insert>
+        <insert tableName="TB_D_PARTY">
+            <column name="ID_PK" value="230110090000001000"/>
+            <column name="VALUE" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
+        </insert>
+        <insert tableName="TB_D_PARTY">
+            <column name="ID_PK" value="230110090000001001"/>
+            <column name="VALUE" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered"/>
+        </insert>
+        <insert tableName="TB_USER_MESSAGE">
+            <column name="ID_PK" value="230412100000000001"/>
+            <column name="MESSAGE_ID" value="msg_ack_100"/>
+            <column name="MSH_ROLE_ID_FK" value="${default_id_pk}0000000002"/>
+            <column name="ACTION_ID_FK" value="230110090000001000"/>
+            <column name="SERVICE_ID_FK" value="230110090000001000"/>
+            <column name="MPC_ID_FK" value="230110090000001000"/>
+            <column name="FROM_PARTY_ID_FK" value="230110090000001000"/>
+            <column name="FROM_ROLE_ID_FK" value="230110090000001000"/>
+            <column name="TO_PARTY_ID_FK" value="230110090000001001"/>
+            <column name="TO_ROLE_ID_FK" value="230110090000001001"/>
+        </insert>
+        <insert tableName="TB_USER_MESSAGE_LOG">
+            <column name="ID_PK" value="230412100000000001"/>
+            <column name="MESSAGE_STATUS_ID_FK" value="230109160000001006"/>
+            <column name="MSH_ROLE_ID_FK" value="${default_id_pk}0000000002"/>
+            <column name="received" valueComputed="${now}"/>
+            <column name="send_attempts" value="0"/>
+            <column name="send_attempts_max" value="0"/>
+            <column name="backend" value="wsPlugin"/>
+        </insert>
+        <insert tableName="TB_D_MESSAGE_PROPERTY">
+            <column name="ID_PK" value="230110090000001000"/>
+            <column name="NAME" value="originalSender"/>
+            <column name="VALUE" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1"/>
+        </insert>
+        <insert tableName="TB_D_MESSAGE_PROPERTY">
+            <column name="ID_PK" value="230110090000001001"/>
+            <column name="NAME" value="finalRecipient"/>
+            <column name="VALUE" value="urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4"/>
+        </insert>
+        <insert tableName="TB_MESSAGE_PROPERTIES">
+            <column name="MESSAGE_PROPERTY_FK" value="230110090000001000"/>
+            <column name="USER_MESSAGE_ID_FK" value="230412100000000001"/>
+        </insert>
+        <insert tableName="TB_MESSAGE_PROPERTIES">
+            <column name="MESSAGE_PROPERTY_FK" value="230110090000001001"/>
+            <column name="USER_MESSAGE_ID_FK" value="230412100000000001"/>
+        </insert>
+    </changeSet>
+
+    <changeSet author="ion perpegel" id="EDELIVERY-11248">
+        <insert tableName="TB_LOCK">
+            <column name="ID_PK" value="${default_id_pk}0000000003" type="BIGINT"/>
+            <column name="LOCK_KEY" value="keystore-synchronization.lock"/>
         </insert>
     </changeSet>
 </databaseChangeLog>

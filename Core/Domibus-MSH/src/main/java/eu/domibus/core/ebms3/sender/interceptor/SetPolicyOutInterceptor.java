@@ -9,7 +9,7 @@ import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.util.SecurityProfileService;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -66,30 +66,16 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
     public void handleMessage(final SoapMessage message) throws Fault {
         LOG.debug("SetPolicyOutInterceptor");
         final String pModeKey = (String) message.getContextualProperty(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY);
-        LOG.debug("Using pmodeKey [{}]", pModeKey);
+        LOG.debug("Using pModeKey [{}]", pModeKey);
         message.getExchange().put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
         message.getInterceptorChain().add(new PrepareAttachmentInterceptor());
 
         final LegConfiguration legConfiguration = this.pModeProvider.getLegConfiguration(pModeKey);
 
-        message.put(SecurityConstants.USE_ATTACHMENT_ENCRYPTION_CONTENT_ONLY_TRANSFORM, true);
-
-        final String securityAlgorithm = securityProfileService.getSecurityAlgorithm(legConfiguration);
-        message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
-        message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
-
-        LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_OUTGOING_USE, securityAlgorithm);
-
-        String encryptionUsername = extractEncryptionUsername(pModeKey);
-        message.put(SecurityConstants.ENCRYPT_USERNAME, encryptionUsername);
-        LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_USER_OUTGOING_USE, encryptionUsername);
-
+        Policy policy;
         try {
-            final Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy());
+            policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_POLICY_OUTGOING_USE, legConfiguration.getSecurity().getPolicy());
-            message.put(PolicyConstants.POLICY_OVERRIDE, policy);
-            message.getExchange().put(PolicyConstants.POLICY_OVERRIDE, policy);
-
         } catch (final ConfigurationException e) {
             LOG.businessError(DomibusMessageCode.BUS_SECURITY_POLICY_OUTGOING_NOT_FOUND, e, legConfiguration.getSecurity().getPolicy());
             throw new Fault(EbMS3ExceptionBuilder.getInstance()
@@ -97,23 +83,42 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
                     .message("Could not find policy file " + domibusConfigurationService.getConfigLocation() + "/" + this.pModeProvider.getLegConfiguration(pModeKey).getSecurity())
                     .build());
         }
+
+        if (!policyService.isNoSecurityPolicy(policy)) {
+            message.put(SecurityConstants.USE_ATTACHMENT_ENCRYPTION_CONTENT_ONLY_TRANSFORM, true);
+
+            final String securityAlgorithm = securityProfileService.getSecurityAlgorithm(legConfiguration);
+            message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
+            message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
+
+            LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_OUTGOING_USE, securityAlgorithm);
+
+            String receiverPartyName = extractReceiverPartyName(pModeKey);
+            String encryptionAlias = securityProfileService.getAliasForEncrypting(legConfiguration, receiverPartyName);
+
+            message.put(SecurityConstants.ENCRYPT_USERNAME, encryptionAlias);
+            LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_USER_OUTGOING_USE, encryptionAlias);
+        }
+
+        message.put(PolicyConstants.POLICY_OVERRIDE, policy);
+        message.getExchange().put(PolicyConstants.POLICY_OVERRIDE, policy);
     }
 
-    protected String extractEncryptionUsername(String pModeKey) {
-        String encryptionUsername = null;
+    protected String extractReceiverPartyName(String pModeKey) {
+        String receiverPartyName = null;
         try {
             Party receiverParty = pModeProvider.getReceiverParty(pModeKey);
             if (receiverParty != null) {
-                encryptionUsername = receiverParty.getName();
+                receiverPartyName = receiverParty.getName();
             }
         } catch (ConfigurationException exc) {
-            LOG.info("Initiator party was not found, will be extracted from pModeKey.");
+            LOG.info("Responder party was not found, will be extracted from pModeKey.");
         }
-        if (encryptionUsername == null) {
-            encryptionUsername = pModeProvider.getReceiverPartyNameFromPModeKey(pModeKey);
+        if (receiverPartyName == null) {
+            receiverPartyName = pModeProvider.getReceiverPartyNameFromPModeKey(pModeKey);
         }
 
-        return encryptionUsername;
+        return receiverPartyName;
     }
 
 

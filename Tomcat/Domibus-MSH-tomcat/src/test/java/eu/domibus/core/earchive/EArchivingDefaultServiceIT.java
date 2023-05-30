@@ -251,6 +251,36 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
 
     @Test
     @Transactional
+    public void getNotArchivedMessagesCount() {
+        Date currentDate = Calendar.getInstance().getTime();
+        Long startDate =  Long.parseLong(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, -30).toInstant(),
+                ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+        Long endDate  = Long.parseLong(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, 1).toInstant(),
+                ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+
+        Long count = eArchivingService.getNotArchivedMessagesCount(startDate,
+                endDate);
+
+        // According to the discussion service must return all messages which does not have set archive date!
+        int expectedCount = 8;
+        Assert.assertTrue(expectedCount <= count); // the db may contain messages from other non-transactional tests
+    }
+
+    @Test
+    @Transactional
+    public void getNotArchivedMessages_noStartnoEnd() {
+        List<String> messages = eArchivingService.getNotArchivedMessages(null,
+                null, null, null);
+
+        // According to the discussion service must return all messages which does not have set archive date!
+        int expectedCount = 8;
+        Assert.assertTrue(expectedCount <= messages.size()); // the db may contain messages from other non-transactional tests
+        Assert.assertTrue(messages.contains(uml1.getUserMessage().getMessageId()));
+        Assert.assertTrue(messages.contains(uml8_not_archived.getUserMessage().getMessageId()));
+    }
+
+    @Test
+    @Transactional
     public void testExecuteBatchIsArchived() {
         // given
         List<EArchiveBatchUserMessage> messageList = eArchiveBatchUserMessageDao.getBatchMessageList(batch1.getBatchId(), null, null);
@@ -304,6 +334,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         //then
         EArchiveBatchEntity batchUpdated = eArchiveBatchDao.findEArchiveBatchByBatchId(batch1.getBatchId());
         Assert.assertEquals(EArchiveBatchStatus.ARCHIVE_FAILED, batchUpdated.getEArchiveBatchStatus());
-        Assert.assertEquals(message, batchUpdated.getErrorMessage());
+        Assert.assertEquals(message, batchUpdated.getMessage());
     }
 }

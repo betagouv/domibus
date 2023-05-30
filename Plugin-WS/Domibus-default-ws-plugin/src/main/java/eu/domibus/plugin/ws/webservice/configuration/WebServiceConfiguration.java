@@ -1,6 +1,5 @@
 package eu.domibus.plugin.ws.webservice.configuration;
 
-import eu.domibus.common.NotificationType;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -9,7 +8,9 @@ import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
 import eu.domibus.plugin.webService.impl.HttpMethodAuthorizationInInterceptor;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogService;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
+import eu.domibus.plugin.ws.backend.reliability.queue.WSSendMessageListenerContainer;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
+import eu.domibus.plugin.ws.initialize.WSPluginInitializer;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.StubDtoTransformer;
@@ -24,6 +25,7 @@ import org.apache.cxf.jaxws.EndpointImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 
 import javax.jms.Queue;
@@ -42,18 +44,21 @@ public class WebServiceConfiguration {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebServiceConfiguration.class);
 
     public static final String NOTIFY_BACKEND_QUEUE_JNDI = "jms/domibus.notification.webservice";
+    public static final String BACKEND_INTERFACE_ENDPOINT_BEAN_NAME = "backendInterfaceEndpoint";
 
     @Bean(WSPluginImpl.PLUGIN_NAME)
-    public WSPluginImpl createBackendJMSImpl(DomibusPropertyExtService domibusPropertyExtService,
-                                             StubDtoTransformer defaultTransformer,
+    public WSPluginImpl createBackendJMSImpl(StubDtoTransformer defaultTransformer,
                                              WSMessageLogService wsMessageLogService,
                                              WSPluginBackendService wsPluginBackendService,
-                                             WSPluginPropertyManager wsPluginPropertyManager) {
-        List<NotificationType> messageNotifications = domibusPropertyExtService.getConfiguredNotifications(WSPluginPropertyManager.MESSAGE_NOTIFICATIONS);
-        LOG.debug("Using the following message notifications [{}]", messageNotifications);
-        WSPluginImpl jmsPlugin = new WSPluginImpl(defaultTransformer, wsMessageLogService, wsPluginBackendService, wsPluginPropertyManager);
-        jmsPlugin.setRequiredNotifications(messageNotifications);
-        return jmsPlugin;
+                                             WSPluginPropertyManager wsPluginPropertyManager,
+                                             WSSendMessageListenerContainer wsSendMessageListenerContainer,
+                                             DomibusPropertyExtService domibusPropertyExtService,
+                                             @Lazy WSPluginInitializer wsPluginInitializer //use lazy initialization to avoid circular dependency
+                                             //triggered by the usage of the WSPlugin when publishing the endpoints
+    ) {
+        WSPluginImpl wsPlugin = new WSPluginImpl(defaultTransformer, wsMessageLogService, wsPluginBackendService,
+                wsPluginPropertyManager, wsSendMessageListenerContainer, domibusPropertyExtService, wsPluginInitializer);
+        return wsPlugin;
     }
 
     @Bean("backendWebservice")
@@ -65,7 +70,8 @@ public class WebServiceConfiguration {
                                          WSPluginPropertyManager wsPluginPropertyManager,
                                          AuthenticationExtService authenticationExtService,
                                          MessageExtService messageExtService,
-                                         WSPluginImpl wsPlugin) {
+                                         WSPluginImpl wsPlugin,
+                                         DateExtService dateUtil) {
         return new WebServiceImpl(messageAcknowledgeExtService,
                 webServicePluginExceptionFactory,
                 wsMessageLogService,
@@ -74,7 +80,8 @@ public class WebServiceConfiguration {
                 wsPluginPropertyManager,
                 authenticationExtService,
                 messageExtService,
-                wsPlugin);
+                wsPlugin,
+                dateUtil);
     }
 
 
@@ -91,7 +98,7 @@ public class WebServiceConfiguration {
         return pluginAsyncNotificationConfiguration;
     }
 
-    @Bean("backendInterfaceEndpoint")
+    @Bean(BACKEND_INTERFACE_ENDPOINT_BEAN_NAME)
     public Endpoint backendInterfaceEndpoint(@Qualifier(Bus.DEFAULT_BUS_ID) Bus bus,
                                              WebServiceImpl backendWebService,
                                              WSPluginPropertyManager wsPluginPropertyManager,
@@ -109,7 +116,7 @@ public class WebServiceConfiguration {
         endpoint.setOutFaultInterceptors(Arrays.asList(wsPluginFaultOutInterceptor, clearAuthenticationMDCInterceptor));
         endpoint.setFeatures(Collections.singletonList(wsLoggingFeature));
 
-        endpoint.publish("/wsplugin");
+
         return endpoint;
     }
 

@@ -11,11 +11,13 @@
         <jaxws:outInterceptors>
             <ref bean="setPolicyOutInterceptor"/>
             <ref bean="httpHeaderOutInterceptor"/>
+            <ref bean="messageOutgoingInterceptor"/>
         </jaxws:outInterceptors>
         <jaxws:inInterceptors>
             <ref bean="setSignatureAlgorithmInInterceptor"/>
             <ref bean="setPolicyInInterceptorClient"/>
             <ref bean="httpHeaderInInterceptor"/>
+            <ref bean="trustSenderInterceptor"/>
         </jaxws:inInterceptors>
         <jaxws:handlers>
             <ref bean="faultOutHandler"/>

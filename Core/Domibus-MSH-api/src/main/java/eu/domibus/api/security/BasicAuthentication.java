@@ -78,4 +78,14 @@ public class BasicAuthentication implements Authentication {
     public void setOriginalUser(String originalUser) {
         this.originalUser = originalUser;
     }
+
+    @Override
+    public String toString() {
+        return "BasicAuthentication{" +
+                "authenticated=" + authenticated +
+                ", user='" + user + '\'' +
+                ", originalUser='" + originalUser + '\'' +
+                ", authorityList=" + authorityList +
+                '}';
+    }
 }

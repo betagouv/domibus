@@ -1,14 +1,19 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <!-- properties - to be used in column definitions -->
     <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <changeSet author="idragusa" id="Partition tables" dbms="oracle">
-        <sql>
-            ALTER TABLE TB_USER_MESSAGE MODIFY PARTITION BY RANGE (ID_PK) (PARTITION P22000000 VALUES LESS THAN (220000000000000000)) UPDATE INDEXES ( IDX_USER_MSG_MESSAGE_ID	LOCAL, IDX_USER_MSG_ACTION_ID LOCAL, IDX_USER_MSG_AGREEMENT_ID LOCAL, IDX_USER_MSG_SERVICE_ID LOCAL, IDX_USER_MSG_MPC_ID LOCAL, IDX_FROM_ROLE_ID LOCAL, IDX_USER_MSG_TO_PARTY_ID LOCAL, IDX_TO_ROLE_ID LOCAL, IDX_USER_MSG_FROM_PARTY_ID LOCAL, IDX_TEST_MESSAGE LOCAL );
+        <sqlFile path="src/main/resources/db/partitioning/oracle/partitions-procedures.sql" endDelimiter="\n/"/>
+
+        <!-- creates partitions for existing data on TB_USER_MESSAGE table -->
+        <sql endDelimiter="\n/">
+            BEGIN
+            PARTITION_TB_USER_MESSAGE();
+            END;
         </sql>
 
         <sql>
@@ -71,9 +76,10 @@
             ALTER TABLE TB_ERROR_LOG MODIFY PARTITION BY REFERENCE ( FK_ERROR_LOG_MSG_ID ) UPDATE INDEXES ( IDX_ERROR_LOG_MSH_ROLE_ID LOCAL, IDX_MESSAGE_IN_ERROR_ID LOCAL, IDX_SIGNAL_MESSAGE_ID LOCAL );
         </sql>
 
-        <sqlFile path="src/main/resources/db/partitioning/oracle/partitions-procedures.sql" endDelimiter="\n/"/>
-        <sqlFile path="src/main/resources/db/partitioning/oracle/create-partitions-job.sql" endDelimiter="\n/"/>
+        <sql>
+            ALTER TABLE TB_USER_MESSAGE SET INTERVAL (10000000000);
+        </sql>
 
-    </changeSet>
+     </changeSet>
 
 </databaseChangeLog>

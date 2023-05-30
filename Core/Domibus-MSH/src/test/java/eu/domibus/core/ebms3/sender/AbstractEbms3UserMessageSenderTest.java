@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.sender;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.message.SignalMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.message.UserMessageSoapEnvelopeSpiDelegate;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.model.MSHRole;
@@ -18,10 +19,10 @@ import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
-import eu.domibus.core.message.UserMessageServiceHelper;
-import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.UserMessageLogDao;
+import eu.domibus.core.message.UserMessageServiceHelper;
+import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationService;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.message.reliability.ReliabilityService;
@@ -103,6 +104,9 @@ public class AbstractEbms3UserMessageSenderTest {
     @Injectable
     MessageSenderService messageSenderService;
 
+    @Injectable
+    protected SignalMessageSoapEnvelopeSpiDelegate signalMessageSoapEnvelopeSpiDelegate;
+
     private final String messageId = UUID.randomUUID().toString();
 
     private final String senderName = "domibus-blue";
@@ -152,7 +156,7 @@ public class AbstractEbms3UserMessageSenderTest {
             legConfiguration.getSecurity().getPolicy();
             result = configPolicy;
 
-            policyService.parsePolicy(POLICIES + legConfiguration.getSecurity().getPolicy());
+            policyService.parsePolicy(POLICIES + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
             result = policy;
 
             pModeProvider.getSenderParty(pModeKey);
@@ -242,7 +246,7 @@ public class AbstractEbms3UserMessageSenderTest {
             legConfiguration.getSecurity().getPolicy();
             result = configPolicy;
 
-            policyService.parsePolicy(POLICIES + legConfiguration.getSecurity().getPolicy());
+            policyService.parsePolicy(POLICIES + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
             result = configurationException;
 
         }};
@@ -353,7 +357,7 @@ public class AbstractEbms3UserMessageSenderTest {
             legConfiguration.getSecurity().getPolicy();
             result = configPolicy;
 
-            policyService.parsePolicy(POLICIES + legConfiguration.getSecurity().getPolicy());
+            policyService.parsePolicy(POLICIES + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
             result = policy;
 
             pModeProvider.getSenderParty(pModeKey);
@@ -383,6 +387,9 @@ public class AbstractEbms3UserMessageSenderTest {
             mshDispatcher.dispatch(soapMessage, receiverURL, policy, legConfiguration, pModeKey);
             result = response;
 
+            signalMessageSoapEnvelopeSpiDelegate.afterReceiving((SOAPMessage) any);
+            result = soapMessage;
+
             responseHandler.verifyResponse(response, messageId);
             result = EbMS3ExceptionBuilder
                     .getInstance()
@@ -410,6 +417,8 @@ public class AbstractEbms3UserMessageSenderTest {
 
             soapUtil.getRawXMLMessage(soapMessage);
 
+            policyService.isNoSecurityPolicy(policy);
+
             EbMS3Exception ebMS3ExceptionActual;
             reliabilityChecker.handleEbms3Exception(ebMS3ExceptionActual = withCapture(), userMessage);
             Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0004, ebMS3ExceptionActual.getErrorCode());
@@ -432,7 +441,6 @@ public class AbstractEbms3UserMessageSenderTest {
             String ToPartyName = userMessage.getPartyInfo().getToParty();
             Assert.assertFalse(reliabilityService.isSmartRetryEnabledForParty(ToPartyName));
             Assert.assertFalse(userMessage.isTestMessage());
-
         }};
     }
 
@@ -474,7 +482,7 @@ public class AbstractEbms3UserMessageSenderTest {
             legConfiguration.getSecurity().getPolicy();
             result = configPolicy;
 
-            policyService.parsePolicy(POLICIES + legConfiguration.getSecurity().getPolicy());
+            policyService.parsePolicy(POLICIES + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
             result = policy;
 
             pModeProvider.getSenderParty(pModeKey);

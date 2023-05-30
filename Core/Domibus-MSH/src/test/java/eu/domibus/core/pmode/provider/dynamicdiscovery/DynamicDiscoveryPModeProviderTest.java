@@ -5,9 +5,9 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
-import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.api.security.X509CertificateService;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
@@ -21,7 +21,6 @@ import eu.domibus.core.certificate.CertificateDaoImpl;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.certificate.crl.CRLServiceImpl;
-import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.dictionary.PartyIdDictionaryService;
@@ -29,9 +28,9 @@ import eu.domibus.core.message.dictionary.PartyRoleDictionaryService;
 import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
-import eu.domibus.core.pmode.multitenancy.MultiDomainPModeProvider;
 import eu.domibus.core.pmode.provider.FinalRecipientService;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
+import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -48,11 +47,11 @@ import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.xml.bind.JAXBContext;
-import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
@@ -149,21 +148,18 @@ public class DynamicDiscoveryPModeProviderTest {
                 Mockito.mock(DomibusPropertyProviderImpl.class),
                 Mockito.spy(CertificateDaoImpl.class),
                 Mockito.spy(EventService.class),
-                Mockito.spy(MultiDomainPModeProvider.class),
                 Mockito.spy(CertificateHelper.class),
-                Mockito.spy(DomainService.class),
+                Mockito.spy(KeystorePersistenceService.class),
                 Mockito.spy(DomainTaskExecutor.class),
-                Mockito.spy(TruststoreDao.class),
                 Mockito.spy(PasswordDecryptionService.class),
-                Mockito.spy(PasswordEncryptionService.class),
                 Mockito.spy(DomainContextProvider.class),
-                Mockito.spy(DomibusCoreMapper.class),
+                Mockito.spy(SecurityUtilImpl.class),
                 Mockito.spy(AlertConfigurationService.class),
                 Mockito.spy(AuditService.class));
     }
 
     private Configuration initializeConfiguration(String resourceXML) throws Exception {
-        InputStream xmlStream = Files.newInputStream(new File(RESOURCE_PATH + resourceXML).toPath());
+        InputStream xmlStream = Files.newInputStream(Paths.get(RESOURCE_PATH + resourceXML));
         JAXBContext jaxbContext = JAXBContext.newInstance(PModeBeanConfiguration.COMMON_MODEL_CONFIGURATION_JAXB_CONTEXT_PATH);
         XMLUtil xmlUtil = new XMLUtilImpl(domibusPropertyProvider);
 

@@ -8,7 +8,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>core</artifactId>
-        <version>5.1-SNAPSHOT</version>
+        <version>5.2-SNAPSHOT</version>
     </parent>
     <packaging>jar</packaging>
     <artifactId>domibus-msh-db</artifactId>
@@ -50,15 +50,41 @@
                                 </fileSet>
                                 <fileSet>
                                     <sourceFile>${basedir}/src/main/resources/db/scripts/oracle-VERSION-delete-db.sql</sourceFile>
-                                    <destinationFile>${project.build.directory}/db/scripts/oracle-${project.version}-delete-db.sql</destinationFile>
+                                    <destinationFile>
+                                        ${project.build.directory}/db/scripts/oracle-${project.version}-delete-db.sql
+                                    </destinationFile>
                                 </fileSet>
                                 <fileSet>
-                                    <sourceFile>${basedir}/src/main/resources/db/scripts/oracle-VERSION-delete-dictionary-tables.sql</sourceFile>
-                                    <destinationFile>${project.build.directory}/db/scripts/oracle-${project.version}-delete-dictionary-tables.sql</destinationFile>
+                                    <sourceFile>
+                                        ${basedir}/src/main/resources/db/scripts/oracle-VERSION-delete-dictionary-tables.sql
+                                    </sourceFile>
+                                    <destinationFile>
+                                        ${project.build.directory}/db/scripts/oracle-${project.version}-delete-dictionary-tables.sql
+                                    </destinationFile>
                                 </fileSet>
                                 <fileSet>
-                                    <sourceFile>${basedir}/src/main/resources/db/scripts/oracle-VERSION-multi-tenancy-rights.sql</sourceFile>
-                                    <destinationFile>${project.build.directory}/db/scripts/oracle-${project.version}-multi-tenancy-rights.sql</destinationFile>
+                                    <sourceFile>
+                                        ${basedir}/src/main/resources/db/scripts/oracle-VERSION-multi-tenancy-rights.sql
+                                    </sourceFile>
+                                    <destinationFile>
+                                        ${project.build.directory}/db/scripts/oracle-${project.version}-multi-tenancy-rights.sql
+                                    </destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>
+                                        ${basedir}/src/main/resources/db/archive/5.0/partitioning/oracle/create-partitions-job-5.0.sql
+                                    </sourceFile>
+                                    <destinationFile>
+                                        ${project.build.directory}/db/scripts/oracle-5.0-create-partitions-job.sql
+                                    </destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>
+                                        ${basedir}/src/main/resources/db/archive/5.0/partitioning/oracle/partition-detail-tables-5.0.sql
+                                    </sourceFile>
+                                    <destinationFile>
+                                        ${project.build.directory}/db/scripts/oracle-5.0-partition-detail-tables.sql
+                                    </destinationFile>
                                 </fileSet>
                             </fileSets>
                         </configuration>
@@ -143,42 +169,80 @@
                         </configuration>
                     </execution>
 
+                    <!-- delta 5.1 to 5.2 starts here -->
                     <execution>
-                        <id>generate-h2-script-full-general-schema</id>
+                        <id>generate-mysql-script-delta-5.2</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>updateSQL</goal>
                         </goals>
                         <configuration>
                             <changeLogFile>
-                                src/main/resources/db/changelog-multi-tenancy.xml
+                                src/main/resources/db/changelog-5.2-delta.xml
                             </changeLogFile>
                             <url>
-                                offline:h2?version=1.3&amp;caseSensitive=true&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-multi-tenancy.h2
+                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-5.2-delta.mysql
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/classes/test-sql-scripts/domibus-h2-multi-tenancy.sql
+                                ${project.build.directory}/sql-scripts/mysql-5.1-to-5.2-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>generate-h2-script-data-general-schema</id>
+                        <id>generate-mysql-script-delta-multi-tenancy-5.2</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>updateSQL</goal>
                         </goals>
                         <configuration>
                             <changeLogFile>
-                                src/main/resources/db/changelog-multi-tenancy-data.xml
+                                src/main/resources/db/changelog-5.2-multi-tenancy-delta.xml
                             </changeLogFile>
                             <url>
-                                offline:h2?version=1.3&amp;caseSensitive=true&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-multi-tenancy-data.h2
+                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-5.2-multi-tenancy-delta.mysql
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/classes/test-sql-scripts/domibus-h2-multi-tenancy-data.sql
+                                ${project.build.directory}/sql-scripts/mysql-5.1-to-5.2-multi-tenancy-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>generate-oracle-script-delta-5.2</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/changelog-5.2-delta.xml
+                            </changeLogFile>
+                            <url>
+                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.2-delta.oracle
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/oracle-5.1-to-5.2-migration.ddl
+                            </migrationSqlOutputFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-oracle-script-delta-multi-tenancy-5.2</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/changelog-5.2-multi-tenancy-delta.xml
+                            </changeLogFile>
+                            <url>
+                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.2-multi-tenancy-delta.oracle
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/oracle-5.1-to-5.2-multi-tenancy-migration.ddl
+                            </migrationSqlOutputFile>
+                        </configuration>
+                    </execution>
+                    <!-- delta 5.1 to 5.2 ends here -->
 
                     <!-- partitioning starts here -->
                     <!-- 5.1 starts here -->
@@ -202,50 +266,48 @@
                     </execution>
                     <!-- 5.1 end here -->
 
-                    <!-- partitioning migration 5.0.1 to 5.1 starts here -->
-                    <!-- partitioning migration 5.0.1 to 5.1 ends here -->
-
-                    <!-- 5.0.1 starts here -->
+                    <!-- partitioning migration 5.0 to 5.1 starts here -->
                     <execution>
-                        <id>generate-oracle-script-partitioning-5.0.1</id>
+                        <id>generate-oracle-partitioning-delta-5.1</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>updateSQL</goal>
                         </goals>
                         <configuration>
                             <changeLogFile>
-                                src/main/resources/db/archive/5.0.1/partitioning/oracle/changelog-5.0.1-partitioning.xml
+                                src/main/resources/db/partitioning/oracle/changelog-partitioning-5.1-delta.xml
                             </changeLogFile>
                             <url>
-                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.0.1-partitioning.oracle
+                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-partitioning-5.1-delta.oracle
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-5.0.1-partitioning.ddl
+                                ${project.build.directory}/sql-scripts/oracle-5.0-partitioning-to-5.1-partitioning-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
-                    <!-- 5.0.1 end here -->
+                    <!-- partitioning migration 5.0 to 5.1 ends here -->
 
-                    <!-- 5.0 starts here -->
+
+                    <!-- partitioning 5.0 populated table starts here -->
                     <execution>
-                        <id>generate-oracle-script-partitioning-5.0</id>
+                        <id>generate-oracle-script-partitioning-populated-table-to-5.0</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>updateSQL</goal>
                         </goals>
                         <configuration>
                             <changeLogFile>
-                                src/main/resources/db/archive/5.0/partitioning/oracle/changelog-5.0-partitioning.xml
+                                src/main/resources/db/archive/5.0/partitioning/oracle/changelog-5.0-partitioning-populated-table.xml
                             </changeLogFile>
                             <url>
-                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.0-partitioning.oracle
+                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.0-partitioning-populated-table.oracle
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-5.0-partitioning.ddl
+                                ${project.build.directory}/sql-scripts/oracle-5.0-partitioning-populated-table.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
-                    <!-- 5.0 end here -->
+                    <!-- partitioning 5.0 populated table ends here -->
                     <!-- partitioning ends here -->
 
                     <!-- 5.1 starts here -->
@@ -428,7 +490,7 @@
                                 offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-data-migration.mysql
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/mysql-${project.version}-data-migration.ddl
+                                ${project.build.directory}/sql-scripts/mysql-5.1-data-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
@@ -446,7 +508,7 @@
                                 offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-${project.version}-data-migration.oracle
                             </url>
                             <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-${project.version}-data-migration.ddl
+                                ${project.build.directory}/sql-scripts/oracle-5.1-data-migration.ddl
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>

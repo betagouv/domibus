@@ -1,5 +1,7 @@
 package eu.domibus.api.util;
 
+import java.io.IOException;
+
 /**
  * @author Catalin Enache
  * @since 4.1.4
@@ -21,4 +23,14 @@ public interface FileServiceUtil {
      * @return preferred file extension or empty string
      */
     String getExtension(String mime);
+
+    byte[] getContentFromFile(String location) throws IOException;
+
+    /**
+     * Translates a string into application/x-www-form-urlencoded format using a specific encoding scheme.
+     *
+     * @param s String to be translated
+     * @return the translated String.
+     */
+    String URLEncode(String s);
 }

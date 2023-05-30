@@ -1,7 +1,12 @@
 package eu.domibus.core.plugin;
 
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.EnableAware;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +20,17 @@ import java.util.stream.Collectors;
 @Service
 public class BackendConnectorProviderImpl implements BackendConnectorProvider {
 
+    private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(BackendConnectorProviderImpl.class);
+
     protected final List<BackendConnector<?, ?>> backendConnectors;
 
+    protected DomainService domainService;
+
     //BackendConnector (SPIs) must be injected Lazily to avoid circular dependency with core services
-    public BackendConnectorProviderImpl(@Lazy List<BackendConnector<?, ?>> backendConnectors) {
+    public BackendConnectorProviderImpl(@Lazy List<BackendConnector<?, ?>> backendConnectors,
+                                        DomainService domainService) {
         this.backendConnectors = backendConnectors;
+        this.domainService = domainService;
     }
 
     /**
@@ -40,6 +51,7 @@ public class BackendConnectorProviderImpl implements BackendConnectorProvider {
 
     /**
      * Retrieves the list of all backend connectors (plugins)
+     *
      * @return the list mentioned above
      */
     @Override
@@ -54,6 +66,25 @@ public class BackendConnectorProviderImpl implements BackendConnectorProvider {
                 .filter(connector -> connector instanceof EnableAware)
                 .map(connector -> (EnableAware) connector)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public EnableAware getEnableAware(String name) {
+        return getEnableAwares().stream().filter(plugin -> StringUtils.equals(plugin.getName(), name)).findFirst().orElse(null);
+    }
+
+
+    @Override
+    public boolean atLeastOneDomainEnabled(EnableAware enableAware) {
+        final List<Domain> domains = domainService.getDomains();
+        for (Domain domain : domains) {
+            if (enableAware.isEnabled(domain.getCode())) {
+                LOG.debug("Plugin/extension [{}] is enabled for domain [{}]", enableAware.getName(), domain.getCode());
+                return true;
+            }
+        }
+        LOG.debug("Plugin/extension [{}] is not enabled", enableAware.getName());
+        return false;
     }
 
 }

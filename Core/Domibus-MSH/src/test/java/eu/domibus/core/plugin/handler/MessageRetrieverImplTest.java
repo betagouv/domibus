@@ -1,15 +1,19 @@
 package eu.domibus.core.plugin.handler;
 
+import eu.domibus.api.message.UserMessageSecurityService;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.pmode.PModeConstants;
+import eu.domibus.api.security.AuthUtils;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.messaging.DuplicateMessageException;
+import eu.domibus.messaging.MessageNotFoundException;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -47,6 +51,9 @@ public class MessageRetrieverImplTest {
     MessageRetrieverImpl messageRetriever;
 
     @Injectable
+    protected UserMessageSecurityService userMessageSecurityService;
+
+    @Injectable
     protected UserMessageDefaultService userMessageService;
 
     @Injectable
@@ -60,6 +67,9 @@ public class MessageRetrieverImplTest {
 
     @Injectable
     protected ApplicationEventPublisher applicationEventPublisher;
+
+    @Injectable
+    AuthUtils authUtils;
 
     @Test
     public void testDownloadMessageOK(@Injectable UserMessage userMessage,
@@ -99,33 +109,11 @@ public class MessageRetrieverImplTest {
         }};
     }
 
-//    @Test
-//    public void testDownloadMessageNoMsgFound() {
-//        new Expectations() {{
-//            userMessageService.getByMessageId(MESS_ID, MSHRole.RECEIVING);
-//            result = new eu.domibus.messaging.MessageNotFoundException(MESS_ID);
-//        }};
-//
-//        try {
-//            messageRetriever.downloadMessage(MESS_ID);
-//            Assert.fail("It should throw " + MessageNotFoundException.class.getCanonicalName());
-//        } catch (eu.domibus.messaging.MessageNotFoundException mnfEx) {
-//            //OK
-//        }
-//
-//        new Verifications() {{
-//            userMessageLogService.findByMessageId(MESS_ID);
-//            times = 0;
-//        }};
-//    }
-
     @Test
-    public void testGetErrorsForMessageOk(@Injectable ErrorLogEntry errorLogEntry, @Injectable UserMessageLog userMessageLog) {
+    public void testGetErrorsForMessageOk(@Injectable ErrorLogEntry errorLogEntry, @Injectable UserMessageLog userMessageLog) throws MessageNotFoundException, DuplicateMessageException {
         List<ErrorLogEntry> list = new ArrayList<>();
         list.add(errorLogEntry);
         new Expectations() {{
-            userMessageLogService.findByMessageId(MESS_ID);
-            result = userMessageLog;
             errorLogService.getErrorsForMessage(MESS_ID);
             result = list;
         }};

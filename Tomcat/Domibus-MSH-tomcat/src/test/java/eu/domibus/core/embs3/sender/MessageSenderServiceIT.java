@@ -56,7 +56,7 @@ public class MessageSenderServiceIT extends AbstractIT {
     @Before
     public void before() {
         try {
-            uploadPmode(18001);
+            uploadPMode(18001);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (XmlProcessingException e) {

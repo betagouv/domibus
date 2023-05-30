@@ -177,7 +177,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   }
 
   canAddCertificate() {
-    return this.storeExists  && !this.isBusy();
+    return this.storeExists && !this.isBusy();
   }
 
   canRemoveCertificate() {
@@ -194,6 +194,12 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
     if (!cert) {
       return;
     }
+
+    const confirm = await this.dialogsService.openYesNoDialog('Are you sure you want to delete the selected certificate?');
+    if (!confirm) {
+      return;
+    }
+    
     try {
       super.isLoading = true;
       let res = await this.truststoreService.removeCertificate(this.REMOVE_CERTIFICATE_URL, cert);
@@ -242,7 +248,7 @@ export class BaseTruststoreComponent extends mix(BaseListComponent).with(ClientP
   protected async checkModifiedOnDisk() {
     const isChanged = await this.http.get<boolean>(this.BASE_URL + '/changedOnDisk').toPromise();
     if (isChanged) {
-      const refresh = await this.dialogsService.openYesNoDialog('Store file on the disk is newer and has different content than the one loaded and used in Domibus. ' +
+      const refresh = await this.dialogsService.openYesNoDialog('The store file on the disk has different content than the one loaded and used in Domibus. ' +
         'Would you like to refresh?');
       if (refresh) {
         this.reloadStore();

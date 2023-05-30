@@ -1,9 +1,12 @@
 package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
@@ -14,12 +17,11 @@ import eu.domibus.core.ebms3.receiver.leg.ServerInMessageLegConfigurationFactory
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageErrorCreator;
-import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.core.util.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
@@ -34,8 +36,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.HttpMethod;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+
+import static eu.domibus.api.exceptions.DomibusCoreErrorCode.DOM_006;
+import static eu.domibus.messaging.MessageConstants.RAW_MESSAGE_XML;
 
 
 /**
@@ -60,7 +67,8 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     public SetPolicyInServerInterceptor(ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory,
                                         TestMessageValidator testMessageValidator, Ebms3Converter ebms3Converter,
-                                        UserMessageErrorCreator userMessageErrorCreator, SecurityProfileService securityProfileService) {
+                                        UserMessageErrorCreator userMessageErrorCreator,
+                                        SecurityProfileService securityProfileService) {
         this.serverInMessageLegConfigurationFactory = serverInMessageLegConfigurationFactory;
         this.testMessageValidator = testMessageValidator;
         this.ebms3Converter = ebms3Converter;
@@ -101,7 +109,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
             legConfiguration = legConfigurationExtractor.extractMessageConfiguration();
             policyName = legConfiguration.getSecurity().getPolicy();
-            Policy policy = policyService.parsePolicy("policies" + File.separator + policyName);
+            Policy policy = policyService.parsePolicy("policies" + File.separator + policyName, legConfiguration.getSecurity().getProfile());
 
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_POLICY_INCOMING_USE, policyName);
 
@@ -115,6 +123,8 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_INCOMING_USE, securityAlgorithm);
+
+            saveRawMessageMessageContext(message);
 
         } catch (EbMS3Exception ex) {
             setBindingOperation(message);
@@ -131,6 +141,19 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
                     .cause(e)
                     .mshRole(MSHRole.RECEIVING)
                     .build());
+        }
+    }
+
+    protected void saveRawMessageMessageContext(SoapMessage message) throws IOException {
+        final InputStream inputStream = message.getContent(InputStream.class);
+        if (inputStream instanceof ByteArrayInputStream) {
+            LOG.trace("Saving the raw message envelope content (to have the encrypted data section)");
+            String rawXMLMessage = IOUtils.toString(inputStream, "UTF-8");
+            ((ByteArrayInputStream) inputStream).reset();
+
+            message.getExchange().put(RAW_MESSAGE_XML, rawXMLMessage);
+        } else {
+            throw new DomibusCoreException(DOM_006, "Could not get the message content since it is not a byteArray stream.");
         }
     }
 

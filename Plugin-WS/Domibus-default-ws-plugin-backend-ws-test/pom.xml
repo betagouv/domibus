@@ -7,15 +7,11 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>plugin-ws</artifactId>
-        <version>5.1-SNAPSHOT</version>
+        <version>5.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>domibus-default-ws-plugin-backend-ws-test</artifactId>
     <name>Domibus MSH Backend WS Test</name>
-
-    <properties>
-        <cxf-spring-boot-starter-jaxws.version>3.4.1</cxf-spring-boot-starter-jaxws.version>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -27,7 +23,7 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-spring-boot-starter-jaxws</artifactId>
-            <version>${cxf-spring-boot-starter-jaxws.version}</version>
+            <version>${cxf.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.tomcat.embed</groupId>

@@ -173,11 +173,17 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     @Override
     public List<String> getNotArchivedMessages(Long startMessageId, Long endMessageId, Integer pageStart, Integer pageSize) {
+        if (startMessageId == null) {
+            startMessageId = 0L;
+        }
         return eArchiveBatchUtils.getMessageIds(eArchiveBatchDao.getNotArchivedMessages(startMessageId, endMessageId, pageStart, pageSize));
     }
 
     @Override
     public Long getNotArchivedMessagesCount(Long startMessageId, Long endMessageId) {
+        if (startMessageId == null) {
+            startMessageId = 0L;
+        }
         return eArchiveBatchDao.getNotArchivedMessageCountForPeriod(startMessageId, endMessageId);
     }
 
@@ -238,8 +244,8 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, status, null, null);
     }
 
-    public void setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status, String error, String errorCode) {
-        eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, status, error, errorCode);
+    public void setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status, String message, String code) {
+        eArchiveBatchDao.setStatus(eArchiveBatchByBatchId, status, message, code);
     }
 
     public void sendToNotificationQueue(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus type) {

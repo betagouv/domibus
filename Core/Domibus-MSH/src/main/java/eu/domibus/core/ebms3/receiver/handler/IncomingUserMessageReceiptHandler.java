@@ -25,6 +25,7 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.logging.DomibusMessageCode;
 import org.apache.cxf.interceptor.Fault;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,6 +115,15 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
         UserMessage sentUserMessage = null;
         try {
             sentUserMessage = userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
+            if(sentUserMessage == null){
+                LOG.error("Couldn't find sent user message with message ID [{}]", messageId);
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0066)
+                        .message("Couldn't find sent user message with message ID [" + messageId + "]")
+                        .refToMessageId(messageId)
+                        .mshRole(MSHRole.SENDING)
+                        .build();
+            }
             String pModeKey = pModeProvider.findUserMessageExchangeContext(sentUserMessage, MSHRole.SENDING).getPmodeKey();
             LOG.debug("PMode key found : {}", pModeKey);
 
@@ -133,7 +143,14 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
             LOG.error("EbMS3 exception occurred when handling receipt for message with ID [{}]", messageId, e);
             reliabilityChecker.handleEbms3Exception(e, sentUserMessage);
         } finally {
-            reliabilityService.handleReliability(sentUserMessage, userMessageLog, reliabilityCheckSuccessful, null, request, responseResult, legConfiguration, null);
+            if(sentUserMessage != null) {
+                reliabilityService.handleReliability(sentUserMessage, userMessageLog, reliabilityCheckSuccessful, null, request, responseResult, legConfiguration, null);
+                if (ReliabilityChecker.CheckResult.OK == reliabilityCheckSuccessful) {
+                    final boolean isTestMessage = sentUserMessage.isTestMessage();
+                    LOG.businessInfo(isTestMessage ? DomibusMessageCode.BUS_TEST_MESSAGE_SEND_SUCCESS : DomibusMessageCode.BUS_MESSAGE_SEND_SUCCESS,
+                            sentUserMessage.getPartyInfo().getFromParty(), sentUserMessage.getPartyInfo().getToParty());
+                }
+            }
         }
         return null;
     }

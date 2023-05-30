@@ -17,7 +17,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.NoResultException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +43,7 @@ public class DeleteSentSuccessMessageIT extends DeleteMessageAbstractIT {
     public void updatePmodeForAcknowledged() throws IOException, XmlProcessingException {
         Map<String, String> toReplace = new HashMap<>();
         toReplace.put("security=\"eDeliveryAS4Policy\"", "security=\"noSigNoEnc\"");
-        uploadPmode(SERVICE_PORT, toReplace);
+        uploadPMode(SERVICE_PORT, toReplace);
     }
 
     /**
@@ -52,8 +51,6 @@ public class DeleteSentSuccessMessageIT extends DeleteMessageAbstractIT {
      */
     @Test
     public void testDeleteSentMessage() throws MessagingProcessingException {
-        deleteAllMessages();
-
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
 
@@ -66,7 +63,7 @@ public class DeleteSentSuccessMessageIT extends DeleteMessageAbstractIT {
         Assert.assertNotNull(userMessageDao.findByEntityId(byMessageId.getEntityId()));
         Assert.assertNotNull(userMessageLogDao.findByEntityIdSafely(byMessageId.getEntityId()));
 
-        deleteAllMessages();
+        deleteAllMessages(messageId);
 
         Assert.assertNull(userMessageDao.findByMessageId(messageId));
         Assert.assertNull(userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING));

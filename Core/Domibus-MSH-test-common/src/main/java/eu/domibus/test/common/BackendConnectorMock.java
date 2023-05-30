@@ -5,6 +5,10 @@ import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 
+import java.util.UUID;
+
+import static eu.domibus.messaging.MessageConstants.*;
+
 /**
  * @author Ion perpegel
  * @since 5.0
@@ -20,6 +24,9 @@ public class BackendConnectorMock extends AbstractBackendConnector {
     private MessageSendSuccessEvent messageSendSuccessEvent;
 
     private MessageResponseSentEvent messageResponseSentEvent;
+
+    public final static String MESSAGE_ID = UUID.randomUUID() + "@domibus.eu";
+
 
     public BackendConnectorMock(String name) {
         super(name);
@@ -108,6 +115,17 @@ public class BackendConnectorMock extends AbstractBackendConnector {
     }
 
     public DeliverMessageEvent getDeliverMessageEvent() {
+        DeliverMessageEvent deliverMessageEvent = new DeliverMessageEvent();
+        deliverMessageEvent.setMessageId(MESSAGE_ID);
+        deliverMessageEvent.getProps().put(MSH_ROLE, "RECEIVING");
+        deliverMessageEvent.getProps().put(CONVERSATION_ID, "CONVERSATION_ID");
+        deliverMessageEvent.getProps().put(FROM_PARTY_ID, "FROM_PARTY_ID");
+        deliverMessageEvent.getProps().put(TO_PARTY_ID, "TO_PARTY_ID");
+        deliverMessageEvent.getProps().put(ORIGINAL_SENDER, "ORIGINAL_SENDER");
+        deliverMessageEvent.getProps().put(FINAL_RECIPIENT, "FINAL_RECIPIENT");
+        deliverMessageEvent.getProps().put(SERVICE, "SERVICE");
+        deliverMessageEvent.getProps().put(SERVICE_TYPE, "SERVICE_TYPE");
+        deliverMessageEvent.getProps().put(ACTION, "ACTION");
         return deliverMessageEvent;
     }
 

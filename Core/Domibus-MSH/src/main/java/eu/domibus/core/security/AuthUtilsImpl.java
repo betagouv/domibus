@@ -55,7 +55,7 @@ public class AuthUtilsImpl implements AuthUtils {
             return null;
         }
 
-        return getOriginalUser();
+        return getOriginalUserOrNullIfAdmin();
     }
 
     /**
@@ -63,7 +63,7 @@ public class AuthUtilsImpl implements AuthUtils {
      * null value when the user has the role ROLE_ADMIN
      */
     @Override
-    public String getOriginalUser() {
+    public String getOriginalUserOrNullIfAdmin() {
         if (SecurityContextHolder.getContext() == null || SecurityContextHolder.getContext().getAuthentication() == null) {
             LOG.error("Authentication is missing from the security context. Unsecured login is not allowed");
             throw new AuthenticationException("Authentication is missing from the security context. Unsecured login is not allowed");
@@ -129,7 +129,7 @@ public class AuthUtilsImpl implements AuthUtils {
 
     @Override
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN', 'ROLE_AP_ADMIN')")
-    public void hasUserOrAdminRole() {
+    public void checkHasAdminRoleOrUserRoleWithOriginalUser() {
         if (isAdmin() || isSuperAdmin()) {
             return;
         }
@@ -139,18 +139,6 @@ public class AuthUtilsImpl implements AuthUtils {
             throw new AuthenticationException("User " + getAuthenticatedUser() + " has USER_ROLE but is missing the ORIGINAL_USER in the db");
         }
         LOG.debug("Logged with USER_ROLE, ORIGINAL_USER is {}", originalUser);
-    }
-
-    @Override
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_AP_ADMIN')")
-    public void hasAdminRole() {
-        // PreAuthorize
-    }
-
-    @Override
-    @PreAuthorize("hasAnyRole('ROLE_USER')")
-    public void hasUserRole() {
-        // PreAuthorize
     }
 
     @Override
@@ -182,7 +170,7 @@ public class AuthUtilsImpl implements AuthUtils {
     }
 
     @Override
-    public boolean isAdminMultiAware() {
+    public boolean isAPAdmin() {
         if (domibusConfigurationService.isMultiTenantAware()) {
             return isSuperAdmin();
         }

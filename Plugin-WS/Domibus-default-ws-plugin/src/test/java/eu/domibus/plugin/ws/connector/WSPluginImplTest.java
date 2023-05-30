@@ -5,6 +5,7 @@ import eu.domibus.ext.services.*;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
+import eu.domibus.plugin.ws.initialize.WSPluginInitializer;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginBackendService;
 import eu.domibus.plugin.ws.message.WSMessageLogEntity;
@@ -20,6 +21,8 @@ import java.util.List;
 
 import static eu.domibus.plugin.ws.backend.WSBackendMessageType.*;
 import static org.junit.Assert.assertEquals;
+
+import eu.domibus.plugin.ws.backend.reliability.queue.*;
 
 /**
  * @author François Gautier
@@ -81,6 +84,12 @@ public class WSPluginImplTest {
 
     @Injectable
     DomainExtService domainExtService;
+
+    @Injectable
+    WSSendMessageListenerContainer wsSendMessageListenerContainer;
+
+    @Injectable
+    WSPluginInitializer wsPluginInitializer;
 
     @Test
     public void deliverMessage(@Injectable DeliverMessageEvent deliverMessageEvent,

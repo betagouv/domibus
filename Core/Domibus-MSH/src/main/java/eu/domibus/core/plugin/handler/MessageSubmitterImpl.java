@@ -158,12 +158,8 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         }
         LOG.debug("Preparing to submit message");
         if (!authUtils.isUnsecureLoginAllowed()) {
-            authUtils.hasUserOrAdminRole();
+            authUtils.checkHasAdminRoleOrUserRoleWithOriginalUser();
         }
-
-        String originalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
-        String displayUser = (originalUser == null) ? "super user" : originalUser;
-        LOG.debug("Authorized as [{}]", displayUser);
 
         String messageId = null;
         try {
@@ -184,8 +180,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, MSHRole.SENDING.name());
 
-            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.ORIGINAL_SENDER);
-
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage, MessageConstants.ORIGINAL_SENDER);
 
             MessageExchangeConfiguration userMessageExchangeConfiguration;
             Party to = null;
@@ -402,11 +397,11 @@ public class MessageSubmitterImpl implements MessageSubmitter {
         LOG.debug("Submission processing type is empty,  checking processing type from PMODE");
         ProcessingType processingType;
         try {
-            processingType = ProcessingType.PULL;
+            processingType = ProcessingType.PUSH;
             setSubmissionProcessingType(submission, userMessage, processingType);
         } catch (EbMS3Exception e) {
             try {
-                processingType = ProcessingType.PUSH;
+                processingType = ProcessingType.PULL;
                 setSubmissionProcessingType(submission, userMessage, processingType);
             } catch (EbMS3Exception ex) {
                 LOG.error("No processing type found from PMODE for the Submission", ex);

@@ -3,10 +3,16 @@
 <databaseChangeLog
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.15.xsd">
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <!-- properties - to be used in column definitions -->
     <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+
+    <changeSet author="Ion Perpegel" id="EDELIVERY-10627">
+        <addColumn tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
+            <column name="MESSAGE_IDS" type="CLOB"/>
+        </addColumn>
+    </changeSet>
 
     <changeSet author="Razvan Cretu" id="EDELIVERY-9563">
         <createTable tableName="TB_PARTY_STATUS">
@@ -142,6 +148,7 @@
             <column name="SIGNAL_MESSAGE_ID"/>
             <column name="MSH_ROLE_ID_FK" />
         </createIndex>
+        <addUniqueConstraint columnNames="SIGNAL_MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE"/>
         <addNotNullConstraint columnDataType="BIGINT" columnName="MSH_ROLE_ID_FK" tableName="TB_SIGNAL_MESSAGE" />
         <addForeignKeyConstraint baseColumnNames="MSH_ROLE_ID_FK" baseTableName="TB_SIGNAL_MESSAGE"
                                  constraintName="FK_SIGNAL_MSH_ROLE" deferrable="false" initiallyDeferred="false"
@@ -194,10 +201,20 @@
 
     <changeSet author="Razvan Cretu" id="EDELIVERY-10284">
         <addColumn tableName="WS_PLUGIN_TB_BACKEND_MSG_LOG">
-            <column name="MESSAGE_ENTITY_ID" type="BIGINT">
-                <constraints nullable="true"/>
-            </column>
+            <column name="MESSAGE_ENTITY_ID" type="BIGINT" />
         </addColumn>
+    </changeSet>
+
+    <changeSet author="Francois Gautier" id="EDELIVERY-10913">
+        <renameColumn tableName="TB_EARCHIVE_BATCH" oldColumnName="ERROR_CODE" newColumnName="DOMIBUS_CODE" columnDataType="VARCHAR(255)"/>
+        <renameColumn tableName="TB_EARCHIVE_BATCH" oldColumnName="ERROR_DETAIL" newColumnName="MESSAGE" columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
+    <changeSet author="idragusa" id="EDELIVERY-10924">
+        <sql dbms="oracle" >
+            DROP INDEX IDX_USER_LOG_RECEIVED;
+            CREATE INDEX IDX_USER_LOG_RECEIVED ON TB_USER_MESSAGE_LOG(RECEIVED) REVERSE;
+        </sql>
     </changeSet>
 
 </databaseChangeLog>

@@ -7,6 +7,7 @@ import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
@@ -30,9 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.Date;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_DYNAMIC_INITIATOR;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_MULTIPLE_LEGS;
 
 @Service
 public class PullMessageServiceImpl implements PullMessageService {
@@ -83,6 +81,8 @@ public class PullMessageServiceImpl implements PullMessageService {
     @Autowired
     protected UserMessageDao userMessageDao;
 
+    @Autowired
+    protected SecurityProfileService securityProfileService;
 
     @Autowired
     private ReprogrammableService reprogrammableService;
@@ -102,7 +102,6 @@ public class PullMessageServiceImpl implements PullMessageService {
             LOG.warn("Message [{}] could not acquire lock when updating status, it has been handled by another process.", messageId);
             return;
         }
-
 
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING);
         final int sendAttempts = userMessageLog.getSendAttempts() + 1;
@@ -139,6 +138,8 @@ public class PullMessageServiceImpl implements PullMessageService {
             UserMessage userMessage) {
         final String messageId = userMessage.getMessageId();
         LOG.debug("[releaseLockAfterReceipt]:Message:[{}] release lock]", messageId);
+
+        securityProfileService.checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(legConfiguration, userMessage);
 
         switch (reliabilityCheckSuccessful) {
             case OK:

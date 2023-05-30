@@ -48,6 +48,9 @@ public class WSBackendMessageLogEntity extends AbstractWSEntity {
     @Column(name = "MESSAGE_ID", nullable = false)
     private String messageId;
 
+    @Column(name = "MESSAGE_IDS", nullable = true)
+    private String messageIds;
+
     @Column(name = "MESSAGE_ENTITY_ID", nullable = false)
     private long messageEntityId;
 
@@ -138,11 +141,22 @@ public class WSBackendMessageLogEntity extends AbstractWSEntity {
     }
 
     public String getMessageId() {
+        if (type == WSBackendMessageType.DELETED_BATCH) {
+            return messageIds;
+        }
         return messageId;
     }
 
     public void setMessageId(String messageId) {
         this.messageId = messageId;
+    }
+
+    public String getMessageIds() {
+        return messageIds;
+    }
+
+    public void setMessageIds(String messageIds) {
+        this.messageIds = messageIds;
     }
 
     public long getMessageEntityId() {

@@ -142,8 +142,8 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
 
     FUNCTION generate_scalable_seq(incr IN NUMBER, creation_time IN DATE) RETURN NUMBER IS
         seq_id NUMBER;
-        date_format CONSTANT VARCHAR2(255) := 'YYMMDDHH24';
-        len CONSTANT VARCHAR2(255) := 'FM0000000000';
+        date_format CONSTANT VARCHAR2(255) := 'YYMMDD';
+        len CONSTANT VARCHAR2(255) := 'FM000000000000';
     BEGIN
         SELECT to_number(to_char(creation_time, date_format) || to_char(incr, len))
         INTO seq_id
@@ -193,6 +193,11 @@ CREATE OR REPLACE PACKAGE BODY MIGRATE_42_TO_50 IS
         l_lang_context PLS_INTEGER := DBMS_LOB.default_lang_ctx;
         l_warning      PLS_INTEGER := DBMS_LOB.warn_inconvertible_char;
     BEGIN
+        IF p_data IS NULL THEN
+            log_verbose('No CLOB data to convert to a BLOB');
+            RETURN l_blob;
+        END IF;
+
         DBMS_LOB.createtemporary(
                 lob_loc => l_blob,
                 cache => TRUE);

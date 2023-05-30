@@ -2,7 +2,9 @@ package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskException;
-import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
+import eu.domibus.api.multitenancy.lock.SynchronizationService;
+import eu.domibus.api.multitenancy.lock.DbClusterSynchronizedRunnableFactory;
+import eu.domibus.api.property.DomibusConfigurationService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -35,7 +37,13 @@ public class DomainTaskExecutorImplTest {
     protected SchedulingTaskExecutor quartzTaskExecutor;
 
     @Injectable
-    SynchronizedRunnableFactory synchronizedRunnableFactory;
+    DbClusterSynchronizedRunnableFactory dbClusterSynchronizedRunnableFactory;
+
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
+
+    @Injectable
+    SynchronizationService synchronizationService;
 
     @Tested
     DomainTaskExecutorImpl domainTaskExecutor;

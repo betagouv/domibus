@@ -12,6 +12,7 @@ import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
@@ -72,6 +73,9 @@ public class PullRequestHandler {
     @Autowired
     private PullMessageService pullMessageService;
 
+    @Autowired
+    private SecurityProfileService securityProfileService;
+
     public SOAPMessage handlePullRequest(String messageId, PullContext pullContext, String refToMessageId) {
         if (messageId != null) {
             LOG.info("Message id [{}], refToMessageId [{}]", messageId, refToMessageId);
@@ -114,8 +118,10 @@ public class PullRequestHandler {
                 }
                 LOG.info("Initiator is [{}]", initiatorPartyName);
 
-                messageExchangeService.verifyReceiverCertificate(leg, initiatorPartyName);
-                messageExchangeService.verifySenderCertificate(leg, pullContext.getResponder().getName());
+                if (securityProfileService.isSecurityPolicySet(leg)) {
+                    messageExchangeService.verifyReceiverCertificate(leg, initiatorPartyName);
+                    messageExchangeService.verifySenderCertificate(leg, pullContext.getResponder().getName());
+                }
                 leg = pullContext.filterLegOnMpc();
 
                 final List<PartInfo> partInfoList = partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());

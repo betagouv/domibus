@@ -8,7 +8,7 @@
     <parent>
         <groupId>eu.domibus</groupId>
         <artifactId>plugin-ws</artifactId>
-        <version>5.1-SNAPSHOT</version>
+        <version>5.2-SNAPSHOT</version>
     </parent>
     <artifactId>domibus-default-ws-plugin</artifactId>
     <packaging>jar</packaging>
@@ -81,12 +81,6 @@
         <dependency>
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-plugin-api</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>eu.domibus</groupId>
-            <artifactId>domibus-api</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -258,6 +252,39 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-banned-dependencies</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <bannedDependencies>
+                                    <searchTransitive>false</searchTransitive>
+                                    <excludes>
+                                        <exclude>eu.domibus:*</exclude>
+                                    </excludes>
+                                    <includes>
+                                        <include>eu.domibus:domibus-plugin-api</include>
+                                        <include>eu.domibus:domibus-ext-model</include>
+                                        <include>eu.domibus:domibus-ws-stubs</include>
+                                        <include>eu.domibus:domibus-default-ws-plugin-stubs</include>
+                                        <include>eu.domibus:domibus-default-ws-plugin-backend-ws-stubs</include>
+                                        <include>eu.domibus:domibus-logging</include>
+                                        <include>eu.domibus:domibus-msh-test-common</include>
+                                        <include>eu.domibus:domibus-msh-test</include>
+                                    </includes>
+                                </bannedDependencies>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

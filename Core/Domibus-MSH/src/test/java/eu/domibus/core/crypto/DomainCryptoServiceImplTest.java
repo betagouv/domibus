@@ -6,6 +6,7 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -14,6 +15,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
 import static org.mockito.Mockito.*;
 
 /**
@@ -51,8 +53,10 @@ public class DomainCryptoServiceImplTest {
         when(domain.getCode()).thenReturn("DEF");
         when(domain.getName()).thenReturn("DEFAULT");
         domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi, dssSpi));
-        when(domibusPropertyProvider.getProperty(domain, domainCryptoService.IAM_AUTHENTICATION_IDENTIFIER)).thenReturn(dss);
+        when(domainCryptoService.getSpiIdentifier()).thenReturn(dss);
+
         domainCryptoService.init();
+
         verify(dssSpi, times(1)).setDomain(new DomainSpi("DEF", "DEFAULT"));
         verify(dssSpi, times(1)).init();
     }
@@ -66,7 +70,8 @@ public class DomainCryptoServiceImplTest {
         when(defaultSpi.getIdentifier()).thenReturn(dss);
         when(dssSpi.getIdentifier()).thenReturn(dss);
         domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi, dssSpi));
-        when(domibusPropertyProvider.getProperty(domain, domainCryptoService.IAM_AUTHENTICATION_IDENTIFIER)).thenReturn(dss);
+        when(domainCryptoService.getSpiIdentifier()).thenReturn(dss);
+
         domainCryptoService.init();
     }
 
@@ -78,7 +83,8 @@ public class DomainCryptoServiceImplTest {
         when(defaultSpi.getIdentifier()).thenReturn(dss);
         when(dssSpi.getIdentifier()).thenReturn(dss);
         domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList());
-        when(domibusPropertyProvider.getProperty(domain, domainCryptoService.IAM_AUTHENTICATION_IDENTIFIER)).thenReturn(dss);
+        when(domainCryptoService.getSpiIdentifier()).thenReturn(dss);
+
         domainCryptoService.init();
     }
 
@@ -92,8 +98,10 @@ public class DomainCryptoServiceImplTest {
         when(domain.getCode()).thenReturn("DEF");
         when(domain.getName()).thenReturn("DEFAULT");
         domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi, dssSpi));
-        when(domibusPropertyProvider.getProperty(domain, domainCryptoService.IAM_AUTHENTICATION_IDENTIFIER)).thenReturn(dss);
+        when(domainCryptoService.getSpiIdentifier()).thenReturn(dss);
+
         domainCryptoService.init();
+
         verify(dssSpi, times(1)).setDomain(new DomainSpi("DEF", "DEFAULT"));
         verify(dssSpi, times(1)).init();
     }

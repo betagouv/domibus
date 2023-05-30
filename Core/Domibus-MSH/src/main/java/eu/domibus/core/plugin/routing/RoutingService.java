@@ -23,10 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -64,8 +61,7 @@ public class RoutingService {
     protected final Object backendFiltersCacheLock = new Object();
     protected volatile Map<Domain, List<BackendFilter>> backendFiltersCache = new HashMap<>();
 
-    @PostConstruct
-    public void init() {
+    public void initialize() {
         criteriaMap = new HashMap<>();
         for (final CriteriaFactory routingCriteriaFactory : routingCriteriaFactories) {
             criteriaMap.put(routingCriteriaFactory.getName(), routingCriteriaFactory.getInstance());
@@ -257,15 +253,18 @@ public class RoutingService {
     }
 
     protected BackendFilter getMatchingBackendFilter(final List<BackendFilter> backendFilters, final Map<String, IRoutingCriteria> criteriaMap, final UserMessage userMessage) {
-        LOG.debug("Getting the backend filter for message [{}] for backendFilters [{}]", userMessage.getMessageId(), backendFilters);
+        String messageId = Optional.ofNullable(userMessage)
+                .map(UserMessage::getMessageId)
+                .orElse(null);
+        LOG.debug("Getting the backend filter for message [{}] for backendFilters [{}]", messageId, backendFilters);
         for (final BackendFilter filter : backendFilters) {
             final boolean backendFilterMatching = isBackendFilterMatching(filter, criteriaMap, userMessage);
             if (backendFilterMatching) {
-                LOG.debug("Filter [{}] matched for message [{}]", filter, userMessage.getMessageId());
+                LOG.debug("Filter [{}] matched for message [{}]", filter, messageId);
                 return filter;
             }
         }
-        LOG.trace("No filter matched for message [{}]", userMessage.getMessageId());
+        LOG.trace("No filter matched for message [{}]", messageId);
         return null;
     }
 

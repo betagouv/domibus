@@ -3,6 +3,7 @@ package eu.domibus.core.alerts.service;
 import eu.domibus.api.alerts.AlertEvent;
 import eu.domibus.api.alerts.PluginEventService;
 import eu.domibus.api.jms.JMSManager;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.logging.DomibusLogger;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import javax.jms.Queue;
 import java.util.Map;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_ALERT_ACTIVE;
 import static eu.domibus.jms.spi.InternalJMSConstants.ALERT_MESSAGE_QUEUE;
 import static eu.domibus.core.alerts.service.EventServiceImpl.MAX_DESCRIPTION_LENGTH;
 
@@ -33,12 +35,21 @@ public class PluginEventServiceImpl implements PluginEventService {
 
     private final Queue alertMessageQueue;
 
-    public PluginEventServiceImpl(JMSManager jmsManager, @Qualifier(ALERT_MESSAGE_QUEUE) Queue alertMessageQueue) {
+    private final DomibusPropertyProvider domibusPropertyProvider;
+
+    public PluginEventServiceImpl(JMSManager jmsManager, @Qualifier(ALERT_MESSAGE_QUEUE) Queue alertMessageQueue, DomibusPropertyProvider domibusPropertyProvider) {
         this.jmsManager = jmsManager;
         this.alertMessageQueue = alertMessageQueue;
+        this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
     public void enqueueMessageEvent(AlertEvent alertEvent) {
+        boolean domibusAlertsActive = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE));
+        if (!domibusAlertsActive) {
+            LOG.debug("Domibus alerts inactive, exiting");
+            return;
+        }
+
         Event event = new Event(EventType.PLUGIN);
         for (Map.Entry<String, String> stringStringEntry : alertEvent.getProperties().entrySet()) {
             event.addStringKeyValue(stringStringEntry.getKey(), stringStringEntry.getValue());

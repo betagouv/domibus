@@ -1,6 +1,7 @@
 package eu.domibus.core.pmode.provider;
 
 import eu.domibus.api.cache.CacheConstants;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.MessageExchangePattern;
@@ -17,7 +18,6 @@ import eu.domibus.common.ErrorCode;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.message.MessageExchangeConfiguration;
@@ -255,7 +255,11 @@ public abstract class PModeProvider {
 
     @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID, DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO, DomibusLogger.MDC_SERVICE, DomibusLogger.MDC_ACTION})
     public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull, ProcessingType processingType) throws EbMS3Exception {
+        return findUserMessageExchangeContext(userMessage, mshRole, isPull, processingType, false);
+    }
 
+    @MDCKey({DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ENTITY_ID, DomibusLogger.MDC_FROM, DomibusLogger.MDC_TO, DomibusLogger.MDC_SERVICE, DomibusLogger.MDC_ACTION})
+    public MessageExchangeConfiguration findUserMessageExchangeContext(final UserMessage userMessage, final MSHRole mshRole, final boolean isPull, ProcessingType processingType, boolean beforeDynamicDiscovery) throws EbMS3Exception {
         final String agreementName;
         final String service;
         final String action;
@@ -279,7 +283,7 @@ public abstract class PModeProvider {
             LOG.businessInfo(DomibusMessageCode.BUS_MESSAGE_AGREEMENT_FOUND, agreementName, userMessage.getAgreementRef());
 
             senderParty = findSenderParty(userMessage);
-            receiverParty = findReceiverParty(userMessage, isPull, senderParty);
+            receiverParty = findReceiverParty(userMessage, isPull, senderParty, beforeDynamicDiscovery);
             LOG.debug("Found SenderParty as [{}] and  Receiver Party as [{}]", senderParty, receiverParty);
 
             final Role initiatorRole = findInitiatorRole(userMessage);
@@ -326,25 +330,51 @@ public abstract class PModeProvider {
         }
     }
 
-    protected String findSenderParty(UserMessage userMessage) throws EbMS3Exception {
-        String senderParty;
-        PartyId fromPartyId = userMessage.getPartyInfo().getFrom().getFromPartyId();
-        if (fromPartyId == null) {
-            LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/From/PartyId");
+    public String findSenderParty(UserMessage userMessage) throws EbMS3Exception {
+        return findParty(userMessage, true);
+    }
+
+    public String findReceiverParty(UserMessage userMessage) throws EbMS3Exception {
+        return findParty(userMessage, false);
+    }
+
+    protected String findParty(UserMessage userMessage, boolean isSenderParty) throws EbMS3Exception {
+        String partyIdPath;
+        String partyRole;
+        DomibusMessageCode messageCode;
+        String errorMessage;
+        PartyId partyId;
+
+        if (isSenderParty) {
+            partyIdPath = "PartyInfo/From/PartyId";
+            partyRole = "Sender";
+            messageCode = DomibusMessageCode.BUS_SENDER_PARTY_ID_FOUND;
+            errorMessage = "Mandatory field From PartyId is not provided.";
+            partyId = userMessage.getPartyInfo().getFrom().getFromPartyId();
+        } else {
+            partyIdPath = "PartyInfo/To/PartyId";
+            partyRole = "Receiver";
+            messageCode = DomibusMessageCode.BUS_RECEIVER_PARTY_ID_FOUND;
+            errorMessage = "Mandatory field To PartyId is not provided.";
+            partyId = userMessage.getPartyInfo().getTo().getToPartyId();
+        }
+        if (partyId == null) {
+            LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, partyIdPath);
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message("Mandatory field From PartyId is not provided.")
+                    .message(errorMessage)
                     .build();
         }
+        String party;
         try {
-            senderParty = findPartyName(fromPartyId);
-            LOG.businessInfo(DomibusMessageCode.BUS_SENDER_PARTY_ID_FOUND, senderParty, fromPartyId);
+            party = findPartyName(partyId);
+            LOG.businessInfo(messageCode, party, partyId);
         } catch (EbMS3Exception exc) {
-            LOG.businessError(DomibusMessageCode.BUS_SENDER_PARTY_ID_NOT_FOUND, fromPartyId);
-            exc.setErrorDetail("Sender party could not be found for the value  " + fromPartyId);
+            LOG.businessError(messageCode, partyId);
+            exc.setErrorDetail(partyRole + " party could not be found for the value  " + partyId);
             throw exc;
         }
-        return senderParty;
+        return party;
     }
 
     protected Role findInitiatorRole(UserMessage userMessage) throws EbMS3Exception {
@@ -359,11 +389,13 @@ public abstract class PModeProvider {
         return getBusinessProcessRole(initiatorRole);
     }
 
-    protected String findReceiverParty(UserMessage userMessage, boolean isPull, String senderParty) throws EbMS3Exception {
+    protected String findReceiverParty(UserMessage userMessage, boolean isPull, String senderParty, boolean beforeDynamicDiscovery) throws EbMS3Exception {
         String receiverParty = StringUtils.EMPTY;
         final PartyId toPartyId = userMessage.getPartyInfo().getTo().getToPartyId();
         if (toPartyId == null) {
-            LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/To/PartyId");
+            if (!beforeDynamicDiscovery) {
+                LOG.businessError(DomibusMessageCode.MANDATORY_MESSAGE_HEADER_METADATA_MISSING, "PartyInfo/To/PartyId");
+            }
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
                     .message("Mandatory field To PartyId is not provided.")

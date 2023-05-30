@@ -55,19 +55,23 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX = "domibus.security.key.private.";
     String DOMIBUS_SECURITY_KEY_PRIVATE_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "alias";
 
-    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.alias";
-    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.password";
     String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.sign.alias";
+    @SuppressWarnings("squid:S2068")
     String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.sign.password";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_SIGN_TYPE = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.sign.type";
     String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.decrypt.alias";
+    @SuppressWarnings("squid:S2068")
     String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.decrypt.password";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_RSA_DECRYPT_TYPE = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "rsa.decrypt.type";
 
-    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.alias";
-    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.password";
     String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.sign.alias";
+    @SuppressWarnings("squid:S2068")
     String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.sign.password";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_SIGN_TYPE = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.sign.type";
     String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_ALIAS = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.decrypt.alias";
+    @SuppressWarnings("squid:S2068")
     String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_PASSWORD = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.decrypt.password";
+    String DOMIBUS_SECURITY_KEY_PRIVATE_ECC_DECRYPT_TYPE = DOMIBUS_SECURITY_KEY_PRIVATE_PREFIX + "ecc.decrypt.type";
 
     String DOMIBUS_SECURITY_TRUSTSTORE_LOCATION = DOMIBUS_SECURITY_TRUSTSTORE_PREFIX + "location";
     String DOMIBUS_SECURITY_TRUSTSTORE_TYPE = DOMIBUS_SECURITY_TRUSTSTORE_PREFIX + "type";
@@ -76,6 +80,9 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_CONSOLE_LOGIN_MAXIMUM_ATTEMPT = "domibus.console.login.maximum.attempt";
     String DOMIBUS_CONSOLE_LOGIN_SUSPENSION_TIME = "domibus.console.login.suspension.time";
     String DOMIBUS_CERTIFICATE_REVOCATION_OFFSET = "domibus.certificate.revocation.offset";
+    String DOMIBUS_CACHE_LOCATION = "domibus.cache.location";
+    String DOMIBUS_CRL_BY_URL_CACHE_ENABLED = "domibus.certificate.crlByUrl.cache.enabled";
+    String DOMIBUS_CRL_BY_CERT_CACHE_ENABLED = "domibus.certificate.crlByCert.cache.enabled";
     String DOMIBUS_CERTIFICATE_CRL_EXCLUDED_PROTOCOLS = "domibus.certificate.crl.excludedProtocols";
     String DOMIBUS_CERTIFICATE_CRL_HTTP_TIMEOUT = "domibus.certificate.crl.http.timeout";
     String DOMIBUS_PLUGIN_LOGIN_MAXIMUM_ATTEMPT = "domibus.plugin.login.maximum.attempt";
@@ -125,6 +132,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_SENDER_TRUST_VALIDATION_CERTIFICATE_POLICY_OIDS = "domibus.sender.trust.validation.allowedCertificatePolicyOIDs";
     String DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK = "domibus.sender.certificate.subject.check";
     String DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS = "domibus.sender.trust.validation.truststore_alias";
+    String DOMIBUS_DOWNLOAD_CACERTS_ENABLED = "domibus.cacerts.download.enabled";
     String DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN = "domibus.sendMessage.messageIdPattern";
     String DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED = "domibus.partyinfo.roles.validation.enabled";
     String DOMIBUS_PMODE_LEGCONFIGURATION_MPC_VALIDATION_ENABLED = "domibus.pmode.legconfiguration.mpc.validation.enabled";
@@ -146,7 +154,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_PAYLOAD_DELETED_MAX_DELETE = "domibus.retentionWorker.message.retention.payload_deleted.max.delete";
     String DOMIBUS_RETENTION_WORKER_MESSAGE_RETENTION_BATCH_DELETE = "domibus.retentionWorker.message.retention.batch.delete";
     String DOMIBUS_RETENTION_JMS_CONCURRENCY = "domibus.retention.jms.concurrency";
-    String DOMIBUS_PARTITIONS_CREATION_DAYS_TO_CHECK = "domibus.partitions.creation.days_to_check";
     String DOMIBUS_PARTITIONS_DROP_CHECK_MESSAGES_EARCHIVED = "domibus.partitions.drop.check.messages.earchived";
     String DOMIBUS_DISPATCH_EBMS_ERROR_UNRECOVERABLE_RETRY = "domibus.dispatch.ebms.error.unrecoverable.retry";
     String DOMIBUS_PROXY_ENABLED = DOMIBUS_PROXY_PREFIX + "enabled";
@@ -184,7 +191,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_PAYLOAD_TEMP_JOB_RETENTION_CRON = "domibus.payload.temp.job.retention.cron";
     String DOMIBUS_MSH_RETRY_CRON = "domibus.msh.retry.cron";
     String DOMIBUS_RETENTION_WORKER_CRON_EXPRESSION = "domibus.retentionWorker.cronExpression";
-    String DOMIBUS_PARTITIONS_WORKER_CRON = "domibus.partitions.worker.cron";
     String DOMIBUS_MSH_PULL_CRON = "domibus.msh.pull.cron";
     String DOMIBUS_PULL_RETRY_CRON = "domibus.pull.retry.cron";
     String DOMIBUS_ALERT_CLEANER_CRON = "domibus.alert.cleaner.cron";
@@ -441,4 +447,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DISTRIBUTED_CACHE_PORT_COUNT = "domibus.cache.distributed.port.count";
     String DOMIBUS_DISTRIBUTED_CACHE_MEMBERS = "domibus.cache.distributed.members";
     //End distributed cache properties
+
+    String DOMIBUS_MESSAGE_TEST_DELIVERY = "domibus.message.test.notification";
+
 }

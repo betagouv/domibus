@@ -1,33 +1,86 @@
 # Domibus upgrade information
 
-  ## Domibus 5.1 (from 5.0.2)
-                - Update the "/conf/domibus/internal/ehcache.xml" cache definitions file by removing domainValidity.
-                 o [Mysql only]
+  ## Domibus 5.2 (from 5.1)
+                - Run the appropriate DB migration script(mysql-5.1.1-to-5.2-migration.ddl for MySQL or oracle-5.1.1-to-5.2-migration.ddl for Oracle)
+                - For multi-tenancy, run the appropriate DB migration script(mysql-5.1.1-to-5.2-multi-tenancy-migration.ddl for MySQL or oracle-5.1.1-to-5.2-multi-tenancy-migration.ddl for Oracle)
+                - In all eDeliveryAS4Policy xml files, the hardcoded algorithm suite name defined in AsymmetricBinding/Policy/AlgorithSuite/ (e.g Basic128GCMSha256MgfSha256) was replaced with the placeholder: ${algorithmSuitePlaceholder} which will be automatically replaced in code according to the security setup
+                - Replace/update all policy files that have the AsymmetricBinding/Policy/AlgorithSuite tag defined(e.g. eDeliveryAS4Policy.xml, eDeliveryAS4Policy_BST.xml, eDeliveryAS4Policy_BST_PKIP.xml,eDeliveryAS4Policy_IS.xml, signOnly.xml etc.) to accomodate this change
+                The policy xml config files can be found in the Domibus distribution inside the file domibus-msh-distribution-5.1.1-application_server_name-configuration.zip under the folder /policies or inside the file domibus-msh-distribution-5.1.1-application_server_name-full.zip under the folder domibus/conf/domibus/policies
+
+  ## Domibus 5.1 (from 5.0.4)
+                - Replace the Domibus war
+                - Replace the default plugin(s) property file(s) and jar(s) into "conf/domibus/plugins/config" respectively into "conf/domibus/plugins/lib"
+                - Update the file cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml and make sure the <property-placeholder> section has the attribute system-properties-mode="ENVIRONMENT". Ideally the line should look exactly like this: <context:property-placeholder system-properties-mode="ENVIRONMENT" ignore-resource-not-found="false" ignore-unresolvable="false"/>
+                - Update the "/conf/domibus/internal/ehcache.xml" cache definitions file by removing domainValidity if exists
+                - Update your logback.xml configuration so that logs contain the correct origin line number. At the begginging of your <configuration> declare the conversion word domibusLine: 
+                <conversionRule conversionWord="domibusLine" converterClass="eu.domibus.logging.DomibusLineOfCallerConverter" />
+                And then change your log pattern layouts by replacing %L and %line with %domibusLine. For example, the pattern:
+                    <property name="encoderPattern" value="%d{ISO8601} [%X{d_user}] [%X{d_domain}] [%X{d_messageId}] [%X{d_messageEntityId}] [%thread] %5p %c{1}:%L - %m%n" scope="global"/>
+                should become:
+                    <property name="encoderPattern" value="%d{ISO8601} [%X{d_user}] [%X{d_domain}] [%X{d_messageId}] [%X{d_messageEntityId}] [%thread] %5p %c{1}:%domibusLine - %m%n" scope="global"/>
+                 o [MySQL only]
                     - Changed MySQL dialect property from MySQL5InnoDBDialect to MySQL8Dialect in the domibus.properties file:
                             domibus.entityManagerFactory.jpaProperty.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
-  ### DB migration script
+                o [Oracle only]
+                    - multitenancy:
+                        - domain schemas:
+                            - grant privileges to the general schema using oracle-5.1-multi-tenancy-rights.sql, updating the schema names before execution
+                            Please note that this script execution is required even though it may have been executed before.
+                - [Custom plugins] For custom plugins the interface to Domibus has changed.
+                    - getErrorsForMessage(String messageId) became @deprecated and now throws MessageNotFoundException and DuplicateMessageException 
+                    - getStatus(String messageId) became @deprecated and now throws DuplicateMessageException
+                    - DuplicateMessageException is thrown in the self sending scenario, when two messages ACKNOWLEDGED and RECEIVED have the same messageId.
+                    - Both methods should be replaced with the equivalent method that receives also the AP Role as parameter to differentiate between sent and received messages.
+                    - The default list of message statuses for which notifications are sent has changed. As a consequence, the plugins that rely on notifications should customize this list of statuses in their properties file. For example, FS-Plugin should also include PAYLOAD_PROCESSED in the property fsplugin.messages.notifications from fs-plugin.properties.
+                        - the new (5.1) list of statuses that trigger push notifications: MESSAGE_RECEIVED, MESSAGE_SEND_FAILURE, MESSAGE_RECEIVED_FAILURE, MESSAGE_SEND_SUCCESS, MESSAGE_STATUS_CHANGE, MESSAGE_DELETED, MESSAGE_DELETE_BATCH, PAYLOAD_SUBMITTED, PAYLOAD_PROCESSED
+                        - the previous list of statuses that trigger push notifications: MESSAGE_RECEIVED, MESSAGE_SEND_FAILURE, MESSAGE_RECEIVED_FAILURE, MESSAGE_SEND_SUCCESS, MESSAGE_STATUS_CHANGE
+### DB migration script
                 - Run the appropriate DB migration script:
                     o [Oracle only]
                         - single tenancy: oracle-5.0-to-5.1-migration.ddl, oracle-5.1-data-migration.ddl
                         - multitenancy:
                             - general schema: oracle-5.0-to-5.1-multi-tenancy-migration.ddl
                             - domain schemas: oracle-5.0-to-5.1-migration.ddl, oracle-5.1-data-migration.ddl
-                    o [Mysql only]
-                        The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
-                            - the root user, specifying the target databases as part of the command. For example, for single tenancy:
-                                    mysql -u root -p domibus < mysql-5.0-to-5.1-migration.ddl
-                                    mysql -u root -p domibus < mysql-5.1-data-migration.ddl
-                                or, for multitenancy:
-                                    mysql -u root -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
-                                    mysql -u root -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl
-                            - the non-root user (e.g. edelivery): for which the root user must first relax the conditions on function creation by granting the SYSTEM_VARIABLES_ADMIN right to the non-root user:
-                                    GRANT SYSTEM_VARIABLES_ADMIN ON *.* TO 'edelivery'@'localhost';
-                              and then specifying the target databases as part of the command. For example, for single tenancy:
-                                     mysql -u edelivery -p domibus < mysql-5.0-to-5.1-migration.ddl
-                                     mysql -u edelivery -p domibus < mysql-5.1-data-migration.ddl
-                                 or, for multitenancy:
-                                     mysql -u edelivery -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
-                                     mysql -u edelivery -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl.
+                        - partitioning the database:
+                              - To run the partitioning scripts please make sure following grants are added to the user:
+                                  GRANT REDEFINE ANY TABLE TO [domibus_user];
+                                  GRANT CREATE MATERIALIZED VIEW TO [domibus_user];
+                                  GRANT EXECUTE ON DBMS_REDEFINITION TO [domibus_user];
+                                  GRANT SELECT ON USER_CONSTRAINTS TO [domibus_user];
+                              - create stored procedures: oracle-5.0-partitioning-populated-table.ddl
+                              - execute these commands:
+                                  SET SERVEROUTPUT ON;
+                                  EXECUTE PARTITION_USER_MESSAGE('DOMIBUS');
+                                  SET SERVEROUTPUT OFF;
+                              - partition detail tables: oracle-5.0-partition-detail-tables.sql
+                              - create partitioning job: oracle-5.0-create-partitions-job.sql
+                  o [MySQL only]
+                      The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
+                          - the root user, specifying the target databases as part of the command. For example, for single tenancy:
+                                  mysql -u root -p domibus < mysql-5.0-to-5.1-migration.ddl
+                                  mysql -u root -p domibus < mysql-5.1-data-migration.ddl
+                              or, for multitenancy:
+                                  mysql -u root -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
+                                  mysql -u root -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl
+                                  mysql -u root -p domibus_domain_1 < mysql-5.1-data-migration.ddl
+                          - the non-root user (e.g. edelivery): for which the root user must first relax the conditions on function creation by granting the SYSTEM_VARIABLES_ADMIN right to the non-root user:
+                                  GRANT SYSTEM_VARIABLES_ADMIN ON *.* TO 'edelivery'@'localhost';
+                            and then specifying the target databases as part of the command. For example, for single tenancy:
+                                   mysql -u edelivery -p domibus < mysql-5.0-to-5.1-migration.ddl
+                                   mysql -u edelivery -p domibus < mysql-5.1-data-migration.ddl
+                               or, for multitenancy:
+                                   mysql -u edelivery -p domibus_general < mysql-5.0-to-5.1-multi-tenancy-migration.ddl
+                                   mysql -u edelivery -p domibus_domain_1 < mysql-5.0-to-5.1-migration.ddl
+                                   mysql -u edelivery -p domibus_domain_1 < mysql-5.1-data-migration.ddl.
+## Domibus 5.0.4 (from 5.0.3):
+                - Replace the Domibus war
+                - Replace the default plugin(s) property file(s) and jar(s) into "/domibus/conf/domibus/plugins/config" respectively into "/domibus/conf/domibus/plugins/lib"
+## Domibus 5.0.3 (from 5.0.2):
+                - Replace the Domibus war
+### Partitioning only (oracle)
+                    - Run as sys:
+                            GRANT EXECUTE ON DBMS_LOCK TO <edelivery_user>;
+                    - Run as edelivery_user partitions-procedures.sql to replace the PARTITIONSGEN procedure
 ## Domibus 5.0.2 (from 5.0.1):
                 - Replace the Domibus war
                 - Run the appropriate DB migration script(mysql-5.0.1-to-5.0.2-migration.ddl for MySQL or oracle-5.0.1-to-5.0.2-migration.ddl for Oracle)
@@ -60,7 +113,8 @@
                     Please note that these changes need to be done for the "default" domain too, and that the properties in the properties files are still prefixed with the domain name.
 
   ### Tomcat only
-                        o [Mysql only]
+
+                        o [MySQL only]
                             o update the "domibus.datasource.url" properties:
                                 domibus.datasource.url=jdbc:mysql://${domibus.database.serverName}:${domibus.database.port}/${domibus.database.schema}?useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
 
@@ -145,7 +199,7 @@
   ### Weblogic only
                         o execute the WLST API script remove.py (from "/conf/domibus/scripts/upgrades") 4.2-to-5.0-Weblogic-removeJDBCDatasources.properties to remove the 2 datasources of 4.2 (wlstapi.cmd ../scripts/remove.py --property ../deleteDatasources.properties)
                         o execute the WLST API script import.py (from "/conf/domibus/scripts/upgrades") 4.2-to-5.0-WeblogicSingleServer.properties for single server deployment or 4.2-to-5.0-WeblogicCluster.properties for cluster deployment
-                        o [Mysql only]
+                        o [MySQL only]
                             o update the JDBC connection URL value in the Admin Console for your data sources by appending "&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC" (without surrounding quotes) to their end:
                                 jdbc:mysql://localhost:3306/domibus?autoReconnect=true&amp;useSSL=false
                                     should be changed to
@@ -157,7 +211,7 @@
                         - multitenancy:
                             - general schema: oracle-4.2.9-to-5.0-multi-tenancy-migration.ddl
                             - domain schemas: oracle-4.2.9-to-5.0-migration.ddl
-                    o [Mysql only]
+                    o [MySQL only]
                         The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
                             - the root user, specifying the target databases as part of the command. For example, for single tenancy:
                                     mysql -u root -p domibus < mysql-4.2.9-to-5.0-migration.ddl
@@ -206,7 +260,8 @@
                                     This step isn't reversible so it must be executed once step 1, step 2 and step3 are successful
                                     - (Optional) partitioning: oracle-5.0-partitioning.ddl (if you further plan on using Oracle partitions in an Enterprise Editions database)
                                     - grant privileges to the general schema using oracle-5.0-multi-tenancy-rights.sql, updating the schema names before execution
-   #### Mysql only
+
+#### MySQL only
                         The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
                     	    - the root user, specifying the target databases as part of the command. For example, for single tenancy:
                                     mysql -u root -p domibus < mysql-4.2.9-to-5.0-data-migration-step1.ddl
@@ -279,7 +334,7 @@
                     - If you don't use custom caches just replace the old file with the new file version
                     - Add a new cache key named "domibusPropertyMetadata"
                     - [Wildfly only]
-                        o [Mysql only]
+                        o [MySQL only]
                             o in standalone-full.xml, update the connectionUrl element for your data sources by appending "&amp;useLegacyDatetimeCode=false&amp;serverTimezone=UTC" (without surrounding quotes) to their end:
                                 <connection-url>jdbc:mysql://localhost:3306/domibus?autoReconnect=true&amp;useSSL=false</connection-url>
                                     should be changed to
@@ -341,11 +396,14 @@
                                eu.domibus.common.MessageStatusChangeEvent.getProperties, eu.domibus.common.PayloadAbstractEvent.getProperties, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty(eu.domibus.ext.domain.DomainDTO, java.lang.String),
                                eu.domibus.ext.services.DomibusPropertyExtService.setDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainProperty, eu.domibus.ext.services.DomibusPropertyExtService.getDomainResolvedProperty,
                                eu.domibus.ext.services.DomibusPropertyExtService.getResolvedProperty, eu.domibus.ext.services.PModeExtService.updatePModeFile(byte[], java.lang.String)
-## Domibus 4.2.10 (from 4.2.11):
+## Domibus 4.2.12 (from 4.2.11):
                 - Replace the Domibus war
-## Domibus 4.2.9 (from 4.2.10):
+                - Replace the default dss extension jar into  "/conf/domibus/extensions/lib"
+## Domibus 4.2.11 (from 4.2.10):
                 - Replace the Domibus war
-## Domibus 4.2.8 (from 4.2.9):
+## Domibus 4.2.10 (from 4.2.9):
+                - Replace the Domibus war
+## Domibus 4.2.9 (from 4.2.8):
                 - Replace the Domibus war
  ## Domibus 4.2.8 (from 4.2.7):
                 - Replace the Domibus war
@@ -390,7 +448,8 @@
                 - Replace the default plugins property files and jars into "conf/domibus/plugins/config" respectively into "/conf/domibus/plugins/lib"
                 - Replace the default dss extension jar into  "/conf/domibus/extentions/lib"
  ## Domibus 4.2.2 (from 4.2.1):
-                - [Mysql8 only]
+
+                - [MySQL8 only]
                    - Grant XA_RECOVER_ADMIN privilege to the user:
                         In MySQL 8.0, XA_RECOVER is permitted only to users who have the XA_RECOVER_ADMIN privilege. Prior to MySQL 8.0, any user could execute this and discover the XID values of XA transactions by other users.
                         This privilege requirement prevents users from discovering the XID values for outstanding prepared XA transactions other than their own.
@@ -708,7 +767,7 @@
                             domibus.entityManagerFactory.jpaProperty.hibernate.transaction.jta.platform=com.atomikos.icatch.jta.hibernate4.AtomikosJ2eePlatform
                       - [Wildfly only]
                             domibus.entityManagerFactory.jpaProperty.hibernate.transaction.jta.platform=org.hibernate.engine.transaction.jta.platform.internal.JBossAppServerJtaPlatform
-                    o [Mysql only]
+                    o [MySQL only]
                        - add property :
                             domibus.entityManagerFactory.jpaProperty.hibernate.id.new_generator_mappings=false
                     o [Tomcat only]

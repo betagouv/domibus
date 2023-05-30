@@ -1,7 +1,10 @@
 package eu.domibus.plugin.ws;
 
+import eu.domibus.common.JPAConstants;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.MessagingService;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
+import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.generated.StatusFault;
 import eu.domibus.plugin.ws.generated.body.MessageStatus;
@@ -9,20 +12,23 @@ import eu.domibus.plugin.ws.generated.body.MshRole;
 import eu.domibus.plugin.ws.generated.body.StatusRequestWithAccessPointRole;
 import eu.domibus.test.DomibusConditionUtil;
 import eu.domibus.test.PModeUtil;
+import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import java.io.IOException;
 
-@Transactional
 public class GetStatusIT extends AbstractBackendWSIT {
 
     @Autowired
@@ -35,14 +41,27 @@ public class GetStatusIT extends AbstractBackendWSIT {
     DomibusConditionUtil domibusConditionUtil;
 
     @Autowired
+    private BackendConnectorProvider backendConnectorProvider;
+
+    @Autowired
+    private PayloadFileStorageProvider payloadFileStorageProvider;
+
+    @Autowired
     PModeUtil pModeUtil;
 
     @Autowired
     SoapSampleUtil soapSampleUtil;
 
+    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
+    protected EntityManager em;
+
     @Before
     public void before() throws IOException, XmlProcessingException {
-        domibusConditionUtil.waitUntilDatabaseIsInitialized();
+        payloadFileStorageProvider.initialize();
+
+        Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
+                .thenReturn(new BackendConnectorMock("name"));
+
         pModeUtil.uploadPmode(wireMockRule.port());
     }
 

@@ -1,20 +1,25 @@
 package eu.domibus.test;
 
+import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.model.UserMessageLogDto;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.message.UserMessageDefaultService;
+import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.api.proxy.DomibusProxyService;
-import eu.domibus.core.spring.DomibusContextRefreshedListener;
+import eu.domibus.core.spring.DomibusApplicationContextListener;
 import eu.domibus.core.spring.DomibusRootConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.DomibusTestDatasourceConfiguration;
 import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -30,7 +35,9 @@ import org.springframework.util.SocketUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Cosmin Baciu
@@ -44,6 +51,12 @@ import java.util.Collections;
 public abstract class AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
+
+    @Autowired
+    protected UserMessageDefaultServiceHelper userMessageDefaultServiceHelper;
+
+    @Autowired
+    protected UserMessageDefaultService userMessageDefaultService;
 
     @Autowired
     protected UserMessageLogDao userMessageLogDao;
@@ -61,7 +74,7 @@ public abstract class AbstractIT {
     protected DomibusProxyService domibusProxyService;
 
     @Autowired
-    DomibusContextRefreshedListener domibusContextRefreshedListener;
+    DomibusApplicationContextListener domibusApplicationContextListener;
 
     @Autowired
     protected DomibusConditionUtil domibusConditionUtil;
@@ -112,7 +125,10 @@ public abstract class AbstractIT {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
         domibusConditionUtil.waitUntilDatabaseIsInitialized();
 
-        domibusContextRefreshedListener.doInitialize();
+        if(!springContextInitialized) {
+            LOG.info("Executing the ApplicationContextListener initialization");
+            domibusApplicationContextListener.doInitialize();
+        }
     }
 
     private static void copyPolicies(File domibusConfigLocation, File projectRoot) throws IOException {
@@ -141,5 +157,25 @@ public abstract class AbstractIT {
         FileUtils.forceMkdir(internalDirectory);
         final File destActiveMQ = new File(internalDirectory, "activemq.xml");
         FileUtils.copyFile(activeMQFile, destActiveMQ);
+    }
+
+    public void deleteAllMessages(String... messageIds) {
+        List<UserMessageLogDto> allMessages = new ArrayList<>();
+        for (String messageId : messageIds) {
+            if (StringUtils.isNotBlank(messageId)) {
+                UserMessageLog byMessageId = userMessageLogDao.findByMessageId(messageId);
+                if (byMessageId != null) {
+
+                    UserMessageLogDto userMessageLogDto = new UserMessageLogDto(byMessageId.getUserMessage().getEntityId(), byMessageId.getUserMessage().getMessageId(), byMessageId.getBackend(), null);
+                    userMessageLogDto.setProperties(userMessageDefaultServiceHelper.getProperties(byMessageId.getUserMessage()));
+                    allMessages.add(userMessageLogDto);
+                } else {
+                    LOG.warn("MessageId [{}] not found", messageId);
+                }
+            }
+        }
+        if (allMessages.isEmpty()) {
+            userMessageDefaultService.deleteMessages(allMessages);
+        }
     }
 }

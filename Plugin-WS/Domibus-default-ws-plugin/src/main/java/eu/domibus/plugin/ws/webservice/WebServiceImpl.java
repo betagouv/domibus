@@ -1,18 +1,15 @@
 package eu.domibus.plugin.ws.webservice;
 
-import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
-import eu.domibus.ext.services.AuthenticationExtService;
-import eu.domibus.ext.services.DomainContextExtService;
-import eu.domibus.ext.services.MessageAcknowledgeExtService;
-import eu.domibus.ext.services.MessageExtService;
+import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
+import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
@@ -72,10 +69,11 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     private static final String MESSAGE_ID_EMPTY = "Message ID is empty";
 
-    private static final String ACCESS_POINT_ROLE_EMPTY = "Access point role is empty";
+    private static final String INVALID_ACCESS_POINT_ROLE = "Access point role is invalid";
 
     public static final String MESSAGE_NOT_FOUND_ID = "Message not found, id [";
     public static final String INVALID_REQUEST = "Invalid request";
+    public static final String DUPLICATE_MESSAGE_ID = "Duplicated message found, id [";
 
     private MessageAcknowledgeExtService messageAcknowledgeExtService;
 
@@ -94,6 +92,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     private WSPluginImpl wsPlugin;
 
+    private DateExtService dateUtil;
+
     public WebServiceImpl(MessageAcknowledgeExtService messageAcknowledgeExtService,
                           WebServiceExceptionFactory webServicePluginExceptionFactory,
                           WSMessageLogService wsMessageLogService,
@@ -102,7 +102,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
                           WSPluginPropertyManager wsPluginPropertyManager,
                           AuthenticationExtService authenticationExtService,
                           MessageExtService messageExtService,
-                          WSPluginImpl wsPlugin) {
+                          WSPluginImpl wsPlugin,
+                          DateExtService dateUtil) {
         this.messageAcknowledgeExtService = messageAcknowledgeExtService;
         this.webServicePluginExceptionFactory = webServicePluginExceptionFactory;
         this.wsMessageLogService = wsMessageLogService;
@@ -112,6 +113,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         this.authenticationExtService = authenticationExtService;
         this.messageExtService = messageExtService;
         this.wsPlugin = wsPlugin;
+        this.dateUtil = dateUtil;
     }
 
     /**
@@ -368,11 +370,13 @@ public class WebServiceImpl implements WebServicePluginInterface {
         DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
         LOG.info("ListPendingMessages for domain [{}]", domainDTO);
 
+        ListPushFailedMessagesRequest validListPushFailedMessagesRequest =  getValidListPushFailedMessagesRequest(listPushFailedMessagesRequest);
+
         final ListPushFailedMessagesResponse response = WEBSERVICE_OF.createListPushFailedMessagesResponse();
         final int intMaxPendingMessagesRetrieveCount = wsPluginPropertyManager.getKnownIntegerPropertyValue(WSPluginPropertyManager.PROP_LIST_PUSH_FAILED_MESSAGES_MAXCOUNT);
         LOG.debug("maxPushFailedMessagesRetrieveCount [{}]", intMaxPendingMessagesRetrieveCount);
 
-        String finalRecipient = listPushFailedMessagesRequest.getFinalRecipient();
+        String finalRecipient = validListPushFailedMessagesRequest.getFinalRecipient();
         if (!authenticationExtService.isUnsecureLoginAllowed()) {
             String originalUser = authenticationExtService.getOriginalUser();
             if (StringUtils.isNotEmpty(finalRecipient)) {
@@ -383,17 +387,43 @@ public class WebServiceImpl implements WebServicePluginInterface {
         LOG.info("Final Recipient is [{}]", finalRecipient);
 
         List<WSBackendMessageLogEntity> pending = wsBackendMessageLogService.findAllWithFilter(
-                listPushFailedMessagesRequest.getMessageId(),
-                listPushFailedMessagesRequest.getOriginalSender(),
+                validListPushFailedMessagesRequest.getMessageId(),
+                validListPushFailedMessagesRequest.getOriginalSender(),
                 finalRecipient,
-                listPushFailedMessagesRequest.getReceivedFrom(),
-                listPushFailedMessagesRequest.getReceivedTo(),
+                validListPushFailedMessagesRequest.getReceivedFrom(),
+                validListPushFailedMessagesRequest.getReceivedTo(),
                 intMaxPendingMessagesRetrieveCount);
 
         final Collection<String> ids = pending.stream()
                 .map(WSBackendMessageLogEntity::getMessageId).collect(Collectors.toList());
         response.getMessageID().addAll(ids);
         return response;
+    }
+
+    protected ListPushFailedMessagesRequest getValidListPushFailedMessagesRequest(ListPushFailedMessagesRequest listPushFailedMessagesRequest) throws ListPushFailedMessagesFault {
+        String messageId = listPushFailedMessagesRequest.getMessageId();
+        ListPushFailedMessagesRequest pushFailedMessagesRequest = new ListPushFailedMessagesRequest();
+
+        //Since message id is an optional parameter in the request the exception throws only when the message id exists but it is empty.
+        if (messageId != null && StringUtils.isBlank(messageId)) {
+            LOG.error(MESSAGE_ID_EMPTY);
+            throw new ListPushFailedMessagesFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
+        }
+
+        if (messageExtService.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
+            throw new ListPushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "] is too long (over 255 characters)."));
+        }
+
+        pushFailedMessagesRequest.setMessageId(StringUtils.trim(messageId));
+        pushFailedMessagesRequest.setFinalRecipient(StringUtils.trim(listPushFailedMessagesRequest.getFinalRecipient()));
+        pushFailedMessagesRequest.setOriginalSender(StringUtils.trim(listPushFailedMessagesRequest.getOriginalSender()));
+        if (listPushFailedMessagesRequest.getReceivedFrom() != null) {
+            pushFailedMessagesRequest.setReceivedFrom(dateUtil.getUtcLocalDateTime(listPushFailedMessagesRequest.getReceivedFrom()));
+        }
+        if (listPushFailedMessagesRequest.getReceivedTo() != null) {
+            pushFailedMessagesRequest.setReceivedTo(dateUtil.getUtcLocalDateTime(listPushFailedMessagesRequest.getReceivedTo()));
+        }
+        return pushFailedMessagesRequest;
     }
 
     @Override
@@ -408,8 +438,9 @@ public class WebServiceImpl implements WebServicePluginInterface {
         if (nbrMessagesToRepush > repushMaxCount) {
             throw new RePushFailedMessagesFault("Invalid argument", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Too many messages. the limit is [" + PROP_LIST_REPUSH_MESSAGES_MAXCOUNT + "]:" + repushMaxCount + ". Actual is: " + nbrMessagesToRepush));
         }
+        List<String> validMessageIds = getValidMessageIds(rePushFailedMessagesRequest);
         try {
-            wsBackendMessageLogService.updateForRetry(rePushFailedMessagesRequest.getMessageID());
+            wsBackendMessageLogService.updateForRetry(validMessageIds);
         } catch (WSPluginException e) {
             throw new RePushFailedMessagesFault("RePush has failed", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0009, "At least one message was not found"));
         }
@@ -417,8 +448,40 @@ public class WebServiceImpl implements WebServicePluginInterface {
         LOG.info("Messages updated for retry successfully");
     }
 
+
+    protected List<String> getValidMessageIds(RePushFailedMessagesRequest rePushFailedMessagesRequest) throws RePushFailedMessagesFault {
+        List<String> messageIds = rePushFailedMessagesRequest.getMessageID();
+        List<String> trimmedMessageIds = new ArrayList<>();
+        ListPushFailedMessagesRequest pushFailedMessagesRequest = new ListPushFailedMessagesRequest();
+        for (String messageId : messageIds) {
+            String trimmedMessageId = messageExtService.cleanMessageIdentifier(messageId);
+
+            if (StringUtils.isEmpty(trimmedMessageId)) {
+                LOG.error(MESSAGE_ID_EMPTY);
+                throw new RePushFailedMessagesFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
+            }
+
+            if (messageExtService.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
+                throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "] is too long (over 255 characters)."));
+            }
+            pushFailedMessagesRequest.setMessageId(trimmedMessageId);
+            ListPushFailedMessagesResponse response;
+            try {
+                response = listPushFailedMessages(pushFailedMessagesRequest);
+            } catch (ListPushFailedMessagesFault ex) {
+                throw new RePushFailedMessagesFault(" List Push Failed Messages has failed", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, ex.getMessage()));
+            }
+            if (!response.getMessageID().contains(trimmedMessageId)) {
+                throw new RePushFailedMessagesFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "The message [" + messageId + "] is not in the list of push failed messages"));
+            }
+
+            trimmedMessageIds.add(trimmedMessageId);
+        }
+        return trimmedMessageIds;
+    }
+
     /**
-     * The message status is updated to downloaded (the message is not removed from the plugin table containing the pending messages so it can be downloaded using retrieveMessage
+     * The message status is updated to downloaded (the message is also removed from the plugin table ws_plugin_tb_message_log containing the pending messages)
      *
      * @param markMessageAsDownloadedRequest
      * @param markMessageAsDownloadedResponse
@@ -448,6 +511,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
         markMessageAsDownloadedResponse.value = WEBSERVICE_OF.createMarkMessageAsDownloadedResponse();
         markMessageAsDownloadedResponse.value.setMessageID(trimmedMessageId);
+
+        wsMessageLogService.delete(wsMessageLogEntity);
     }
 
     /**
@@ -579,15 +644,17 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Deprecated
     @Override
     public MessageStatus getStatus(final StatusRequest statusRequest) throws StatusFault {
-        boolean isMessageIdEmpty = StringUtils.isEmpty(statusRequest.getMessageID());
-
-        if (isMessageIdEmpty) {
-            LOG.error(MESSAGE_ID_EMPTY);
-            throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
-        }
         String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequest.getMessageID());
-
-        return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
+        try {
+            validateMessageId(trimmedMessageId);
+            return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId).name());
+        } catch (final DuplicateMessageException exception) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(DUPLICATE_MESSAGE_ID + trimmedMessageId + "]", exception);
+            }
+            LOG.error(DUPLICATE_MESSAGE_ID + trimmedMessageId + "]");
+            throw new StatusFault(DUPLICATE_MESSAGE_ID + trimmedMessageId + "]", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, exception.getMessage()));
+        }
     }
 
     /**
@@ -597,40 +664,88 @@ public class WebServiceImpl implements WebServicePluginInterface {
      */
     @Override
     public MessageStatus getStatusWithAccessPointRole(StatusRequestWithAccessPointRole statusRequestWithAccessPointRole) throws StatusFault {
+        String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequestWithAccessPointRole.getMessageID());
+        validateMessageId(trimmedMessageId);
+        validateAccessPointRole(statusRequestWithAccessPointRole.getAccessPointRole());
+        MSHRole role = MSHRole.valueOf(statusRequestWithAccessPointRole.getAccessPointRole().name());
+        return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId, role).name());
+    }
 
-        boolean isMessageIdEmpty = StringUtils.isEmpty(statusRequestWithAccessPointRole.getMessageID());
+    protected void validateMessageId(String messageId) throws StatusFault {
+        boolean isMessageIdEmpty = StringUtils.isEmpty(messageId);
         if (isMessageIdEmpty) {
             LOG.error(MESSAGE_ID_EMPTY);
             throw new StatusFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "MessageId is empty"));
         }
-
-        if (StringUtils.isEmpty(statusRequestWithAccessPointRole.getAccessPointRole().name())) {
-            LOG.error(ACCESS_POINT_ROLE_EMPTY);
-            throw new StatusFault(ACCESS_POINT_ROLE_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Access point role is empty"));
+        if (messageExtService.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
+            throw new StatusFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "] is too long (over 255 characters)."));
         }
-        MSHRole role = MSHRole.valueOf(statusRequestWithAccessPointRole.getAccessPointRole().name());
+    }
 
-        String trimmedMessageId = messageExtService.cleanMessageIdentifier(statusRequestWithAccessPointRole.getMessageID());
-
-        return MessageStatus.fromValue(wsPlugin.getMessageRetriever().getStatus(trimmedMessageId, role).name());
+    protected void validateAccessPointRole(MshRole role) throws StatusFault {
+        if (role == null) {
+            LOG.error(INVALID_ACCESS_POINT_ROLE);
+            throw new StatusFault(INVALID_ACCESS_POINT_ROLE, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Access point role is invalid"));
+        }
     }
 
     @Override
     public ErrorResultImplArray getMessageErrors(final GetErrorsRequest messageErrorsRequest) throws
             GetMessageErrorsFault {
         List<? extends ErrorResult> errorsForMessage;
-        String messageId = messageErrorsRequest.getMessageID();
+        String messageId = messageExtService.cleanMessageIdentifier(messageErrorsRequest.getMessageID());
+        validateMessageIdForGetMessageErrors(messageId);
         try {
             errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageId);
-        } catch (eu.domibus.api.messaging.MessageNotFoundException exception) {
+        } catch (MessageNotFoundException exception) {
+            LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
-        } catch (DuplicateMessageFoundException e) {
-            throw new GetMessageErrorsFault("Duplicate message found with Id" + messageId + "]", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_00010, String.format(ErrorCode.WS_PLUGIN_00010.getMessage(), messageId)));
+        } catch (DuplicateMessageException e) {
+            throw new GetMessageErrorsFault("Duplicate message found with Id [" + messageId + "].", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_00010, String.format(ErrorCode.WS_PLUGIN_00010.getMessage(), messageId)));
         } catch (Exception e) {
             LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
             throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
         }
         return transformFromErrorResults(errorsForMessage);
+    }
+
+    /**
+     * @param messageErrorsRequestWithAccessPointRole
+     * @return returns eu.domibus.plugin.ws.generated.body.ErrorResultImplArray
+     * @throws GetMessageErrorsFault
+     */
+    @Override
+    public ErrorResultImplArray getMessageErrorsWithAccessPointRole(GetErrorsRequestWithAccessPointRole messageErrorsRequestWithAccessPointRole) throws GetMessageErrorsFault {
+        List<? extends ErrorResult> errorsForMessage;
+        String messageId = messageExtService.cleanMessageIdentifier(messageErrorsRequestWithAccessPointRole.getMessageID());
+        validateMessageIdForGetMessageErrors(messageId);
+
+        if (messageErrorsRequestWithAccessPointRole.getAccessPointRole() == null) {
+            LOG.error(INVALID_ACCESS_POINT_ROLE);
+            throw new GetMessageErrorsFault(INVALID_ACCESS_POINT_ROLE, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Access point role is invalid"));
+        }
+
+        MSHRole role = MSHRole.valueOf(messageErrorsRequestWithAccessPointRole.getAccessPointRole().name());
+        try {
+            errorsForMessage = wsPlugin.getMessageRetriever().getErrorsForMessage(messageId, role);
+        } catch (MessageNotFoundException exception) {
+            LOG.businessError(BUS_MSG_NOT_FOUND, messageId);
+            throw new GetMessageErrorsFault(MESSAGE_NOT_FOUND_ID + messageId + "]", webServicePluginExceptionFactory.createFaultMessageIdNotFound(messageId));
+        } catch (Exception e) {
+            throw new GetMessageErrorsFault("Couldn't find message errors [" + messageId + "]", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0001, String.format(ErrorCode.WS_PLUGIN_0001.getMessage(), messageId)));
+        }
+        return transformFromErrorResults(errorsForMessage);
+    }
+
+    protected void validateMessageIdForGetMessageErrors(String messageId) throws GetMessageErrorsFault {
+        if (StringUtils.isEmpty(messageId)) {
+            LOG.error(MESSAGE_ID_EMPTY);
+            throw new GetMessageErrorsFault(MESSAGE_ID_EMPTY, webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, MESSAGE_ID_EMPTY));
+        }
+
+        if (messageExtService.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
+            throw new GetMessageErrorsFault("Invalid Message Id. ", webServicePluginExceptionFactory.createFault(ErrorCode.WS_PLUGIN_0007, "Value of messageId [" + messageId + "] is too long (over 255 characters)."));
+        }
     }
 
     public ErrorResultImplArray transformFromErrorResults(List<? extends ErrorResult> errors) {

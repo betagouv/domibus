@@ -1,27 +1,34 @@
 package eu.domibus.plugin.ws.webservice;
 
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.*;
+import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogService;
 import eu.domibus.plugin.ws.connector.WSPluginImpl;
-import eu.domibus.plugin.ws.generated.RetrieveMessageFault;
-import eu.domibus.plugin.ws.generated.StatusFault;
-import eu.domibus.plugin.ws.generated.SubmitMessageFault;
+import eu.domibus.plugin.ws.generated.*;
 import eu.domibus.plugin.ws.generated.body.*;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
+import eu.domibus.messaging.MessageNotFoundException;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import javax.xml.ws.Holder;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PROP_LIST_REPUSH_MESSAGES_MAXCOUNT;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Cosmin Baciu
@@ -62,6 +69,9 @@ public class WebServicePluginImplTest {
 
     @Injectable
     private WSPluginImpl wsPlugin;
+
+    @Injectable
+    private DateExtService dateUtil;
 
 
     @Test(expected = SubmitMessageFault.class)
@@ -168,27 +178,27 @@ public class WebServicePluginImplTest {
     @Test
     public void cleansTheMessageIdentifierBeforeRetrievingTheStatusOfAMessageByItsIdentifier(
             @Injectable StatusRequestWithAccessPointRole statusRequest,
-            @Injectable MessageRetrieverExtService messageRetriever) throws StatusFault {
+            @Injectable MessageRetriever messageRetriever) throws StatusFault, MessageNotFoundException {
         new Expectations() {{
-            statusRequest.getMessageID();
-            result = MESSAGE_ID;
-            times = 2;
-
-            statusRequest.getAccessPointRole();
-            result = MshRole.RECEIVING;
-            times = 2;
 
             messageExtService.cleanMessageIdentifier(MESSAGE_ID);
             result = MESSAGE_ID;
-            times = 1;
+
+            statusRequest.getMessageID();
+            result = MESSAGE_ID;
+
+            statusRequest.getAccessPointRole();
+            result = MshRole.RECEIVING;
 
             wsPlugin.getMessageRetriever();
             result = messageRetriever;
-            times = 1;
 
             messageRetriever.getStatus(MESSAGE_ID, MSHRole.RECEIVING);
             result = MessageStatus.ACKNOWLEDGED;
-            times = 1;
+
+            messageExtService.isTrimmedStringLengthLongerThanDefaultMaxLength(MESSAGE_ID);
+            result = false;
+
         }};
         webServicePlugin.getStatusWithAccessPointRole(statusRequest);
         new FullVerifications() {
@@ -196,17 +206,92 @@ public class WebServicePluginImplTest {
     }
 
     @Test
-    public void getStatusWithEmptyAccessPointRole(
+    public void validateAccessPointRole(
             @Injectable StatusRequestWithAccessPointRole statusRequest) {
-        new Expectations() {{
-            statusRequest.getMessageID();
-            result = MESSAGE_ID;
-            times = 1;
-        }};
+
+        new Expectations() {
+            {
+                statusRequest.getAccessPointRole();
+                result = null;
+            }
+        };
+
         try {
-            webServicePlugin.getStatusWithAccessPointRole(statusRequest);
+            webServicePlugin.validateAccessPointRole(statusRequest.getAccessPointRole());
+            Assert.fail();
         } catch (StatusFault statusFault) {
-            assertEquals(statusFault.getMessage(), "Access point role is empty");
+            assertEquals("Access point role is invalid", statusFault.getMessage());
         }
     }
+
+
+    @Test
+    public void validateMessageId(
+            @Injectable StatusRequestWithAccessPointRole statusRequest) {
+
+        new Expectations() {
+            {
+                statusRequest.getMessageID();
+                result = "";
+            }
+        };
+
+        try {
+            webServicePlugin.validateMessageId(statusRequest.getMessageID());
+            Assert.fail();
+        } catch (StatusFault statusFault) {
+            assertEquals(statusFault.getMessage(), "Message ID is empty");
+        }
+    }
+
+    @Test
+    public void listPushFailedMessagesEmptyMessageId(@Injectable DomainDTO domainDTO, @Injectable ListPushFailedMessagesRequest listPushFailedMessagesRequest) {
+
+        new Expectations() {
+            {
+                domainContextExtService.getCurrentDomainSafely();
+                result = domainDTO;
+
+                listPushFailedMessagesRequest.getMessageId();
+                result = "";
+            }
+        };
+
+        try {
+            webServicePlugin.listPushFailedMessages(listPushFailedMessagesRequest);
+            Assert.fail();
+        } catch (ListPushFailedMessagesFault listPushFailedMessagesFault) {
+            assertEquals("Message ID is empty", listPushFailedMessagesFault.getMessage());
+        }
+    }
+
+    @Test
+    public void rePushFailedMessages(@Injectable DomainDTO domainDTO, @Injectable RePushFailedMessagesRequest rePushFailedMessagesRequest) {
+        String messageId = StringUtils.repeat("X", 256);
+        List<String> messageIds = new ArrayList<>();
+        messageIds.add(messageId);
+        new Expectations() {
+            {
+                domainContextExtService.getCurrentDomainSafely();
+                result = domainDTO;
+
+                wsPluginPropertyManager.getKnownIntegerPropertyValue(PROP_LIST_REPUSH_MESSAGES_MAXCOUNT);
+                result = 2;
+
+                messageExtService.cleanMessageIdentifier(messageId);
+                result = messageId;
+
+                rePushFailedMessagesRequest.getMessageID();
+                result = messageIds;
+            }
+        };
+
+        try {
+            webServicePlugin.rePushFailedMessages(rePushFailedMessagesRequest);
+            Assert.fail();
+        } catch (RePushFailedMessagesFault rePushFailedMessagesFault) {
+            assertEquals("Invalid Message Id. ", rePushFailedMessagesFault.getMessage());
+        }
+    }
+
 }

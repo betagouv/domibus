@@ -1,12 +1,14 @@
 package eu.domibus.ext.delegate.services.message;
 
 import eu.domibus.api.message.UserMessageSecurityService;
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.security.AuthUtils;
+import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MessageStatus;
+import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessageConstants;
+import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.handler.MessageRetriever;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -14,7 +16,6 @@ import mockit.Tested;
 import mockit.Verifications;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.security.access.AccessDeniedException;
 
 import java.util.UUID;
 
@@ -49,29 +50,25 @@ public class MessageRetrieverServiceDelegateTest {
             userMessageService.getByMessageId(messageId);
             result = userMessage;
 
-            authUtils.getOriginalUserWithUnsecureLoginAllowed();
-            result = originalUser;
-
-            userMessageSecurityService.validateUserAccessWithUnsecureLoginAllowed(userMessage, originalUser, MessageConstants.FINAL_RECIPIENT);
-            result = new AccessDeniedException("You are not allowed to handle this message");
+            userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage, MessageConstants.FINAL_RECIPIENT);
+            result = new AuthenticationException("You are not allowed to handle this message");
         }};
 
         try {
             messageRetrieverServiceDelegate.checkMessageAuthorization(messageId);
-            Assert.fail("It should throw AccessDeniedException");
-        } catch (AccessDeniedException adEx) {
+            Assert.fail("It should throw AuthenticationException");
+        } catch (AuthenticationException adEx) {
             assertTrue(adEx.getMessage().contains("You are not allowed to handle this message"));
         }
 
         new Verifications() {{
-            authUtils.hasUserOrAdminRole();
-            authUtils.getOriginalUserWithUnsecureLoginAllowed();
+            authUtils.checkHasAdminRoleOrUserRoleWithOriginalUser();
         }};
 
     }
 
     @Test
-    public void testGetStatus() {
+    public void testGetStatus() throws MessageNotFoundException, DuplicateMessageException {
         // Given
         new Expectations() {{
             messageRetriever.getStatus(MESS_ID);
@@ -91,19 +88,19 @@ public class MessageRetrieverServiceDelegateTest {
     }
 
     @Test
-    public void testGetStatusAccessDenied() {
+    public void testGetStatusAccessDenied() throws MessageNotFoundException, DuplicateMessageException {
         // Given
         new Expectations() {{
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESS_ID);
-            result = new AccessDeniedException("");
+            result = new AuthenticationException("");
         }};
 
         // When
         eu.domibus.common.MessageStatus status = null;
         try {
             status = messageRetrieverServiceDelegate.getStatus(MESS_ID);
-            Assert.fail("It should throw AccessDeniedException");
-        } catch (AccessDeniedException ex) {
+            Assert.fail("It should throw AuthenticationException");
+        } catch (AuthenticationException ex) {
             // ok
         }
 

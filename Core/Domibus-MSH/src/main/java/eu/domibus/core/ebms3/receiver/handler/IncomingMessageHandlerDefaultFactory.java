@@ -4,8 +4,6 @@ import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3SignalMessage;
 import eu.domibus.core.message.pull.IncomingPullReceiptHandler;
 import eu.domibus.core.message.pull.IncomingPullRequestHandler;
-import eu.domibus.api.model.Messaging;
-import eu.domibus.api.model.SignalMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
@@ -48,13 +46,14 @@ public class IncomingMessageHandlerDefaultFactory implements IncomingMessageHand
                 return incomingMessagePullRequestHandler;
             } else if (signalMessage.getReceipt() != null) {
                 final String contentsOfReceipt = signalMessage.getReceipt().getAny().get(0);
-                if (StringUtils.contains(contentsOfReceipt, "UserMessage")) {
-                    LOG.trace("Using incomingUserMessageReceiptHandler");
-                    return incomingUserMessageReceiptHandler;
-                } else {
+                //ebms3Messaging.getOtherAttributes().size() is used to differentiate between pull mode with no security policy and split and join
+                if (ebms3Messaging.getUserMessage() == null &&
+                        (ebms3Messaging.getOtherAttributes().size() == 0 || !StringUtils.contains(contentsOfReceipt, "UserMessage"))) {
                     LOG.trace("Using incomingMessagePullReceiptHandler");
                     return incomingMessagePullReceiptHandler;
                 }
+                LOG.trace("Using incomingUserMessageReceiptHandler");
+                return incomingUserMessageReceiptHandler;
             } else if (CollectionUtils.isNotEmpty(signalMessage.getError())) {
                 LOG.trace("Using incomingSignalErrorHandler");
                 return incomingSignalErrorHandler;

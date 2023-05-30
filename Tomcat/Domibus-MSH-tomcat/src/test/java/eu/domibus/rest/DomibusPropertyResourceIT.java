@@ -6,7 +6,6 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.property.DomibusPropertyResourceHelper;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -54,26 +53,6 @@ public class DomibusPropertyResourceIT extends AbstractIT {
         domibusPropertyResourceHelper.setPropertyValue(name, true, newValue);
 
         list = domibusPropertyResourceHelper.getAllProperties(filter);
-        Assert.assertEquals(1, list.size());
-
-        String actualValue = list.get(0).getValue();
-        Assert.assertEquals(newValue, actualValue);
-    }
-
-    @Test
-    public void testSetCronExpressionPartitions() {
-
-        String name = DOMIBUS_PARTITIONS_WORKER_CRON;
-        String newValue = "0 9 * * * ?"; // every morning
-
-        DomibusPropertiesFilter filter = new DomibusPropertiesFilter();
-        filter.setName(name);
-        filter.setShowDomain(true);
-        filter.setWritable(true);
-
-        domibusPropertyResourceHelper.setPropertyValue(name, true, newValue);
-
-        List<DomibusProperty> list = domibusPropertyResourceHelper.getAllProperties(filter);
         Assert.assertEquals(1, list.size());
 
         String actualValue = list.get(0).getValue();

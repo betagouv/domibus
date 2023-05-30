@@ -1,16 +1,16 @@
 package eu.domibus.core.ebms3.sender.client;
 
-import eu.domibus.api.cache.CacheConstants;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.common.DomibusCacheConstants;
 import eu.domibus.core.cxf.DomibusHTTPConduitFactory;
 import eu.domibus.core.ehcache.IgnoreSizeOfWrapper;
-import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.core.proxy.ProxyCxfUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
@@ -35,6 +35,7 @@ import javax.xml.ws.Dispatch;
 import javax.xml.ws.soap.SOAPBinding;
 import java.util.concurrent.Executor;
 
+import static eu.domibus.api.cache.DomibusLocalCacheService.DISPATCH_CLIENT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
@@ -98,14 +99,16 @@ public class DispatchClientDefaultProvider implements DispatchClientProvider {
         createWSServiceDispatcher("http://localhost:8080");
     }
 
-    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = "dispatchClient", key = "#domain + #endpoint + #pModeKey", condition = "#cacheable")
+    @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DISPATCH_CLIENT, key = "#domain + #endpoint + #pModeKey", condition = "#cacheable")
     @Override
     public IgnoreSizeOfWrapper<Dispatch<SOAPMessage>> getClient(String domain, String endpoint, String algorithm, Policy policy, final String pModeKey, boolean cacheable) {
         LOG.debug("Getting the dispatch client for endpoint [{}] on domain [{}]", endpoint, domain);
 
         final Dispatch<SOAPMessage> dispatch = createWSServiceDispatcher(endpoint);
         dispatch.getRequestContext().put(PolicyConstants.POLICY_OVERRIDE, policy);
-        dispatch.getRequestContext().put(ASYMMETRIC_SIG_ALGO_PROPERTY, algorithm);
+        if (StringUtils.isNotBlank(algorithm)) {
+            dispatch.getRequestContext().put(ASYMMETRIC_SIG_ALGO_PROPERTY, algorithm);
+        }
         dispatch.getRequestContext().put(PModeConstants.PMODE_KEY_CONTEXT_PROPERTY, pModeKey);
         final Client client = ((DispatchImpl<SOAPMessage>) dispatch).getClient();
         client.getEndpoint().getEndpointInfo().setProperty(HTTPConduitFactory.class.getName(), domibusHTTPConduitFactory);

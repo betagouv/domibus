@@ -11,10 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
@@ -106,6 +103,11 @@ public class DateUtilImpl implements DateUtil {
     }
 
     @Override
+    public LocalDateTime getUtcLocalDateTime(LocalDateTime localDateTime){
+      return localDateTime.atZone(ZoneId.systemDefault()).withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
+    }
+
+    @Override
     public long getDiffMinutesBetweenDates(Date date1, Date date2) {
         long diffInMillies = Math.abs(date2.getTime() - date1.getTime());
         return TimeUnit.MINUTES.convert(diffInMillies, TimeUnit.MILLISECONDS);
@@ -117,8 +119,8 @@ public class DateUtilImpl implements DateUtil {
             throw new DomibusDateTimeException(date, REST_FORMATTER_PATTERNS_MESSAGE);
         }
         try {
-            ZonedDateTime parse = LocalDateTime.parse(date, REST_FORMATTER).atZone(ZoneOffset.UTC);
-            String format = parse.format(ofPattern(DATETIME_FORMAT_DEFAULT));
+            LocalDateTime localDateTime = LocalDateTime.parse(date, REST_FORMATTER);
+            String format = getUtcLocalDateTime(localDateTime).format(ofPattern(DATETIME_FORMAT_DEFAULT));
             return Long.parseLong(format + MIN);
         } catch (Exception e) {
             throw new DomibusDateTimeException(date, REST_FORMATTER_PATTERNS_MESSAGE, e);

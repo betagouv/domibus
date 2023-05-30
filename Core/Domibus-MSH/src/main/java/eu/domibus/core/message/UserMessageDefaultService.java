@@ -48,8 +48,12 @@ import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.jms.Queue;
 import javax.persistence.EntityManager;
@@ -60,6 +64,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import java.util.zip.GZIPInputStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
@@ -180,6 +185,12 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     private FileServiceUtil fileServiceUtil;
+
+    @Autowired
+    private DomibusStringUtil domibusStringUtil;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
@@ -461,6 +472,23 @@ public class UserMessageDefaultService implements UserMessageService {
         deleteMessage(messageId, mes.getMshRole().getRole());
     }
 
+    @Transactional
+    @Override
+    public void deleteMessageInFinalStatus(String messageId, MSHRole mshRole) {
+        UserMessageLog mes = getMessageInFinalStatus(messageId, mshRole);
+        deleteMessage(messageId, mes.getMshRole().getRole());
+    }
+
+    protected UserMessageLog getMessageInFinalStatus(String messageId, MSHRole mshRole) {
+        UserMessageLog userMessageLog = getNonDeletedUserMessageLog(messageId, mshRole);
+
+        if (MessageStatus.getNotFinalStates().contains(userMessageLog.getMessageStatus())) {
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] is not in final state [" + userMessageLog.getMessageStatus().name() + "]");
+        }
+
+        return userMessageLog;
+    }
+
     protected UserMessageLog getFailedMessage(String messageId) {
         final UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING); // is it always???
         if (userMessageLog == null) {
@@ -474,6 +502,20 @@ public class UserMessageDefaultService implements UserMessageService {
 
     protected UserMessageLog getMessageNotInFinalStatus(String messageId, MSHRole mshRole) {
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, mshRole);
+
+        if (userMessageLog == null) {
+            throw new MessageNotFoundException(messageId);
+        }
+
+        if (MessageStatus.getSuccessfulStates().contains(userMessageLog.getMessageStatus())) {
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]");
+        }
+
+        return userMessageLog;
+    }
+
+    protected UserMessageLog getNonDeletedUserMessageLog(String messageId, MSHRole mshRole) {
+        UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId, mshRole);
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId);
         }
@@ -482,23 +524,19 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] in state [" + userMessageLog.getMessageStatus().name() + "] is already deleted. Delete time: [" + userMessageLog.getDeleted() + "]", null);
         }
 
-        if (MessageStatus.getSuccessfulStates().contains(userMessageLog.getMessageStatus())) {
-            throw new MessagingException(DomibusCoreErrorCode.DOM_007, MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]", null);
-        }
-
         return userMessageLog;
     }
 
 
     @Transactional
     @Override
-    public List<String> deleteMessagesDuringPeriod(Long start, Long end, String finalRecipient) {
-        final List<UserMessageLogDto> messagesToDelete = userMessageLogDao.findMessagesToDelete(finalRecipient, start, end);
+    public List<String> deleteMessagesNotInFinalStatusDuringPeriod(Long start, Long end, String originalUser) {
+        final List<UserMessageLogDto> messagesToDelete = userMessageLogDao.findMessagesToDeleteNotInFinalStatus(originalUser, start, end);
         if (CollectionUtils.isEmpty(messagesToDelete)) {
-            LOG.debug("Cannot find messages to delete [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+            LOG.debug("Cannot find messages to delete not in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, originalUser);
             return Collections.emptyList();
         }
-        LOG.debug("Found messages to delete [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, finalRecipient);
+        LOG.debug("Found messages to delete not in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, originalUser);
 
         final List<String> deletedMessages = new ArrayList<>();
         for (UserMessageLogDto message : messagesToDelete) {
@@ -510,7 +548,36 @@ public class UserMessageDefaultService implements UserMessageService {
             }
         }
 
-        LOG.debug("Deleted messages [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", deletedMessages, start, end, finalRecipient);
+        LOG.debug("Deleted messages not in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", deletedMessages, start, end, originalUser);
+
+        return deletedMessages;
+    }
+
+    @Override
+    public List<String> deleteMessagesInFinalStatusDuringPeriod(Long start, Long end, String originalUser) {
+        final List<UserMessageLogDto> messagesToDelete = userMessageLogDao.findMessagesToDeleteInFinalStatus(originalUser, start, end);
+        if (CollectionUtils.isEmpty(messagesToDelete)) {
+            LOG.debug("Cannot find messages to delete in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, originalUser);
+            return Collections.emptyList();
+        }
+        LOG.debug("Found messages to delete in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", messagesToDelete, start, end, originalUser);
+
+        final List<String> deletedMessages = new ArrayList<>();
+        for (UserMessageLogDto uml : messagesToDelete) {
+            new TransactionTemplate(transactionManager).execute(new TransactionCallbackWithoutResult() {
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+                    try {
+                        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(uml.getMessageId(), uml.getMshRole());
+                        findAndSetFinalStatusMessageAsDeleted(userMessageLog);
+                        deletedMessages.add(uml.getMessageId());
+                    } catch (Exception e) {
+                        LOG.error("Failed to delete message [" + uml.getMessageId() + "]", e);
+                    }
+                }
+            });
+        }
+
+        LOG.debug("Deleted messages in final status [{}] using start ID_PK date-hour [{}], end ID_PK date-hour [{}] and final recipient [{}]", deletedMessages, start, end, originalUser);
 
         return deletedMessages;
     }
@@ -522,14 +589,40 @@ public class UserMessageDefaultService implements UserMessageService {
         LOG.debug("Deleting message [{}]", messageId);
 
         //add messageId to MDC map
+        addMessageIdToMDC(messageId);
+        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId, mshRole);
+        final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId, mshRole);
+        final UserMessage userMessage = getUserMessage(messageId, signalMessage, userMessageLog);
+        notifyMessageDeletedAndClearPayload(userMessageLog, userMessage);
+        if (MessageStatus.ACKNOWLEDGED != userMessageLog.getMessageStatus() &&
+                MessageStatus.ACKNOWLEDGED_WITH_WARNING != userMessageLog.getMessageStatus()) {
+            userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+        }
+
+        userMessageLogService.setSignalMessageAsDeleted(signalMessage);
+    }
+
+    protected void findAndSetFinalStatusMessageAsDeleted(UserMessageLog userMessageLog) {
+        String messageId = userMessageLog.getUserMessage().getMessageId();
+        MSHRole mshRole = userMessageLog.getUserMessage().getMshRole().getRole();
+        LOG.debug("Deleting message in final status [{}]", messageId);
+        addMessageIdToMDC(messageId);
+
+        final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId, mshRole);
+        final UserMessage userMessage = getUserMessage(messageId, signalMessage, userMessageLog);
+        notifyMessageDeletedAndClearPayload(userMessageLog, userMessage);
+        userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
+        userMessageLogService.setSignalMessageAsDeleted(signalMessage);
+    }
+
+    protected void addMessageIdToMDC(String messageId) {
+        //add messageId to MDC map
         if (isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);
         }
-        if (mshRole != null) {
-            LOG.putMDC(DomibusLogger.MDC_MESSAGE_ROLE, mshRole.name());
-        }
-        final UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(messageId, mshRole);
-        final SignalMessage signalMessage = signalMessageDao.findByUserMessageIdWithUserMessage(messageId, mshRole);
+    }
+
+    protected UserMessage getUserMessage(String messageId, SignalMessage signalMessage, UserMessageLog userMessageLog) {
         final UserMessage userMessage;
         if (signalMessage == null) {
             LOG.debug("No signalMessage is present for [{}]", messageId);
@@ -537,17 +630,14 @@ public class UserMessageDefaultService implements UserMessageService {
         } else {
             userMessage = signalMessage.getUserMessage();
         }
+        return userMessage;
+    }
+
+    private void notifyMessageDeletedAndClearPayload(UserMessageLog userMessageLog, UserMessage userMessage) {
         backendNotificationService.notifyMessageDeleted(userMessage, userMessageLog);
 
         partInfoService.clearPayloadData(userMessage.getEntityId());
         userMessageLog.setDeleted(new Date());
-
-        if (MessageStatus.ACKNOWLEDGED != userMessageLog.getMessageStatus() &&
-                MessageStatus.ACKNOWLEDGED_WITH_WARNING != userMessageLog.getMessageStatus()) {
-            userMessageLogService.setMessageAsDeleted(userMessage, userMessageLog);
-        }
-
-        userMessageLogService.setSignalMessageAsDeleted(signalMessage);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
@@ -578,30 +668,33 @@ public class UserMessageDefaultService implements UserMessageService {
 
         em.flush();
         int deleteResult = userMessageLogDao.deleteMessageLogs(ids);
-        LOG.info("Deleted [{}] userMessageLogs.", deleteResult);
+        logDeleted("Deleted [{}] userMessageLogs.", deleteResult);
         deleteResult = signalMessageLogDao.deleteMessageLogs(ids);
-        LOG.info("Deleted [{}] signalMessageLogs.", deleteResult);
+        logDeleted("Deleted [{}] signalMessageLogs.", deleteResult);
         deleteResult = signalMessageRawEnvelopeDao.deleteMessages(ids);
-        LOG.info("Deleted [{}] signalMessageRaws.", deleteResult);
+        logDeleted("Deleted [{}] signalMessageRaws.", deleteResult);
         deleteResult = receiptDao.deleteReceipts(ids);
-        LOG.info("Deleted [{}] receipts.", deleteResult);
+        logDeleted("Deleted [{}] receipts.", deleteResult);
         deleteResult = signalMessageDao.deleteMessages(ids);
-        LOG.info("Deleted [{}] signalMessages.", deleteResult);
+        logDeleted("Deleted [{}] signalMessages.", deleteResult);
         deleteResult = userMessageRawEnvelopeDao.deleteMessages(ids);
-        LOG.info("Deleted [{}] userMessageRaws.", deleteResult);
+        logDeleted("Deleted [{}] userMessageRaws.", deleteResult);
         deleteResult = messageAttemptDao.deleteAttemptsByMessageIds(ids);
-        LOG.info("Deleted [{}] attempts.", deleteResult);
-
+        logDeleted("Deleted [{}] attempts.", deleteResult);
 
         deleteResult = errorLogService.deleteErrorLogsByMessageIdInError(ids);
-        LOG.info("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
+        logDeleted("Deleted [{}] deleteErrorLogsByMessageIdInError.", deleteResult);
         deleteResult = messageAcknowledgementDao.deleteMessageAcknowledgementsByMessageIds(ids);
-        LOG.info("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
-
+        logDeleted("Deleted [{}] deleteMessageAcknowledgementsByMessageIds.", deleteResult);
 
         deleteResult = userMessageDao.deleteMessages(ids);
-        LOG.info("Deleted [{}] userMessages.", deleteResult);
+        logDeleted("Deleted [{}] userMessages.", deleteResult);
+    }
 
+    private void logDeleted(String message, int deletedNr) {
+        if (deletedNr > 0) {
+            LOG.info(message, deletedNr);
+        }
     }
 
     public void checkCanGetMessageContent(String messageId, MSHRole mshRole) {
@@ -674,7 +767,7 @@ public class UserMessageDefaultService implements UserMessageService {
     @Transactional
     @Override
     public void clearPayloadData(List<Long> entityIds) {
-        if(CollectionUtils.isEmpty(entityIds)){
+        if (CollectionUtils.isEmpty(entityIds)) {
             return;
         }
         try {
@@ -684,7 +777,7 @@ public class UserMessageDefaultService implements UserMessageService {
                 backendNotificationService.notifyOfMessageStatusChange(userMessageLog, MessageStatus.DELETED, new Timestamp(System.currentTimeMillis()));
             });
             userMessageLogDao.update(entityIds, userMessageLogDao::updateDeletedBatched);
-        } catch (RuntimeException e){
+        } catch (RuntimeException e) {
             LOG.warn("Cleaning payload failed with exception", e);
             throw e;
         }
@@ -731,7 +824,12 @@ public class UserMessageDefaultService implements UserMessageService {
                 throw new MessagingException("Could not find attachment for [" + pInfo.getHref() + "]", null);
             }
             try {
-                result.put(DomibusStringUtil.sanitizeFileName(getPayloadName(pInfo)), pInfo.getPayloadDatahandler().getInputStream());
+                String fileName = domibusStringUtil.sanitizeFileName(getPayloadName(pInfo));
+                InputStream inputStream = pInfo.getPayloadDatahandler().getInputStream();
+                if (isCompressedFile(pInfo)) {
+                    inputStream = new GZIPInputStream(inputStream);
+                }
+                result.put(fileName, inputStream);
             } catch (IOException e) {
                 throw new MessagingException("Error getting input stream for attachment [" + pInfo.getHref() + "]", e);
             }
@@ -782,14 +880,23 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     protected String getPayloadExtension(PartInfo info) {
-        String extension = null;
-        for (PartProperty property : info.getPartProperties()) {
-            if (StringUtils.equalsIgnoreCase(property.getName(), MIME_TYPE)) {
-                extension = fileServiceUtil.getExtension(property.getValue());
-                LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
-            }
+        String extension = info.getPartProperties().stream()
+                .filter(property -> MIME_TYPE.equalsIgnoreCase(property.getName()) && property.getValue() != null)
+                .map(PartProperty::getValue)
+                .map(fileServiceUtil::getExtension)
+                .findFirst()
+                .orElse(null);
+        if(StringUtils.isBlank(extension)){
+            LOG.warn("Unknown mimetype for cid [{}]", info.getHref());
         }
+        LOG.debug("Payload extension for cid [{}] is [{}]", info.getHref(), extension);
         return extension;
+    }
+
+    private boolean isCompressedFile(PartInfo info) {
+        return info.getPartProperties().stream()
+                .anyMatch(partProperty -> MessageConstants.COMPRESSION_PROPERTY_KEY.equalsIgnoreCase(partProperty.getName())
+                        && MessageConstants.COMPRESSION_PROPERTY_VALUE.equalsIgnoreCase(partProperty.getValue()));
     }
 
     private byte[] zipFiles(Map<String, InputStream> message) throws IOException {

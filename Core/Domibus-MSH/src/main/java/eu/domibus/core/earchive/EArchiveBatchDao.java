@@ -54,10 +54,10 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
     }
 
     @Transactional
-    public EArchiveBatchEntity setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status, String error, String errorCode) {
+    public EArchiveBatchEntity setStatus(EArchiveBatchEntity eArchiveBatchByBatchId, EArchiveBatchStatus status, String message, String code) {
         eArchiveBatchByBatchId.setEArchiveBatchStatus(status);
-        eArchiveBatchByBatchId.setErrorMessage(error);
-        eArchiveBatchByBatchId.setErrorCode(errorCode);
+        eArchiveBatchByBatchId.setMessage(message);
+        eArchiveBatchByBatchId.setDomibusCode(code);
         return merge(eArchiveBatchByBatchId);
     }
 
@@ -105,7 +105,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
     }
 
     public List<EArchiveBatchUserMessage> getNotArchivedMessages(Long startMessageId, Long endMessageId, Integer pageStart, Integer pageSize) {
-        TypedQuery<EArchiveBatchUserMessage> query = this.em.createNamedQuery("UserMessageLog.findMessagesForArchivingAsc", EArchiveBatchUserMessage.class);
+        TypedQuery<EArchiveBatchUserMessage> query = this.em.createNamedQuery("UserMessageLog.findMessagesNotArchivedAsc", EArchiveBatchUserMessage.class);
         query.setParameter("LAST_ENTITY_ID", startMessageId);
         query.setParameter("MAX_ENTITY_ID", endMessageId);
         query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());
@@ -114,7 +114,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
     }
 
     public Long getNotArchivedMessageCountForPeriod(Long startMessageId, Long endMessageId) {
-        TypedQuery<Long> query = em.createNamedQuery("UserMessageLog.countMessagesForArchiving", Long.class);
+        TypedQuery<Long> query = em.createNamedQuery("UserMessageLog.countMessagesNotArchived", Long.class);
         query.setParameter("LAST_ENTITY_ID", startMessageId);
         query.setParameter("MAX_ENTITY_ID", endMessageId);
         query.setParameter("STATUSES", MessageStatus.getSuccessfulStates());

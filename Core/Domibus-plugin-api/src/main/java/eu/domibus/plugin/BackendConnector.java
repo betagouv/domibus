@@ -2,8 +2,10 @@
 package eu.domibus.plugin;
 
 import eu.domibus.common.*;
+import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.messaging.MessagingProcessingException;
+import eu.domibus.plugin.initialize.PluginInitializer;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 
@@ -115,9 +117,9 @@ public interface BackendConnector<U, T> {
      * @deprecated since 5.1 Use instead {@link #getStatus(String messageId, MSHRole role)}
      */
     @Deprecated
-    MessageStatus getStatus(final String messageId);
+    MessageStatus getStatus(final String messageId) throws MessageNotFoundException, DuplicateMessageException;
 
-    MessageStatus getStatus(final String messageId, final MSHRole mshRole);
+    MessageStatus getStatus(final String messageId, final MSHRole mshRole) throws MessageNotFoundException;
 
     /**
      * Returns message status {@link eu.domibus.common.MessageStatus} for message with messageid
@@ -125,7 +127,7 @@ public interface BackendConnector<U, T> {
      * @param messageEntityId entity id of the message the status is requested for
      * @return the message status {@link eu.domibus.common.MessageStatus}
      */
-    MessageStatus getStatus(final Long messageEntityId);
+    MessageStatus getStatus(final Long messageEntityId) throws MessageNotFoundException;
 
     /**
      * Returns List {@link java.util.List} of error logs {@link ErrorResult} for message with messageid
@@ -135,9 +137,9 @@ public interface BackendConnector<U, T> {
      * @deprecated since 5.1 Use instead {@link #getErrorsForMessage(String messageId, MSHRole role)}
      */
     @Deprecated
-    List<ErrorResult> getErrorsForMessage(final String messageId);
+    List<ErrorResult> getErrorsForMessage(final String messageId) throws MessageNotFoundException, DuplicateMessageException;
 
-    List<ErrorResult> getErrorsForMessage(final String messageId, final MSHRole mshRole);
+    List<ErrorResult> getErrorsForMessage(final String messageId, final MSHRole mshRole) throws MessageNotFoundException;
 
     /**
      * Delivers the message with the associated messageId to the backend application. Plugins MUST OVERRIDE this method.
@@ -237,6 +239,13 @@ public interface BackendConnector<U, T> {
      * @param event The event containing the details of the message send success event
      */
     void messageSendSuccess(final MessageSendSuccessEvent event);
+
+    /**
+     * Get the plugin initializer
+     */
+    default PluginInitializer getPluginInitializer() {
+        return null;
+    }
 
     /**
      * Describes the message exchange protocol

@@ -1,8 +1,9 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.*;
-import eu.domibus.api.multitenancy.lock.SynchronizedRunnable;
-import eu.domibus.api.multitenancy.lock.SynchronizedRunnableFactory;
+import eu.domibus.api.multitenancy.lock.SynchronizationService;
+import eu.domibus.api.multitenancy.lock.DbClusterSynchronizedRunnableFactory;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import static eu.domibus.common.TaskExecutorConstants.DOMIBUS_TASK_EXECUTOR_BEAN
 public class DomainTaskExecutorImpl implements DomainTaskExecutor {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomainTaskExecutorImpl.class);
+
     public static final long DEFAULT_WAIT_TIMEOUT_IN_SECONDS = 60L;
 
     @Autowired
@@ -37,7 +39,13 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     protected SchedulingTaskExecutor schedulingLongTaskExecutor;
 
     @Autowired
-    SynchronizedRunnableFactory synchronizedRunnableFactory;
+    DbClusterSynchronizedRunnableFactory dbClusterSynchronizedRunnableFactory;
+
+    @Autowired
+    DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    SynchronizationService synchronizationService;
 
     @Override
     public <T extends Object> T submit(Callable<T> task) {
@@ -49,6 +57,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
             throw new DomainTaskException("Could not execute task", e);
         }
     }
+
     @Override
     public <T extends Object> T submit(Callable<T> task, Domain domain) {
         DomainCallable domainCallable = new DomainCallable(domainContextProvider, task, domain);
@@ -56,6 +65,8 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         try {
             return utrFuture.get(DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            // Restore interrupted state
+            Thread.currentThread().interrupt();
             throw new DomainTaskException("Could not execute task", e);
         }
     }
@@ -72,23 +83,6 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         LOG.trace("Submitting task, waitForTask [{}]", waitForTask);
         final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, task);
         return submitRunnable(schedulingTaskExecutor, clearDomainRunnable, waitForTask, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
-    }
-
-    @Override
-    public void submit(Runnable task, Runnable errorHandler, String lockKey) {
-        submit(task, errorHandler, lockKey, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
-    }
-
-    @Override
-    public void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
-        LOG.trace("Submitting task with lock file [{}], timeout [{}] expressed in unit [{}]", lockKey, timeout, timeUnit);
-
-        SynchronizedRunnable synchronizedRunnable = synchronizedRunnableFactory.synchronizedRunnable(task, lockKey);
-
-        SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(synchronizedRunnable, errorHandler);
-        final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, setMDCContextTaskRunnable);
-
-        submitRunnable(schedulingTaskExecutor, clearDomainRunnable, errorHandler, waitForTask, timeout, timeUnit);
     }
 
     @Override
@@ -109,6 +103,15 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     @Override
     public void submitLongRunningTask(Runnable task, Runnable errorHandler, Domain domain) {
         submit(schedulingLongTaskExecutor, new SetMDCContextTaskRunnable(task, errorHandler), domain, false, null, null);
+    }
+
+    @Override
+    public <T> T executeWithLock(final Callable<T> task, final String dbLockKey, final Object javaLockKey, final Runnable errorHandler) {
+        Callable<T> synchronizedCallable = synchronizationService.getSynchronizedCallable(task, dbLockKey, javaLockKey);
+        Callable<T> setMDCContextTaskRunnable = new SetMDCContextTaskRunnable<T>(synchronizedCallable, errorHandler);
+        final Callable<T> clearDomainRunnable = new ClearDomainRunnable<T>(domainContextProvider, setMDCContextTaskRunnable);
+
+        return submitCallable(schedulingTaskExecutor, clearDomainRunnable, errorHandler, 3L, TimeUnit.MINUTES);
     }
 
     protected Future<?> submit(SchedulingTaskExecutor taskExecutor, Runnable task, Domain domain, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
@@ -144,7 +147,26 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         return utrFuture;
     }
 
-    protected void handleRunnableError(Exception exception, Runnable errorHandler) {
+    protected <T> T submitCallable(SchedulingTaskExecutor taskExecutor, Callable<T> task, Runnable errorHandler, Long timeout, TimeUnit timeUnit) {
+        final Future<T> utrFuture = taskExecutor.submit(task);
+
+        LOG.debug("Waiting for task to complete");
+        T res = null;
+        try {
+            res = utrFuture.get(timeout, timeUnit);
+            LOG.debug("Task completed");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            handleRunnableError(e, errorHandler);
+        } catch (TimeoutException e) {
+            handleRunnableError(e, errorHandler);
+        } catch (ExecutionException e) {
+            handleRunnableError(e.getCause(), errorHandler);
+        }
+        return res;
+    }
+
+    protected void handleRunnableError(Throwable exception, Runnable errorHandler) {
         if (errorHandler != null) {
             LOG.debug("Running the error handler", exception);
             errorHandler.run();
