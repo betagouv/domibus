@@ -11,10 +11,12 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.reliability.ReliabilityException;
 import eu.domibus.api.security.ChainCertificateInvalidException;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
@@ -25,7 +27,6 @@ import eu.domibus.core.message.pull.*;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pulling.PullRequest;
 import eu.domibus.core.pulling.PullRequestDao;
-import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ProcessingType;
@@ -357,13 +358,14 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     @Override
     public void verifyReceiverCertificate(final LegConfiguration legConfiguration, String receiverName) {
-        Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
+        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
+        Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), securityProfile);
         if (policyService.isNoSecurityPolicy(policy) || policyService.isNoEncryptionPolicy(policy)) {
             LOG.debug("Validation of the receiver certificate is skipped.");
             return;
         }
 
-        String alias = securityProfileService.getAliasForEncrypting(legConfiguration, receiverName);
+        String alias = securityProfileService.getAliasForEncrypting(securityProfile, receiverName);
 
         if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING)) {
             String chainExceptionMessage = "Cannot send message: receiver certificate is not valid or it has been revoked [" + alias + "]";
@@ -401,13 +403,14 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
 
     @Override
     public void verifySenderCertificate(final LegConfiguration legConfiguration, String senderName) {
-        Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
+        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
+        Policy policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), securityProfile);
         if (policyService.isNoSecurityPolicy(policy)) {
             LOG.debug("Validation of the sender certificate is skipped.");
             return;
         }
 
-        String alias = securityProfileService.getAliasForSigning(legConfiguration, senderName);
+        String alias = securityProfileService.getAliasForSigning(securityProfile, senderName);
 
         if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING)) {
             String chainExceptionMessage = "Cannot send message: sender certificate is not valid or it has been revoked [" + alias + "]";

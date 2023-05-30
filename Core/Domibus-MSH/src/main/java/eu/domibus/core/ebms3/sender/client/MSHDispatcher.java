@@ -5,14 +5,15 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.common.model.configuration.Security;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
-import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.message.Message;
@@ -65,8 +66,9 @@ public class MSHDispatcher {
 
         boolean cacheable = isDispatchClientCacheActivated();
         Domain domain = domainContextProvider.getCurrentDomain();
+        Security security = legConfiguration.getSecurity();
         final Dispatch<SOAPMessage> dispatch = dispatchClientProvider.
-                getClient(domain.getCode(), endpoint, securityProfileService.getSecurityAlgorithm(legConfiguration), policy, pModeKey, cacheable).get();
+                getClient(domain.getCode(), endpoint, securityProfileService.getSecurityAlgorithm(security.getPolicy(), security.getProfile(), legConfiguration.getName()), policy, pModeKey, cacheable).get();
 
         final SOAPMessage result;
         try {

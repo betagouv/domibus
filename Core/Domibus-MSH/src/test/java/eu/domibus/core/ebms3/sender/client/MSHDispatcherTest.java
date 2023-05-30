@@ -3,15 +3,16 @@ package eu.domibus.core.ebms3.sender.client;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
+import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.common.model.configuration.Security;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
@@ -144,7 +145,8 @@ public class MSHDispatcherTest {
             mshDispatcher.isDispatchClientCacheActivated();
             result = cacheable;
 
-            securityProfileService.getSecurityAlgorithm(legConfiguration);
+            Security security = legConfiguration.getSecurity();
+            securityProfileService.getSecurityAlgorithm(security.getPolicy(), security.getProfile(), legConfiguration.getName());
             result = algorithm;
 
             dispatchClientProvider.getClient(domain.getCode(), endPoint, algorithm, policy, pModeKey, cacheable).get();
@@ -190,7 +192,8 @@ public class MSHDispatcherTest {
             dispatchClientProvider.getClient(domain.getCode(), endPoint, algorithm, policy, pModeKey, cacheable).get();
             result = dispatch;
 
-            securityProfileService.getSecurityAlgorithm(legConfiguration);
+            Security security = legConfiguration.getSecurity();
+            securityProfileService.getSecurityAlgorithm(security.getPolicy(), security.getProfile(), legConfiguration.getName());
             result = algorithm;
 
             dispatch.invoke(requestSoapMessage);

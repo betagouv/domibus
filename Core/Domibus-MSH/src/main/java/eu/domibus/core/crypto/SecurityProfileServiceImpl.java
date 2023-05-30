@@ -1,14 +1,14 @@
 package eu.domibus.core.crypto;
 
-
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.pki.SecurityProfileService;
+import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.SecurityProfile;
-import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
@@ -30,9 +30,9 @@ import java.security.cert.X509Certificate;
  * @since 5.1
  */
 @Service
-public class SecurityProfileService implements eu.domibus.api.pki.SecurityProfileService {
+public class SecurityProfileServiceImpl implements SecurityProfileService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityProfileService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityProfileServiceImpl.class);
 
     protected final DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader;
 
@@ -44,7 +44,11 @@ public class SecurityProfileService implements eu.domibus.api.pki.SecurityProfil
 
     protected final DomainContextProvider domainContextProvider;
 
-    public SecurityProfileService(DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader, PolicyService policyService, PModeProvider pModeProvider, MultiDomainCryptoService multiDomainCertificateProvider, DomainContextProvider domainContextProvider) {
+    public SecurityProfileServiceImpl(DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader,
+                                      PolicyService policyService,
+                                      PModeProvider pModeProvider,
+                                      MultiDomainCryptoService multiDomainCertificateProvider,
+                                      DomainContextProvider domainContextProvider) {
         this.domibusAlgorithmSuiteLoader = domibusAlgorithmSuiteLoader;
         this.policyService = policyService;
         this.pModeProvider = pModeProvider;
@@ -52,32 +56,26 @@ public class SecurityProfileService implements eu.domibus.api.pki.SecurityProfil
         this.domainContextProvider = domainContextProvider;
     }
 
-    public boolean isSecurityPolicySet(LegConfiguration legConfiguration) {
+    public boolean isSecurityPolicySet(String policyFromSecurity, SecurityProfile securityProfile, String legName) throws PModeException {
         Policy policy;
         try {
-            policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
+            policy = policyService.parsePolicy("policies/" + policyFromSecurity, securityProfile);
         } catch (final ConfigurationException e) {
-            String message = String.format("Error retrieving policy for leg [%s]", legConfiguration.getName());
-            throw new ConfigurationException(message);
+            String message = String.format("Error retrieving policy for leg [%s]", legName);
+            throw new PModeException(DomibusCoreErrorCode.DOM_002, message);
         }
 
         return !policyService.isNoSecurityPolicy(policy);
     }
 
     /**
-     * Retrieves the Asymmetric Signature Algorithm corresponding to the security profile, defaulting to RSA_SHA256
-     * correspondent if no security profile is defined
-     *
-     * @param legConfiguration the leg configuration containing the security profile
-     * @throws ConfigurationException thrown when the legConfiguration contains an invalid security profile
-     * @return the Asymmetric Signature Algorithm
+     * {@inheritDoc}
      */
-    public String getSecurityAlgorithm(LegConfiguration legConfiguration) throws ConfigurationException {
-        if (!isSecurityPolicySet(legConfiguration)) {
+    public String getSecurityAlgorithm(String policyFromSecurity, SecurityProfile securityProfile, String legName) throws PModeException {
+        if (!isSecurityPolicySet(policyFromSecurity, securityProfile, legName)) {
             return null;
         }
 
-        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
         if (securityProfile == null) {
             LOG.info("The leg configuration contains no security profile info so the default RSA_SHA256 algorithm is used.");
             securityProfile = SecurityProfile.RSA;
@@ -86,26 +84,12 @@ public class SecurityProfileService implements eu.domibus.api.pki.SecurityProfil
         return algorithmSuiteType.getAsymmetricSignature();
     }
 
-    public String getAliasForSigning(LegConfiguration legConfiguration, String senderName) {
-        return getAliasForSigning(legConfiguration.getSecurity().getProfile(), senderName);
-    }
-
     public String getAliasForSigning(SecurityProfile securityProfile, String senderName) {
         String alias = senderName;
         if (securityProfile != null) {
             alias = senderName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_sign";
         }
         LOG.info("The following alias was determined for signing: [{}]", alias);
-        return alias;
-    }
-
-    public String getAliasForEncrypting(LegConfiguration legConfiguration, String receiverName) {
-        String alias = receiverName;
-        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
-        if (securityProfile != null) {
-            alias = receiverName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_encrypt";
-        }
-        LOG.info("The following alias was determined for encrypting: [{}]", alias);
         return alias;
     }
 
@@ -149,11 +133,9 @@ public class SecurityProfileService implements eu.domibus.api.pki.SecurityProfil
     }
 
     /**
-     * Checks if the signing certificate of the acknowledgement message sender is in the TrustStore
-     * @param legConfiguration - the legConfiguration
-     * @param userMessage - the UserMessage that was sent
+     * {@inheritDoc}
      */
-    public void checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(final LegConfiguration legConfiguration, UserMessage userMessage) {
+    public void checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(final SecurityProfile securityProfile, UserMessage userMessage) {
         String acknowledgementSenderName;
         try {
             acknowledgementSenderName = pModeProvider.findReceiverParty(userMessage);
@@ -162,7 +144,7 @@ public class SecurityProfileService implements eu.domibus.api.pki.SecurityProfil
             throw new ConfigurationException(exceptionMessage);
         }
 
-        String aliasForSigning = getAliasForSigning(legConfiguration, acknowledgementSenderName);
+        String aliasForSigning = getAliasForSigning(securityProfile, acknowledgementSenderName);
 
         try {
             X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainContextProvider.getCurrentDomain(), aliasForSigning);

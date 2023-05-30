@@ -9,10 +9,11 @@ import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.crypto.SecurityProfileService;
+import eu.domibus.common.model.configuration.Security;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
@@ -118,7 +119,8 @@ public class PullRequestHandler {
                 }
                 LOG.info("Initiator is [{}]", initiatorPartyName);
 
-                if (securityProfileService.isSecurityPolicySet(leg)) {
+                Security security = leg.getSecurity();
+                if (securityProfileService.isSecurityPolicySet(security.getPolicy(), security.getProfile(), leg.getName())) {
                     messageExchangeService.verifyReceiverCertificate(leg, initiatorPartyName);
                     messageExchangeService.verifySenderCertificate(leg, pullContext.getResponder().getName());
                 }

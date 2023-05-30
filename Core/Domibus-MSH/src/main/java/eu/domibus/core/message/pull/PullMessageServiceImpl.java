@@ -3,11 +3,11 @@ package eu.domibus.core.message.pull;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.*;
+import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
@@ -139,7 +139,7 @@ public class PullMessageServiceImpl implements PullMessageService {
         final String messageId = userMessage.getMessageId();
         LOG.debug("[releaseLockAfterReceipt]:Message:[{}] release lock]", messageId);
 
-        securityProfileService.checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(legConfiguration, userMessage);
+        securityProfileService.checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(legConfiguration.getSecurity().getProfile(), userMessage);
 
         switch (reliabilityCheckSuccessful) {
             case OK:

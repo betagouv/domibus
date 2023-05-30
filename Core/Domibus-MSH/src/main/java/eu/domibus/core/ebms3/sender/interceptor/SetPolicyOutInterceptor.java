@@ -1,15 +1,17 @@
 package eu.domibus.core.ebms3.sender.interceptor;
 
+import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
+import eu.domibus.common.model.configuration.Security;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -72,12 +74,15 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
 
         final LegConfiguration legConfiguration = this.pModeProvider.getLegConfiguration(pModeKey);
 
+        Security security = legConfiguration.getSecurity();
+        SecurityProfile securityProfile = security.getProfile();
+        String policyFromSecurity = security.getPolicy();
         Policy policy;
         try {
-            policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
-            LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_POLICY_OUTGOING_USE, legConfiguration.getSecurity().getPolicy());
+            policy = policyService.parsePolicy("policies/" + policyFromSecurity, securityProfile);
+            LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_POLICY_OUTGOING_USE, policyFromSecurity);
         } catch (final ConfigurationException e) {
-            LOG.businessError(DomibusMessageCode.BUS_SECURITY_POLICY_OUTGOING_NOT_FOUND, e, legConfiguration.getSecurity().getPolicy());
+            LOG.businessError(DomibusMessageCode.BUS_SECURITY_POLICY_OUTGOING_NOT_FOUND, e, policyFromSecurity);
             throw new Fault(EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
                     .message("Could not find policy file " + domibusConfigurationService.getConfigLocation() + "/" + this.pModeProvider.getLegConfiguration(pModeKey).getSecurity())
@@ -87,14 +92,14 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
         if (!policyService.isNoSecurityPolicy(policy)) {
             message.put(SecurityConstants.USE_ATTACHMENT_ENCRYPTION_CONTENT_ONLY_TRANSFORM, true);
 
-            final String securityAlgorithm = securityProfileService.getSecurityAlgorithm(legConfiguration);
+            final String securityAlgorithm = securityProfileService.getSecurityAlgorithm(policyFromSecurity, securityProfile, legConfiguration.getName());
             message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
 
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_OUTGOING_USE, securityAlgorithm);
 
             String receiverPartyName = extractReceiverPartyName(pModeKey);
-            String encryptionAlias = securityProfileService.getAliasForEncrypting(legConfiguration, receiverPartyName);
+            String encryptionAlias = securityProfileService.getAliasForEncrypting(securityProfile, receiverPartyName);
 
             message.put(SecurityConstants.ENCRYPT_USERNAME, encryptionAlias);
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_USER_OUTGOING_USE, encryptionAlias);
@@ -121,10 +126,7 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
         return receiverPartyName;
     }
 
-
     public static class LogAfterPolicyCheckInterceptor extends AbstractSoapInterceptor {
-
-
         public LogAfterPolicyCheckInterceptor() {
             super(Phase.POST_STREAM);
             this.addAfter(PolicyVerificationOutInterceptor.class.getName());
