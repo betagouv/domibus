@@ -1,8 +1,12 @@
 package eu.domibus.test.common;
 
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
@@ -13,6 +17,9 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_GENERAL_SCHEMA;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
 
 /**
  * @author idragusa
@@ -26,9 +33,15 @@ public class MessageDBUtil {
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     private EntityManager entityManager;
 
+    @Autowired
+    protected DomibusPropertyProvider domibusPropertyProvider;
+
     public Map<String, Integer> getTableCounts(List<String> tablesToExclude) {
         Map<String, Integer> rownums = new HashMap<>();
-        Query query = entityManager.createNativeQuery("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE 'TB_%' and TABLE_NAME not like 'TB_D_%' and TABLE_NAME not like 'TB_PM_%'");
+        String domain_schema = domibusPropertyProvider.getProperty(DOMIBUS_DATABASE_SCHEMA);
+        String sqlQuery = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE 'TB_%' and TABLE_NAME not like 'TB_D_%' and TABLE_NAME not like 'TB_PM_%' and TABLE_SCHEMA='"
+                + domain_schema + "'";
+        Query query = entityManager.createNativeQuery(sqlQuery);
         try {
             List<String> tableNames = query.getResultList();
             tableNames.stream().forEach(tableName -> rownums.put(tableName, getCounter(tableName)));
@@ -44,7 +57,7 @@ public class MessageDBUtil {
         selectStr = selectStr.replace("TABLE_NAME", tableName);
         Query query = entityManager.createNativeQuery(selectStr);
 
-        BigInteger counter = (BigInteger)query.getSingleResult();
+        BigInteger counter = (BigInteger) query.getSingleResult();
         LOG.info("Table [{}] has counter [{}]", tableName, counter);
 
         return counter.intValue();

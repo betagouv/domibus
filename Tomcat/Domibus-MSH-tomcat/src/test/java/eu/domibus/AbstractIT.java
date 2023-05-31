@@ -146,20 +146,20 @@ public abstract class AbstractIT {
         LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
         LOG.info("activeMQConnectorPort=[{}]", activeMQConnectorPort);
 
+        springContextInitialized = true;
+    }
+
+    @Before
+    public void Init() {
+        domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
+        waitUntilDatabaseIsInitialized();
+        staticDictionaryService.createStaticDictionaryEntries();
+
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken(
                         "test_user",
                         "test_password",
                         Collections.singleton(new SimpleGrantedAuthority(eu.domibus.api.security.AuthRole.ROLE_ADMIN.name()))));
-
-        springContextInitialized = true;
-    }
-
-    @Before
-    public void setDomain() {
-        domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
-        waitUntilDatabaseIsInitialized();
-        staticDictionaryService.createStaticDictionaryEntries();
     }
 
 

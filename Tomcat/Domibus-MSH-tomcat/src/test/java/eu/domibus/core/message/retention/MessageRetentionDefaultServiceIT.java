@@ -3,6 +3,7 @@ package eu.domibus.core.message.retention;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.common.MessageStatusChangeEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.message.DeleteMessageAbstractIT;
@@ -50,14 +51,15 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
 
     @Autowired
     BackendConnectorHelper backendConnectorHelper;
-    
+
     ArgumentCaptor<MessageStatusChangeEvent> argCaptor = ArgumentCaptor.forClass(MessageStatusChangeEvent.class);
 
     BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
 
     @PostConstruct
     public void setupInfrastructure() {
-        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
+        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class)))
+                .thenReturn(backendConnector);
     }
 
 
@@ -79,6 +81,7 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
     @Test
     public void deleteExpiredNotDownloaded_deletesOnlyPayload_ifIsDeleteMessageMetadataAndNotZeroOffset() throws XmlProcessingException, IOException, SOAPException, ParserConfigurationException, SAXException {
         //given
+        Domain domain = domainContextProvider.getCurrentDomain();
         uploadPmodeWithCustomMpc(true, MAX_VALUE, 2, MAX_VALUE, MAX_VALUE);
         Map<String, Integer> initialMap = messageDBUtil.getTableCounts(tablesToExclude);
         String messageId = receiveMessageToDelete();
