@@ -105,7 +105,7 @@ public class TruststoreResource extends TruststoreResourceBase {
         return addCertificate(certificateFile, alias);
     }
 
-    @PostMapping(value = "/entries/add")
+    @PostMapping(value = "/certificates")
     public String addDomibusCertificate(@RequestPart("file") MultipartFile certificateFile,
                                         @RequestParam("partyName") @Valid @NotNull String partyName,
                                         @RequestParam("securityProfile") @Valid @NotNull SecurityProfile securityProfileDTO,
@@ -119,7 +119,7 @@ public class TruststoreResource extends TruststoreResourceBase {
         return removeCertificate(alias);
     }
 
-    @DeleteMapping(value = "/entries/delete/{partyName:.+}")
+    @DeleteMapping(value = "/certificates/{partyName:.+}")
     public String removeDomibusCertificate(@PathVariable String partyName,
                                            @RequestParam("securityProfile") @Valid @NotNull SecurityProfile securityProfile,
                                            @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurpose certificatePurpose) throws RequestValidationException {

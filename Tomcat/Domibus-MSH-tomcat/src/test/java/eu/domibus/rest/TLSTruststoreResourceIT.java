@@ -62,8 +62,8 @@ public class TLSTruststoreResourceIT extends AbstractIT {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TLSTruststoreResourceIT.class);
 
     public static final String TEST_ENDPOINT_RESOURCE = "/rest/tlstruststore";
-    public static final String TEST_ENDPOINT_ADD_WITH_SECURITY_PROFILES = TEST_ENDPOINT_RESOURCE + "/entries/add";
-    public static final String TEST_ENDPOINT_DELETE_WITH_SECURITY_PROFILES = TEST_ENDPOINT_RESOURCE + "/entries/delete/{partyName:.+}";
+    public static final String TEST_ENDPOINT_ADD_WITH_SECURITY_PROFILES = TEST_ENDPOINT_RESOURCE + "/certificates";
+    public static final String TEST_ENDPOINT_DELETE_WITH_SECURITY_PROFILES = TEST_ENDPOINT_RESOURCE + "/certificates/{partyName:.+}";
 
     @Autowired
     private TLSTruststoreResource tlsTruststoreResource;

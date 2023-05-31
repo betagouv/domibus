@@ -147,7 +147,7 @@ public class TLSTrustStoreExtResource {
 
     @Operation(summary = "Add Certificate", description = "Add Certificate to the TLS truststore",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
-    @PostMapping(value = "/entries/add", consumes = {"multipart/form-data"})
+    @PostMapping(value = "/certificates", consumes = {"multipart/form-data"})
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
                                     @RequestParam("partyName") @Valid @NotNull String partyName,
                                     @RequestParam("securityProfile") @Valid @NotNull SecurityProfile securityProfile,
@@ -178,7 +178,7 @@ public class TLSTrustStoreExtResource {
 
     @Operation(summary = "Remove Certificate", description = "Remove Certificate from the TLS truststore",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
-    @DeleteMapping(value = "/entries/delete/{partyName:.+}")
+    @DeleteMapping(value = "/certificates/{partyName:.+}")
     public String removeTLSCertificate(@PathVariable String partyName,
                                        @RequestParam("securityProfile") @Valid @NotNull SecurityProfile securityProfile,
                                        @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurpose certificatePurpose) throws RequestValidationException {

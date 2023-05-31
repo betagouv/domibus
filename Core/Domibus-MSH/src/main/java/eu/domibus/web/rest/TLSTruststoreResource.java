@@ -82,7 +82,7 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
         return addCertificate(certificateFile, alias);
     }
 
-    @PostMapping(value = "/entries/add")
+    @PostMapping(value = "/certificates")
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
                                     @RequestParam("partyName") @Valid @NotNull String partyName,
                                     @RequestParam("securityProfile") @Valid @NotNull SecurityProfile securityProfile,
@@ -96,7 +96,7 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
         return removeCertificate(alias);
     }
 
-    @DeleteMapping(value = "/entries/delete/{partyName:.+}")
+    @DeleteMapping(value = "/certificates/{partyName:.+}")
     public String removeTLSCertificate(@PathVariable String partyName,
                                        @RequestParam("securityProfile") @Valid @NotNull SecurityProfile securityProfile,
                                        @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurpose certificatePurpose) throws RequestValidationException {

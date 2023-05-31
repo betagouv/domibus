@@ -46,9 +46,9 @@ public class TrustStoreExtResourceIT extends AbstractIT {
     public static final String TEST_ENDPOINT_RESOURCE = "/ext/truststore";
     public static final String TEST_ENDPOINT_DOWNLOAD = TEST_ENDPOINT_RESOURCE + "/download";
     public static final String TEST_ENDPOINT_ADD = TEST_ENDPOINT_RESOURCE + "/entries";
-    public static final String TEST_ENDPOINT_ADD_WITH_SECURITY_PROFILES = TEST_ENDPOINT_RESOURCE + "/entries/add";
+    public static final String TEST_ENDPOINT_ADD_WITH_SECURITY_PROFILES = TEST_ENDPOINT_RESOURCE + "/certificates";
     public static final String TEST_ENDPOINT_DELETE = TEST_ENDPOINT_RESOURCE + "/entries/{alias}";
-    public static final String TEST_ENDPOINT_DELETE_WITH_SECURITY_PROFILES = TEST_ENDPOINT_RESOURCE + "/entries/delete/{partyName:.+}";
+    public static final String TEST_ENDPOINT_DELETE_WITH_SECURITY_PROFILES = TEST_ENDPOINT_RESOURCE + "/certificates/{partyName:.+}";
 
     private MockMvc mockMvc;
 
