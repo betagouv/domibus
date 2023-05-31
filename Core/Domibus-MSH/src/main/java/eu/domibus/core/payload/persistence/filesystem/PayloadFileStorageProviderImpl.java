@@ -34,7 +34,6 @@ public class PayloadFileStorageProviderImpl implements PayloadFileStorageProvide
 
     protected Map<Domain, PayloadFileStorage> instances = new HashMap<>();
 
-
     @Override
     public void initialize() {
         final List<Domain> domains = domainService.getDomains();
