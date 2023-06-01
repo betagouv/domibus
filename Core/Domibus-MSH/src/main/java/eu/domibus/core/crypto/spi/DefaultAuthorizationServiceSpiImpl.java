@@ -7,6 +7,7 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.RegexUtil;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -92,7 +93,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         if (securityProfileDTO != null && securityProfileDTO.getProfile() != null) {
             securityProfile = SecurityProfile.valueOf(securityProfileDTO.getProfile());
         }
-        String alias = securityProfileService.getAliasForSigning(securityProfile, userMessagePmodeData.getPartyName());
+        String alias = securityProfileService.getCertificateAliasForPurpose(userMessagePmodeData.getPartyName(), securityProfile, CertificatePurpose.SIGN);
         doAuthorize(signingCertificate, alias);
     }
 
@@ -134,7 +135,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             securityProfile = legConfigurations.iterator().next().getSecurity().getProfile();
         }
 
-        String alias = securityProfileService.getAliasForSigning(securityProfile, initiatorName);
+        String alias = securityProfileService.getCertificateAliasForPurpose(initiatorName, securityProfile, CertificatePurpose.SIGN);
 
         doAuthorize(signingCertificate, alias);
     }

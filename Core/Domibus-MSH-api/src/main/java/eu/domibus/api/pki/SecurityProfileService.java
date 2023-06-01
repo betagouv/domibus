@@ -26,13 +26,16 @@ public interface SecurityProfileService {
      */
     String getSecurityAlgorithm(String policyFromSecurity, SecurityProfile securityProfile, String legName) throws PModeException;
 
-    String getAliasForSigning(SecurityProfile securityProfile, String senderName);
-
+    /**
+     * Creates the certificate alias in the form: partyName_securityProfile_certificatePurpose if security profiles are configured.
+     * If no security profiles are configured then the alias consists only of the partyName, this being considered as a legacy alias
+     *
+     * @param partyName the party name
+     * @param securityProfile the configured security profile, or null if no security profile is configured
+     * @param certificatePurpose can be SIGN, ENCRYPT, DECRYPT
+     * @return the alias created as described above
+     */
     String getCertificateAliasForPurpose(String partyName, SecurityProfile securityProfile, CertificatePurpose certificatePurpose);
-
-    String getAliasForEncrypting(SecurityProfile securityProfile, String receiverName);
-
-    String getAliasForDecrypting(SecurityProfile securityProfile, String receiverName);
 
     CertificatePurpose extractCertificatePurpose(String alias);
 

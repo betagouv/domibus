@@ -3,6 +3,7 @@ package eu.domibus.core.ebms3.sender.interceptor;
 import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -99,7 +100,7 @@ public class SetPolicyOutInterceptor extends AbstractSoapInterceptor {
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_ALGORITHM_OUTGOING_USE, securityAlgorithm);
 
             String receiverPartyName = extractReceiverPartyName(pModeKey);
-            String encryptionAlias = securityProfileService.getAliasForEncrypting(securityProfile, receiverPartyName);
+            String encryptionAlias = securityProfileService.getCertificateAliasForPurpose(receiverPartyName, securityProfile, CertificatePurpose.ENCRYPT);
 
             message.put(SecurityConstants.ENCRYPT_USERNAME, encryptionAlias);
             LOG.businessInfo(DomibusMessageCode.BUS_SECURITY_USER_OUTGOING_USE, encryptionAlias);

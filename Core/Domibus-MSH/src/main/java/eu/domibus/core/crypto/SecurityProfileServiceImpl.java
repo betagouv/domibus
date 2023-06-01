@@ -84,43 +84,26 @@ public class SecurityProfileServiceImpl implements SecurityProfileService {
         return algorithmSuiteType.getAsymmetricSignature();
     }
 
-    public String getAliasForSigning(SecurityProfile securityProfile, String senderName) {
-        String alias = senderName;
-        if (securityProfile != null) {
-            alias = senderName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_sign";
-        }
-        LOG.info("The following alias was determined for signing: [{}]", alias);
-        return alias;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     public String getCertificateAliasForPurpose(String partyName, SecurityProfile securityProfile, CertificatePurpose certificatePurpose) {
         switch (certificatePurpose) {
             case SIGN:
-                return getAliasForSigning(securityProfile, partyName);
             case ENCRYPT:
-                return getAliasForEncrypting(securityProfile, partyName);
             case DECRYPT:
-                return getAliasForDecrypting(securityProfile, partyName);
+                return getSecurityProfileAlias(partyName, securityProfile, certificatePurpose);
             default:
                 throw new DomibusCertificateException("Invalid certificate usage [" + certificatePurpose +"]");
         }
     }
 
-    public String getAliasForEncrypting(SecurityProfile securityProfile, String receiverName) {
-        String alias = receiverName;
+    private String getSecurityProfileAlias(String partyName, SecurityProfile securityProfile, CertificatePurpose certificatePurpose) {
+        String alias = partyName;
         if (securityProfile != null) {
-            alias = receiverName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_encrypt";
+            alias = partyName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_" + certificatePurpose.getCertificatePurpose().toLowerCase();
         }
-        LOG.info("The following alias was determined for encrypting: [{}]", alias);
-        return alias;
-    }
-
-    public String getAliasForDecrypting(SecurityProfile securityProfile, String receiverName) {
-        String alias = receiverName;
-        if (securityProfile != null) {
-            alias = receiverName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_decrypt";
-        }
-        LOG.info("The following alias was determined for decrypting: [{}]", alias);
+        LOG.info("The following alias was determined for [{}]ing: [{}]", certificatePurpose.getCertificatePurpose().toLowerCase(), alias);
         return alias;
     }
 
@@ -144,7 +127,7 @@ public class SecurityProfileServiceImpl implements SecurityProfileService {
             throw new ConfigurationException(exceptionMessage);
         }
 
-        String aliasForSigning = getAliasForSigning(securityProfile, acknowledgementSenderName);
+        String aliasForSigning = getCertificateAliasForPurpose(acknowledgementSenderName, securityProfile, CertificatePurpose.SIGN);
 
         try {
             X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainContextProvider.getCurrentDomain(), aliasForSigning);

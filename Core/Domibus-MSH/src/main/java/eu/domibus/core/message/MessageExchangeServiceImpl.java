@@ -15,6 +15,7 @@ import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.reliability.ReliabilityException;
+import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -365,7 +366,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             return;
         }
 
-        String alias = securityProfileService.getAliasForEncrypting(securityProfile, receiverName);
+        String alias = securityProfileService.getCertificateAliasForPurpose(receiverName, securityProfile, CertificatePurpose.ENCRYPT);
 
         if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING)) {
             String chainExceptionMessage = "Cannot send message: receiver certificate is not valid or it has been revoked [" + alias + "]";
@@ -410,7 +411,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
             return;
         }
 
-        String alias = securityProfileService.getAliasForSigning(securityProfile, senderName);
+        String alias = securityProfileService.getCertificateAliasForPurpose(senderName, securityProfile, CertificatePurpose.SIGN);
 
         if (domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING)) {
             String chainExceptionMessage = "Cannot send message: sender certificate is not valid or it has been revoked [" + alias + "]";
