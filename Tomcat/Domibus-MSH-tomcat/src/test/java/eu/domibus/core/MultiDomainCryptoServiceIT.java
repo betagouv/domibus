@@ -325,7 +325,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     }
 
     @Test
-    public void isChangedObDisk() throws KeyStoreException, IOException {
+    public void isChangedOnDisk() throws KeyStoreException, IOException {
         KeyStore trustStore = multiDomainCryptoService.getTrustStore(domain);
         Assert.assertTrue(trustStore.containsAlias("blue_gw"));
 

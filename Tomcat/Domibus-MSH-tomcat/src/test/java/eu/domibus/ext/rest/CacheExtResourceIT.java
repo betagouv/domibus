@@ -75,6 +75,9 @@ public class CacheExtResourceIT extends AbstractIT {
         checkStillIn2LCache();
     }
 
+//    protected void setAuth() {
+//    }
+
     @After
     public void tearDown() throws Exception {
         cacheExtService.evict2LCaches();
@@ -92,8 +95,6 @@ public class CacheExtResourceIT extends AbstractIT {
         }
         return domainByCode.get(domainName);
     }
-
-
 
     @Test
     public void deleteCache_noUser() throws Exception {
