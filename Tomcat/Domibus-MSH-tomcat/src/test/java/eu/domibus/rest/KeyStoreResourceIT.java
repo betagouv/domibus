@@ -60,7 +60,7 @@ public class KeyStoreResourceIT extends AbstractIT {
         List<TrustStoreRO> entries = storeResource.listEntries();
 
         String fileName = "gateway_keystore2.jks";
-        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, fileName);
+        Path path = getPath(fileName);
         byte[] content = Files.readAllBytes(path);
         MultipartFile multiPartFile = new MockMultipartFile(fileName, fileName, "octetstream", content);
 
@@ -73,16 +73,16 @@ public class KeyStoreResourceIT extends AbstractIT {
     }
 
     @Test
-    public void isChangedObDisk() throws KeyStoreException, IOException {
+    public void isChangedObDisk() throws IOException {
         List<TrustStoreRO> trustStore = storeResource.listEntries();
         Assert.assertEquals(2, trustStore.size());
 
         boolean isChangedOnDisk = storeResource.isChangedOnDisk();
         Assert.assertFalse(isChangedOnDisk);
 
-        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "gateway_keystore2.jks");
+        Path path = getPath("gateway_keystore2.jks");
         byte[] content = Files.readAllBytes(path);
-        Path currentPath = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "gateway_keystore.jks");
+        Path currentPath = getPath("gateway_keystore.jks");
         Files.write(currentPath, content, StandardOpenOption.WRITE);
 
         isChangedOnDisk = storeResource.isChangedOnDisk();
@@ -96,11 +96,15 @@ public class KeyStoreResourceIT extends AbstractIT {
         Assert.assertEquals(9, trustStore.size());
     }
 
+    private Path getPath(String newStoreName) {
+        return Paths.get(domibusConfigurationService.getConfigLocation(), "domains", domainContextProvider.getCurrentDomainSafely().getCode(), KEYSTORES, newStoreName);
+    }
+
     private void resetInitialStore() {
         try {
             String storePassword = "test123";
             Domain domain = DomainService.DEFAULT_DOMAIN;
-            Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, "gateway_keystore_original.jks");
+            Path path = getPath("gateway_keystore_original.jks");
             byte[] content = Files.readAllBytes(path);
             KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, "gateway_keystore.jks", content, storePassword);
             multiDomainCryptoService.replaceKeyStore(domain, storeInfo);
