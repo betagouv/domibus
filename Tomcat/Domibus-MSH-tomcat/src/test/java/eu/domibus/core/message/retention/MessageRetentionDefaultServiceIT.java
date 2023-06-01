@@ -161,7 +161,8 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
         assertMedatadaNotDeleted(initialMap, finalMap);
         assertPayloadDeleted(messageId);
 
-        Mockito.verify(backendConnector, Mockito.times(1)).messageStatusChanged(argCaptor.capture());
+        Mockito.verify(backendConnector, Mockito.times(1))
+                .messageStatusChanged(argCaptor.capture());
         MessageStatusChangeEvent event = argCaptor.getValue();
         assertEquals(eu.domibus.common.MessageStatus.DOWNLOADED, event.getFromStatus());
         assertEquals(eu.domibus.common.MessageStatus.DELETED, event.getToStatus());
