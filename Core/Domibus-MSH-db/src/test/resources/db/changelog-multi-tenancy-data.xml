@@ -13,6 +13,12 @@
             <column name="USER_NAME" value="admin"/>
             <column name="DOMAIN" value="default"/>
         </insert>
+
+        <insert tableName="TB_USER_DOMAIN">
+            <column name="ID_PK" value="${default_id_pk}0000000002" type="BIGINT"/>
+            <column name="USER_NAME" value="user"/>
+            <column name="DOMAIN" value="default"/>
+        </insert>
     </changeSet>
 
     <changeSet id="EDELIVERY-4916" author="Catalin Enache">
