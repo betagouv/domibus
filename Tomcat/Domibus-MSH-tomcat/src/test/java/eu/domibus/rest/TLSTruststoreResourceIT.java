@@ -13,6 +13,8 @@ import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.TLSCertificateManagerImpl;
+import eu.domibus.ext.rest.util.RestUtil;
+import eu.domibus.ext.rest.util.RestUtilBase;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.TLSTruststoreResource;
@@ -23,7 +25,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
@@ -82,10 +83,13 @@ public class TLSTruststoreResourceIT extends AbstractIT {
 
     private MockMvc mockMvc;
 
+    protected RestUtilBase restUtil;
+
     @Before
     public void before() {
         mockMvc = MockMvcBuilders.standaloneSetup(tlsTruststoreResource).build();
         resetInitalTruststore();
+        restUtil = new RestUtil(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD, mockMvc);
     }
 
     @Test
@@ -251,49 +255,33 @@ public class TLSTruststoreResourceIT extends AbstractIT {
     @Transactional
     @WithMockUser(username = TEST_PLUGIN_USERNAME, roles = {"ADMIN"})
     public void addWithSecurityProfiles() throws Exception {
+        //given
         uploadTrustStore("keystores/gateway_truststore2.jks", "gateway_truststore2.jks");
-        addCertificateWithSecurityProfiles();
-    }
 
-    protected void addCertificateWithSecurityProfiles() throws Exception {
-        try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/red_gw.cer")) {
-            MockMultipartFile multiPartFile = getMultiPartFile("red_gw.cer", resourceAsStream);
+        //when
+        MvcResult result = restUtil.addCertificateToStore(TEST_ENDPOINT_ADD_WITH_SECURITY_PROFILES);
 
-            MvcResult result = mockMvc.perform(multipart(TEST_ENDPOINT_ADD_WITH_SECURITY_PROFILES)
-                            .file(multiPartFile)
-                            .param("partyName", "red_gw")
-                            .param("securityProfile", SecurityProfile.RSA.getProfile())
-                            .param("certificatePurpose", CertificatePurpose.DECRYPT.getCertificatePurpose())
-                            .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                            .with(csrf()))
-                    .andExpect(status().is2xxSuccessful())
-                    .andReturn();
-            String content = result.getResponse().getContentAsString();
-            Assert.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully added to the [TLS.truststore].", content);
-        }
+        //then
+        String content = result.getResponse().getContentAsString();
+        Assert.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully added to the [TLS.truststore].", content);
     }
 
     @Test
     @Transactional
     @WithMockUser(username = TEST_PLUGIN_USERNAME, roles = {"ADMIN"})
     public void deleteWithSecurityProfiles() throws Exception {
+        //given
         uploadTrustStore("keystores/default.jks", "default.jks");
-        addCertificateWithSecurityProfiles();
+        MvcResult result = restUtil.addCertificateToStore(TEST_ENDPOINT_ADD_WITH_SECURITY_PROFILES);
+        String content = result.getResponse().getContentAsString();
+        Assert.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully added to the [TLS.truststore].", content);
 
-        try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/default.jks")) {
-            MockMultipartFile multiPartFile = getMultiPartFile("default.jks", resourceAsStream);
+        //when
+        result = restUtil.deleteCertificateFromStore(TEST_ENDPOINT_DELETE_WITH_SECURITY_PROFILES);
 
-            MvcResult result = mockMvc.perform(multipart(HttpMethod.DELETE, TEST_ENDPOINT_DELETE_WITH_SECURITY_PROFILES, "red_gw")
-                            .file(multiPartFile)
-                            .param("securityProfile", SecurityProfile.RSA.getProfile())
-                            .param("certificatePurpose", CertificatePurpose.DECRYPT.getCertificatePurpose())
-                            .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                            .with(csrf()))
-                    .andExpect(status().is2xxSuccessful())
-                    .andReturn();
-            String content = result.getResponse().getContentAsString();
-            Assert.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully removed from the [TLS.truststore].", content);
-        }
+        //then
+        content = result.getResponse().getContentAsString();
+        Assert.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully removed from the [TLS.truststore].", content);
     }
 
     @Test(expected = DomibusCertificateException.class)
