@@ -30,9 +30,9 @@ public abstract class TrustStoreExtResourceBaseIT extends AbstractIT {
 
     protected MockMvc mockMvc;
 
-    static RestUtilBase restUtil;
+    protected RestUtilBase restUtil;
 
-    static RestUtilBase legacyRestUtil;
+    protected RestUtilBase legacyRestUtil;
 
     protected MvcResult downloadTrustStore(String downloadEndpoint) throws Exception {
         return mockMvc.perform(get(downloadEndpoint)
