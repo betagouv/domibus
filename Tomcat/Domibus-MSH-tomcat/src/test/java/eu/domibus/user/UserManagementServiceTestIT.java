@@ -37,11 +37,13 @@ public class UserManagementServiceTestIT extends AbstractIT {
 
     @Autowired
     UserManagementServiceImpl userManagementService;
+
     @Autowired
     UserDetailServiceImpl userDetailService;
 
     @Autowired
     protected UserDao userDao;
+
     @Autowired
     protected AuthenticationService authenticationService;
 
@@ -65,8 +67,8 @@ public class UserManagementServiceTestIT extends AbstractIT {
     public void updateUsers_loggedIn_changeActive() {
         LOG.info("LOGGED: [{}]", authenticationService.getLoggedUser().getUsername());
 
-        eu.domibus.api.user.User admin = initTestUser("admin_test", AuthRole.ROLE_ADMIN);
         eu.domibus.api.user.User apiUser = initTestUser(LOGGED_USER, AuthRole.ROLE_ADMIN);
+        apiUser.setDomain(domainContextProvider.getCurrentDomainSafely().getCode());
         apiUser.setActive(false);
         try {
             userManagementService.updateUsers(Collections.singletonList(apiUser));
@@ -119,13 +121,18 @@ public class UserManagementServiceTestIT extends AbstractIT {
     public void updateUsers_notLoggedIn_atLeastOneAdmin_multitenancy() {
         LOG.info("LOGGED: [{}]", authenticationService.getLoggedUser().getUsername());
 
+        domainContextProvider.clearCurrentDomain();
         domibusPropertyProvider.setProperty(DomainService.GENERAL_SCHEMA_PROPERTY, "generalSchema");
+
+        domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
         cacheServiceDelegate.evictCaches();
         final User userEntity = createUser("baciuco", "Password-0123456", "test@domibus.eu", AuthRole.ROLE_USER);
         final eu.domibus.api.user.User apiUser = convert(userEntity);
         apiUser.setActive(false);
         userManagementService.updateUsers(Collections.singletonList(apiUser));
         cacheServiceDelegate.evictCaches();
+
+        domainContextProvider.clearCurrentDomain();
         domibusPropertyProvider.setProperty(DomainService.GENERAL_SCHEMA_PROPERTY, "");
     }
 
