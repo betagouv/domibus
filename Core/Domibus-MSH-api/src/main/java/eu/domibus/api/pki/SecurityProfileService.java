@@ -20,6 +20,7 @@ public interface SecurityProfileService {
      *
      * @param policyFromSecurity the policy name from the Security entity
      * @param securityProfile the security profile
+     * @param legName the configured leg name
      * @throws PModeException thrown when the legConfiguration contains an invalid security profile
      * @return the Asymmetric Signature Algorithm
      */
