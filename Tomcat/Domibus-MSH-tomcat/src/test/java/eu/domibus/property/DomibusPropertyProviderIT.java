@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 
@@ -150,7 +152,8 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         String cachedValue = getCachedValue(propertyName);
         Assert.assertNull(cachedValue);
         //add to cache
-        String actualValue = domibusPropertyProvider.getProperty(propertyName);
+        String originalValue = domibusPropertyProvider.getProperty(propertyName);
+        String actualValue = originalValue;
         //gets the cached value now
         cachedValue = getCachedValue(propertyName);
         Assert.assertNotNull(cachedValue);
@@ -168,6 +171,8 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         //finds it there
         cachedValue = getCachedValue(propertyName);
         Assert.assertEquals(newValue, actualValue);
+
+        domibusPropertyProvider.setProperty(propertyName, originalValue);
     }
 
     @Test
@@ -245,9 +250,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
 
     @Test
     public void testSetPropertyReplacesOK() throws IOException {
-        String propertyName = "domibus.UI.title.name";
-
-        testSetPropertyWithName(propertyName);
+        testSetPropertyWithName(DOMIBUS_UI_TITLE_NAME);
     }
 
     @Test
@@ -281,7 +284,8 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     private void testSetPropertyWithName(String propertyName) throws IOException {
         File propertyFile = getPropertyFile();
 
-        String actualValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
+        String originalValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
+        String actualValue = originalValue;
 
         String persistedPropValue = findPropertyInFile(propertyName, propertyFile);
         Assert.assertEquals(actualValue, persistedPropValue);
@@ -295,6 +299,8 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         Assert.assertEquals(actualValue, persistedPropValue);
 
         Assert.assertEquals(newValue, persistedPropValue);
+
+        domibusPropertyProvider.setProperty(defaultDomain, propertyName, originalValue);
     }
 
     private String findPropertyInFile(String propertyName, File propertyFile) throws IOException {
@@ -313,15 +319,16 @@ public class DomibusPropertyProviderIT extends AbstractIT {
 
     private File getPropertyFile(Domain domain) {
         String configurationFileName = domibusConfigurationService.getConfigurationFileName(domain);
-        String fullName = domibusConfigurationService.getConfigLocation() + File.separator + configurationFileName;
-        return new File(fullName);
+
+        Path fullName = Paths.get(domibusConfigurationService.getConfigLocation(), configurationFileName);
+
+//        String fullName = domibusConfigurationService.getConfigLocation() + File.separator + configurationFileName;
+
+        return new File(fullName.toString());
     }
 
     private File getPropertyFile() {
         return getPropertyFile(defaultDomain);
-//        String configurationFileName = domibusConfigurationService.getConfigurationFileName();
-//        String fullName = domibusConfigurationService.getConfigLocation() + File.separator + configurationFileName;
-//        return new File(fullName);
     }
 
     private String getCachedValue(Domain domain, String propertyName) {
