@@ -61,6 +61,10 @@ public class UserManagementServiceTestIT extends AbstractIT {
         userDao.delete(userDao.listUsers());
     }
 
+    protected void setAuth() {
+        // intentionally avoid setting the base class auth
+    }
+
     @Test
     @Transactional
     @WithUserDetails(value = LOGGED_USER, userDetailsServiceBeanName = "testUserDetailService")
@@ -103,7 +107,7 @@ public class UserManagementServiceTestIT extends AbstractIT {
     public void updateUsers_notLoggedIn_atLeastOneAdmin() {
         LOG.info("LOGGED: [{}]", authenticationService.getLoggedUser().getUsername());
 
-        final User userEntity = createUser("baciuco", "Password-0123456", "test@domibus.eu", AuthRole.ROLE_USER);
+        final User userEntity = createUser("testUser1", "Password-0123456", "test@domibus.eu", AuthRole.ROLE_USER);
         final eu.domibus.api.user.User apiUser = convert(userEntity);
         apiUser.setActive(false);
         try {

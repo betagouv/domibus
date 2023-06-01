@@ -156,6 +156,10 @@ public abstract class AbstractIT {
         waitUntilDatabaseIsInitialized();
         staticDictionaryService.createStaticDictionaryEntries();
 
+        setAuth();
+    }
+
+    protected void setAuth() {
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken(
                         "test_user",
