@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
@@ -228,7 +229,10 @@ public abstract class AbstractIT {
     }
 
     protected Callable<Boolean> messageHasStatus(String messageId, MSHRole mshRole, MessageStatus messageStatus) {
-        return () -> messageStatus == userMessageLogDao.getMessageStatus(messageId, mshRole);
+        return () -> {
+            domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
+            return messageStatus == userMessageLogDao.getMessageStatus(messageId, mshRole);
+        };
     }
 
     protected Callable<Boolean> databaseIsInitialized() {
@@ -237,8 +241,8 @@ public abstract class AbstractIT {
                 return userRoleDao.listRoles().size() > 0;
             } catch (Exception e) {
                 LOG.error("Could not get the roles list", e);
+                return false;
             }
-            return false;
         };
     }
 
