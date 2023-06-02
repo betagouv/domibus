@@ -104,6 +104,15 @@ public class PropertyChangeManager {
     }
 
     protected void doSetPropertyValue(Domain domain, String propertyName, String propertyValue) {
+        String propertyKey = getPropertyKey(domain, propertyName);
+
+        //set the value
+        setValueInDomibusPropertySource(propertyKey, propertyValue);
+
+        saveInFile(domain, propertyName, propertyValue, propertyKey);
+    }
+
+    private String getPropertyKey(Domain domain, String propertyName) {
         String propertyKey;
         //calculate property key
         if (propertyProviderHelper.isMultiTenantAware()) {
@@ -113,11 +122,7 @@ public class PropertyChangeManager {
             // in single-tenancy mode - the property key is always the property name
             propertyKey = propertyName;
         }
-
-        //set the value
-        setValueInDomibusPropertySource(propertyKey, propertyValue);
-
-        saveInFile(domain, propertyName, propertyValue, propertyKey);
+        return propertyKey;
     }
 
     protected void signalPropertyValueChanged(Domain domain, String propertyName, String propertyValue,
@@ -254,6 +259,10 @@ public class PropertyChangeManager {
             if (!Files.exists(propertyFile.toPath())) {
                 LOG.info("Properties file for module [{}] could not be found at the location [{}]; creating it now.", propMeta.getName(), configurationFileName);
                 try {
+                    File parent = propertyFile.getParentFile();
+                    if (parent != null && !parent.exists() && !parent.mkdirs()) {
+                        throw new DomibusPropertyException("Couldn't create dir: " + parent);
+                    }
                     propertyFile = Files.createFile(propertyFile.toPath()).toFile();
                 } catch (IOException e) {
                     throw new DomibusPropertyException(String.format("Could not create the properties file for module [%s] at the location [%s].",
@@ -295,6 +304,10 @@ public class PropertyChangeManager {
                 LOG.info("Domain properties file for module [{}] and domain [{}] could not be found at the location [{}]; creating it now.",
                         propMeta.getName(), domain, configurationFileName);
                 try {
+                    File parent = propertyFile.getParentFile();
+                    if (parent != null && !parent.exists() && !parent.mkdirs()) {
+                        throw new DomibusPropertyException("Couldn't create dir: " + parent);
+                    }
                     propertyFile = Files.createFile(propertyFile.toPath()).toFile();
                 } catch (IOException e) {
                     throw new DomibusPropertyException(String.format("Could not create the domain properties file for module [%s] and domain [%s] at the location [%s].",

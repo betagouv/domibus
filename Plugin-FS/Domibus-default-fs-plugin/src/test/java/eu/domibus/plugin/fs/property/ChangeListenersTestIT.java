@@ -16,6 +16,7 @@ import eu.domibus.plugin.fs.property.listeners.TriggerChangeListener;
 import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
 import eu.domibus.test.AbstractIT;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,12 +117,17 @@ public class ChangeListenersTestIT extends AbstractIT {
         Mockito.verify(messageListenerContainer, Mockito.times(1)).updateMessageListenerContainerConcurrency(aDefault, "1-2");
     }
 
-    @Test(expected = DomibusPropertyException.class)
+    @Test
     public void testEnabledChangeListenerException() {
         boolean handlesProperty = enabledChangeListener.handlesProperty(DOMAIN_ENABLED);
         Assert.assertTrue(handlesProperty);
 
-        fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, "false");
+        try {
+            fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, "false");
+            Assert.fail();
+        } catch (DomibusPropertyException ex) {
+            String val = fsPluginProperties.getKnownPropertyValue(DOMAIN_ENABLED);
+        }
     }
 
     @Test
