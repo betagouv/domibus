@@ -56,6 +56,7 @@ public class SecurityProfileServiceImpl implements SecurityProfileService {
         this.domainContextProvider = domainContextProvider;
     }
 
+    @Override
     public boolean isSecurityPolicySet(String policyFromSecurity, SecurityProfile securityProfile, String legName) throws PModeException {
         Policy policy;
         try {
@@ -71,6 +72,7 @@ public class SecurityProfileServiceImpl implements SecurityProfileService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getSecurityAlgorithm(String policyFromSecurity, SecurityProfile securityProfile, String legName) throws PModeException {
         if (!isSecurityPolicySet(policyFromSecurity, securityProfile, legName)) {
             return null;
@@ -87,6 +89,7 @@ public class SecurityProfileServiceImpl implements SecurityProfileService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public String getCertificateAliasForPurpose(String partyName, SecurityProfile securityProfile, CertificatePurpose certificatePurpose) {
         switch (certificatePurpose) {
             case SIGN:
@@ -107,10 +110,12 @@ public class SecurityProfileServiceImpl implements SecurityProfileService {
         return alias;
     }
 
+    @Override
     public CertificatePurpose extractCertificatePurpose(String alias) {
         return CertificatePurpose.lookupByName(StringUtils.substringAfterLast(alias, "_").toUpperCase());
     }
 
+    @Override
     public SecurityProfile extractSecurityProfile(String alias) {
         return SecurityProfile.lookupByName(StringUtils.substringAfterLast(StringUtils.substringBeforeLast(alias,"_"), "_").toUpperCase());
     }
@@ -118,6 +123,7 @@ public class SecurityProfileServiceImpl implements SecurityProfileService {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(final SecurityProfile securityProfile, UserMessage userMessage) {
         String acknowledgementSenderName;
         try {
