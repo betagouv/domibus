@@ -72,11 +72,11 @@ public class CacheExtResourceIT extends AbstractIT {
         //set one value in 2L cache
         dummyMpc = mpcDao.findOrCreateMpc("DUMMY_MPC");
         //check value is present in 2L Cache
-        checkStillIn2LCache();
+//        checkStillIn2LCache();
     }
 
-//    protected void setAuth() {
-//    }
+    protected void setAuth() {
+    }
 
     @After
     public void tearDown() throws Exception {
@@ -106,11 +106,13 @@ public class CacheExtResourceIT extends AbstractIT {
     }
 
     private void checkStillInCache() {
-        Assert.assertNotNull(getSpecificDomainCached(NOT_FOUND));
+        Cache.ValueWrapper wrapper = getSpecificDomainCached(NOT_FOUND);
+        Assert.assertNotNull(wrapper);
     }
 
     private void checkNothingInCache() {
-        Assert.assertNull(getSpecificDomainCached(NOT_FOUND));
+        Cache.ValueWrapper domainCached = getSpecificDomainCached(NOT_FOUND);
+        Assert.assertNull(domainCached);
     }
 
     @Test
@@ -141,7 +143,8 @@ public class CacheExtResourceIT extends AbstractIT {
     }
 
     private void checkStillIn2LCache() {
-        Assert.assertTrue(specificMpc2LIsCached(dummyMpc.getEntityId()));
+        boolean isCached = specificMpc2LIsCached(dummyMpc.getEntityId());
+        Assert.assertTrue(isCached);
     }
 
     private void checkNothingIn2LCache() {

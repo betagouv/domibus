@@ -23,6 +23,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+import java.util.List;
+
 import static eu.domibus.plugin.fs.FSPluginImpl.PLUGIN_NAME;
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.*;
 

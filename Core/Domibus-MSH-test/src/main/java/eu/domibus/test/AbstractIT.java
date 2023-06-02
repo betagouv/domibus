@@ -16,6 +16,7 @@ import eu.domibus.core.spring.DomibusApplicationContextListener;
 import eu.domibus.core.spring.DomibusRootConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.test.common.DomibusMTTestDatasourceConfiguration;
 import eu.domibus.test.common.DomibusTestDatasourceConfiguration;
 import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.commons.io.FileUtils;
@@ -47,7 +48,7 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(initializers = PropertyOverrideContextInitializer.class,
         classes = {DomibusRootConfiguration.class, DomibusWebConfiguration.class,
-                DomibusTestDatasourceConfiguration.class, DomibusTestMocksConfiguration.class})
+                DomibusMTTestDatasourceConfiguration.class, DomibusTestMocksConfiguration.class})
 public abstract class AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
@@ -88,12 +89,13 @@ public abstract class AbstractIT {
 
     @BeforeClass
     public static void init() throws IOException {
-        if(springContextInitialized) {
+        if (springContextInitialized) {
             return;
         }
 
         final File domibusConfigLocation = new File("target/test-classes");
-        System.setProperty("domibus.config.location", domibusConfigLocation.getAbsolutePath());
+        String absolutePath = domibusConfigLocation.getAbsolutePath();
+        System.setProperty("domibus.config.location", absolutePath);
 
         final File projectRoot = new File("").getAbsoluteFile().getParentFile();
 
@@ -111,21 +113,21 @@ public abstract class AbstractIT {
         System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false&create=false"); // see EDELIVERY-10294 and check if this can be removed
         LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
 
+        springContextInitialized = true;
+    }
+
+    @Before
+    public void initInstance() {
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken(
                         "test_user",
                         "test_password",
                         Collections.singleton(new SimpleGrantedAuthority(eu.domibus.api.security.AuthRole.ROLE_ADMIN.name()))));
 
-        springContextInitialized = true;
-    }
-
-    @Before
-    public void setDomain() {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
         domibusConditionUtil.waitUntilDatabaseIsInitialized();
 
-        if(!springContextInitialized) {
+        if (!springContextInitialized) {
             LOG.info("Executing the ApplicationContextListener initialization");
             domibusApplicationContextListener.doInitialize();
         }
