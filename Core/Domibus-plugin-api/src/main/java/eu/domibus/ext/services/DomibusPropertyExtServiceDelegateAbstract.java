@@ -156,10 +156,10 @@ public abstract class DomibusPropertyExtServiceDelegateAbstract implements Domib
         if (propMeta.isStoredGlobally()) {
             final DomainDTO domain = domainExtService.getDomain(domainCode);
             domibusPropertyExtService.setProperty(domain, propertyName, propertyValue, broadcast);
+        } else {
+            LOG.debug("Property [{}] is not stored globally so onSetLocalPropertyValue is called.", propertyName);
+            onSetLocalPropertyValue(domainCode, propertyName, propertyValue, broadcast);
         }
-
-        LOG.debug("Property [{}] is not stored globally so onSetLocalPropertyValue is called.", propertyName);
-        onSetLocalPropertyValue(domainCode, propertyName, propertyValue, broadcast);
     }
 
     /**

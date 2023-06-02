@@ -28,7 +28,6 @@ public class FSPluginPropertiesMultitenantIT extends AbstractIT {
     private static final String DOMAIN2 = "domain2";
     private static final String NONEXISTENT_DOMAIN = "NONEXISTENT_DOMAIN";
 
-    private static final String DEFAULT_LOCATION = "/tmp/fs_plugin_data";
     private static final String DOMAIN1_LOCATION = "/tmp/fs_plugin_data/domain1";
 
     @Autowired

@@ -96,9 +96,9 @@ public class FSPluginPropertiesIT extends AbstractIT {
     @Test
     public void testKnownPropertyValue_singleTenancy() {
         final String domainDefault = "default";
-        final String propertyName1 = LOCATION;
+        final String propertyName1 = FSPluginPropertiesMetadataManagerImpl.FAILED_ACTION;
         final String propertyName2 = FSPluginPropertiesMetadataManagerImpl.SENT_ACTION;
-        final String oldPropertyValue1 = "/tmp/fs_plugin_data";
+        final String oldPropertyValue1 = "archive";
         final String oldPropertyValue2 = "delete";
         final String newPropertyValue1 = "new-property-value1";
         final String newPropertyValue2 = "new-property-value2";
