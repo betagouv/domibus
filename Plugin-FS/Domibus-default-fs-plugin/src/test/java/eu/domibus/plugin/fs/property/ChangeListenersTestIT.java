@@ -126,7 +126,6 @@ public class ChangeListenersTestIT extends AbstractIT {
             fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, "false");
             Assert.fail();
         } catch (DomibusPropertyException ex) {
-            String val = fsPluginProperties.getKnownPropertyValue(DOMAIN_ENABLED);
         }
     }
 

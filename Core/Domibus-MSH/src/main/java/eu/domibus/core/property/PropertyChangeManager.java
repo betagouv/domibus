@@ -104,12 +104,21 @@ public class PropertyChangeManager {
     }
 
     protected void doSetPropertyValue(Domain domain, String propertyName, String propertyValue) {
+        //keep old value in case of an exception
+        String oldValue = getInternalPropertyValue(domain, propertyName);
+
         String propertyKey = getPropertyKey(domain, propertyName);
 
         //set the value
         setValueInDomibusPropertySource(propertyKey, propertyValue);
 
-        saveInFile(domain, propertyName, propertyValue, propertyKey);
+        try {
+            saveInFile(domain, propertyName, propertyValue, propertyKey);
+        } catch (Exception ex) {
+            LOG.warn("Could not persist the property [{}] value [{}] in the file; reverting to [{}]", propertyName, propertyValue, oldValue);
+            setValueInDomibusPropertySource(propertyKey, oldValue);
+            throw ex;
+        }
     }
 
     private String getPropertyKey(Domain domain, String propertyName) {
@@ -261,7 +270,7 @@ public class PropertyChangeManager {
                 try {
                     File parent = propertyFile.getParentFile();
                     if (parent != null && !parent.exists() && !parent.mkdirs()) {
-                        throw new DomibusPropertyException("Couldn't create dir: " + parent);
+                        throw new DomibusPropertyException("Couldn't create path: " + propertyFile);
                     }
                     propertyFile = Files.createFile(propertyFile.toPath()).toFile();
                 } catch (IOException e) {
@@ -306,7 +315,7 @@ public class PropertyChangeManager {
                 try {
                     File parent = propertyFile.getParentFile();
                     if (parent != null && !parent.exists() && !parent.mkdirs()) {
-                        throw new DomibusPropertyException("Couldn't create dir: " + parent);
+                        throw new DomibusPropertyException("Couldn't create path: " + propertyFile);
                     }
                     propertyFile = Files.createFile(propertyFile.toPath()).toFile();
                 } catch (IOException e) {
@@ -374,7 +383,7 @@ public class PropertyChangeManager {
     private void manageBackups(File configurationFile, Domain domain) {
         Integer period = getPropertyValueAsInteger(domain, DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN, 24);
         try {
-            backupService.backupFileIfOlderThan(configurationFile,"backups", period);
+            backupService.backupFileIfOlderThan(configurationFile, "backups", period);
         } catch (IOException e) {
             throw new DomibusPropertyException(String.format("Could not back up [%s]", configurationFile), e);
         }
