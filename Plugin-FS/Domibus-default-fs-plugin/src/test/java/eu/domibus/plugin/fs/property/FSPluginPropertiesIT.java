@@ -37,7 +37,8 @@ public class FSPluginPropertiesIT extends AbstractIT {
 
     @Test
     public void testGetLocation() {
-        Assert.assertEquals(DEFAULT_LOCATION, fsPluginProperties.getLocation(DEFAULT_DOMAIN));
+        String location = fsPluginProperties.getLocation(DEFAULT_DOMAIN);
+        Assert.assertEquals(DEFAULT_LOCATION, location);
     }
 
     @Test(expected = DomibusPropertyExtException.class)
