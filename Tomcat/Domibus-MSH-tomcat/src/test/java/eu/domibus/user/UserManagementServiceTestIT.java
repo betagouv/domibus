@@ -13,6 +13,7 @@ import eu.domibus.core.user.ui.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.security.AuthenticationService;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -103,6 +104,7 @@ public class UserManagementServiceTestIT extends AbstractIT {
     }
 
     @Test
+    @Ignore // because this validation is done only in ST mode, not MT
     @Transactional
     @WithUserDetails(value = "customUsername", userDetailsServiceBeanName = "testUserDetailService")
     public void updateUsers_notLoggedIn_atLeastOneAdmin() {

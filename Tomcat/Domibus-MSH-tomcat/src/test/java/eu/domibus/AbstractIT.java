@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
@@ -151,7 +150,7 @@ public abstract class AbstractIT {
     }
 
     @Before
-    public void Init() {
+    public void initInstance() {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
         waitUntilDatabaseIsInitialized();
         staticDictionaryService.createStaticDictionaryEntries();

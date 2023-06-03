@@ -72,7 +72,7 @@ public class LoggingResourceIT extends AbstractIT {
         mockMvc = MockMvcBuilders.standaloneSetup(loggingResource).build();
     }
 
-    public void Init() {
+    protected void setAuth() {
         // intentionally empty to avoid base class auth setup
     }
 
