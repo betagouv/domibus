@@ -84,7 +84,7 @@ public class LoggingResourceIT extends AbstractIT {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @WithMockUser(username = "admin", roles = {"AP_ADMIN"})
     public void getLogLevel_ok() throws Exception {
         final List<LoggingEntry> loggingEntryList = new ArrayList<>();
         LoggingEntry loggingLevelRO1 = new LoggingEntry();
