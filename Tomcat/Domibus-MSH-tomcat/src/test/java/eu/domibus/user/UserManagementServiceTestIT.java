@@ -1,6 +1,7 @@
 package eu.domibus.user;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.user.AtLeastOneAdminException;
 import eu.domibus.ext.delegate.services.cache.CacheServiceDelegate;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -113,7 +114,7 @@ public class UserManagementServiceTestIT extends AbstractIT {
         try {
             userManagementService.updateUsers(Collections.singletonList(apiUser));
             Assert.fail();
-        } catch (UserManagementException ex) {
+        } catch (AtLeastOneAdminException ex) {
             LOG.info(ex.getMessage(), ex);
             Assert.assertTrue(ex.getMessage().contains("There must always be at least one active Domain Admin for each Domain"));
         }
@@ -126,7 +127,7 @@ public class UserManagementServiceTestIT extends AbstractIT {
         LOG.info("LOGGED: [{}]", authenticationService.getLoggedUser().getUsername());
 
         domainContextProvider.clearCurrentDomain();
-        domibusPropertyProvider.setProperty(DomainService.GENERAL_SCHEMA_PROPERTY, "generalSchema");
+//        domibusPropertyProvider.setProperty(DomainService.GENERAL_SCHEMA_PROPERTY, "generalSchema");
 
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
         cacheServiceDelegate.evictCaches();
@@ -137,7 +138,7 @@ public class UserManagementServiceTestIT extends AbstractIT {
         cacheServiceDelegate.evictCaches();
 
         domainContextProvider.clearCurrentDomain();
-        domibusPropertyProvider.setProperty(DomainService.GENERAL_SCHEMA_PROPERTY, "");
+//        domibusPropertyProvider.setProperty(DomainService.GENERAL_SCHEMA_PROPERTY, "");
     }
 
     @Test

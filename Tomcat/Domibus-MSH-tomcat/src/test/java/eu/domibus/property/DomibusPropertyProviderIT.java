@@ -322,8 +322,6 @@ public class DomibusPropertyProviderIT extends AbstractIT {
 
         Path fullName = Paths.get(domibusConfigurationService.getConfigLocation(), configurationFileName);
 
-//        String fullName = domibusConfigurationService.getConfigLocation() + File.separator + configurationFileName;
-
         return new File(fullName.toString());
     }
 
