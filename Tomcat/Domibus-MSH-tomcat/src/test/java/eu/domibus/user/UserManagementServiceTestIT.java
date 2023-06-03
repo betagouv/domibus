@@ -103,24 +103,24 @@ public class UserManagementServiceTestIT extends AbstractIT {
         }
     }
 
-    @Test
-    @Ignore // because this validation is done only in ST mode, not MT
-    @Transactional
-    @WithUserDetails(value = "customUsername", userDetailsServiceBeanName = "testUserDetailService")
-    public void updateUsers_notLoggedIn_atLeastOneAdmin() {
-        LOG.info("LOGGED: [{}]", authenticationService.getLoggedUser().getUsername());
-
-        final User userEntity = createUser("testUser1", "Password-0123456", "test@domibus.eu", AuthRole.ROLE_USER);
-        final eu.domibus.api.user.User apiUser = convert(userEntity);
-        apiUser.setActive(false);
-        try {
-            userManagementService.updateUsers(Collections.singletonList(apiUser));
-            Assert.fail();
-        } catch (AtLeastOneAdminException ex) {
-            LOG.info(ex.getMessage(), ex);
-            Assert.assertTrue(ex.getMessage().contains("There must always be at least one active Domain Admin for each Domain"));
-        }
-    }
+//    @Test
+//    @Ignore // because this validation is done only in ST mode, not MT
+//    @Transactional
+//    @WithUserDetails(value = "customUsername", userDetailsServiceBeanName = "testUserDetailService")
+//    public void updateUsers_notLoggedIn_atLeastOneAdmin() {
+//        LOG.info("LOGGED: [{}]", authenticationService.getLoggedUser().getUsername());
+//
+//        final User userEntity = createUser("testUser1", "Password-0123456", "test@domibus.eu", AuthRole.ROLE_USER);
+//        final eu.domibus.api.user.User apiUser = convert(userEntity);
+//        apiUser.setActive(false);
+//        try {
+//            userManagementService.updateUsers(Collections.singletonList(apiUser));
+//            Assert.fail();
+//        } catch (AtLeastOneAdminException ex) {
+//            LOG.info(ex.getMessage(), ex);
+//            Assert.assertTrue(ex.getMessage().contains("There must always be at least one active Domain Admin for each Domain"));
+//        }
+//    }
 
     @Test
     @Transactional
