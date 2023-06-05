@@ -2,6 +2,8 @@ package eu.domibus.ext.rest.util;
 
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 /**
  * @author Lucian Furca
@@ -17,11 +19,18 @@ public class LegacyRestUtil extends RestUtilBase {
 
     @Override
     public MvcResult addCertificateToStore(String addEndpoint) throws Exception {
-        return addCertificateToStore(addEndpoint, true);
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("alias", "red_gw");
+        params.add("password", "test123");
+
+        return addCertificateToStore(addEndpoint, params);
     }
 
     @Override
     public MvcResult deleteCertificateFromStore(String deleteEndpoint) throws Exception {
-        return deleteCertificateFromStore(deleteEndpoint, true, "blue_gw");
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("password", "test123");
+
+        return deleteCertificateFromStore(deleteEndpoint, params, "blue_gw");
     }
 }

@@ -1,7 +1,11 @@
 package eu.domibus.ext.rest.util;
 
+import eu.domibus.ext.domain.CertificatePurposeDTO;
+import eu.domibus.ext.domain.SecurityProfileDTO;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 /**
  * @author Lucian Furca
@@ -17,11 +21,20 @@ public class RestUtil extends RestUtilBase {
 
     @Override
     public MvcResult addCertificateToStore(String addEndpoint) throws Exception {
-        return addCertificateToStore(addEndpoint, false);
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("partyName", "red_gw");
+        params.add("securityProfile", SecurityProfileDTO.RSA.getProfile());
+        params.add("certificatePurpose", CertificatePurposeDTO.DECRYPT.getCertificatePurpose());
+
+        return addCertificateToStore(addEndpoint, params);
     }
 
     @Override
     public MvcResult deleteCertificateFromStore(String deleteEndpoint) throws Exception {
-        return deleteCertificateFromStore(deleteEndpoint, false, "red_gw");
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("securityProfile", SecurityProfileDTO.RSA.getProfile());
+        params.add("certificatePurpose", CertificatePurposeDTO.DECRYPT.getCertificatePurpose());
+
+        return deleteCertificateFromStore(deleteEndpoint, params, "red_gw");
     }
 }

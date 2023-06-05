@@ -40,18 +40,9 @@ public abstract class RestUtilBase {
         return new MockMultipartFile("file", originalFilename, "octetstream", IOUtils.toByteArray(resourceAsStream));
     }
 
-    protected MvcResult addCertificateToStore(String addEndpoint, boolean isLegacy) throws Exception {
+    protected MvcResult addCertificateToStore(String addEndpoint, final MultiValueMap<String, String> params) throws Exception {
         try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/red_gw.cer")) {
             MockMultipartFile multiPartFile = getMultiPartFile("red_gw.cer", resourceAsStream);
-            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            if (isLegacy) {
-                params.add("alias", "red_gw");
-                params.add("password", "test123");
-            } else {
-                params.add("partyName", "red_gw");
-                params.add("securityProfile", SecurityProfileDTO.RSA.getProfile());
-                params.add("certificatePurpose", CertificatePurposeDTO.DECRYPT.getCertificatePurpose());
-            }
             return  mockMvc.perform(multipart(addEndpoint)
                             .file(multiPartFile)
                             .params(params)
@@ -62,16 +53,9 @@ public abstract class RestUtilBase {
         }
     }
 
-    protected MvcResult deleteCertificateFromStore(String deleteEndpoint, boolean isLegacy, String partyName) throws Exception {
+    protected MvcResult deleteCertificateFromStore(String deleteEndpoint, final MultiValueMap<String, String> params, String partyName) throws Exception {
         try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/default.jks")) {
             MockMultipartFile multiPartFile = getMultiPartFile("default.jks", resourceAsStream);
-            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-            if (isLegacy) {
-                params.add("password", "test123");
-            } else {
-                params.add("securityProfile", SecurityProfileDTO.RSA.getProfile());
-                params.add("certificatePurpose", CertificatePurposeDTO.DECRYPT.getCertificatePurpose());
-            }
             return mockMvc.perform(multipart(HttpMethod.DELETE, deleteEndpoint, partyName)
                             .file(multiPartFile)
                             .params(params)

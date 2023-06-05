@@ -151,8 +151,8 @@ public class TLSTrustStoreExtResource {
     @PostMapping(value = "/certificates", consumes = {"multipart/form-data"})
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
                                     @RequestParam("partyName") @Valid @NotNull String partyName,
-                                    @RequestParam("securityProfileDTO") @Valid @NotNull SecurityProfileDTO securityProfileDTO,
-                                    @RequestParam("certificatePurposeDTO") @Valid @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
+                                    @RequestParam("securityProfile") @Valid @NotNull SecurityProfileDTO securityProfileDTO,
+                                    @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
         SecurityProfile securityProfile = domibusExtMapper.securityProfileDTOToApi(securityProfileDTO);
         CertificatePurpose certificatePurpose = domibusExtMapper.certificatePurposeDTOToApi(certificatePurposeDTO);
         String alias = securityProfileService.getCertificateAliasForPurpose(partyName, securityProfile, certificatePurpose);
@@ -183,8 +183,8 @@ public class TLSTrustStoreExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @DeleteMapping(value = "/certificates/{partyName:.+}")
     public String removeTLSCertificate(@PathVariable String partyName,
-                                       @RequestParam("securityProfileDTO") @Valid @NotNull SecurityProfileDTO securityProfileDTO,
-                                       @RequestParam("certificatePurposeDTO") @Valid @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
+                                       @RequestParam("securityProfile") @Valid @NotNull SecurityProfileDTO securityProfileDTO,
+                                       @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
         SecurityProfile securityProfile = domibusExtMapper.securityProfileDTOToApi(securityProfileDTO);
         CertificatePurpose certificatePurpose = domibusExtMapper.certificatePurposeDTOToApi(certificatePurposeDTO);
         String alias = securityProfileService.getCertificateAliasForPurpose(partyName, securityProfile, certificatePurpose);
