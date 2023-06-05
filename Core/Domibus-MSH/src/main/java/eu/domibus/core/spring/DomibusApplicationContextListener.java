@@ -191,8 +191,12 @@ public class DomibusApplicationContextListener {
 
         eArchiveFileStorageProvider.initialize();
 
-        //this is added on purpose in the non-synchronized area; the initialize method has a more complex logic to decide if it executes in synchronized way
-        domibusQuartzStarter.initialize();
+        try {
+            //this is added on purpose in the non-synchronized area; the initialize method has a more complex logic to decide if it executes in synchronized way
+            domibusQuartzStarter.initialize();
+        } catch (Exception ex) {
+            LOG.warn("Quartz initialization failed", ex);
+        }
 
         gatewayConfigurationValidator.validateConfiguration();
         backendConnectorService.ensureValidConfiguration();

@@ -44,6 +44,10 @@ public class SignalMessageLogDaoIT extends AbstractIT {
 
     @Before
     public void setup() {
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+        }
         before = dateUtil.fromString("2019-01-01T12:00:00Z");
         now = dateUtil.fromString("2020-01-01T12:00:00Z");
         after = dateUtil.fromString("2021-01-01T12:00:00Z");

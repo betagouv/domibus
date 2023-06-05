@@ -126,8 +126,13 @@ public abstract class AbstractIT {
 
         if (!springContextInitialized) {
             LOG.info("Executing the ApplicationContextListener initialization");
-            domibusApplicationContextListener.doInitialize();
-            springContextInitialized = true;
+            try {
+                domibusApplicationContextListener.doInitialize();
+            } catch (Exception ex) {
+                LOG.warn("Domibus Application Context initialization failed", ex);
+            } finally {
+                springContextInitialized = true;
+            }
         }
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
     }

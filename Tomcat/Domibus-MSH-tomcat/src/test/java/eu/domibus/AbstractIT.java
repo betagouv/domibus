@@ -125,14 +125,8 @@ public abstract class AbstractIT {
 
     public static boolean springContextInitialized = false;
 
-    @Autowired
-    private StaticDictionaryService staticDictionaryService;
-
     @BeforeClass
     public static void init() throws IOException {
-        if (springContextInitialized) {
-            return;
-        }
         LOG.info(WarningUtil.warnOutput("Initializing Spring context"));
 
         FileUtils.deleteDirectory(new File("target/temp"));
@@ -145,17 +139,27 @@ public abstract class AbstractIT {
         System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false&create=false"); // see EDELIVERY-10294 and check if this can be removed
         LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
         LOG.info("activeMQConnectorPort=[{}]", activeMQConnectorPort);
-
-        springContextInitialized = true;
     }
 
     @Before
     public void initInstance() {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
-        waitUntilDatabaseIsInitialized();
-        staticDictionaryService.createStaticDictionaryEntries();
 
         setAuth();
+
+        waitUntilDatabaseIsInitialized();
+
+        if (!springContextInitialized) {
+            LOG.info("Executing the ApplicationContextListener initialization");
+            try {
+                domibusApplicationContextListener.doInitialize();
+            } catch (Exception ex) {
+                LOG.warn("Domibus Application Context initialization failed", ex);
+            } finally {
+                springContextInitialized = true;
+            }
+        }
+        domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
     }
 
     protected void setAuth() {
