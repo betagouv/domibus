@@ -137,33 +137,41 @@ public class DomibusApplicationContextListener {
             return;
         }
 
-        doInitialize();
+        initialize();
 
         LOG.info("Finished processing ContextRefreshedEvent");
     }
 
-    public void doInitialize() {
+    public void initialize() {
         try {
-            executeWithLock(this::executeSynchronized);
+            executeWithLock(() -> executeSynchronized(true));
         } catch (DomainTaskException | DomibusSynchronizationException ex) {
             Throwable cause = ExceptionUtils.getRootCause(ex);
             LOG.error("Error executing application initialization code:", cause);
         }
-        executeNonSynchronized();
+        executeNonSynchronized(true);
+    }
+
+    public void initializeForTests() {
+        executeSynchronized(false);
+        executeNonSynchronized(false);
     }
 
     /**
      * Method executed in a serial/sync mode (if in a cluster environment)
      * Add code that needs to be executed with regard to other nodes in the cluster
      */
-    protected void executeSynchronized() {
+    protected void executeSynchronized(boolean full) {
         messageDictionaryService.createStaticDictionaryEntries();
         multiDomainCryptoService.saveStoresFromDBToDisk();
         tlsCertificateManager.saveStoresFromDBToDisk();
         domibusPropertyValidatorService.enforceValidation();
-        backendFilterInitializerService.updateMessageFilters();
         encryptionService.handleEncryption();
         userManagementService.createDefaultUserIfApplicable();
+
+        if (full) {
+            backendFilterInitializerService.updateMessageFilters();
+        }
 
         initializePluginsWithLockIfNeeded();
     }
@@ -183,7 +191,7 @@ public class DomibusApplicationContextListener {
      * Method executed in a parallel/not sync mode (in any environment)
      * Add code that does not need to be executed with regard to other nodes in the cluster
      */
-    protected void executeNonSynchronized() {
+    protected void executeNonSynchronized(boolean full) {
         messageListenerContainerInitializer.initialize();
         jmsQueueCountSetScheduler.initialize();
         payloadFileStorageProvider.initialize();
@@ -191,11 +199,9 @@ public class DomibusApplicationContextListener {
 
         eArchiveFileStorageProvider.initialize();
 
-        try {
+        if (full) {
             //this is added on purpose in the non-synchronized area; the initialize method has a more complex logic to decide if it executes in synchronized way
             domibusQuartzStarter.initialize();
-        } catch (Exception ex) {
-            LOG.warn("Quartz initialization failed", ex);
         }
 
         gatewayConfigurationValidator.validateConfiguration();

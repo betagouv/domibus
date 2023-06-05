@@ -17,7 +17,6 @@ import eu.domibus.core.spring.DomibusRootConfiguration;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.DomibusMTTestDatasourceConfiguration;
-import eu.domibus.test.common.DomibusTestDatasourceConfiguration;
 import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -127,7 +126,7 @@ public abstract class AbstractIT {
         if (!springContextInitialized) {
             LOG.info("Executing the ApplicationContextListener initialization");
             try {
-                domibusApplicationContextListener.doInitialize();
+                domibusApplicationContextListener.initializeForTests();
             } catch (Exception ex) {
                 LOG.warn("Domibus Application Context initialization failed", ex);
             } finally {

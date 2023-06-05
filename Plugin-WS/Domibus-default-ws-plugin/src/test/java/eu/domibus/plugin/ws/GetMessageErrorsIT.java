@@ -3,6 +3,7 @@ package eu.domibus.plugin.ws;
 
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;

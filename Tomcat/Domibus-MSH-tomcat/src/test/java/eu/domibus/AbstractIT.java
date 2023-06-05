@@ -14,7 +14,6 @@ import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.dictionary.StaticDictionaryService;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.ConfigurationRawDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -152,7 +151,7 @@ public abstract class AbstractIT {
         if (!springContextInitialized) {
             LOG.info("Executing the ApplicationContextListener initialization");
             try {
-                domibusApplicationContextListener.doInitialize();
+                domibusApplicationContextListener.initializeForTests();
             } catch (Exception ex) {
                 LOG.warn("Domibus Application Context initialization failed", ex);
             } finally {
