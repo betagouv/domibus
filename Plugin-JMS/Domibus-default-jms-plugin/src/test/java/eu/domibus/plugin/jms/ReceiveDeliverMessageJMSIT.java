@@ -36,7 +36,6 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_ID;
  */
 public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
 
-
     @Autowired
     private JMSPluginImpl jmsPluginImpl;
 

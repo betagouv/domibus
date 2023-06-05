@@ -112,8 +112,6 @@ public abstract class AbstractIT {
         System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_CONNECTOR_PORT, String.valueOf(activeMQConnectorPort)); // see EDELIVERY-10294 and check if this can be removed
         System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false&create=false"); // see EDELIVERY-10294 and check if this can be removed
         LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
-
-        springContextInitialized = true;
     }
 
     @Before
@@ -124,13 +122,14 @@ public abstract class AbstractIT {
                         "test_password",
                         Collections.singleton(new SimpleGrantedAuthority(eu.domibus.api.security.AuthRole.ROLE_ADMIN.name()))));
 
-        domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
         domibusConditionUtil.waitUntilDatabaseIsInitialized();
 
         if (!springContextInitialized) {
             LOG.info("Executing the ApplicationContextListener initialization");
             domibusApplicationContextListener.doInitialize();
+            springContextInitialized = true;
         }
+        domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
     }
 
     private static void copyPolicies(File domibusConfigLocation, File projectRoot) throws IOException {
