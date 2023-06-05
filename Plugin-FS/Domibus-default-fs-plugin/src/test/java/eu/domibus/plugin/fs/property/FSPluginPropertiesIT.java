@@ -62,18 +62,12 @@ public class FSPluginPropertiesIT extends AbstractIT {
     }
 
     @Test
-    @Ignore
-    public void testGetFailedAction() {
-        Assert.assertEquals(FSPluginProperties.ACTION_DELETE, fsPluginProperties.getFailedAction(DEFAULT_DOMAIN));
-    }
-
-    @Test
     public void testGetFailedPurgeWorkerCronExpression() {
         Assert.assertEquals("0 0/1 * * * ?", fsPluginProperties.getFailedPurgeWorkerCronExpression(DEFAULT_DOMAIN));
     }
 
     @Test
-    @Ignore
+//    @Ignore
     public void testGetFailedPurgeExpired() {
         Assert.assertEquals(Integer.valueOf(600), fsPluginProperties.getFailedPurgeExpired(DEFAULT_DOMAIN));
     }

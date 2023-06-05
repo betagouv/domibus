@@ -63,7 +63,6 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
      * Tests that the list of errors is empty for a certain message since there were no errors in the transaction.
      */
     @Test
-    @Ignore
     public void testGetEmptyMessageErrorsList() {
 
         String messageId = "notFound";
