@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.TimeZone;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_GENERAL_SCHEMA;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
 import static org.junit.Assert.fail;
 
@@ -82,7 +83,6 @@ public class DomibusMTTestDatasourceConfiguration {
 
         String schemaH2ScriptFullPath = writeScriptFromClasspathToLocalDirectory("schema-h2.sql", "config/database");
 
-//        final String databaseSchema = domibusPropertyProvider.getProperty(DOMIBUS_DATABASE_SCHEMA);
         //Enable logs for H2 with ';TRACE_LEVEL_FILE=4' at the end of databaseUrlTemplate
         final String databaseUrlTemplate = "jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false;CASE_INSENSITIVE_IDENTIFIERS=TRUE;NON_KEYWORDS=DAY,VALUE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DEFAULT_LOCK_TIMEOUT=3000;INIT=runscript from '"
                 + FilenameUtils.separatorsToUnix(generalSchemaCreateScript)
@@ -99,8 +99,8 @@ public class DomibusMTTestDatasourceConfiguration {
 
                 + "'\\;runscript from '" + FilenameUtils.separatorsToUnix(schemaH2ScriptFullPath) + "'";
 
-        String databaseUrl = String.format(databaseUrlTemplate, "test_general");
-
+        final String generalSchema = domibusPropertyProvider.getProperty(DOMIBUS_DATABASE_GENERAL_SCHEMA);
+        String databaseUrl = String.format(databaseUrlTemplate, generalSchema);
         LOG.info("Using database URL [{}]", databaseUrl);
 
         result.setUrl(databaseUrl);
