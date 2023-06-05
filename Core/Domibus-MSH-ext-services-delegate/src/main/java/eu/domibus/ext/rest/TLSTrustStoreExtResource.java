@@ -7,10 +7,8 @@ import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
-import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.domain.ErrorDTO;
-import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
-import eu.domibus.ext.domain.TrustStoreDTO;
+import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
+import eu.domibus.ext.domain.*;
 import eu.domibus.ext.exceptions.CryptoExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomainContextExtService;
@@ -68,18 +66,21 @@ public class TLSTrustStoreExtResource {
 
     final SecurityProfileService securityProfileService;
 
+    final DomibusExtMapper domibusExtMapper;
+
     public TLSTrustStoreExtResource(TLSTrustStoreExtService tlsTruststoreExtService,
                                     ExtExceptionHelper extExceptionHelper,
                                     MultiPartFileUtil multiPartFileUtil,
                                     DomainContextExtService domainContextExtService,
                                     DomibusConfigurationExtService domibusConfigurationExtService,
-                                    SecurityProfileService securityProfileService) {
+                                    SecurityProfileService securityProfileService, DomibusExtMapper domibusExtMapper) {
         this.tlsTruststoreExtService = tlsTruststoreExtService;
         this.extExceptionHelper = extExceptionHelper;
         this.multiPartFileUtil = multiPartFileUtil;
         this.domainContextExtService = domainContextExtService;
         this.domibusConfigurationExtService = domibusConfigurationExtService;
         this.securityProfileService = securityProfileService;
+        this.domibusExtMapper = domibusExtMapper;
     }
 
     @ExceptionHandler(CryptoExtException.class)
@@ -150,8 +151,10 @@ public class TLSTrustStoreExtResource {
     @PostMapping(value = "/certificates", consumes = {"multipart/form-data"})
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
                                     @RequestParam("partyName") @Valid @NotNull String partyName,
-                                    @RequestParam("securityProfile") @Valid @NotNull SecurityProfile securityProfile,
-                                    @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurpose certificatePurpose) throws RequestValidationException {
+                                    @RequestParam("securityProfileDTO") @Valid @NotNull SecurityProfileDTO securityProfileDTO,
+                                    @RequestParam("certificatePurposeDTO") @Valid @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
+        SecurityProfile securityProfile = domibusExtMapper.securityProfileDTOToApi(securityProfileDTO);
+        CertificatePurpose certificatePurpose = domibusExtMapper.certificatePurposeDTOToApi(certificatePurposeDTO);
         String alias = securityProfileService.getCertificateAliasForPurpose(partyName, securityProfile, certificatePurpose);
         return doAddCertificate(certificateFile, alias);
     }
@@ -180,8 +183,10 @@ public class TLSTrustStoreExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @DeleteMapping(value = "/certificates/{partyName:.+}")
     public String removeTLSCertificate(@PathVariable String partyName,
-                                       @RequestParam("securityProfile") @Valid @NotNull SecurityProfile securityProfile,
-                                       @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurpose certificatePurpose) throws RequestValidationException {
+                                       @RequestParam("securityProfileDTO") @Valid @NotNull SecurityProfileDTO securityProfileDTO,
+                                       @RequestParam("certificatePurposeDTO") @Valid @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
+        SecurityProfile securityProfile = domibusExtMapper.securityProfileDTOToApi(securityProfileDTO);
+        CertificatePurpose certificatePurpose = domibusExtMapper.certificatePurposeDTOToApi(certificatePurposeDTO);
         String alias = securityProfileService.getCertificateAliasForPurpose(partyName, securityProfile, certificatePurpose);
         return doRemoveCertificate(alias);
     }

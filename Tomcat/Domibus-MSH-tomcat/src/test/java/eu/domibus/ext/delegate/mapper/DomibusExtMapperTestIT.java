@@ -5,6 +5,8 @@ import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.process.Process;
+import eu.domibus.api.security.CertificatePurpose;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.usermessage.domain.UserMessage;
 import eu.domibus.ext.domain.*;
@@ -92,5 +94,21 @@ public class DomibusExtMapperTestIT extends AbstractIT {
         final List<ProcessDTO> convertedBack = domibusExtMapper.processListToProcessesDTO(Collections.singletonList(converted));
 
         objectService.assertObjects(convertedBack.get(0), toConvert);
+    }
+
+    @Test
+    public void securityProfileApiToDTO() {
+        SecurityProfileDTO toConvert = (SecurityProfileDTO) objectService.createInstance(SecurityProfileDTO.class);
+        final SecurityProfile converted = domibusExtMapper.securityProfileDTOToApi(toConvert);
+        final SecurityProfileDTO convertedBack = domibusExtMapper.securityProfileApiToDTO(converted);
+        objectService.assertObjects(convertedBack, toConvert);
+    }
+
+    @Test
+    public void certificatePurposeApiToDTO() {
+        CertificatePurposeDTO toConvert = (CertificatePurposeDTO) objectService.createInstance(CertificatePurposeDTO.class);
+        final CertificatePurpose converted = domibusExtMapper.certificatePurposeDTOToApi(toConvert);
+        final CertificatePurposeDTO convertedBack = domibusExtMapper.certificatePurposeApiToDTO(converted);
+        objectService.assertObjects(convertedBack, toConvert);
     }
 }
