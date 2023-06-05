@@ -21,7 +21,7 @@ public class FSPluginPropertiesIT extends AbstractIT {
 
     private static final String NONEXISTENT_DOMAIN = "NONEXISTENT_DOMAIN";
 
-    private static final String DEFAULT_LOCATION = "/tmp/fs_plugin_data";
+    private static final String DEFAULT_LOCATION = "/tmp/fs_plugin_data/default";
 
     @Autowired
     FSPluginProperties fsPluginProperties;
