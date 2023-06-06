@@ -100,9 +100,9 @@ public class DomibusMTTestDatasourceConfiguration {
         String script = "DROP ALL OBJECTS;\n" +
                 "DROP TABLE IF EXISTS SPRING_SESSION_ATTRIBUTES;\n" +
                 "DROP TABLE IF EXISTS SPRING_SESSION;\n" +
-                "CREATE SCHEMA IF NOT EXISTS test_general;\n" +
+                "CREATE SCHEMA IF NOT EXISTS " + name + ";\n" +
                 "SET SCHEMA " + name + ";";
-        String generalSchemaCreateScript = writeScriptToLocalDirectory(script, "create_general_schema.sql");
+        String generalSchemaCreateScript = writeScriptToLocalDirectory(script, "create_" + name + "_schema.sql");
         String generalSchemaDDLScript = writeScriptFromClasspathToLocalDirectory("domibus-h2-multi-tenancy.sql", "test-sql-scripts");
         String generalSchemaDataScript = writeScriptFromClasspathToLocalDirectory("domibus-h2-multi-tenancy-data.sql", "test-sql-scripts");
 
