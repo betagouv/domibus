@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import eu.domibus.api.message.validation.UserMessageValidatorServiceDelegate;
 import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.util.MultiPartFileUtil;
+import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -162,6 +163,11 @@ public class OpenApiConfig {
     @Bean
     public DateExtService dateExtService() {
         return Mockito.mock(DateExtService.class);
+    }
+
+    @Bean
+    public DomibusExtMapper domibusExtMapper() {
+        return Mockito.mock(DomibusExtMapper.class);
     }
 
     @Bean
