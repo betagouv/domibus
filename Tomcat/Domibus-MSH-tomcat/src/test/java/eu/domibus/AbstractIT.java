@@ -15,6 +15,7 @@ import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.StaticDictionaryService;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.ConfigurationRawDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -120,6 +121,9 @@ public abstract class AbstractIT {
     @Autowired
     protected UserRoleDao userRoleDao;
 
+    @Autowired
+    protected PayloadFileStorageProvider payloadFileStorageProvider;
+
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
@@ -160,6 +164,7 @@ public abstract class AbstractIT {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
         waitUntilDatabaseIsInitialized();
         staticDictionaryService.createStaticDictionaryEntries();
+        payloadFileStorageProvider.initialize();
     }
 
 
