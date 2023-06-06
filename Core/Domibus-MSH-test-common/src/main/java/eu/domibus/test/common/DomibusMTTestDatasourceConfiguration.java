@@ -13,17 +13,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.InputStreamSource;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import javax.sql.DataSource;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.TimeZone;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_GENERAL_SCHEMA;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
 import static org.junit.Assert.fail;
 
 /**
@@ -78,9 +80,9 @@ public class DomibusMTTestDatasourceConfiguration {
         final String databaseUrlTemplate = "jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false;CASE_INSENSITIVE_IDENTIFIERS=TRUE;" +
                 "NON_KEYWORDS=DAY,VALUE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DEFAULT_LOCK_TIMEOUT=3000;INIT= "
 
-                + createGeneralSchemaSqlScripts()
-                + createDomainSQLScripts("domain1")
-                + createDomainSQLScripts("domain2")
+                + createGeneralSchemaSqlScripts("test_general")
+                + createDomainSQLScripts("test_domain1")
+                + createDomainSQLScripts("test_domain2")
 
                 + " runscript from '" + FilenameUtils.separatorsToUnix(schemaH2ScriptFullPath) + "'";
 
@@ -94,8 +96,13 @@ public class DomibusMTTestDatasourceConfiguration {
         return result;
     }
 
-    private String createGeneralSchemaSqlScripts() {
-        String generalSchemaCreateScript = writeScriptFromClasspathToLocalDirectory("create_general_schema.sql", "config/database");
+    private String createGeneralSchemaSqlScripts(String name) {
+        String script = "DROP ALL OBJECTS;\n" +
+                "DROP TABLE IF EXISTS SPRING_SESSION_ATTRIBUTES;\n" +
+                "DROP TABLE IF EXISTS SPRING_SESSION;\n" +
+                "CREATE SCHEMA IF NOT EXISTS test_general;\n" +
+                "SET SCHEMA " + name + ";";
+        String generalSchemaCreateScript = writeScriptToLocalDirectory(script, "create_general_schema.sql");
         String generalSchemaDDLScript = writeScriptFromClasspathToLocalDirectory("domibus-h2-multi-tenancy.sql", "test-sql-scripts");
         String generalSchemaDataScript = writeScriptFromClasspathToLocalDirectory("domibus-h2-multi-tenancy-data.sql", "test-sql-scripts");
 
@@ -103,7 +110,9 @@ public class DomibusMTTestDatasourceConfiguration {
     }
 
     private String createDomainSQLScripts(String name) {
-        String domainSchemaCreateScript = writeScriptFromClasspathToLocalDirectory("create_" + name + "_schema.sql", "config/database");
+        String script = "CREATE SCHEMA IF NOT EXISTS " + name + ";\n" +
+                "SET SCHEMA " + name + ";";
+        String domainSchemaCreateScript = writeScriptToLocalDirectory(script, "create_" + name + "_schema.sql");
         String domainSchemaDDLScript = writeScriptFromClasspathToLocalDirectory("domibus-h2.sql", "test-sql-scripts");
         String domainSchemaDataScript = writeScriptFromClasspathToLocalDirectory("domibus-h2-data.sql", "test-sql-scripts");
 
@@ -116,9 +125,20 @@ public class DomibusMTTestDatasourceConfiguration {
                 + "runscript from '" + FilenameUtils.separatorsToUnix(dataScript) + "'\\;";
     }
 
+    private String writeScriptToLocalDirectory(String script, String scriptName) {
+        ByteArrayResource sourceRes = new ByteArrayResource(script.getBytes());
+
+        return writeScript(scriptName, sourceRes);
+    }
+
     private String writeScriptFromClasspathToLocalDirectory(String scriptName, String scriptDirectory) {
         String sourceScriptPath = scriptDirectory + "/" + scriptName;
+        ClassPathResource sourceRes = new ClassPathResource(sourceScriptPath);
 
+        return writeScript(scriptName, sourceRes);
+    }
+
+    private static String writeScript(String scriptName, InputStreamSource sourceRes) {
         final File testSqlScriptsDirectory = new File("target/test-sql-scripts");
         final File domibusScript = new File(testSqlScriptsDirectory, scriptName);
         String scriptFullPath = null;
@@ -129,14 +149,13 @@ public class DomibusMTTestDatasourceConfiguration {
             fail("Could not get the full path for script [" + domibusScript + "]");
         }
 
-
-        try (InputStream inputStream = new ClassPathResource(sourceScriptPath).getInputStream()) {
+        try (InputStream inputStream = sourceRes.getInputStream()) {
             LOG.debug("Database: Writing file [{}]", domibusScript);
             final byte[] data = IOUtils.toByteArray(inputStream);
             FileUtils.writeByteArrayToFile(domibusScript, data);
         } catch (IOException e) {
             LOG.error(e.getMessage(), e);
-            fail("Could not write script from classpath [" + sourceScriptPath + "] to the local file [" + domibusScript + "]");
+            fail("Could not write script from resource [" + sourceRes + "] to the local file [" + domibusScript + "]");
         }
         return scriptFullPath;
     }
