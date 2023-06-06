@@ -29,7 +29,6 @@ import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.apache.cxf.ext.logging.LoggingFeature;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
@@ -167,7 +166,6 @@ public class DomibusPropertiesChangeListenersTest {
     CommonConfigurationManager configurationManager;
 
     @Test
-    @Ignore
     public void testPropertyChangeListeners() {
         DomibusPropertyChangeListener[] domibusPropertyChangeListeners = new DomibusPropertyChangeListener[]{
                 blacklistChangeListener,
@@ -207,7 +205,7 @@ public class DomibusPropertiesChangeListenersTest {
             }
         }
 
-        new FullVerifications() {{
+        new Verifications() {{
             pullFrequencyHelper.reset();
             payloadEncryptionService.createPayloadEncryptionKeyIfNotExists((Domain) any);
             domibusProxyService.resetProxy();
@@ -221,7 +219,6 @@ public class DomibusPropertiesChangeListenersTest {
             alertConfigurationService.resetAll();
 
             mailSender.reset();
-            messagingConfigurationManager.reset();
             crlService.resetCacheCrlProtocols();
 
             loggingFeature.setLimit(anyInt);

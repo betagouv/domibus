@@ -13,7 +13,6 @@ import eu.domibus.core.user.ui.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.security.AuthenticationService;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -103,25 +102,6 @@ public class UserManagementServiceTestIT extends AbstractIT {
         }
     }
 
-//    @Test
-//    @Ignore // because this validation is done only in ST mode, not MT
-//    @Transactional
-//    @WithUserDetails(value = "customUsername", userDetailsServiceBeanName = "testUserDetailService")
-//    public void updateUsers_notLoggedIn_atLeastOneAdmin() {
-//        LOG.info("LOGGED: [{}]", authenticationService.getLoggedUser().getUsername());
-//
-//        final User userEntity = createUser("testUser1", "Password-0123456", "test@domibus.eu", AuthRole.ROLE_USER);
-//        final eu.domibus.api.user.User apiUser = convert(userEntity);
-//        apiUser.setActive(false);
-//        try {
-//            userManagementService.updateUsers(Collections.singletonList(apiUser));
-//            Assert.fail();
-//        } catch (AtLeastOneAdminException ex) {
-//            LOG.info(ex.getMessage(), ex);
-//            Assert.assertTrue(ex.getMessage().contains("There must always be at least one active Domain Admin for each Domain"));
-//        }
-//    }
-
     @Test
     @Transactional
     @WithUserDetails(value = "customUsername", userDetailsServiceBeanName = "testUserDetailService")
@@ -129,7 +109,6 @@ public class UserManagementServiceTestIT extends AbstractIT {
         LOG.info("LOGGED: [{}]", authenticationService.getLoggedUser().getUsername());
 
         domainContextProvider.clearCurrentDomain();
-//        domibusPropertyProvider.setProperty(DomainService.GENERAL_SCHEMA_PROPERTY, "generalSchema");
 
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
         cacheServiceDelegate.evictCaches();
@@ -140,7 +119,6 @@ public class UserManagementServiceTestIT extends AbstractIT {
         cacheServiceDelegate.evictCaches();
 
         domainContextProvider.clearCurrentDomain();
-//        domibusPropertyProvider.setProperty(DomainService.GENERAL_SCHEMA_PROPERTY, "");
     }
 
     @Test

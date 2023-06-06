@@ -9,7 +9,6 @@ import eu.domibus.core.property.DomibusPropertyResourceHelperImpl;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -45,7 +44,6 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
         }
     }
 
-    @Ignore
     @Test
     public void setProperty_nonexistent() {
         String propertyName = "non-existent-property-test";

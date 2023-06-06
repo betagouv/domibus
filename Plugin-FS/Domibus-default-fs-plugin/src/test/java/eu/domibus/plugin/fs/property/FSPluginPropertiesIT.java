@@ -67,7 +67,6 @@ public class FSPluginPropertiesIT extends AbstractIT {
     }
 
     @Test
-//    @Ignore
     public void testGetFailedPurgeExpired() {
         Assert.assertEquals(Integer.valueOf(600), fsPluginProperties.getFailedPurgeExpired(DEFAULT_DOMAIN));
     }
