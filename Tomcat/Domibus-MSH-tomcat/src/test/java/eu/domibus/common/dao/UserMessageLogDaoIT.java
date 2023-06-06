@@ -101,9 +101,6 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Before
     public void setup() throws Exception {
-        // move to abstract IT??
-        payloadFileStorageProvider.initialize();
-
         before = dateUtil.fromString("2019-01-01T12:00:00Z");
         Date timeT = dateUtil.fromString("2020-01-01T12:00:00Z");
         after = dateUtil.fromString("2021-01-01T12:00:00Z");
