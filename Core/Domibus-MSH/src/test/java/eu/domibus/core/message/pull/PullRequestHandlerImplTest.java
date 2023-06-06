@@ -4,12 +4,16 @@ import eu.domibus.api.ebms3.model.Ebms3Error;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pki.DomibusCertificateException;
+import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.security.ChainCertificateInvalidException;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.crypto.SecurityProfileService;
+import eu.domibus.common.model.configuration.Security;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
@@ -179,7 +183,8 @@ public class PullRequestHandlerImplTest {
         final String messageId = "whatEverId";
 
         new Expectations() {{
-            securityProfileService.isSecurityPolicySet(legConfiguration);
+            Security security = legConfiguration.getSecurity();
+            securityProfileService.isSecurityPolicySet(security.getPolicy(), security.getProfile(), legConfiguration.getName());
             result = true;
 
             messageExchangeService.verifySenderCertificate(legConfiguration, pullContext.getResponder().getName());
@@ -215,7 +220,8 @@ public class PullRequestHandlerImplTest {
         final String messageId = "whatEverId";
 
         new Expectations() {{
-            securityProfileService.isSecurityPolicySet(legConfiguration);
+            Security security = legConfiguration.getSecurity();
+            securityProfileService.isSecurityPolicySet(security.getPolicy(), security.getProfile(), legConfiguration.getName());
             result = true;
 
             messageExchangeService.verifySenderCertificate(legConfiguration, pullContext.getResponder().getName());
@@ -249,7 +255,8 @@ public class PullRequestHandlerImplTest {
 
         final String messageId = "whatEverID";
         new Expectations() {{
-            securityProfileService.isSecurityPolicySet(legConfiguration);
+            Security security = legConfiguration.getSecurity();
+            securityProfileService.isSecurityPolicySet(security.getPolicy(), security.getProfile(), legConfiguration.getName());
             result = true;
 
             messageExchangeService.verifyReceiverCertificate(legConfiguration, pullContext.getInitiator().getName());

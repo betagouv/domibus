@@ -1,13 +1,14 @@
 package eu.domibus.ext.rest;
 
 import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.pki.SecurityProfileService;
+import eu.domibus.api.security.CertificatePurpose;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
-import eu.domibus.ext.domain.DomainDTO;
-import eu.domibus.ext.domain.ErrorDTO;
-import eu.domibus.ext.domain.KeyStoreContentInfoDTO;
-import eu.domibus.ext.domain.TrustStoreDTO;
+import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
+import eu.domibus.ext.domain.*;
 import eu.domibus.ext.exceptions.CryptoExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomainContextExtService;
@@ -63,16 +64,23 @@ public class TLSTrustStoreExtResource {
 
     final DomibusConfigurationExtService domibusConfigurationExtService;
 
+    final SecurityProfileService securityProfileService;
+
+    final DomibusExtMapper domibusExtMapper;
+
     public TLSTrustStoreExtResource(TLSTrustStoreExtService tlsTruststoreExtService,
                                     ExtExceptionHelper extExceptionHelper,
                                     MultiPartFileUtil multiPartFileUtil,
                                     DomainContextExtService domainContextExtService,
-                                    DomibusConfigurationExtService domibusConfigurationExtService) {
+                                    DomibusConfigurationExtService domibusConfigurationExtService,
+                                    SecurityProfileService securityProfileService, DomibusExtMapper domibusExtMapper) {
         this.tlsTruststoreExtService = tlsTruststoreExtService;
         this.extExceptionHelper = extExceptionHelper;
         this.multiPartFileUtil = multiPartFileUtil;
         this.domainContextExtService = domainContextExtService;
         this.domibusConfigurationExtService = domibusConfigurationExtService;
+        this.securityProfileService = securityProfileService;
+        this.domibusExtMapper = domibusExtMapper;
     }
 
     @ExceptionHandler(CryptoExtException.class)
@@ -128,12 +136,30 @@ public class TLSTrustStoreExtResource {
         return "TLS truststore file has been successfully replaced.";
     }
 
+    //TODO: remove with EDELIVERY-11496
     @Operation(summary = "Add Certificate", description = "Add Certificate to the TLS truststore",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PostMapping(value = "/entries", consumes = {"multipart/form-data"})
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
                                     @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
 
+        return doAddCertificate(certificateFile, alias);
+    }
+
+    @Operation(summary = "Add Certificate", description = "Add Certificate to the TLS truststore",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @PostMapping(value = "/certificates", consumes = {"multipart/form-data"})
+    public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
+                                    @RequestParam("partyName") @Valid @NotNull String partyName,
+                                    @RequestParam("securityProfile") @Valid @NotNull SecurityProfileDTO securityProfileDTO,
+                                    @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
+        SecurityProfile securityProfile = domibusExtMapper.securityProfileDTOToApi(securityProfileDTO);
+        CertificatePurpose certificatePurpose = domibusExtMapper.certificatePurposeDTOToApi(certificatePurposeDTO);
+        String alias = securityProfileService.getCertificateAliasForPurpose(partyName, securityProfile, certificatePurpose);
+        return doAddCertificate(certificateFile, alias);
+    }
+
+    protected String doAddCertificate(MultipartFile certificateFile, String alias) {
         if (StringUtils.isBlank(alias)) {
             throw new RequestValidationException("Please provide an alias for the certificate.");
         }
@@ -145,10 +171,27 @@ public class TLSTrustStoreExtResource {
         return "Certificate [" + alias + "] has been successfully added to the TLS truststore.";
     }
 
+    //TODO: remove with EDELIVERY-11496
     @Operation(summary = "Remove Certificate", description = "Remove Certificate from the TLS truststore",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @DeleteMapping(value = "/entries/{alias:.+}")
     public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
+        return doRemoveCertificate(alias);
+    }
+
+    @Operation(summary = "Remove Certificate", description = "Remove Certificate from the TLS truststore",
+            security = @SecurityRequirement(name = "DomibusBasicAuth"))
+    @DeleteMapping(value = "/certificates/{partyName:.+}")
+    public String removeTLSCertificate(@PathVariable String partyName,
+                                       @RequestParam("securityProfile") @Valid @NotNull SecurityProfileDTO securityProfileDTO,
+                                       @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
+        SecurityProfile securityProfile = domibusExtMapper.securityProfileDTOToApi(securityProfileDTO);
+        CertificatePurpose certificatePurpose = domibusExtMapper.certificatePurposeDTOToApi(certificatePurposeDTO);
+        String alias = securityProfileService.getCertificateAliasForPurpose(partyName, securityProfile, certificatePurpose);
+        return doRemoveCertificate(alias);
+    }
+
+    protected String doRemoveCertificate(String alias) {
         tlsTruststoreExtService.removeCertificate(alias);
 
         return "Certificate [" + alias + "] has been successfully removed from the [" + TLS_TRUSTSTORE_NAME + "].";

@@ -5,7 +5,9 @@ import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.RegexUtil;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -18,7 +20,6 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.pull.PullContext;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.ext.domain.PullRequestDTO;
 import eu.domibus.ext.domain.SecurityProfileDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
@@ -92,7 +93,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
         if (securityProfileDTO != null && securityProfileDTO.getProfile() != null) {
             securityProfile = SecurityProfile.valueOf(securityProfileDTO.getProfile());
         }
-        String alias = securityProfileService.getAliasForSigning(securityProfile, userMessagePmodeData.getPartyName());
+        String alias = securityProfileService.getCertificateAliasForPurpose(userMessagePmodeData.getPartyName(), securityProfile, CertificatePurpose.SIGN);
         doAuthorize(signingCertificate, alias);
     }
 
@@ -134,7 +135,7 @@ public class DefaultAuthorizationServiceSpiImpl implements AuthorizationServiceS
             securityProfile = legConfigurations.iterator().next().getSecurity().getProfile();
         }
 
-        String alias = securityProfileService.getAliasForSigning(securityProfile, initiatorName);
+        String alias = securityProfileService.getCertificateAliasForPurpose(initiatorName, securityProfile, CertificatePurpose.SIGN);
 
         doAuthorize(signingCertificate, alias);
     }

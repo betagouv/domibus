@@ -1,4 +1,4 @@
-package eu.domibus.core.crypto;
+package eu.domibus.api.security;
 
 import com.google.common.collect.Maps;
 

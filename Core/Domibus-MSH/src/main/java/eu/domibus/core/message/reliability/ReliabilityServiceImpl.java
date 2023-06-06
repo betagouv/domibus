@@ -4,10 +4,10 @@ import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
+import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.crypto.SecurityProfileService;
 import eu.domibus.core.ebms3.sender.ResponseHandler;
 import eu.domibus.core.ebms3.sender.ResponseResult;
 import eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService;
@@ -92,7 +92,7 @@ public class ReliabilityServiceImpl implements ReliabilityService {
     public void handleReliability(UserMessage userMessage, UserMessageLog userMessageLog, final ReliabilityChecker.CheckResult reliabilityCheckResult, String requestRawXMLMessage, SOAPMessage responseSoapMessage, final ResponseResult responseResult, final LegConfiguration legConfiguration, final MessageAttempt attempt) {
         LOG.debug("Handling reliability");
 
-        securityProfileService.checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(legConfiguration, userMessage);
+        securityProfileService.checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(legConfiguration.getSecurity().getProfile(), userMessage);
 
         switch (reliabilityCheckResult) {
             case OK:

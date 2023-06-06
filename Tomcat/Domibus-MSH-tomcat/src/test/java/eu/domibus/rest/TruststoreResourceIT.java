@@ -8,6 +8,8 @@ import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.security.CertificatePurpose;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -149,51 +151,87 @@ public class TruststoreResourceIT extends AbstractIT {
     }
 
     @Test
-    public void addSameCertificate() throws IOException {
-        List<TrustStoreRO> initialStoreEntries = truststoreResource.trustStoreEntries();
-        Assert.assertEquals(2, initialStoreEntries.size());
+    public void addSameCertificateWithSecurityProfiles() throws IOException {
+        addSameCertificate(true);
+    }
 
+    @Test
+    public void addSameCertificateWithoutSecurityProfiles() throws IOException {
+        addSameCertificate(false);
+    }
+
+    protected MultipartFile getMultipartFile() throws IOException {
         String certFileName = "green_gw.cer";
         Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, certFileName);
         byte[] content = Files.readAllBytes(path);
-        String green_gw = "green_gw";
 
-        MultipartFile multiPartFile = new MockMultipartFile(certFileName, certFileName, "octetstream", content);
-        truststoreResource.addDomibusCertificate(multiPartFile, green_gw);
+        return new MockMultipartFile(certFileName, certFileName, "octetstream", content);
+    }
+
+    public void addSameCertificate(boolean areSecurityProfilesUsed) throws IOException {
+        List<TrustStoreRO> initialStoreEntries = truststoreResource.trustStoreEntries();
+        Assert.assertEquals(2, initialStoreEntries.size());
+        String alias = areSecurityProfilesUsed ?  "green_gw_rsa_encrypt" : "green_gw";
+
+        MultipartFile multiPartFile = getMultipartFile();
+        if (areSecurityProfilesUsed) {
+            truststoreResource.addDomibusCertificate(multiPartFile, "green_gw", SecurityProfile.RSA, CertificatePurpose.ENCRYPT);
+        } else {
+            truststoreResource.addDomibusCertificate(multiPartFile, alias);
+        }
 
         List<TrustStoreRO> trustStoreEntries = truststoreResource.trustStoreEntries();
         Assert.assertEquals(3, trustStoreEntries.size());
-        Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(green_gw)));
+        Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(alias)));
 
         try {
-            truststoreResource.addDomibusCertificate(multiPartFile, green_gw);
+            if (areSecurityProfilesUsed) {
+                truststoreResource.addDomibusCertificate(multiPartFile, "green_gw", SecurityProfile.RSA, CertificatePurpose.ENCRYPT);
+            } else {
+                truststoreResource.addDomibusCertificate(multiPartFile, alias);
+            }
         } catch (DomibusCertificateException ex) {
-            Assert.assertTrue(ex.getMessage().contains("Certificate [green_gw] was not added to the [domibus.truststore] most probably because it already contains the same certificate."));
+            Assert.assertTrue(ex.getMessage().contains("Certificate [" + alias + "] was not added to the [domibus.truststore] most probably because it already contains the same certificate."));
             trustStoreEntries = truststoreResource.trustStoreEntries();
             Assert.assertEquals(3, trustStoreEntries.size());
         }
     }
 
     @Test
-    public void removeSameCertificate() {
+    public void removeSameCertificateWithSecurityProfiles() throws IOException {
+        removeSameCertificate(true);
+    }
+
+    @Test
+    public void removeSameCertificateWithoutSecurityProfiles() throws IOException {
+        removeSameCertificate(false);
+    }
+
+    public void removeSameCertificate(boolean areSecurityProfilesUsed) throws IOException {
         List<TrustStoreRO> trustStoreEntries = truststoreResource.trustStoreEntries();
         Assert.assertEquals(2, trustStoreEntries.size());
 
-        String red_gw = "red_gw";
+        String alias = areSecurityProfilesUsed? "red_gw_rsa_encrypt" : "red_gw";
 
-        String res = truststoreResource.removeDomibusCertificate(red_gw);
+        if (areSecurityProfilesUsed) {
+            MultipartFile multiPartFile = getMultipartFile();
+            truststoreResource.addDomibusCertificate(multiPartFile, "red_gw", SecurityProfile.RSA, CertificatePurpose.ENCRYPT);
+        }
 
-        Assert.assertTrue(res.contains("Certificate [red_gw] has been successfully removed from the [domibus.truststore] truststore."));
+        String res = truststoreResource.removeDomibusCertificate(alias);
+
+        Assert.assertTrue(res.contains("Certificate [" + alias + "] has been successfully removed from the [domibus.truststore]."));
         trustStoreEntries = truststoreResource.trustStoreEntries();
-        Assert.assertEquals(1, trustStoreEntries.size());
-        Assert.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(red_gw)));
+        int expectedCertificatesNumber = areSecurityProfilesUsed ? 2 : 1;
+        Assert.assertEquals(expectedCertificatesNumber, trustStoreEntries.size());
+        Assert.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(alias)));
 
         try {
-            truststoreResource.removeDomibusCertificate(red_gw);
+            truststoreResource.removeDomibusCertificate(alias);
         } catch (DomibusCertificateException ex) {
-            Assert.assertTrue(ex.getMessage().contains("Certificate [red_gw] was not removed from the [domibus.truststore] because it does not exist."));
+            Assert.assertTrue(ex.getMessage().contains("Certificate [" + alias + "] was not removed from the [domibus.truststore] because it does not exist."));
             trustStoreEntries = truststoreResource.trustStoreEntries();
-            Assert.assertEquals(1, trustStoreEntries.size());
+            Assert.assertEquals(expectedCertificatesNumber, trustStoreEntries.size());
         }
     }
 
