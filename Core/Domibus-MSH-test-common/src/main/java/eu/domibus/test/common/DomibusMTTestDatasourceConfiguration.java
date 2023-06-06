@@ -72,32 +72,17 @@ public class DomibusMTTestDatasourceConfiguration {
         JdbcDataSource result = new JdbcDataSource();
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
-        String generalSchemaCreateScript = writeScriptFromClasspathToLocalDirectory("create_general_schema.sql", "config/database");
-        String generalSchemaDDLScript = writeScriptFromClasspathToLocalDirectory("domibus-h2-multi-tenancy.sql", "test-sql-scripts");
-        String generalSchemaDataScript = writeScriptFromClasspathToLocalDirectory("domibus-h2-multi-tenancy-data.sql", "test-sql-scripts");
-
-        String domain1SchemaCreateScript = writeScriptFromClasspathToLocalDirectory("create_domain1_schema.sql", "config/database");
-        String domain2SchemaCreateScript = writeScriptFromClasspathToLocalDirectory("create_domain2_schema.sql", "config/database");
-        String domainSchemaDDLScript = writeScriptFromClasspathToLocalDirectory("domibus-h2.sql", "test-sql-scripts");
-        String domainSchemaDataScript = writeScriptFromClasspathToLocalDirectory("domibus-h2-data.sql", "test-sql-scripts");
-
         String schemaH2ScriptFullPath = writeScriptFromClasspathToLocalDirectory("schema-h2.sql", "config/database");
 
         //Enable logs for H2 with ';TRACE_LEVEL_FILE=4' at the end of databaseUrlTemplate
-        final String databaseUrlTemplate = "jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false;CASE_INSENSITIVE_IDENTIFIERS=TRUE;NON_KEYWORDS=DAY,VALUE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DEFAULT_LOCK_TIMEOUT=3000;INIT=runscript from '"
-                + FilenameUtils.separatorsToUnix(generalSchemaCreateScript)
-                + "'\\;runscript from '" + FilenameUtils.separatorsToUnix(generalSchemaDDLScript)
-                + "'\\;runscript from '" + FilenameUtils.separatorsToUnix(generalSchemaDataScript)
+        final String databaseUrlTemplate = "jdbc:h2:mem:%s;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false;CASE_INSENSITIVE_IDENTIFIERS=TRUE;" +
+                "NON_KEYWORDS=DAY,VALUE;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DEFAULT_LOCK_TIMEOUT=3000;INIT= "
 
-                + "'\\;runscript from '" + FilenameUtils.separatorsToUnix(domain1SchemaCreateScript)
-                + "'\\;runscript from '" + FilenameUtils.separatorsToUnix(domainSchemaDDLScript)
-                + "'\\;runscript from '" + FilenameUtils.separatorsToUnix(domainSchemaDataScript)
+                + createGeneralSchemaSqlScripts()
+                + createDomainSQLScripts("domain1")
+                + createDomainSQLScripts("domain2")
 
-                + "'\\;runscript from '" + FilenameUtils.separatorsToUnix(domain2SchemaCreateScript)
-                + "'\\;runscript from '" + FilenameUtils.separatorsToUnix(domainSchemaDDLScript)
-                + "'\\;runscript from '" + FilenameUtils.separatorsToUnix(domainSchemaDataScript)
-
-                + "'\\;runscript from '" + FilenameUtils.separatorsToUnix(schemaH2ScriptFullPath) + "'";
+                + " runscript from '" + FilenameUtils.separatorsToUnix(schemaH2ScriptFullPath) + "'";
 
         final String generalSchema = domibusPropertyProvider.getProperty(DOMIBUS_DATABASE_GENERAL_SCHEMA);
         String databaseUrl = String.format(databaseUrlTemplate, generalSchema);
@@ -109,12 +94,34 @@ public class DomibusMTTestDatasourceConfiguration {
         return result;
     }
 
+    private String createGeneralSchemaSqlScripts() {
+        String generalSchemaCreateScript = writeScriptFromClasspathToLocalDirectory("create_general_schema.sql", "config/database");
+        String generalSchemaDDLScript = writeScriptFromClasspathToLocalDirectory("domibus-h2-multi-tenancy.sql", "test-sql-scripts");
+        String generalSchemaDataScript = writeScriptFromClasspathToLocalDirectory("domibus-h2-multi-tenancy-data.sql", "test-sql-scripts");
+
+        return createSQLScripts(generalSchemaCreateScript, generalSchemaDDLScript, generalSchemaDataScript);
+    }
+
+    private String createDomainSQLScripts(String name) {
+        String domainSchemaCreateScript = writeScriptFromClasspathToLocalDirectory("create_" + name + "_schema.sql", "config/database");
+        String domainSchemaDDLScript = writeScriptFromClasspathToLocalDirectory("domibus-h2.sql", "test-sql-scripts");
+        String domainSchemaDataScript = writeScriptFromClasspathToLocalDirectory("domibus-h2-data.sql", "test-sql-scripts");
+
+        return createSQLScripts(domainSchemaCreateScript, domainSchemaDDLScript, domainSchemaDataScript);
+    }
+
+    private String createSQLScripts(String createScript, String ddlScript, String dataScript) {
+        return "runscript from '" + FilenameUtils.separatorsToUnix(createScript) + "'\\;"
+                + "runscript from '" + FilenameUtils.separatorsToUnix(ddlScript) + "'\\;"
+                + "runscript from '" + FilenameUtils.separatorsToUnix(dataScript) + "'\\;";
+    }
+
     private String writeScriptFromClasspathToLocalDirectory(String scriptName, String scriptDirectory) {
         String sourceScriptPath = scriptDirectory + "/" + scriptName;
 
         final File testSqlScriptsDirectory = new File("target/test-sql-scripts");
         final File domibusScript = new File(testSqlScriptsDirectory, scriptName);
-        String scriptFullPath= null;
+        String scriptFullPath = null;
         try {
             scriptFullPath = domibusScript.getCanonicalPath();
         } catch (IOException e) {
