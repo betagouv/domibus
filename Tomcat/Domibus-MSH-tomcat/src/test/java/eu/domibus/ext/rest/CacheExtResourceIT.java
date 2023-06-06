@@ -71,8 +71,6 @@ public class CacheExtResourceIT extends AbstractIT {
 
         //set one value in 2L cache
         dummyMpc = mpcDao.findOrCreateMpc("DUMMY_MPC");
-        //check value is present in 2L Cache
-//        checkStillIn2LCache();
     }
 
     protected void setAuth() {
