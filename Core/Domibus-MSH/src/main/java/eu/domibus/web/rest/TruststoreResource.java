@@ -5,6 +5,8 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.*;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.security.CertificatePurpose;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
@@ -54,9 +56,10 @@ public class TruststoreResource extends TruststoreResourceBase {
                               DomainContextProvider domainContextProvider,
                               DomibusConfigurationService domibusConfigurationService,
                               CertificateHelper certificateHelper,
-                              KeystorePersistenceService keystorePersistenceService) {
+                              KeystorePersistenceService keystorePersistenceService,
+                              SecurityProfileService securityProfileService) {
         super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider, domibusConfigurationService,
-                certificateHelper, keystorePersistenceService);
+                certificateHelper, keystorePersistenceService, securityProfileService);
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainProvider = domainProvider;
@@ -95,15 +98,32 @@ public class TruststoreResource extends TruststoreResourceBase {
         return getTrustStoreEntries();
     }
 
+    //TODO: remove with EDELIVERY-11496
     @PostMapping(value = "/entries")
     public String addDomibusCertificate(@RequestPart("file") MultipartFile certificateFile,
                                         @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
         return addCertificate(certificateFile, alias);
     }
 
+    @PostMapping(value = "/certificates")
+    public String addDomibusCertificate(@RequestPart("file") MultipartFile certificateFile,
+                                        @RequestParam("partyName") @Valid @NotNull String partyName,
+                                        @RequestParam("securityProfile") @Valid @NotNull SecurityProfile securityProfileDTO,
+                                        @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurpose certificatePurpose) throws RequestValidationException {
+        return addCertificate(certificateFile, partyName, securityProfileDTO, certificatePurpose);
+    }
+
+    //TODO: remove with EDELIVERY-11496
     @DeleteMapping(value = "/entries/{alias:.+}")
     public String removeDomibusCertificate(@PathVariable String alias) throws RequestValidationException {
         return removeCertificate(alias);
+    }
+
+    @DeleteMapping(value = "/certificates/{partyName:.+}")
+    public String removeDomibusCertificate(@PathVariable String partyName,
+                                           @RequestParam("securityProfile") @Valid @NotNull SecurityProfile securityProfile,
+                                           @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurpose certificatePurpose) throws RequestValidationException {
+        return removeCertificate(partyName, securityProfile, certificatePurpose);
     }
 
     @GetMapping(value = "/changedOnDisk")

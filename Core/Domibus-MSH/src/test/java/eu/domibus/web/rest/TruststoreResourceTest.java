@@ -14,11 +14,9 @@ import eu.domibus.web.rest.error.ErrorHandlerService;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.security.KeyStore;
 import java.util.List;
 
 /**
@@ -66,6 +64,9 @@ public class TruststoreResourceTest {
 
     @Injectable
     CertificateHelper certificateHelper;
+
+    @Injectable
+    SecurityProfileService securityProfileService;
 
     @Test
     public void replaceTruststore(@Mocked Domain domain, @Injectable KeyStoreContentInfo storeInfo) {

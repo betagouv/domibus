@@ -2,9 +2,10 @@ package eu.domibus.openapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.message.validation.UserMessageValidatorServiceDelegate;
+import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.util.MultiPartFileUtil;
+import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -16,14 +17,11 @@ import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.util.MimeType;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -168,6 +166,11 @@ public class OpenApiConfig {
     }
 
     @Bean
+    public DomibusExtMapper domibusExtMapper() {
+        return Mockito.mock(DomibusExtMapper.class);
+    }
+
+    @Bean
     public TLSTrustStoreExtService tlsTruststoreExtService() {
         return Mockito.mock(TLSTrustStoreExtService.class);
     }
@@ -180,6 +183,11 @@ public class OpenApiConfig {
     @Bean
     public DistributedCacheExtService distributedCacheExtService() {
         return Mockito.mock(DistributedCacheExtService.class);
+    }
+
+    @Bean
+    public SecurityProfileService securityProfileService() {
+        return Mockito.mock(SecurityProfileService.class);
     }
 
     @Bean

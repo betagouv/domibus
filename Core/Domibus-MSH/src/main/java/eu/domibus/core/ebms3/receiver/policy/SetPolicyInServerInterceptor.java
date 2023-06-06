@@ -3,10 +3,10 @@ package eu.domibus.core.ebms3.receiver.policy;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.LegConfiguration;
-import eu.domibus.core.crypto.SecurityProfileService;
+import eu.domibus.common.model.configuration.Security;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
@@ -118,7 +118,8 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
             message.getInterceptorChain().add(new CheckEBMSHeaderInterceptor());
             message.getInterceptorChain().add(new SOAPMessageBuilderInterceptor());
 
-            String securityAlgorithm = securityProfileService.getSecurityAlgorithm(legConfiguration);
+            Security security = legConfiguration.getSecurity();
+            String securityAlgorithm = securityProfileService.getSecurityAlgorithm(security.getPolicy(), security.getProfile(), legConfiguration.getName());
 
             message.put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);
             message.getExchange().put(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM, securityAlgorithm);

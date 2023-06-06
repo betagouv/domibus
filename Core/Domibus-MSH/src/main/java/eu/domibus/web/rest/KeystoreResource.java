@@ -6,6 +6,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.util.MultiPartFileUtil;
@@ -50,9 +51,10 @@ public class KeystoreResource extends TruststoreResourceBase {
                             DomainContextProvider domainContextProvider,
                             DomibusConfigurationService domibusConfigurationService,
                             CertificateHelper certificateHelper,
-                            KeystorePersistenceService keystorePersistenceService) {
+                            KeystorePersistenceService keystorePersistenceService,
+                            SecurityProfileService securityProfileService) {
         super(partyConverter, errorHandlerService, multiPartFileUtil, auditService, domainContextProvider,
-                domibusConfigurationService, certificateHelper, keystorePersistenceService);
+                domibusConfigurationService, certificateHelper, keystorePersistenceService, securityProfileService);
 
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainProvider = domainProvider;

@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.party.Party;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.process.Process;
+import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.security.TrustStoreEntry;
 import eu.domibus.api.user.plugin.AuthenticationEntity;
@@ -59,6 +60,12 @@ public interface DomibusExtMapper {
     Process processDTOToProcess(ProcessDTO processDTO);
 
     SecurityProfileDTO securityProfileApiToDTO(SecurityProfile securityProfile);
+
+    SecurityProfile securityProfileDTOToApi(SecurityProfileDTO securityProfileDTO);
+
+    CertificatePurposeDTO certificatePurposeApiToDTO(CertificatePurpose certificatePurpose);
+
+    CertificatePurpose certificatePurposeDTOToApi(CertificatePurposeDTO certificatePurposeDTO);
 
     PartInfoDTO partInfoToDto(PartInfo partInfo);
 

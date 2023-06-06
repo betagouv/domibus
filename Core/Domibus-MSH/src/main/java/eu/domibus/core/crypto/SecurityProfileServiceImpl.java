@@ -1,12 +1,14 @@
 package eu.domibus.core.crypto;
 
-
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.pki.SecurityProfileService;
+import eu.domibus.api.pmode.PModeException;
+import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.SecurityProfile;
-import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
@@ -28,9 +30,9 @@ import java.security.cert.X509Certificate;
  * @since 5.1
  */
 @Service
-public class SecurityProfileService {
+public class SecurityProfileServiceImpl implements SecurityProfileService {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityProfileService.class);
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityProfileServiceImpl.class);
 
     protected final DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader;
 
@@ -42,7 +44,11 @@ public class SecurityProfileService {
 
     protected final DomainContextProvider domainContextProvider;
 
-    public SecurityProfileService(DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader, PolicyService policyService, PModeProvider pModeProvider, MultiDomainCryptoService multiDomainCertificateProvider, DomainContextProvider domainContextProvider) {
+    public SecurityProfileServiceImpl(DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader,
+                                      PolicyService policyService,
+                                      PModeProvider pModeProvider,
+                                      MultiDomainCryptoService multiDomainCertificateProvider,
+                                      DomainContextProvider domainContextProvider) {
         this.domibusAlgorithmSuiteLoader = domibusAlgorithmSuiteLoader;
         this.policyService = policyService;
         this.pModeProvider = pModeProvider;
@@ -50,32 +56,28 @@ public class SecurityProfileService {
         this.domainContextProvider = domainContextProvider;
     }
 
-    public boolean isSecurityPolicySet(LegConfiguration legConfiguration) {
+    @Override
+    public boolean isSecurityPolicySet(String policyFromSecurity, SecurityProfile securityProfile, String legName) throws PModeException {
         Policy policy;
         try {
-            policy = policyService.parsePolicy("policies/" + legConfiguration.getSecurity().getPolicy(), legConfiguration.getSecurity().getProfile());
+            policy = policyService.parsePolicy("policies/" + policyFromSecurity, securityProfile);
         } catch (final ConfigurationException e) {
-            String message = String.format("Error retrieving policy for leg [%s]", legConfiguration.getName());
-            throw new ConfigurationException(message);
+            String message = String.format("Error retrieving policy for leg [%s]", legName);
+            throw new PModeException(DomibusCoreErrorCode.DOM_002, message);
         }
 
         return !policyService.isNoSecurityPolicy(policy);
     }
 
     /**
-     * Retrieves the Asymmetric Signature Algorithm corresponding to the security profile, defaulting to RSA_SHA256
-     * correspondent if no security profile is defined
-     *
-     * @param legConfiguration the leg configuration containing the security profile
-     * @throws ConfigurationException thrown when the legConfiguration contains an invalid security profile
-     * @return the Asymmetric Signature Algorithm
+     * {@inheritDoc}
      */
-    public String getSecurityAlgorithm(LegConfiguration legConfiguration) throws ConfigurationException {
-        if (!isSecurityPolicySet(legConfiguration)) {
+    @Override
+    public String getSecurityAlgorithm(String policyFromSecurity, SecurityProfile securityProfile, String legName) throws PModeException {
+        if (!isSecurityPolicySet(policyFromSecurity, securityProfile, legName)) {
             return null;
         }
 
-        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
         if (securityProfile == null) {
             LOG.info("The leg configuration contains no security profile info so the default RSA_SHA256 algorithm is used.");
             securityProfile = SecurityProfile.RSA;
@@ -84,44 +86,45 @@ public class SecurityProfileService {
         return algorithmSuiteType.getAsymmetricSignature();
     }
 
-    public String getAliasForSigning(LegConfiguration legConfiguration, String senderName) {
-        return getAliasForSigning(legConfiguration.getSecurity().getProfile(), senderName);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getCertificateAliasForPurpose(String partyName, SecurityProfile securityProfile, CertificatePurpose certificatePurpose) {
+        switch (certificatePurpose) {
+            case SIGN:
+            case ENCRYPT:
+            case DECRYPT:
+                return getSecurityProfileAlias(partyName, securityProfile, certificatePurpose);
+            default:
+                throw new DomibusCertificateException("Invalid certificate usage [" + certificatePurpose +"]");
+        }
     }
 
-    public String getAliasForSigning(SecurityProfile securityProfile, String senderName) {
-        String alias = senderName;
+    private String getSecurityProfileAlias(String partyName, SecurityProfile securityProfile, CertificatePurpose certificatePurpose) {
+        String alias = partyName;
         if (securityProfile != null) {
-            alias = senderName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_sign";
+            alias = partyName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_" + certificatePurpose.getCertificatePurpose().toLowerCase();
         }
-        LOG.info("The following alias was determined for signing: [{}]", alias);
+        LOG.info("The following alias was determined for [{}]ing: [{}]", certificatePurpose.getCertificatePurpose().toLowerCase(), alias);
         return alias;
     }
 
-    public String getAliasForEncrypting(LegConfiguration legConfiguration, String receiverName) {
-        String alias = receiverName;
-        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
-        if (securityProfile != null) {
-            alias = receiverName + "_" + StringUtils.lowerCase(securityProfile.getProfile()) + "_encrypt";
-
-        }
-        LOG.info("The following alias was determined for encrypting: [{}]", alias);
-        return alias;
-    }
-
+    @Override
     public CertificatePurpose extractCertificatePurpose(String alias) {
         return CertificatePurpose.lookupByName(StringUtils.substringAfterLast(alias, "_").toUpperCase());
     }
 
+    @Override
     public SecurityProfile extractSecurityProfile(String alias) {
         return SecurityProfile.lookupByName(StringUtils.substringAfterLast(StringUtils.substringBeforeLast(alias,"_"), "_").toUpperCase());
     }
 
     /**
-     * Checks if the signing certificate of the acknowledgement message sender is in the TrustStore
-     * @param legConfiguration - the legConfiguration
-     * @param userMessage - the UserMessage that was sent
+     * {@inheritDoc}
      */
-    public void checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(final LegConfiguration legConfiguration, UserMessage userMessage) {
+    @Override
+    public void checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(final SecurityProfile securityProfile, UserMessage userMessage) {
         String acknowledgementSenderName;
         try {
             acknowledgementSenderName = pModeProvider.findReceiverParty(userMessage);
@@ -130,7 +133,7 @@ public class SecurityProfileService {
             throw new ConfigurationException(exceptionMessage);
         }
 
-        String aliasForSigning = getAliasForSigning(legConfiguration, acknowledgementSenderName);
+        String aliasForSigning = getCertificateAliasForPurpose(acknowledgementSenderName, securityProfile, CertificatePurpose.SIGN);
 
         try {
             X509Certificate cert = multiDomainCertificateProvider.getCertificateFromTruststore(domainContextProvider.getCurrentDomain(), aliasForSigning);

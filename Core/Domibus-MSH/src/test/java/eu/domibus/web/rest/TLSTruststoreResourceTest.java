@@ -5,6 +5,7 @@ import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
+import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.MultiPartFileUtil;
@@ -69,6 +70,9 @@ public class TLSTruststoreResourceTest {
 
     @Injectable
     KeystorePersistenceService keystorePersistenceService;
+
+    @Injectable
+    SecurityProfileService securityProfileService;
 
     @Test
     public void replaceTruststore(@Injectable KeyStoreContentInfo storeInfo) {
