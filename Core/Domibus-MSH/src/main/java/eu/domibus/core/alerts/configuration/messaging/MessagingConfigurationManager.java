@@ -6,18 +6,16 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationManager;
+import eu.domibus.core.alerts.configuration.common.ConfigurationReader;
 import eu.domibus.core.alerts.configuration.common.ReaderMethodAlertConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
-import eu.domibus.core.alerts.configuration.common.ConfigurationReader;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.AbstractMap;
-import java.util.Arrays;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
@@ -63,28 +61,24 @@ public class MessagingConfigurationManager
                         currentDomain, alertActive, messageAlertActive);
                 return new MessagingModuleConfiguration(mailSubject);
             }
-            // todo replace with getCommaSeparatedPropertyValues EDELIVERY-10149 Ion Perpegel 16/09/22
-            final String messageCommunicationStates = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES);
-            final String messageCommunicationLevels = domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL);
 
-            if (StringUtils.isEmpty(messageCommunicationStates) || StringUtils.isEmpty(messageCommunicationLevels)) {
+            final List<String> messageCommunicationStates = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES);
+            final List<String> messageCommunicationLevels = domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL);
+
+
+            if (messageCommunicationStates.isEmpty() || messageCommunicationLevels.isEmpty()) {
                 LOG.warn("Message status change alert module misconfiguration -> states[{}], levels[{}]", messageCommunicationStates, messageCommunicationLevels);
                 return new MessagingModuleConfiguration();
             }
-            final String[] states = messageCommunicationStates.split(",");
-            final String[] trimmedStates = Arrays.stream(states).filter(state -> StringUtils.isNotBlank(state)).map(state -> StringUtils.trim(state)).distinct().toArray(String[]::new);
 
-            final String[] levels = messageCommunicationLevels.split(",");
-            final String[] trimmedLevels = Arrays.stream(levels).filter(level -> StringUtils.isNotBlank(level)).map(level -> StringUtils.trim(level)).distinct().toArray(String[]::new);
-
-            final boolean eachStatusHasALevel = (trimmedStates.length == trimmedLevels.length);
+            final boolean eachStatusHasALevel = (messageCommunicationStates.size() == messageCommunicationLevels.size());
             LOG.debug("Each message status has his own level[{}]", eachStatusHasALevel);
 
             MessagingModuleConfiguration messagingConfiguration = new MessagingModuleConfiguration(mailSubject);
             messagingConfiguration.setActive(true);
             IntStream.
-                    range(0, trimmedStates.length).
-                    mapToObj(i -> new AbstractMap.SimpleImmutableEntry<>(MessageStatus.valueOf(trimmedStates[i]), AlertLevel.valueOf(trimmedLevels[eachStatusHasALevel ? i : 0]))).
+                    range(0, messageCommunicationStates.size()).
+                    mapToObj(i -> new AbstractMap.SimpleImmutableEntry<>(MessageStatus.valueOf(messageCommunicationStates.get(i)), AlertLevel.valueOf(messageCommunicationLevels.get(eachStatusHasALevel ? i : 0)))).
                     forEach(entry -> messagingConfiguration.addStatusLevelAssociation(entry.getKey(), entry.getValue())); //NOSONAR
             LOG.info("Alert message status change module activated for domain:[{}]", currentDomain);
             return messagingConfiguration;
