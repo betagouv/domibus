@@ -1,17 +1,21 @@
 package eu.domibus.core.alerts.configuration.messaging;
 
+import eu.domibus.api.alerts.AlertLevel;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.alerts.AlertLevel;
-import eu.domibus.core.alerts.model.common.AlertType;
-import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.common.ConfigurationReader;
+import eu.domibus.core.alerts.model.common.AlertType;
+import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import mockit.*;
 import mockit.integration.junit4.JMockit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.junit.Assert.*;
@@ -37,7 +41,7 @@ public class MessagingConfigurationManagerTest {
     @Test
     public void getAlertType() {
         AlertType res = configurationManager.getAlertType();
-        assertEquals(res,  AlertType.MSG_STATUS_CHANGED);
+        assertEquals(res, AlertType.MSG_STATUS_CHANGED);
     }
 
     @Test
@@ -61,22 +65,21 @@ public class MessagingConfigurationManagerTest {
     @Test
     public void readConfigurationEachMessagetStatusItsOwnAlertLevel() {
         final String mailSubject = "Messsage status changed";
-        final String messageCommunicationStates = "SEND_FAILURE,,,SEND_FAILURE,	SEND_ENQUEUED	,	ACKNOWLEDGED";
-        final String messageCommunicationLevels = "HIGH, MEDIUM, HIGH,,,LOW";
-        final String[] states = new String[2];
+        final List<String> messageCommunicationStates = new ArrayList<>(Arrays.asList("SEND_FAILURE", "SEND_FAILURE", "SEND_ENQUEUED", "ACKNOWLEDGED"));
+        ;
+        final List<String> messageCommunicationLevels = new ArrayList<>(Arrays.asList("HIGH", "HIGH", "MEDIUM", "LOW"));
+
         new Expectations(configurationManager) {{
             configurationManager.isAlertModuleEnabled();
             result = true;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             result = true;
-            domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES);
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES);
             result = messageCommunicationStates;
-            domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL);
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL);
             result = messageCommunicationLevels;
             domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT);
             this.result = mailSubject;
-            messageCommunicationStates.split(",");
-            result = states;
         }};
 
         final MessagingModuleConfiguration messagingConfiguration = configurationManager.readConfiguration();
@@ -100,10 +103,10 @@ public class MessagingConfigurationManagerTest {
             result = true;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             result = true;
-            domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES);
-            result = "SEND_FAILURE,ACKNOWLEDGED";
-            domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL);
-            result = "HIGH";
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES);
+            result = new ArrayList<>(Arrays.asList("SEND_FAILURE", "ACKNOWLEDGED"));
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL);
+            result = new ArrayList<>(Arrays.asList("HIGH"));
             domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT);
             this.result = mailSubject;
         }};
@@ -123,10 +126,10 @@ public class MessagingConfigurationManagerTest {
             result = true;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             result = true;
-            domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES);
-            result = "SEND_FLOP";
-            domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL);
-            result = "HIGH";
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES);
+            result = new ArrayList<>(Arrays.asList("SEND_FLOP"));
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL);
+            result = new ArrayList<>(Arrays.asList("HIGH"));
         }};
         final MessagingModuleConfiguration messagingConfiguration = configurationManager.readConfiguration();
         assertFalse(messagingConfiguration.isActive());
@@ -154,10 +157,10 @@ public class MessagingConfigurationManagerTest {
             this.result = true;
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_ACTIVE);
             result = true;
-            domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES);
-            result = "";
-            domibusPropertyProvider.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL);
-            result = "";
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_STATES);
+            result = new ArrayList<>();
+            domibusPropertyProvider.getCommaSeparatedPropertyValues(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_LEVEL);
+            result = new ArrayList<>();
         }};
         final MessagingModuleConfiguration messagingConfiguration = configurationManager.readConfiguration();
         assertFalse(messagingConfiguration.isActive());
