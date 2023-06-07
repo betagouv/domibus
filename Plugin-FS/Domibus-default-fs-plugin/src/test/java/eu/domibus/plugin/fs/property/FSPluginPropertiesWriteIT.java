@@ -37,6 +37,9 @@ public class FSPluginPropertiesWriteIT extends AbstractIT {
     @Autowired
     PropertyChangeManager propertyChangeManager;
 
+    @Autowired
+    DomainContextExtService domainContextExtService;
+
     @Configuration
     @PropertySource(value = "file:${domibus.config.location}/plugins/config/fs-plugin.properties")
     static class ContextConfiguration {
@@ -81,9 +84,6 @@ public class FSPluginPropertiesWriteIT extends AbstractIT {
         fsPluginProperties.setKnownPropertyValue(domainDefault, propertyName1, oldPropertyValue1, false);
         fsPluginProperties.setKnownPropertyValue(domainDefault, propertyName2, oldPropertyValue2, true);
     }
-
-    @Autowired
-    DomainContextExtService domainContextExtService;
 
     private File getPropertyFile() {
         DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
