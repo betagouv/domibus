@@ -129,7 +129,9 @@ public abstract class AbstractIT {
         LOG.info(WarningUtil.warnOutput("Initializing Spring context"));
 
         FileUtils.deleteDirectory(new File("target/temp"));
-        System.setProperty("domibus.config.location", new File("target/test-classes").getAbsolutePath());
+        final File domibusConfigLocation = new File("target/test-classes");
+        String absolutePath = domibusConfigLocation.getAbsolutePath();
+        System.setProperty("domibus.config.location", absolutePath);
 
         //we are using randomly available port in order to allow run in parallel
         int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 3100);

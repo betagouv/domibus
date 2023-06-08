@@ -88,10 +88,6 @@ public abstract class AbstractIT {
 
     @BeforeClass
     public static void init() throws IOException {
-        if (springContextInitialized) {
-            return;
-        }
-
         final File domibusConfigLocation = new File("target/test-classes");
         String absolutePath = domibusConfigLocation.getAbsolutePath();
         System.setProperty("domibus.config.location", absolutePath);
