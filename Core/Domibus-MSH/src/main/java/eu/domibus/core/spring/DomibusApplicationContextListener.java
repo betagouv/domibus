@@ -161,7 +161,7 @@ public class DomibusApplicationContextListener {
      * Method executed in a serial/sync mode (if in a cluster environment)
      * Add code that needs to be executed with regard to other nodes in the cluster
      */
-    protected void executeSynchronized(boolean full) {
+    protected void executeSynchronized(boolean completeInitialization) {
         messageDictionaryService.createStaticDictionaryEntries();
         multiDomainCryptoService.saveStoresFromDBToDisk();
         tlsCertificateManager.saveStoresFromDBToDisk();
@@ -169,7 +169,7 @@ public class DomibusApplicationContextListener {
         encryptionService.handleEncryption();
         userManagementService.createDefaultUserIfApplicable();
 
-        if (full) {
+        if (completeInitialization) {
             backendFilterInitializerService.updateMessageFilters();
         }
 
@@ -191,7 +191,7 @@ public class DomibusApplicationContextListener {
      * Method executed in a parallel/not sync mode (in any environment)
      * Add code that does not need to be executed with regard to other nodes in the cluster
      */
-    protected void executeNonSynchronized(boolean full) {
+    protected void executeNonSynchronized(boolean completeInitialization) {
         messageListenerContainerInitializer.initialize();
         jmsQueueCountSetScheduler.initialize();
         payloadFileStorageProvider.initialize();
@@ -199,7 +199,7 @@ public class DomibusApplicationContextListener {
 
         eArchiveFileStorageProvider.initialize();
 
-        if (full) {
+        if (completeInitialization) {
             //this is added on purpose in the non-synchronized area; the initialize method has a more complex logic to decide if it executes in synchronized way
             domibusQuartzStarter.initialize();
         }
