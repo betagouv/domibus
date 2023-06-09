@@ -1,17 +1,14 @@
 package eu.domibus.core;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.model.MpcEntity;
 import eu.domibus.api.multitenancy.lock.DBClusterSynchronizedRunnable;
 import eu.domibus.api.multitenancy.lock.DbClusterSynchronizedRunnableFactory;
+import eu.domibus.core.spring.lock.LockEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.mock.TransactionalTestService;
 import org.hamcrest.MatcherAssert;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -42,8 +39,8 @@ import static org.junit.Assert.*;
 public class DBClusterSynchronizedRunnableIT extends AbstractIT {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DBClusterSynchronizedRunnableIT.class);
-    public static final String SELECT_FROM_TABLE_WHERE_VALUE_IN_LIST = "select mpc from MpcEntity mpc where value in :TEST_VALUES";
-    public static final String DELETE_TEST_DATA = "delete from MpcEntity where value in :TEST_VALUES";
+    public static final String SELECT_FROM_TABLE_WHERE_VALUE_IN_LIST = "select e from LockEntity e where lockKey in :TEST_VALUES";
+    public static final String DELETE_TEST_DATA = "delete from LockEntity where lockKey in :TEST_VALUES";
     private static final String SCHEDULER_SYNCHRONIZATION_LOCK = "scheduler-synchronization.lock";
 
     @Autowired
@@ -56,10 +53,28 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
     private PlatformTransactionManager transactionManager;
 
     private TransactionTemplate transactionTemplate;
-    
+
     private final String VALUE_FROM_OWNER_THREAD = "from-owner-thread";
+
     private final String VALUE_FROM_TASK_1 = "from-task_1-thread";
+
     private final String VALUE_FROM_TASK_2 = "from-task_2-thread";
+
+    @Before
+    public void setUp() {
+        transactionTemplate = new TransactionTemplate(transactionManager);
+    }
+
+    @After
+    public void cleanup() {
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                cleanDatabase();
+                assertDatabaseIsClean();
+            }
+        });
+    }
 
     @Test
     @Transactional
@@ -117,22 +132,6 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
                 }
         );
         Assert.assertEquals(2, i.get());
-    }
-
-    @Before
-    public void setUp() {
-        transactionTemplate = new TransactionTemplate(transactionManager);
-    }
-
-    @After
-    public void cleanup(){
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                cleanDatabase();
-                assertDatabaseIsClean();
-            }
-        });
     }
 
     @Test
@@ -317,7 +316,7 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
                     throw new RuntimeException("Owner throws exception");
                 }
             });
-        } catch (RuntimeException e){
+        } catch (RuntimeException e) {
             LOG.info("Caught exception: " + e.getMessage());
         }
         //then
@@ -551,6 +550,7 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
 
     /**
      * Runs two threads using SynchronizedRunnable infrastructure
+     *
      * @param useSameLock when true, SynchronizedRunnable will wait until the lock is released
      * @param task1
      * @param task2
@@ -610,15 +610,16 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
     }
 
     private List<String> getAllValuesFromThisTest() {
-        TypedQuery<MpcEntity> query = em.createQuery(SELECT_FROM_TABLE_WHERE_VALUE_IN_LIST, MpcEntity.class);
+        domainContextProvider.clearCurrentDomain();
+        TypedQuery<LockEntity> query = em.createQuery(SELECT_FROM_TABLE_WHERE_VALUE_IN_LIST, LockEntity.class);
         query.setParameter("TEST_VALUES", Arrays.asList(VALUE_FROM_OWNER_THREAD, VALUE_FROM_TASK_1, VALUE_FROM_TASK_2));
-        List<MpcEntity> resultList = query.getResultList();
-        return resultList.stream().map(MpcEntity::getValue).collect(Collectors.toList());
+        List<LockEntity> resultList = query.getResultList();
+        return resultList.stream().map(LockEntity::getLockKey).collect(Collectors.toList());
     }
 
     private void changeDatabase(String newValue) {
-        MpcEntity newEntity = new MpcEntity();
-        newEntity.setValue(newValue);
+        LockEntity newEntity = new LockEntity();
+        newEntity.setLockKey(newValue);
         newEntity.setCreatedBy(DBClusterSynchronizedRunnableIT.class.getName());
         em.persist(newEntity);
     }

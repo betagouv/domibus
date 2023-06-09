@@ -9,6 +9,7 @@ import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.MpcDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
+import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -94,6 +95,9 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Autowired
     private NotificationStatusDao notificationStatusDao;
+
+    @Autowired
+    PayloadFileStorageProvider payloadFileStorageProvider;
 
     @Before
     public void setup() throws Exception {

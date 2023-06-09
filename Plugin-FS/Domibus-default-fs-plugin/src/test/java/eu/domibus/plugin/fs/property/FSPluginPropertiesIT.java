@@ -21,7 +21,7 @@ public class FSPluginPropertiesIT extends AbstractIT {
 
     private static final String NONEXISTENT_DOMAIN = "NONEXISTENT_DOMAIN";
 
-    private static final String DEFAULT_LOCATION = "/tmp/fs_plugin_data";
+    private static final String DEFAULT_LOCATION = "/tmp/fs_plugin_data/default";
 
     @Autowired
     FSPluginProperties fsPluginProperties;
@@ -37,7 +37,8 @@ public class FSPluginPropertiesIT extends AbstractIT {
 
     @Test
     public void testGetLocation() {
-        Assert.assertEquals(DEFAULT_LOCATION, fsPluginProperties.getLocation(DEFAULT_DOMAIN));
+        String location = fsPluginProperties.getLocation(DEFAULT_DOMAIN);
+        Assert.assertEquals(DEFAULT_LOCATION, location);
     }
 
     @Test(expected = DomibusPropertyExtException.class)
@@ -61,18 +62,11 @@ public class FSPluginPropertiesIT extends AbstractIT {
     }
 
     @Test
-    @Ignore
-    public void testGetFailedAction() {
-        Assert.assertEquals(FSPluginProperties.ACTION_DELETE, fsPluginProperties.getFailedAction(DEFAULT_DOMAIN));
-    }
-
-    @Test
     public void testGetFailedPurgeWorkerCronExpression() {
         Assert.assertEquals("0 0/1 * * * ?", fsPluginProperties.getFailedPurgeWorkerCronExpression(DEFAULT_DOMAIN));
     }
 
     @Test
-    @Ignore
     public void testGetFailedPurgeExpired() {
         Assert.assertEquals(Integer.valueOf(600), fsPluginProperties.getFailedPurgeExpired(DEFAULT_DOMAIN));
     }
@@ -95,9 +89,9 @@ public class FSPluginPropertiesIT extends AbstractIT {
     @Test
     public void testKnownPropertyValue_singleTenancy() {
         final String domainDefault = "default";
-        final String propertyName1 = LOCATION;
+        final String propertyName1 = FSPluginPropertiesMetadataManagerImpl.FAILED_ACTION;
         final String propertyName2 = FSPluginPropertiesMetadataManagerImpl.SENT_ACTION;
-        final String oldPropertyValue1 = "/tmp/fs_plugin_data";
+        final String oldPropertyValue1 = "archive";
         final String oldPropertyValue2 = "delete";
         final String newPropertyValue1 = "new-property-value1";
         final String newPropertyValue2 = "new-property-value2";

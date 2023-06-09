@@ -104,6 +104,24 @@ public class PropertyChangeManager {
     }
 
     protected void doSetPropertyValue(Domain domain, String propertyName, String propertyValue) {
+        //keep old value in case of an exception
+        String oldValue = getInternalPropertyValue(domain, propertyName);
+
+        String propertyKey = getPropertyKey(domain, propertyName);
+
+        //set the value
+        setValueInDomibusPropertySource(propertyKey, propertyValue);
+
+        try {
+            saveInFile(domain, propertyName, propertyValue, propertyKey);
+        } catch (Exception ex) {
+            LOG.warn("Could not persist the property [{}] value [{}] in the file; reverting to [{}]", propertyName, propertyValue, oldValue);
+            setValueInDomibusPropertySource(propertyKey, oldValue);
+            throw ex;
+        }
+    }
+
+    private String getPropertyKey(Domain domain, String propertyName) {
         String propertyKey;
         //calculate property key
         if (propertyProviderHelper.isMultiTenantAware()) {
@@ -113,11 +131,7 @@ public class PropertyChangeManager {
             // in single-tenancy mode - the property key is always the property name
             propertyKey = propertyName;
         }
-
-        //set the value
-        setValueInDomibusPropertySource(propertyKey, propertyValue);
-
-        saveInFile(domain, propertyName, propertyValue, propertyKey);
+        return propertyKey;
     }
 
     protected void signalPropertyValueChanged(Domain domain, String propertyName, String propertyValue,
@@ -250,23 +264,32 @@ public class PropertyChangeManager {
         if (!propertyProviderHelper.isMultiTenantAware()) {
             String configurationFileName = manager.getConfigurationFileName();
             LOG.debug("Properties file name in single-tenancy mode for property [{}] is [{}].", propMeta.getName(), configurationFileName);
-            File propertyFile = getFile(configurationFileName);
-            if (!Files.exists(propertyFile.toPath())) {
-                LOG.info("Properties file for module [{}] could not be found at the location [{}]; creating it now.", propMeta.getName(), configurationFileName);
-                try {
-                    propertyFile = Files.createFile(propertyFile.toPath()).toFile();
-                } catch (IOException e) {
-                    throw new DomibusPropertyException(String.format("Could not create the properties file for module [%s] at the location [%s].",
-                            propMeta.getName(), domain, configurationFileName), e);
-                }
-            }
-            return propertyFile;
+            return getOrCreateFile(domain, propMeta, configurationFileName);
         }
 
         if (domain != null) {
             return getDomainExternalModulePropertyFile(domain, manager, propMeta);
         }
         return getGlobalExternalModulePropertyFile(manager, propMeta);
+    }
+
+    private File getOrCreateFile(Domain domain, DomibusPropertyMetadata propMeta, String configurationFileName) {
+        File propertyFile = getFile(configurationFileName);
+        if (!Files.exists(propertyFile.toPath())) {
+            LOG.info("Domain properties file for module [{}] and domain [{}] could not be found at the location [{}]; creating it now.",
+                    propMeta.getName(), domain, configurationFileName);
+            try {
+                File parent = propertyFile.getParentFile();
+                if (parent != null && !parent.exists() && !parent.mkdirs()) {
+                    throw new DomibusPropertyException("Couldn't create path: " + propertyFile);
+                }
+                propertyFile = Files.createFile(propertyFile.toPath()).toFile();
+            } catch (IOException e) {
+                throw new DomibusPropertyException(String.format("Could not create the domain properties file for module [%s] and domain [%s] at the location [%s].",
+                        propMeta.getName(), domain, configurationFileName), e);
+            }
+        }
+        return propertyFile;
     }
 
     private File getGlobalExternalModulePropertyFile(DomibusPropertyManagerExt manager, DomibusPropertyMetadata propMeta) {
@@ -290,18 +313,7 @@ public class PropertyChangeManager {
                     .orElseThrow(() -> new DomibusPropertyException(String.format("Could not find properties file name for external module [%s] on domain [%s].",
                             manager.getClass(), domain)));
             LOG.debug("Properties file name in multi-tenancy mode for property [{}] on domain [{}] is [{}].", propMeta.getName(), domain, configurationFileName);
-            File propertyFile = getFile(configurationFileName);
-            if (!Files.exists(propertyFile.toPath())) {
-                LOG.info("Domain properties file for module [{}] and domain [{}] could not be found at the location [{}]; creating it now.",
-                        propMeta.getName(), domain, configurationFileName);
-                try {
-                    propertyFile = Files.createFile(propertyFile.toPath()).toFile();
-                } catch (IOException e) {
-                    throw new DomibusPropertyException(String.format("Could not create the domain properties file for module [%s] and domain [%s] at the location [%s].",
-                            propMeta.getName(), domain, configurationFileName), e);
-                }
-            }
-            return propertyFile;
+            return getOrCreateFile(domain, propMeta, configurationFileName);
         }
         throw new DomibusPropertyException(String.format("Property [%s] is not applicable for domain usage so it cannot be set.", propMeta.getName()));
     }
@@ -361,7 +373,7 @@ public class PropertyChangeManager {
     private void manageBackups(File configurationFile, Domain domain) {
         Integer period = getPropertyValueAsInteger(domain, DOMIBUS_PROPERTY_BACKUP_PERIOD_MIN, 24);
         try {
-            backupService.backupFileIfOlderThan(configurationFile,"backups", period);
+            backupService.backupFileIfOlderThan(configurationFile, "backups", period);
         } catch (IOException e) {
             throw new DomibusPropertyException(String.format("Could not back up [%s]", configurationFile), e);
         }

@@ -3,9 +3,13 @@ package eu.domibus.security;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.multitenancy.UserDomain;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.common.JPAConstants;
+import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.core.user.plugin.AuthenticationDAO;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.user.ui.UserRole;
@@ -30,30 +34,24 @@ public class PluginUserSecurityPolicyManagerTestIT extends AbstractIT {
 
     @Autowired
     protected AuthenticationDAO userDao;
+
     @Autowired
     protected UserRoleDao userRoleDao;
 
     @Autowired
+    UserDomainDao userDomainDao;
+
+    @Autowired
     protected DomainContextProvider domainContextProvider;
+
+    @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    private DomainTaskExecutor domainTaskExecutor;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager entityManager;
-
-
-    private AuthenticationEntity initTestUser(String userName) {
-        UserRole userRole = userRoleDao.findByName("ROLE_USER");
-        if (userRole == null) {
-            userRole = new UserRole("ROLE_USER");
-            entityManager.persist(userRole);
-        }
-        AuthenticationEntity user = new AuthenticationEntity();
-        user.setUserName(userName);
-        user.setPassword("Password-0");
-        user.setAuthRoles("ROLE_USER");
-        user.setActive(true);
-        userDao.create(user);
-        return user;
-    }
 
     @Test
     @Transactional
@@ -99,5 +97,26 @@ public class PluginUserSecurityPolicyManagerTestIT extends AbstractIT {
     public void test_validateUniqueUser() {
         AuthenticationEntity user = initTestUser("testUser_Unique");
         userSecurityPolicyManager.validateUniqueUser(user);
+    }
+
+    private AuthenticationEntity initTestUser(String userName) {
+        UserRole userRole = userRoleDao.findByName("ROLE_USER");
+        if (userRole == null) {
+            userRole = new UserRole("ROLE_USER");
+            entityManager.persist(userRole);
+        }
+        AuthenticationEntity user = new AuthenticationEntity();
+        user.setUserName(userName);
+        user.setPassword("Password-0");
+        user.setAuthRoles("ROLE_USER");
+        user.setActive(true);
+        userDao.create(user);
+
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            String domainCode = domainContextProvider.getCurrentDomainSafely().getCode();
+            domainTaskExecutor.submit(() -> userDomainDao.updateOrCreateUserDomain(userName, domainCode));
+        }
+
+        return user;
     }
 }

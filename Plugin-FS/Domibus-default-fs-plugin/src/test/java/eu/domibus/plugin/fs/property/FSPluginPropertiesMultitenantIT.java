@@ -7,6 +7,7 @@ import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.property.DefaultDomibusConfigurationService;
 import eu.domibus.core.property.PropertyProviderHelper;
 import eu.domibus.core.property.PropertyRetrieveManager;
+import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.test.AbstractIT;
 import org.junit.Assert;
@@ -24,12 +25,11 @@ import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImp
  */
 public class FSPluginPropertiesMultitenantIT extends AbstractIT {
 
-    private static final String DOMAIN1 = "domain1";
-    private static final String DOMAIN2 = "domain2";
+    private static final String DOMAIN1 = "default";
+    private static final String DOMAIN2 = "red";
     private static final String NONEXISTENT_DOMAIN = "NONEXISTENT_DOMAIN";
 
-    private static final String DEFAULT_LOCATION = "/tmp/fs_plugin_data";
-    private static final String DOMAIN1_LOCATION = "/tmp/fs_plugin_data/domain1";
+    private static final String DOMAIN1_LOCATION = "/tmp/fs_plugin_data/default";
 
     @Autowired
     FSPluginPropertiesMetadataManagerImpl fsPluginPropertiesMetadataManager;
@@ -61,64 +61,51 @@ public class FSPluginPropertiesMultitenantIT extends AbstractIT {
     }
 
     @Test
-    @Ignore("EDELIVERY-8812: FSPluginPropertiesMultitenantIT - fix tests")
     public void testGetLocation_Domain1() {
-        Assert.assertEquals(DOMAIN1_LOCATION, fsPluginProperties.getLocation(DOMAIN1));
+        String location = fsPluginProperties.getLocation(DOMAIN1);
+        Assert.assertEquals(DOMAIN1_LOCATION, location);
     }
 
     @Test
-    @Ignore("EDELIVERY-8812: FSPluginPropertiesMultitenantIT - fix tests")
     public void testGetLocation_NonExistentDomain() {
         try {
             fsPluginProperties.getLocation(NONEXISTENT_DOMAIN);
             Assert.fail("Exception expected");
-        } catch (DomibusPropertyException e) {
-            Assert.assertTrue(e.getMessage().contains("cannot be retrieved without a domain"));
+        } catch (DomibusPropertyExtException e) {
+            Assert.assertTrue(e.getMessage().contains("Could not find domain with code"));
         }
     }
 
     @Test
-    @Ignore("EDELIVERY-8812: FSPluginPropertiesMultitenantIT - fix tests")
     public void testGetUser() {
-        Assert.assertEquals("user1", fsPluginProperties.getUser(DOMAIN1));
+        String user = fsPluginProperties.getUser(DOMAIN1);
+        Assert.assertEquals("user1", user);
     }
 
     @Test
-    @Ignore("EDELIVERY-8812: FSPluginPropertiesMultitenantIT - fix tests")
     public void testGetPassword() {
         Assert.assertEquals("pass1", fsPluginProperties.getPassword(DOMAIN1));
     }
 
     @Test
-    @Ignore("EDELIVERY-8812: FSPluginPropertiesMultitenantIT - fix tests")
     public void testGetUser_NotSecured() {
         Assert.assertEquals("", fsPluginProperties.getUser(DOMAIN2));
     }
 
     @Test
-    @Ignore("EDELIVERY-8812: FSPluginPropertiesMultitenantIT - fix tests")
     public void testGetPayloadId_Domain() {
-        Assert.assertEquals("cid:attachment", fsPluginProperties.getPayloadId(DOMAIN1));
+        Assert.assertEquals("cid:message", fsPluginProperties.getPayloadId(DOMAIN1));
     }
 
     @Test
-    @Ignore("EDELIVERY-8812: FSPluginPropertiesMultitenantIT - fix tests")
-    public void testGetPayloadId_DomainMissing() {
-        Assert.assertEquals("cid:message", fsPluginProperties.getPayloadId(DOMAIN2));
-    }
-
-
-    @Test
-    @Ignore("EDELIVERY-8812: FSPluginPropertiesMultitenantIT - fix tests")
     public void testGetPassword_NotSecured() {
         Assert.assertEquals("", fsPluginProperties.getPassword(DOMAIN2));
     }
 
     @Test
-    @Ignore("EDELIVERY-8812: FSPluginPropertiesMultitenantIT - fix tests")
     public void testKnownPropertyValue_multiTenancy() {
-        final String oldPropertyValue1 = "/tmp/fs_plugin_data/DOMAIN1";
-        final String oldPropertyValue2 = "/tmp/fs_plugin_data";
+        final String oldPropertyValue1 = "/tmp/fs_plugin_data/default";
+        final String oldPropertyValue2 = "/tmp/fs_plugin_data/red";
         final String newPropertyValue1 = "new-property-value1";
         final String newPropertyValue2 = "new-property-value2";
 

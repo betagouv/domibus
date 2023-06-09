@@ -26,10 +26,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ContextRefreshedEvent;
 
 import javax.xml.ws.Endpoint;
-import java.io.File;
-import java.util.concurrent.TimeUnit;
 
-import static eu.domibus.core.spring.DomibusApplicationContextListener.SYNC_LOCK_KEY;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -127,7 +124,7 @@ public class DomibusApplicationContextListenerTest {
                                    @Injectable ApplicationContext applicationContext,
                                    @Injectable ApplicationContext parent) {
 
-        domibusApplicationContextListener.executeSynchronized();
+        domibusApplicationContextListener.executeSynchronized(true);
 
         new Verifications() {{
             tlsCertificateManager.saveStoresFromDBToDisk();

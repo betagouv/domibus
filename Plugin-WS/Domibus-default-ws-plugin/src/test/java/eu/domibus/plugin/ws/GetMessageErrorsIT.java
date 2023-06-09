@@ -3,6 +3,7 @@ package eu.domibus.plugin.ws;
 
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
@@ -62,7 +63,6 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
      * Tests that the list of errors is empty for a certain message since there were no errors in the transaction.
      */
     @Test
-    @Ignore
     public void testGetEmptyMessageErrorsList() {
 
         String messageId = "notFound";

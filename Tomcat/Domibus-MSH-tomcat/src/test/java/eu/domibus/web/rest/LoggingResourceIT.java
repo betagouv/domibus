@@ -72,6 +72,10 @@ public class LoggingResourceIT extends AbstractIT {
         mockMvc = MockMvcBuilders.standaloneSetup(loggingResource).build();
     }
 
+    protected void setAuth() {
+        // intentionally empty to avoid base class auth setup
+    }
+
     @Test(expected = NestedServletException.class)
     @WithMockUser
     public void getLogLevel_accessDenied() throws Exception {
@@ -80,7 +84,7 @@ public class LoggingResourceIT extends AbstractIT {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @WithMockUser(username = "admin", roles = {"AP_ADMIN"})
     public void getLogLevel_ok() throws Exception {
         final List<LoggingEntry> loggingEntryList = new ArrayList<>();
         LoggingEntry loggingLevelRO1 = new LoggingEntry();

@@ -63,7 +63,8 @@ public class MessageSubmitterTestIT extends AbstractIT {
     @Before
     public void before() {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
-        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
+        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class)))
+                .thenReturn(backendConnector);
         payloadFileStorageProvider.initialize();
     }
 

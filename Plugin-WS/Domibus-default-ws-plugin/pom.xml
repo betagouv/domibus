@@ -14,6 +14,11 @@
     <packaging>jar</packaging>
     <name>Domibus MSH Default WS Plugin</name>
 
+    <properties>
+        <test.config.location>${project.build.directory}/test-classes</test.config.location>
+        <test.resources.location>${project.basedir}/../../Core/Domibus-MSH-test/src/main/resources</test.resources.location>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -282,6 +287,27 @@
                                 </bannedDependencies>
                             </rules>
                             <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-resource-domain_artifacts</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${test.config.location}/domains</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${test.resources.location}/domains</directory>
+                                </resource>
+                            </resources>
                         </configuration>
                     </execution>
                 </executions>

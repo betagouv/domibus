@@ -3,6 +3,7 @@ package eu.domibus.core.message.retention;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.common.MessageStatusChangeEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.core.message.DeleteMessageAbstractIT;
@@ -50,14 +51,15 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
 
     @Autowired
     BackendConnectorHelper backendConnectorHelper;
-    
+
     ArgumentCaptor<MessageStatusChangeEvent> argCaptor = ArgumentCaptor.forClass(MessageStatusChangeEvent.class);
 
     BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
 
     @PostConstruct
     public void setupInfrastructure() {
-        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);
+        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class)))
+                .thenReturn(backendConnector);
     }
 
 
@@ -158,7 +160,8 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
         assertMedatadaNotDeleted(initialMap, finalMap);
         assertPayloadDeleted(messageId);
 
-        Mockito.verify(backendConnector, Mockito.times(1)).messageStatusChanged(argCaptor.capture());
+        Mockito.verify(backendConnector, Mockito.times(1))
+                .messageStatusChanged(argCaptor.capture());
         MessageStatusChangeEvent event = argCaptor.getValue();
         assertEquals(eu.domibus.common.MessageStatus.DOWNLOADED, event.getFromStatus());
         assertEquals(eu.domibus.common.MessageStatus.DELETED, event.getToStatus());

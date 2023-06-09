@@ -3,8 +3,11 @@ package eu.domibus.security;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.user.UserManagementException;
 import eu.domibus.common.JPAConstants;
+import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.core.user.ui.UserRole;
@@ -35,27 +38,19 @@ public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
     protected UserDao userDao;
 
     @Autowired
+    UserDomainDao userDomainDao;
+
+    @Autowired
     protected DomainContextProvider domainContextProvider;
+
+    @Autowired
+    protected DomibusConfigurationService domibusConfigurationService;
+
+    @Autowired
+    private DomainTaskExecutor domainTaskExecutor;
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager entityManager;
-
-
-    private User initTestUser(String userName) {
-        UserRole userRole = userRoleDao.findByName("ROLE_USER");
-        if (userRole == null) {
-            userRole = new UserRole("ROLE_USER");
-            entityManager.persist(userRole);
-        }
-        User user = new User();
-        user.setUserName(userName);
-        user.setPassword("Password-0");
-        user.addRole(userRole);
-        user.setEmail("test@mailinator.com");
-        user.setActive(true);
-        userDao.create(user);
-        return user;
-    }
 
     @Test
     @Transactional
@@ -106,5 +101,27 @@ public class ConsoleUserSecurityPolicyManagerTestIT extends AbstractIT {
     public void test_validateUniqueUser() {
         User user = initTestUser("testUser_Unique");
         userSecurityPolicyManager.validateUniqueUser(user);
+    }
+
+    private User initTestUser(String userName) {
+        UserRole userRole = userRoleDao.findByName("ROLE_USER");
+        if (userRole == null) {
+            userRole = new UserRole("ROLE_USER");
+            entityManager.persist(userRole);
+        }
+        User user = new User();
+        user.setUserName(userName);
+        user.setPassword("Password-0");
+        user.addRole(userRole);
+        user.setEmail("test@mailinator.com");
+        user.setActive(true);
+        userDao.create(user);
+
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            String domainCode = domainContextProvider.getCurrentDomainSafely().getCode();
+            domainTaskExecutor.submit(() -> userDomainDao.updateOrCreateUserDomain(userName, domainCode));
+        }
+
+        return user;
     }
 }

@@ -3,6 +3,7 @@ package eu.domibus.core.message.dictionary;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.AgreementRefEntity;
 import eu.domibus.api.model.PartProperty;
+import eu.domibus.api.multitenancy.DomainService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,10 @@ public class AbstractDictionaryServiceIT extends AbstractIT {
         final String value1 = "value123";
         final String type1 = "type123";
 
-        Callable<AgreementRefEntity> findOrCreateTask = () -> agreementDictionaryService.findOrCreateAgreement(value1, type1);
+        Callable<AgreementRefEntity> findOrCreateTask = () -> {
+            domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
+            return agreementDictionaryService.findOrCreateAgreement(value1, type1);
+        };
 
         int nbThreads = 10;
         ExecutorService executor = Executors.newFixedThreadPool(nbThreads);
@@ -59,7 +63,10 @@ public class AbstractDictionaryServiceIT extends AbstractIT {
         final String value1 = "value123";
         final String type1 = "type123";
 
-        Callable<PartProperty> findOrCreateTask = () -> partPropertyDictionaryService.findOrCreatePartProperty(name1, value1, type1);
+        Callable<PartProperty> findOrCreateTask = () -> {
+            domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
+            return partPropertyDictionaryService.findOrCreatePartProperty(name1, value1, type1);
+        };
 
         int nbThreads = 10;
         ExecutorService executor = Executors.newFixedThreadPool(nbThreads);

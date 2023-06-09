@@ -1,7 +1,11 @@
 package eu.domibus.plugin.fs.property;
 
+import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.core.property.DefaultDomibusConfigurationService;
 import eu.domibus.core.property.PropertyChangeManager;
+import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.test.AbstractIT;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -33,6 +37,9 @@ public class FSPluginPropertiesWriteIT extends AbstractIT {
     @Autowired
     PropertyChangeManager propertyChangeManager;
 
+    @Autowired
+    DomainContextExtService domainContextExtService;
+
     @Configuration
     @PropertySource(value = "file:${domibus.config.location}/plugins/config/fs-plugin.properties")
     static class ContextConfiguration {
@@ -41,14 +48,15 @@ public class FSPluginPropertiesWriteIT extends AbstractIT {
     @Test
     public void testKnownPropertyValue_singleTenancy() throws IOException {
         final String domainDefault = "default";
-        final String propertyName1 = LOCATION;
+        final String propertyName1 = FSPluginPropertiesMetadataManagerImpl.PAYLOAD_ID;
         final String propertyName2 = FSPluginPropertiesMetadataManagerImpl.SENT_ACTION;
-        final String oldPropertyValue1 = "/tmp/fs_plugin_data";
+        final String oldPropertyValue1 = "cid:message";
         final String oldPropertyValue2 = "delete";
         final String newPropertyValue1 = "new-property-value1";
         final String newPropertyValue2 = "new-property-value2";
 
         File propertyFile = getPropertyFile();
+        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
 
         // test get value
         String value1 = fsPluginProperties.getKnownPropertyValue(domainDefault, propertyName1);
@@ -64,8 +72,8 @@ public class FSPluginPropertiesWriteIT extends AbstractIT {
         value1 = fsPluginProperties.getKnownPropertyValue(domainDefault, propertyName1);
         value2 = fsPluginProperties.getKnownPropertyValue(domainDefault, propertyName2);
 
-        String persistedPropertyName1 = findPropertyInFile(propertyName1, propertyFile);
-        String persistedPropertyName2 = findPropertyInFile(propertyName2, propertyFile);
+        String persistedPropertyName1 = findPropertyInFile(domain.getCode() + "." + propertyName1, propertyFile);
+        String persistedPropertyName2 = findPropertyInFile(domain.getCode() + "." + propertyName2, propertyFile);
 
         Assert.assertEquals(persistedPropertyName1, value1);
         Assert.assertEquals(persistedPropertyName2, value2);
@@ -78,7 +86,8 @@ public class FSPluginPropertiesWriteIT extends AbstractIT {
     }
 
     private File getPropertyFile() {
-        String configurationFileName = fsPluginProperties.getConfigurationFileName();
+        DomainDTO domain = domainContextExtService.getCurrentDomainSafely();
+        String configurationFileName = fsPluginProperties.getConfigurationFileName(domain).get();
         String fullName = domibusConfigurationService.getConfigLocation() + File.separator + configurationFileName;
         return new File(fullName);
     }

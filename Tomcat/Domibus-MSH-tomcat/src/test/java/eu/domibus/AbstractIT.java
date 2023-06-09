@@ -14,8 +14,6 @@ import eu.domibus.common.model.configuration.ConfigurationRaw;
 import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.message.UserMessageLogDao;
-import eu.domibus.core.message.dictionary.StaticDictionaryService;
-import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.ConfigurationRawDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
@@ -26,7 +24,7 @@ import eu.domibus.core.util.WarningUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
-import eu.domibus.test.common.DomibusTestDatasourceConfiguration;
+import eu.domibus.test.common.DomibusMTTestDatasourceConfiguration;
 import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -79,7 +77,7 @@ import static org.awaitility.Awaitility.with;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(initializers = PropertyOverrideContextInitializer.class,
         classes = {DomibusRootConfiguration.class, DomibusWebConfiguration.class,
-                DomibusTestDatasourceConfiguration.class, DomibusTestMocksConfiguration.class})
+                DomibusMTTestDatasourceConfiguration.class, DomibusTestMocksConfiguration.class})
 public abstract class AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
@@ -121,26 +119,19 @@ public abstract class AbstractIT {
     @Autowired
     protected UserRoleDao userRoleDao;
 
-    @Autowired
-    protected PayloadFileStorageProvider payloadFileStorageProvider;
-
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
     public static boolean springContextInitialized = false;
 
-    @Autowired
-    private StaticDictionaryService staticDictionaryService;
-
     @BeforeClass
     public static void init() throws IOException {
-        if (springContextInitialized) {
-            return;
-        }
         LOG.info(WarningUtil.warnOutput("Initializing Spring context"));
 
         FileUtils.deleteDirectory(new File("target/temp"));
-        System.setProperty("domibus.config.location", new File("target/test-classes").getAbsolutePath());
+        final File domibusConfigLocation = new File("target/test-classes");
+        String absolutePath = domibusConfigLocation.getAbsolutePath();
+        System.setProperty("domibus.config.location", absolutePath);
 
         //we are using randomly available port in order to allow run in parallel
         int activeMQConnectorPort = SocketUtils.findAvailableTcpPort(2000, 3100);
@@ -149,22 +140,35 @@ public abstract class AbstractIT {
         System.setProperty(DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_TRANSPORT_CONNECTOR_URI, "vm://localhost:" + activeMQBrokerPort + "?broker.persistent=false&create=false"); // see EDELIVERY-10294 and check if this can be removed
         LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
         LOG.info("activeMQConnectorPort=[{}]", activeMQConnectorPort);
+    }
 
+    @Before
+    public void initInstance() {
+        domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
+
+        setAuth();
+
+        waitUntilDatabaseIsInitialized();
+
+        if (!springContextInitialized) {
+            LOG.info("Executing the ApplicationContextListener initialization");
+            try {
+                domibusApplicationContextListener.initializeForTests();
+            } catch (Exception ex) {
+                LOG.warn("Domibus Application Context initialization failed", ex);
+            } finally {
+                springContextInitialized = true;
+            }
+        }
+        domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
+    }
+
+    protected void setAuth() {
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken(
                         "test_user",
                         "test_password",
                         Collections.singleton(new SimpleGrantedAuthority(eu.domibus.api.security.AuthRole.ROLE_ADMIN.name()))));
-
-        springContextInitialized = true;
-    }
-
-    @Before
-    public void setDomain() {
-        domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
-        waitUntilDatabaseIsInitialized();
-        staticDictionaryService.createStaticDictionaryEntries();
-        payloadFileStorageProvider.initialize();
     }
 
 
@@ -233,7 +237,10 @@ public abstract class AbstractIT {
     }
 
     protected Callable<Boolean> messageHasStatus(String messageId, MSHRole mshRole, MessageStatus messageStatus) {
-        return () -> messageStatus == userMessageLogDao.getMessageStatus(messageId, mshRole);
+        return () -> {
+            domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
+            return messageStatus == userMessageLogDao.getMessageStatus(messageId, mshRole);
+        };
     }
 
     protected Callable<Boolean> databaseIsInitialized() {
@@ -242,8 +249,8 @@ public abstract class AbstractIT {
                 return userRoleDao.listRoles().size() > 0;
             } catch (Exception e) {
                 LOG.error("Could not get the roles list", e);
+                return false;
             }
-            return false;
         };
     }
 

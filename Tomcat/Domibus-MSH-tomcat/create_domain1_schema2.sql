@@ -1,0 +1,1 @@
+CREATE SCHEMA IF NOT EXISTS test_domain1; SET SCHEMA test_domain1;

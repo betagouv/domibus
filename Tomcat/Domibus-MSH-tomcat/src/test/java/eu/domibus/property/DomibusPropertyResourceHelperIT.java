@@ -9,7 +9,6 @@ import eu.domibus.core.property.DomibusPropertyResourceHelperImpl;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -45,7 +44,6 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
         }
     }
 
-    @Ignore
     @Test
     public void setProperty_nonexistent() {
         String propertyName = "non-existent-property-test";
@@ -64,8 +62,8 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
     @WithMockUser(username = "admin", roles={"AP_ADMIN"})
     public void setProperty_composable() {
         String propertyName = "composable_property_name";
-        boolean isDomain = false;
-        DomibusPropertyMetadata propertyMetadata = DomibusPropertyMetadata.getGlobalProperty(propertyName);
+        boolean isDomain = true;
+        DomibusPropertyMetadata propertyMetadata = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
         propertyMetadata.setComposable(true);
         String propertyValue = "100";
         globalPropertyMetadataManager.getAllProperties().put(propertyName, propertyMetadata);
@@ -112,7 +110,7 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
         String composablePropertyName = "composable_property_nested";
         String nestedPropertyName = composablePropertyName + ".prop1";
         boolean isDomain = true;
-        DomibusPropertyMetadata propertyMetadata = DomibusPropertyMetadata.getGlobalProperty(composablePropertyName);
+        DomibusPropertyMetadata propertyMetadata = new DomibusPropertyMetadata(composablePropertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
         propertyMetadata.setComposable(true);
         String propertyValue = "100";
 

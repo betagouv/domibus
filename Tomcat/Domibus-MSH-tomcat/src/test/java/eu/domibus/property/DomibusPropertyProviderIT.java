@@ -1,13 +1,13 @@
 package eu.domibus.property;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import eu.domibus.core.property.PropertyChangeManager;
 import eu.domibus.core.property.PropertyProviderDispatcher;
@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 
@@ -145,14 +147,13 @@ public class DomibusPropertyProviderIT extends AbstractIT {
 
     @Test
     public void testCacheEvictGlobalProperty() {
-        String propertyName = DOMIBUS_PROPERTY_LENGTH_MAX;
-
-        domainContextProvider.clearCurrentDomain();
+        String propertyName = DOMIBUS_UI_TITLE_NAME;
 
         String cachedValue = getCachedValue(propertyName);
         Assert.assertNull(cachedValue);
         //add to cache
-        String actualValue = domibusPropertyProvider.getProperty(propertyName);
+        String originalValue = domibusPropertyProvider.getProperty(propertyName);
+        String actualValue = originalValue;
         //gets the cached value now
         cachedValue = getCachedValue(propertyName);
         Assert.assertNotNull(cachedValue);
@@ -170,6 +171,8 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         //finds it there
         cachedValue = getCachedValue(propertyName);
         Assert.assertEquals(newValue, actualValue);
+
+        domibusPropertyProvider.setProperty(propertyName, originalValue);
     }
 
     @Test
@@ -247,9 +250,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
 
     @Test
     public void testSetPropertyReplacesOK() throws IOException {
-        String propertyName = "domibus.UI.title.name";
-
-        testSetPropertyWithName(propertyName);
+        testSetPropertyWithName(DOMIBUS_UI_TITLE_NAME);
     }
 
     @Test
@@ -264,12 +265,10 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         String propertyValue = "TeamA";
         domibusPropertyProvider.setProperty(defaultDomain, DOMIBUS_UI_SUPPORT_TEAM_NAME, propertyValue);
 
-        String propVal = domibusPropertyProvider.getProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
-
         File propertyFile = getPropertyFile();
         List<String> lines = Files.readAllLines(propertyFile.toPath());
         String lastLine = lines.get(lines.size() - 1);
-        Assert.assertEquals(lastLine, DOMIBUS_UI_SUPPORT_TEAM_NAME + "=" + propertyValue);
+        Assert.assertEquals("default." + DOMIBUS_UI_SUPPORT_TEAM_NAME + "=" + propertyValue, lastLine);
     }
 
     @Test(expected = DomibusPropertyException.class)
@@ -285,7 +284,8 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     private void testSetPropertyWithName(String propertyName) throws IOException {
         File propertyFile = getPropertyFile();
 
-        String actualValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
+        String originalValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
+        String actualValue = originalValue;
 
         String persistedPropValue = findPropertyInFile(propertyName, propertyFile);
         Assert.assertEquals(actualValue, persistedPropValue);
@@ -299,9 +299,15 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         Assert.assertEquals(actualValue, persistedPropValue);
 
         Assert.assertEquals(newValue, persistedPropValue);
+
+        domibusPropertyProvider.setProperty(defaultDomain, propertyName, originalValue);
     }
 
     private String findPropertyInFile(String propertyName, File propertyFile) throws IOException {
+        Domain currentD = domainContextProvider.getCurrentDomainSafely();
+        if (currentD != null) {
+            propertyName = currentD.getCode() + "." + propertyName;
+        }
         List<String> lines = Files.readAllLines(propertyFile.toPath());
         int lineNr = propertyChangeManager.findLineWithProperty(propertyName, lines);
         if (lineNr >= 0) {
@@ -311,10 +317,16 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         return null;
     }
 
+    private File getPropertyFile(Domain domain) {
+        String configurationFileName = domibusConfigurationService.getConfigurationFileName(domain);
+
+        Path fullName = Paths.get(domibusConfigurationService.getConfigLocation(), configurationFileName);
+
+        return new File(fullName.toString());
+    }
+
     private File getPropertyFile() {
-        String configurationFileName = domibusConfigurationService.getConfigurationFileName();
-        String fullName = domibusConfigurationService.getConfigLocation() + File.separator + configurationFileName;
-        return new File(fullName);
+        return getPropertyFile(defaultDomain);
     }
 
     private String getCachedValue(Domain domain, String propertyName) {
