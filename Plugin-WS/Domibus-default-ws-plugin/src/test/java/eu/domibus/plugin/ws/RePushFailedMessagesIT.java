@@ -1,11 +1,13 @@
 package eu.domibus.plugin.ws;
 
 
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.generated.RePushFailedMessagesFault;
 import eu.domibus.plugin.ws.generated.body.RePushFailedMessagesRequest;
+import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.test.DomibusConditionUtil;
 import eu.domibus.test.PModeUtil;
 import eu.domibus.test.common.SoapSampleUtil;
@@ -19,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.DOMAIN_ENABLED;
 
 /**
  * @author Soumya Chandran
@@ -41,6 +45,9 @@ public class RePushFailedMessagesIT extends AbstractBackendWSIT {
 
     @Autowired
     SoapSampleUtil soapSampleUtil;
+
+    @Autowired
+    WSPluginPropertyManager wsPluginPropertyManager;
 
     @Before
     public void before() throws IOException, XmlProcessingException {
@@ -97,5 +104,16 @@ public class RePushFailedMessagesIT extends AbstractBackendWSIT {
         RePushFailedMessagesRequest rePushRequest = new RePushFailedMessagesRequest();
         rePushRequest.getMessageID().addAll(messageIds);
         return rePushRequest;
+    }
+
+    @Test
+    public void testDisableDomain() {
+        try {
+            wsPluginPropertyManager.setKnownPropertyValue(DOMAIN_ENABLED, "false");
+            Assert.fail();
+        } catch (DomibusPropertyException ex) {
+            Assert.assertEquals("Cannot disable the plugin [backendWSPlugin] on domain [default] because there won't remain any enabled plugins.",
+                    ex.getCause().getMessage());
+        }
     }
 }

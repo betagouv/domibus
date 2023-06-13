@@ -7,6 +7,7 @@ import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.common.DeliverMessageEvent;
 import eu.domibus.common.NotificationType;
 import eu.domibus.common.model.configuration.LegConfiguration;
@@ -17,6 +18,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.XmlProcessingException;
+import eu.domibus.plugin.jms.property.JmsPluginPropertyManager;
 import eu.domibus.test.PModeUtil;
 import eu.domibus.test.UserMessageService;
 import eu.domibus.test.common.JMSMessageUtil;
@@ -35,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static eu.domibus.messaging.MessageConstants.*;
+import static eu.domibus.plugin.jms.JMSMessageConstants.JMSPLUGIN_DOMAIN_ENABLED;
 
 /**
  * This JUNIT implements the Test cases Download Message-03 and Download Message-04.
@@ -72,6 +75,9 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
 
     @Autowired
     MshRoleDao mshRoleDao;
+
+    @Autowired
+    JmsPluginPropertyManager jmsPluginPropertyManager;
 
     @Before
     public void before() throws IOException, XmlProcessingException {
@@ -165,4 +171,14 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
 
     }
 
+    @Test
+    public void testDisableDomain() {
+        try {
+            jmsPluginPropertyManager.setKnownPropertyValue(JMSPLUGIN_DOMAIN_ENABLED, "false");
+            Assert.fail();
+        } catch (DomibusPropertyException ex) {
+            Assert.assertEquals("Cannot disable the plugin [Jms] on domain [default] because there won't remain any enabled plugins.",
+                    ex.getCause().getMessage());
+        }
+    }
 }

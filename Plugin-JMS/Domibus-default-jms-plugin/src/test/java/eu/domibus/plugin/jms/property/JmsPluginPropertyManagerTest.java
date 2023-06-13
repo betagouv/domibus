@@ -1,5 +1,6 @@
 package eu.domibus.plugin.jms.property;
 
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
@@ -16,6 +17,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Map;
+
+import static eu.domibus.plugin.jms.JMSMessageConstants.JMSPLUGIN_DOMAIN_ENABLED;
 
 /**
  * @author Ion Perpegel
@@ -75,4 +78,5 @@ public class JmsPluginPropertyManagerTest {
         String value = jmsPluginPropertyManager.getKnownPropertyValue(unknownPropertyName);
         Assert.assertTrue(StringUtils.isBlank(value));
     }
+
 }
