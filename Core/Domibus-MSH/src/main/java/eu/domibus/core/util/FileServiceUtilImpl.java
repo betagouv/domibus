@@ -37,7 +37,7 @@ public class FileServiceUtilImpl implements FileServiceUtil {
         if (fileName == null) {
             return fileName;
         }
-        final String sanitizedFileName = FilenameUtils.getName(fileName);
+        final String sanitizedFileName = URLEncode(FilenameUtils.getName(fileName));
         if (StringUtils.isBlank(sanitizedFileName)) {
             LOG.warn("Unable to sanitize file name which has the value [{}]", fileName);
             return null;
