@@ -5,6 +5,8 @@ import eu.domibus.test.common.BackendConnectorMock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static eu.domibus.backendConnector.TestFSPluginPropertyManager.TEST_FSPLUGIN_DOMAIN_ENABLED;
+
 /**
  * @author Ion perpegel
  * @since 5.0
@@ -28,7 +30,7 @@ public class TestFSPluginMock extends BackendConnectorMock {
 
     @Override
     public String getDomainEnabledPropertyName() {
-        return "testFSPlugin.domain.enabled";
+        return TEST_FSPLUGIN_DOMAIN_ENABLED;
     }
 
     @Override

@@ -30,6 +30,9 @@ import javax.xml.soap.SOAPMessage;
 import java.io.IOException;
 import java.util.*;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CACHE_LOCATION;
+import static eu.domibus.backendConnector.TestFSPluginPropertyManager.TEST_FSPLUGIN_DOMAIN_ENABLED;
+import static eu.domibus.backendConnector.TestWSPluginPropertyManager.TEST_WSPLUGIN_DOMAIN_ENABLED;
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -103,8 +106,8 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
         Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
-        domibusPropertyProvider.setProperty("testPlugin.domain.enabled", "true");
-        domibusPropertyProvider.setProperty("testFSPlugin.domain.enabled", "true");
+        domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "true");
+        domibusPropertyProvider.setProperty(TEST_FSPLUGIN_DOMAIN_ENABLED, "true");
 
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
@@ -122,8 +125,10 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     public void testNotifyDisabledPlugin() throws SOAPException, IOException, ParserConfigurationException, SAXException {
         Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
-        domibusPropertyProvider.setProperty("testPlugin.domain.enabled", "false");
-        domibusPropertyProvider.setProperty("testFSPlugin.domain.enabled", "false");
+        System.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
+//        domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
+        System.setProperty(TEST_FSPLUGIN_DOMAIN_ENABLED, "false");
+//        domibusPropertyProvider.setProperty(TEST_FSPLUGIN_DOMAIN_ENABLED, "false");
 
         try {
             SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);

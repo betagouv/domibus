@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 public class TestWSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAbstract
         implements DomibusPropertyManagerExt {
 
-    public static final String ENABLED = "testPlugin.domain.enabled";
+    public static final String TEST_WSPLUGIN_DOMAIN_ENABLED = "testWSPlugin.domain.enabled";
 
     private Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
     public TestWSPluginPropertyManager() {
         List<DomibusPropertyMetadataDTO> allProperties = Arrays.asList(
-                new DomibusPropertyMetadataDTO(ENABLED, Type.STRING, "testPlugin", Usage.DOMAIN)
+                new DomibusPropertyMetadataDTO(TEST_WSPLUGIN_DOMAIN_ENABLED, Type.STRING, "testWSPlugin", Usage.DOMAIN)
         );
 
         knownProperties = allProperties.stream()
