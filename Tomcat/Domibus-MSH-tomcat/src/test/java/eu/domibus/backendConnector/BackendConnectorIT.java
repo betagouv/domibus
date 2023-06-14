@@ -12,6 +12,7 @@ import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.plugin.BackendConnectorHelper;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.routing.RoutingService;
+import eu.domibus.core.property.DomibusPropertiesPropertySource;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
@@ -25,6 +26,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MutablePropertySources;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
@@ -96,6 +99,10 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
 
         routingService.invalidateBackendFiltersCache();
         domibusLocalCacheService.clearCache(DomibusLocalCacheService.DOMIBUS_PROPERTY_CACHE);
+
+        // set like this to void property change listeners to fire
+        setValueInDomibusPropertySource("default." + TEST_WSPLUGIN_DOMAIN_ENABLED, "true");
+        setValueInDomibusPropertySource("default." + TEST_FSPLUGIN_DOMAIN_ENABLED, "true");
     }
 
     @Transactional
@@ -114,10 +121,6 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     @Test
     @Transactional
     public void testNotifyEnabledPlugin() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
-
-        domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "true");
-        domibusPropertyProvider.setProperty(TEST_FSPLUGIN_DOMAIN_ENABLED, "true");
-
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
@@ -133,9 +136,7 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     @Test
     @Transactional
     public void testNotifyEnabledPlugin2() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
-
         domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
-        domibusPropertyProvider.setProperty(TEST_FSPLUGIN_DOMAIN_ENABLED, "true");
 
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
@@ -149,16 +150,28 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
         assertEquals(testFSPluginMock.getDeliverMessageEvent().getMessageId(), messageId);
     }
 
+    @Autowired
+    ConfigurableEnvironment environment;
+
+    protected void setValueInDomibusPropertySource(String propertyKey, String propertyValue) {
+        MutablePropertySources propertySources = environment.getPropertySources();
+        DomibusPropertiesPropertySource domibusPropertiesPropertySource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.NAME);
+        domibusPropertiesPropertySource.setProperty(propertyKey, propertyValue);
+
+        DomibusPropertiesPropertySource updatedDomibusPropertiesSource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME);
+        updatedDomibusPropertiesSource.setProperty(propertyKey, propertyValue);
+    }
+
     @Test
     @Transactional
     public void testNotifyDisabledPlugin() throws SOAPException, IOException, ParserConfigurationException, SAXException {
         // set like this to void property change listeners to fire and validate that at least one active plugin exists per domain
-        System.setProperty("default." + TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
-        System.setProperty("default." + TEST_FSPLUGIN_DOMAIN_ENABLED, "false");
+        setValueInDomibusPropertySource("default." + TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
+        setValueInDomibusPropertySource("default." + TEST_FSPLUGIN_DOMAIN_ENABLED, "false");
 
         try {
             SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
-             mshWebserviceTest.invoke(soapMessage);
+            mshWebserviceTest.invoke(soapMessage);
             Assert.fail();
         } catch (javax.xml.ws.WebServiceException ex) {
             Assert.assertTrue(ex.getMessage().contains("Could not find matching backend filter"));
@@ -168,9 +181,6 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     @Test
     @Transactional
     public void testTryDisableAllPlugins() {
-        System.setProperty("default." + TEST_WSPLUGIN_DOMAIN_ENABLED, "true");
-        System.setProperty("default." + TEST_FSPLUGIN_DOMAIN_ENABLED, "true");
-
         domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
         Assert.assertEquals(false, domibusPropertyProvider.getBooleanProperty(TEST_WSPLUGIN_DOMAIN_ENABLED));
         try {
