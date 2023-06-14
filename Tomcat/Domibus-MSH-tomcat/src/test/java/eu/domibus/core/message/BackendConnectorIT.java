@@ -1,61 +1,36 @@
 package eu.domibus.core.message;
 
-import eu.domibus.ITTestsService;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.common.*;
-import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
-import eu.domibus.core.ebms3.sender.MessageSenderErrorHandler;
-import eu.domibus.core.ebms3.sender.ResponseHandler;
-import eu.domibus.core.ebms3.sender.ResponseResult;
-import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
-import eu.domibus.core.message.dictionary.NotificationStatusDao;
-import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.plugin.BackendConnectorHelper;
 import eu.domibus.core.plugin.BackendConnectorProvider;
-import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
+import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.plugin.Submission;
-import eu.domibus.plugin.notification.PluginAsyncNotificationConfiguration;
-import eu.domibus.property.TestPluginBackendConnectorMock;
+import eu.domibus.backendConnector.TestFSPluginMock;
+import eu.domibus.backendConnector.TestWSPluginMock;
 import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.test.common.SoapSampleUtil;
-import eu.domibus.test.common.SubmissionUtil;
-import eu.domibus.web.rest.ro.MessageLogResultRO;
-import org.apache.neethi.Policy;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
-import javax.jms.Queue;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.ws.WebServiceException;
 import java.io.IOException;
 import java.util.*;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RECEIVER_CERTIFICATE_VALIDATION_ONSENDING;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SENDER_CERTIFICATE_VALIDATION_ONSENDING;
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
-import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
-import static eu.domibus.messaging.MessageConstants.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -81,7 +56,13 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     protected DomibusPropertyProvider domibusPropertyProvider;
 
     @Autowired
-    TestPluginBackendConnectorMock backendConnector;
+    TestWSPluginMock testWSPluginMock;
+
+    @Autowired
+    TestFSPluginMock testFSPluginMock;
+
+    @Autowired
+    RoutingService routingService;
 
     String messageId, filename;
 
@@ -94,14 +75,19 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
 
         uploadPMode();
 
-        Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class)))
-                .thenReturn(backendConnector);
+        Mockito.when(backendConnectorProvider.getBackendConnector("wsPlugin"))
+                .thenReturn(testWSPluginMock);
+
+        Mockito.when(backendConnectorProvider.getBackendConnector("fsPlugin"))
+                .thenReturn(testFSPluginMock);
+
+        routingService.invalidateBackendFiltersCache();
     }
 
     @Transactional
     @After
     public void after() {
-        backendConnector.clear();
+        testWSPluginMock.clear();
         List<MessageLogInfo> list = userMessageLogDao.findAllInfoPaged(0, 100, "ID_PK", true, new HashMap<>());
         if (list.size() > 0) {
             list.forEach(el -> {
@@ -118,16 +104,34 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
         domibusPropertyProvider.setProperty("testPlugin.domain.enabled", "true");
+        domibusPropertyProvider.setProperty("testFSPlugin.domain.enabled", "true");
 
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
-        assertEquals(backendConnector.getDeliverMessageEvent().getMessageId(), messageId);
+        assertEquals(testWSPluginMock.getDeliverMessageEvent().getMessageId(), messageId);
 
         final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
         assertNotNull(ebms3Messaging);
 
-        assertEquals(backendConnector.getDeliverMessageEvent().getMessageId(), messageId);
+        assertEquals(testWSPluginMock.getDeliverMessageEvent().getMessageId(), messageId);
+    }
+
+    @Test
+    @Transactional
+    public void testNotifyDisabledPlugin() throws SOAPException, IOException, ParserConfigurationException, SAXException {
+        Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
+                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
+        domibusPropertyProvider.setProperty("testPlugin.domain.enabled", "false");
+        domibusPropertyProvider.setProperty("testFSPlugin.domain.enabled", "false");
+
+        try {
+            SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
+            final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
+            Assert.fail();
+        } catch (javax.xml.ws.WebServiceException ex) {
+            Assert.assertTrue(ex.getMessage().contains("Could not find matching backend filter"));
+        }
     }
 
 }

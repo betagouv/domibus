@@ -1,4 +1,4 @@
-package eu.domibus.property;
+package eu.domibus.backendConnector;
 
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.test.common.BackendConnectorMock;
@@ -10,12 +10,12 @@ import org.springframework.stereotype.Service;
  * @since 5.0
  */
 @Service
-public class TestPluginBackendConnectorMock extends BackendConnectorMock {
+public class TestWSPluginMock extends BackendConnectorMock {
 
     @Autowired
-    TestPluginPropertyManager testPluginPropertyManager;
+    TestWSPluginPropertyManager testWSPluginPropertyManager;
 
-    public TestPluginBackendConnectorMock() {
+    public TestWSPluginMock() {
         super("backendWSPlugin");
     }
 
@@ -31,7 +31,7 @@ public class TestPluginBackendConnectorMock extends BackendConnectorMock {
 
     @Override
     public DomibusPropertyManagerExt getPropertyManager() {
-        return testPluginPropertyManager;
+        return testWSPluginPropertyManager;
     }
 
     @Override

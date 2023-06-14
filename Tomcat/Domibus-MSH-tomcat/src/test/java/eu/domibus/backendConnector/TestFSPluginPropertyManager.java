@@ -1,4 +1,4 @@
-package eu.domibus.property;
+package eu.domibus.backendConnector;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
@@ -8,8 +8,13 @@ import eu.domibus.ext.services.DomibusPropertyExtServiceDelegateAbstract;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static eu.domibus.backendConnector.TestFSPluginMock.TEST_FS_PLUGIN;
 
 /**
  * Property manager for integration test; handles locally some properties
@@ -18,21 +23,20 @@ import java.util.stream.Collectors;
  * @since 5.0
  */
 @Component
-public class TestPluginPropertyManager extends DomibusPropertyExtServiceDelegateAbstract
+public class TestFSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAbstract
         implements DomibusPropertyManagerExt {
 
-    public static final String ENABLED = "testPlugin.domain.enabled";
+    public static final String TEST_FSPLUGIN_DOMAIN_ENABLED = "testFSPlugin.domain.enabled";
 
     private Map<String, DomibusPropertyMetadataDTO> knownProperties;
 
-    public TestPluginPropertyManager() {
+    public TestFSPluginPropertyManager() {
         List<DomibusPropertyMetadataDTO> allProperties = Arrays.asList(
-                new DomibusPropertyMetadataDTO(ENABLED, Type.STRING, "testPlugin", Usage.DOMAIN)
+                new DomibusPropertyMetadataDTO(TEST_FSPLUGIN_DOMAIN_ENABLED, Type.STRING, TEST_FS_PLUGIN, Usage.DOMAIN)
         );
 
         knownProperties = allProperties.stream()
                 .collect(Collectors.toMap(x -> x.getName(), x -> x));
-        
     }
 
     @Override
@@ -47,7 +51,7 @@ public class TestPluginPropertyManager extends DomibusPropertyExtServiceDelegate
 
     @Override
     public String getConfigurationFileName() {
-        return "external-module.properties";
+        return TEST_FS_PLUGIN + ".properties";
     }
 
     @Override
