@@ -1,7 +1,9 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.*;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
@@ -67,6 +69,9 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     @Autowired
     RoutingService routingService;
 
+    @Autowired
+    DomibusLocalCacheService domibusLocalCacheService;
+
     String messageId, filename;
 
     @Transactional
@@ -84,7 +89,11 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
         Mockito.when(backendConnectorProvider.getBackendConnector("fsPlugin"))
                 .thenReturn(testFSPluginMock);
 
+        Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
+                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
+
         routingService.invalidateBackendFiltersCache();
+        domibusLocalCacheService.clearCache(DomibusLocalCacheService.DOMIBUS_PROPERTY_CACHE);
     }
 
     @Transactional
@@ -103,8 +112,6 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     @Test
     @Transactional
     public void testNotifyEnabledPlugin() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
-        Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
-                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
 
         domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "true");
         domibusPropertyProvider.setProperty(TEST_FSPLUGIN_DOMAIN_ENABLED, "true");
@@ -123,12 +130,9 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     @Test
     @Transactional
     public void testNotifyDisabledPlugin() throws SOAPException, IOException, ParserConfigurationException, SAXException {
-        Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
-                .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
-        System.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
-//        domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
-        System.setProperty(TEST_FSPLUGIN_DOMAIN_ENABLED, "false");
-//        domibusPropertyProvider.setProperty(TEST_FSPLUGIN_DOMAIN_ENABLED, "false");
+        // set like this to void property change listeners to fire and validate that at least one active plugin exists per domain
+        System.setProperty("default." + TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
+        System.setProperty("default." + TEST_FSPLUGIN_DOMAIN_ENABLED, "false");
 
         try {
             SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
@@ -136,6 +140,21 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
             Assert.fail();
         } catch (javax.xml.ws.WebServiceException ex) {
             Assert.assertTrue(ex.getMessage().contains("Could not find matching backend filter"));
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testTryDisableAllPlugins() {
+        System.setProperty("default." + TEST_WSPLUGIN_DOMAIN_ENABLED, "true");
+        System.setProperty("default." + TEST_FSPLUGIN_DOMAIN_ENABLED, "true");
+
+        domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
+        try {
+            domibusPropertyProvider.setProperty(TEST_FSPLUGIN_DOMAIN_ENABLED, "false");
+            Assert.fail();
+        } catch (DomibusPropertyException ex) {
+            Assert.assertTrue(ex.getCause().getMessage().contains("Cannot disable the plugin [testFSPlugin] on domain [default] because there won't remain any enabled plugins"));
         }
     }
 

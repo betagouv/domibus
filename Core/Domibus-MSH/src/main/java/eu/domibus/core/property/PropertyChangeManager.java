@@ -150,12 +150,11 @@ public class PropertyChangeManager {
                 //clear the cache manually here since we are not calling the set method through dispatcher class
                 domibusLocalCacheService.evict(DomibusLocalCacheService.DOMIBUS_PROPERTY_CACHE, propertyProviderHelper.getCacheKeyValue(domain, propMeta));
                 // the original property set failed likely due to the change listener validation so, there is no side effect produced and no need to call the listener again
-//                propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, oldValue, shouldBroadcast);
-                throw ex;
+                // propertyChangeNotifier.signalPropertyValueChanged(domainCode, propertyName, oldValue, shouldBroadcast);
             } catch (DomibusPropertyException ex2) {
-                LOG.error("An error occurred trying to revert property [{}]. Exiting.", propertyName, ex2);
-                throw ex2;
+                LOG.error("An error occurred trying to revert property [{}] to the previous value [{}].", propertyName, oldValue, ex2);
             }
+            throw ex;
         }
     }
 
