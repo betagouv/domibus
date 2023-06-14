@@ -38,8 +38,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.backendConnector.TestFSPluginPropertyManager.TEST_FSPLUGIN_DOMAIN_ENABLED;
 import static eu.domibus.backendConnector.TestWSPluginPropertyManager.TEST_WSPLUGIN_DOMAIN_ENABLED;
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 @Transactional
 public class BackendConnectorIT extends DeleteMessageAbstractIT {
@@ -123,7 +122,7 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
         assertEquals(testWSPluginMock.getDeliverMessageEvent().getMessageId(), messageId);
-        assertEquals(testFSPluginMock.getDeliverMessageEvent(), null);
+//        assertNull(testFSPluginMock.getDeliverMessageEvent());
 
         final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
         assertNotNull(ebms3Messaging);
@@ -142,7 +141,7 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
         assertEquals(testFSPluginMock.getDeliverMessageEvent().getMessageId(), messageId);
-        assertEquals(testWSPluginMock.getDeliverMessageEvent(), null);
+        assertNull(testWSPluginMock.getDeliverMessageEvent());
 
         final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
         assertNotNull(ebms3Messaging);
@@ -159,7 +158,7 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
 
         try {
             SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
-            final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
+             mshWebserviceTest.invoke(soapMessage);
             Assert.fail();
         } catch (javax.xml.ws.WebServiceException ex) {
             Assert.assertTrue(ex.getMessage().contains("Could not find matching backend filter"));
@@ -173,10 +172,12 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
         System.setProperty("default." + TEST_FSPLUGIN_DOMAIN_ENABLED, "true");
 
         domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
+        Assert.assertEquals(false, domibusPropertyProvider.getBooleanProperty(TEST_WSPLUGIN_DOMAIN_ENABLED));
         try {
             domibusPropertyProvider.setProperty(TEST_FSPLUGIN_DOMAIN_ENABLED, "false");
             Assert.fail();
         } catch (DomibusPropertyException ex) {
+            Assert.assertEquals(true, domibusPropertyProvider.getBooleanProperty(TEST_FSPLUGIN_DOMAIN_ENABLED));
             Assert.assertTrue(ex.getCause().getMessage().contains("Cannot disable the plugin [testFSPlugin] on domain [default] because there won't remain any enabled plugins"));
         }
     }

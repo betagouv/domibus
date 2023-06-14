@@ -32,7 +32,7 @@ public class TestFSPluginPropertyManager extends DomibusPropertyExtServiceDelega
 
     public TestFSPluginPropertyManager() {
         List<DomibusPropertyMetadataDTO> allProperties = Arrays.asList(
-                new DomibusPropertyMetadataDTO(TEST_FSPLUGIN_DOMAIN_ENABLED, Type.STRING, TEST_FS_PLUGIN, Usage.DOMAIN)
+                new DomibusPropertyMetadataDTO(TEST_FSPLUGIN_DOMAIN_ENABLED, Type.BOOLEAN, TEST_FS_PLUGIN, Usage.DOMAIN)
         );
 
         knownProperties = allProperties.stream()

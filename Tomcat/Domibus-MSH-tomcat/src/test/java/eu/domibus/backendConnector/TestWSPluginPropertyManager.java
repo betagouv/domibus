@@ -27,7 +27,7 @@ public class TestWSPluginPropertyManager extends DomibusPropertyExtServiceDelega
 
     public TestWSPluginPropertyManager() {
         List<DomibusPropertyMetadataDTO> allProperties = Arrays.asList(
-                new DomibusPropertyMetadataDTO(TEST_WSPLUGIN_DOMAIN_ENABLED, Type.STRING, "testWSPlugin", Usage.DOMAIN)
+                new DomibusPropertyMetadataDTO(TEST_WSPLUGIN_DOMAIN_ENABLED, Type.BOOLEAN, "testWSPlugin", Usage.DOMAIN)
         );
 
         knownProperties = allProperties.stream()
