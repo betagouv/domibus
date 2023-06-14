@@ -1,4 +1,4 @@
-package eu.domibus.core.message;
+package eu.domibus.backendConnector;
 
 import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
@@ -7,6 +7,8 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
+import eu.domibus.core.message.DeleteMessageAbstractIT;
+import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.plugin.BackendConnectorHelper;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.routing.RoutingService;
@@ -78,7 +80,8 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     @Before
     public void before() throws XmlProcessingException, IOException {
         super.before();
-        messageId = BackendConnectorMock.MESSAGE_ID;
+
+        messageId = UUID.randomUUID() + "@domibus.eu";
         filename = "SOAPMessage2.xml";
 
         uploadPMode();
@@ -120,11 +123,31 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
         assertEquals(testWSPluginMock.getDeliverMessageEvent().getMessageId(), messageId);
+        assertEquals(testFSPluginMock.getDeliverMessageEvent(), null);
 
         final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
         assertNotNull(ebms3Messaging);
 
         assertEquals(testWSPluginMock.getDeliverMessageEvent().getMessageId(), messageId);
+    }
+
+    @Test
+    @Transactional
+    public void testNotifyEnabledPlugin2() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
+
+        domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
+        domibusPropertyProvider.setProperty(TEST_FSPLUGIN_DOMAIN_ENABLED, "true");
+
+        SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
+        final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
+
+        assertEquals(testFSPluginMock.getDeliverMessageEvent().getMessageId(), messageId);
+        assertEquals(testWSPluginMock.getDeliverMessageEvent(), null);
+
+        final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
+        assertNotNull(ebms3Messaging);
+
+        assertEquals(testFSPluginMock.getDeliverMessageEvent().getMessageId(), messageId);
     }
 
     @Test

@@ -1,7 +1,6 @@
 package eu.domibus.backendConnector;
 
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
-import eu.domibus.test.common.BackendConnectorMock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +11,7 @@ import static eu.domibus.backendConnector.TestWSPluginPropertyManager.TEST_WSPLU
  * @since 5.0
  */
 @Service
-public class TestWSPluginMock extends BackendConnectorMock {
+public class TestWSPluginMock extends BackendConnectorBaseMock {
 
     @Autowired
     TestWSPluginPropertyManager testWSPluginPropertyManager;
