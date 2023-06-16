@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static eu.domibus.backendConnector.TestWSPluginMock.TEST_WS_PLUGIN;
+
 /**
  * Property manager for integration test; handles locally some properties
  *
@@ -27,19 +29,19 @@ public class TestWSPluginPropertyManager extends DomibusPropertyExtServiceDelega
 
     public TestWSPluginPropertyManager() {
         List<DomibusPropertyMetadataDTO> allProperties = Arrays.asList(
-                new DomibusPropertyMetadataDTO(TEST_WSPLUGIN_DOMAIN_ENABLED, Type.BOOLEAN, "testWSPlugin", Usage.DOMAIN)
+                new DomibusPropertyMetadataDTO(TEST_WSPLUGIN_DOMAIN_ENABLED, Type.BOOLEAN, TEST_WS_PLUGIN, Usage.DOMAIN)
         );
 
         knownProperties = allProperties.stream()
                 .collect(Collectors.toMap(x -> x.getName(), x -> x));
-        
+
     }
 
     @Override
     public Map<String, DomibusPropertyMetadataDTO> getKnownProperties() {
         return knownProperties;
     }
-    
+
     @Override
     protected String getPropertiesFileName() {
         return null;
@@ -58,5 +60,5 @@ public class TestWSPluginPropertyManager extends DomibusPropertyExtServiceDelega
     @Override
     public void removeProperties(DomainDTO domain) {
     }
-    
+
 }

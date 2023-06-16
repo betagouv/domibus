@@ -13,7 +13,7 @@ import static eu.domibus.backendConnector.TestFSPluginPropertyManager.TEST_FSPLU
 @Service
 public class TestFSPluginMock extends BackendConnectorBaseMock {
 
-    public static final String TEST_FS_PLUGIN = "testFSPlugin";
+    public static final String TEST_FS_PLUGIN = "fsPlugin";
 
     @Autowired
     TestFSPluginPropertyManager testPluginPropertyManager;

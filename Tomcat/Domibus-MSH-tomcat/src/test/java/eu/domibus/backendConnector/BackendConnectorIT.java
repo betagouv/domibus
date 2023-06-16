@@ -38,7 +38,9 @@ import java.io.IOException;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CACHE_LOCATION;
+import static eu.domibus.backendConnector.TestFSPluginMock.TEST_FS_PLUGIN;
 import static eu.domibus.backendConnector.TestFSPluginPropertyManager.TEST_FSPLUGIN_DOMAIN_ENABLED;
+import static eu.domibus.backendConnector.TestWSPluginMock.TEST_WS_PLUGIN;
 import static eu.domibus.backendConnector.TestWSPluginPropertyManager.TEST_WSPLUGIN_DOMAIN_ENABLED;
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
 import static org.junit.Assert.*;
@@ -86,16 +88,19 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     public void before() throws XmlProcessingException, IOException {
         super.before();
 
-        messageId = UUID.randomUUID() + "@domibus.eu";
+        messageId = getMessageId();
         filename = "SOAPMessage2.xml";
 
         uploadPMode();
 
-        Mockito.when(backendConnectorProvider.getBackendConnector("wsPlugin"))
+        Mockito.when(backendConnectorProvider.getBackendConnector(TEST_WS_PLUGIN))
                 .thenReturn(testWSPluginMock);
 
-        Mockito.when(backendConnectorProvider.getBackendConnector("fsPlugin"))
+        Mockito.when(backendConnectorProvider.getBackendConnector(TEST_FS_PLUGIN))
                 .thenReturn(testFSPluginMock);
+
+        Mockito.when(backendConnectorProvider.getEnableAwares())
+                .thenReturn(Arrays.asList(testWSPluginMock, testFSPluginMock));
 
         Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
@@ -111,17 +116,18 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
         testFSPluginMock.clear();
     }
 
+    private static String getMessageId() {
+        return UUID.randomUUID() + "@domibus.eu";
+    }
+
     @Transactional
     @After
     public void after() {
-        testWSPluginMock.clear();
         List<MessageLogInfo> list = userMessageLogDao.findAllInfoPaged(0, 100, "ID_PK", true, new HashMap<>());
-        if (list.size() > 0) {
-            list.forEach(el -> {
-                UserMessageLog res = userMessageLogDao.findByMessageId(el.getMessageId(), el.getMshRole());
-                userMessageLogDao.deleteMessageLogs(Arrays.asList(res.getEntityId()));
-            });
-        }
+        list.forEach(el -> {
+            UserMessageLog res = userMessageLogDao.findByMessageId(el.getMessageId(), el.getMshRole());
+            userMessageLogDao.deleteMessageLogs(Arrays.asList(res.getEntityId()));
+        });
     }
 
     @Test
@@ -142,6 +148,7 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     @Test
     @Transactional
     public void testNotifySinleEnabledPlugin() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
+        // ws plugin not ebabled so the FS will receive the message
         domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
 
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
@@ -155,10 +162,12 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
 
         assertEquals(testFSPluginMock.getDeliverMessageEvent().getMessageId(), messageId);
 
-        routingService.invalidateBackendFiltersCache();
         testWSPluginMock.clear();
         testFSPluginMock.clear();
         domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "true");
+        messageId = getMessageId();
+        // now ws plugin is re-enabled, so it should receive the message this time
+        soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         soapResponse = mshWebserviceTest.invoke(soapMessage);
 
         assertEquals(testWSPluginMock.getDeliverMessageEvent().getMessageId(), messageId);
@@ -191,7 +200,7 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
             Assert.fail();
         } catch (DomibusPropertyException ex) {
             Assert.assertTrue(domibusPropertyProvider.getBooleanProperty(TEST_FSPLUGIN_DOMAIN_ENABLED));
-            Assert.assertTrue(ex.getCause().getMessage().contains("Cannot disable the plugin [testFSPlugin] on domain [default] because there won't remain any enabled plugins"));
+            Assert.assertTrue(ex.getCause().getMessage().contains("Cannot disable the plugin [fsPlugin] on domain [default] because there won't remain any enabled plugins"));
         }
     }
 

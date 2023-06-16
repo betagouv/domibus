@@ -13,11 +13,13 @@ import static eu.domibus.backendConnector.TestWSPluginPropertyManager.TEST_WSPLU
 @Service
 public class TestWSPluginMock extends BackendConnectorBaseMock {
 
+    public static final String TEST_WS_PLUGIN = "wsPlugin";
+
     @Autowired
     TestWSPluginPropertyManager testWSPluginPropertyManager;
 
     public TestWSPluginMock() {
-        super("backendWSPlugin");
+        super(TEST_WS_PLUGIN);
     }
 
     @Override
