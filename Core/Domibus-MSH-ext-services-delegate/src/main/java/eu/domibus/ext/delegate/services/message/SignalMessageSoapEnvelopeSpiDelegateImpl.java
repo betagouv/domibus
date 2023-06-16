@@ -67,8 +67,11 @@ public class SignalMessageSoapEnvelopeSpiDelegateImpl implements SignalMessageSo
         HttpMetadata httpMetadata = new HttpMetadata();
         if (httpHeaderMetadataActive) {
             final String contentType = LOG.getMDC(MessageConstants.HTTP_CONTENT_TYPE);
+            LOG.debug("Content-Type value is [{}]", contentType);
             httpMetadata.setContentType(contentType);
             final String httpProtocolHeaders = LOG.getMDC(MessageConstants.HTTP_PROTOCOL_HEADERS);
+            LOG.debug("HTTP Headers value is [{}]", httpProtocolHeaders);
+
             try {
                 Map<String, List<String>> headers = objectMapper.readValue(httpProtocolHeaders, Map.class);
                 httpMetadata.setHeaders(headers);
