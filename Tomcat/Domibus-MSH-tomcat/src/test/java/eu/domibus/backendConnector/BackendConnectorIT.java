@@ -76,6 +76,9 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     @Autowired
     DomibusLocalCacheService domibusLocalCacheService;
 
+    @Autowired
+    ConfigurableEnvironment environment;
+
     String messageId, filename;
 
     @Transactional
@@ -103,6 +106,9 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
         // set like this to void property change listeners to fire
         setValueInDomibusPropertySource("default." + TEST_WSPLUGIN_DOMAIN_ENABLED, "true");
         setValueInDomibusPropertySource("default." + TEST_FSPLUGIN_DOMAIN_ENABLED, "true");
+
+        testWSPluginMock.clear();
+        testFSPluginMock.clear();
     }
 
     @Transactional
@@ -120,12 +126,12 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
 
     @Test
     @Transactional
-    public void testNotifyEnabledPlugin() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
+    public void testNotifyFirstEnabledPlugin() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
         assertEquals(testWSPluginMock.getDeliverMessageEvent().getMessageId(), messageId);
-//        assertNull(testFSPluginMock.getDeliverMessageEvent());
+        assertNull(testFSPluginMock.getDeliverMessageEvent());
 
         final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
         assertNotNull(ebms3Messaging);
@@ -135,11 +141,11 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
 
     @Test
     @Transactional
-    public void testNotifyEnabledPlugin2() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
+    public void testNotifySinleEnabledPlugin() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
         domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
 
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
-        final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
+        SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
         assertEquals(testFSPluginMock.getDeliverMessageEvent().getMessageId(), messageId);
         assertNull(testWSPluginMock.getDeliverMessageEvent());
@@ -148,18 +154,15 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
         assertNotNull(ebms3Messaging);
 
         assertEquals(testFSPluginMock.getDeliverMessageEvent().getMessageId(), messageId);
-    }
 
-    @Autowired
-    ConfigurableEnvironment environment;
+        routingService.invalidateBackendFiltersCache();
+        testWSPluginMock.clear();
+        testFSPluginMock.clear();
+        domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "true");
+        soapResponse = mshWebserviceTest.invoke(soapMessage);
 
-    protected void setValueInDomibusPropertySource(String propertyKey, String propertyValue) {
-        MutablePropertySources propertySources = environment.getPropertySources();
-        DomibusPropertiesPropertySource domibusPropertiesPropertySource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.NAME);
-        domibusPropertiesPropertySource.setProperty(propertyKey, propertyValue);
-
-        DomibusPropertiesPropertySource updatedDomibusPropertiesSource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME);
-        updatedDomibusPropertiesSource.setProperty(propertyKey, propertyValue);
+        assertEquals(testWSPluginMock.getDeliverMessageEvent().getMessageId(), messageId);
+        assertNull(testFSPluginMock.getDeliverMessageEvent());
     }
 
     @Test
@@ -182,14 +185,22 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     @Transactional
     public void testTryDisableAllPlugins() {
         domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
-        Assert.assertEquals(false, domibusPropertyProvider.getBooleanProperty(TEST_WSPLUGIN_DOMAIN_ENABLED));
+        Assert.assertFalse(domibusPropertyProvider.getBooleanProperty(TEST_WSPLUGIN_DOMAIN_ENABLED));
         try {
             domibusPropertyProvider.setProperty(TEST_FSPLUGIN_DOMAIN_ENABLED, "false");
             Assert.fail();
         } catch (DomibusPropertyException ex) {
-            Assert.assertEquals(true, domibusPropertyProvider.getBooleanProperty(TEST_FSPLUGIN_DOMAIN_ENABLED));
+            Assert.assertTrue(domibusPropertyProvider.getBooleanProperty(TEST_FSPLUGIN_DOMAIN_ENABLED));
             Assert.assertTrue(ex.getCause().getMessage().contains("Cannot disable the plugin [testFSPlugin] on domain [default] because there won't remain any enabled plugins"));
         }
     }
 
+    private void setValueInDomibusPropertySource(String propertyKey, String propertyValue) {
+        MutablePropertySources propertySources = environment.getPropertySources();
+        DomibusPropertiesPropertySource domibusPropertiesPropertySource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.NAME);
+        domibusPropertiesPropertySource.setProperty(propertyKey, propertyValue);
+
+        DomibusPropertiesPropertySource updatedDomibusPropertiesSource = (DomibusPropertiesPropertySource) propertySources.get(DomibusPropertiesPropertySource.UPDATED_PROPERTIES_NAME);
+        updatedDomibusPropertiesSource.setProperty(propertyKey, propertyValue);
+    }
 }
