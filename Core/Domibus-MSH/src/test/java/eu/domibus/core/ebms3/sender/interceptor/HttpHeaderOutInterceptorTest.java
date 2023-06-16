@@ -1,22 +1,34 @@
 package eu.domibus.core.ebms3.sender.interceptor;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
+import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
 import org.apache.cxf.message.Message;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static eu.domibus.api.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
+
 /**
  * @author Catalin Enache
  * @since 4.2
  */
 public class HttpHeaderOutInterceptorTest {
+
+    @Injectable
+    private DomibusPropertyProvider domibusPropertyProvider;
+    @Injectable
+    private ObjectMapper domibusJsonMapper;
 
     @Tested
     HttpHeaderInInterceptor httpHeaderInInterceptor;
