@@ -5,7 +5,7 @@ import javax.xml.soap.SOAPMessage;
 /**
  * @author Cosmin Baciu
  * @since 5.0.2
- *
+ * <p>
  * SPI interface gives the possibility to validate or modify the SoapEnvelope of the SignalMessage.
  */
 public interface SignalMessageSoapEnvelopeSpi {
@@ -20,10 +20,22 @@ public interface SignalMessageSoapEnvelopeSpi {
     SOAPMessage beforeSigningAndEncryption(SOAPMessage soapMessage);
 
     /**
+     * @deprecated Use {@link SignalMessageSoapEnvelopeSpi#afterReceiving(SOAPMessage, HttpMetadata)}
      * Hook point that can be used to validate or modify the SoapEnvelope after it has been received from C3.
      *
      * @param responseMessage that is received from C3
      * @return The modified SoapEnvelope or the same SoapEnvelope in case it has not been modified
      */
     SOAPMessage afterReceiving(SOAPMessage responseMessage);
+
+    /**
+     * Hook point that can be used to validate or modify the SoapEnvelope after it has been received from C3.
+     *
+     * @param responseMessage that is received from C3
+     * @param httpMetadata contains content-type, http headers, etc
+     * @return The modified SoapEnvelope or the same SoapEnvelope in case it has not been modified
+     */
+    default SOAPMessage afterReceiving(SOAPMessage responseMessage, HttpMetadata httpMetadata) {
+        return null;
+    }
 }

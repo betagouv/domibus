@@ -42,6 +42,9 @@ public final class MessageConstants {
     public static final String COMPRESSION_PROPERTY_KEY = "CompressionType";
     public static final String COMPRESSION_PROPERTY_VALUE = "application/gzip";
 
+    public static final String HTTP_CONTENT_TYPE = "DOMIBUS_CONTENT_TYPE";
+    public static final String HTTP_PROTOCOL_HEADERS = "DOMIBUS_PROTOCOL_HEADERS";
+
 
     /**
      * we used this attribute name and not FileName to avoid name collision with Domibus core class SubmissionAS4Transformer
