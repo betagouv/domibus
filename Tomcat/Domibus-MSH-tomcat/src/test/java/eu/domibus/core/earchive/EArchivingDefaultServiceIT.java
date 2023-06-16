@@ -10,9 +10,9 @@ import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.UserMessageDefaultService;
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
@@ -76,11 +76,11 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     UserMessageLog uml7_not_archived;
     UserMessageLog uml8_not_archived;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         waitUntilDatabaseIsInitialized();
-        Assert.assertEquals(101000000000000L, ((long) eArchiveBatchStartDao.findByReference(CONTINUOUS_ID).getLastPkUserMessage()));
-        Assert.assertEquals(101000000000000L, ((long) eArchiveBatchStartDao.findByReference(SANITY_ID).getLastPkUserMessage()));
+        Assertions.assertEquals(101000000000000L, ((long) eArchiveBatchStartDao.findByReference(CONTINUOUS_ID).getLastPkUserMessage()));
+        Assertions.assertEquals(101000000000000L, ((long) eArchiveBatchStartDao.findByReference(SANITY_ID).getLastPkUserMessage()));
         // prepare
         Date currentDate = Calendar.getInstance().getTime();
         uml1 = messageDaoTestUtil.createUserMessageLog("uml1-" + UUID.randomUUID(), currentDate);
@@ -129,7 +129,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         Long startMessageDate = 21102610L;
         eArchivingService.updateStartDateContinuousArchive(startMessageDate);
 
-        Assert.assertEquals(eArchiveBatchUtils.dateToPKUserMessageId(startMessageDate),
+        Assertions.assertEquals(eArchiveBatchUtils.dateToPKUserMessageId(startMessageDate),
                 eArchiveBatchStartDao.findByReference(CONTINUOUS_ID).getLastPkUserMessage());
 
     }
@@ -139,7 +139,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     public void getStartDateContinuousArchive() {
         Long startDateContinuousArchive = eArchivingService.getStartDateContinuousArchive();
 
-        Assert.assertEquals(10100L, startDateContinuousArchive.longValue());
+        Assertions.assertEquals(10100L, startDateContinuousArchive.longValue());
     }
 
     @Test
@@ -148,7 +148,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         Long startMessageDate = 102710L;
         eArchivingService.updateStartDateSanityArchive(startMessageDate);
 
-        Assert.assertEquals(eArchiveBatchUtils.dateToPKUserMessageId(startMessageDate),
+        Assertions.assertEquals(eArchiveBatchUtils.dateToPKUserMessageId(startMessageDate),
                 eArchiveBatchStartDao.findByReference(SANITY_ID).getLastPkUserMessage());
     }
 
@@ -157,14 +157,14 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     public void getStartDateSanityArchive() {
         Long startDateSanityArchive = eArchivingService.getStartDateSanityArchive();
 
-        Assert.assertEquals(10100L, startDateSanityArchive.longValue());
+        Assertions.assertEquals(10100L, startDateSanityArchive.longValue());
     }
 
     @Test
     @Transactional
     public void getBatchCount() {
         Long batchRequestsCount = eArchivingService.getBatchRequestListCount(new EArchiveBatchFilter());
-        Assert.assertEquals(2, batchRequestsCount.longValue());
+        Assertions.assertEquals(2, batchRequestsCount.longValue());
     }
 
     @Test
@@ -172,12 +172,12 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     public void getBatchListDefaultFilter() {
         EArchiveBatchFilter filter = new EArchiveBatchFilter();
         List<EArchiveBatchRequestDTO> batchRequestsCount = eArchivingService.getBatchRequestList(filter);
-        Assert.assertEquals(2, batchRequestsCount.size());
+        Assertions.assertEquals(2, batchRequestsCount.size());
         // descending order
         // the batch 1 is last in list
-        Assert.assertEquals(batch1.getBatchId(), batchRequestsCount.get(batchRequestsCount.size() - 1).getBatchId());
-        Assert.assertEquals(uml1.getEntityId(), batchRequestsCount.get(batchRequestsCount.size() - 1).getMessageStartId().longValue());
-        Assert.assertEquals(uml3.getEntityId(), batchRequestsCount.get(batchRequestsCount.size() - 1).getMessageEndId().longValue());
+        Assertions.assertEquals(batch1.getBatchId(), batchRequestsCount.get(batchRequestsCount.size() - 1).getBatchId());
+        Assertions.assertEquals(uml1.getEntityId(), batchRequestsCount.get(batchRequestsCount.size() - 1).getMessageStartId().longValue());
+        Assertions.assertEquals(uml3.getEntityId(), batchRequestsCount.get(batchRequestsCount.size() - 1).getMessageEndId().longValue());
     }
 
     @Test
@@ -187,7 +187,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         EArchiveBatchFilter filter = new EArchiveBatchFilter(null, DateUtils.addDays(currentDate, -40), DateUtils.addDays(currentDate, -20), null, null);
         List<EArchiveBatchRequestDTO> batchRequestsCount = eArchivingService.getBatchRequestList(filter);
         // second batch2 with only one message
-        Assert.assertEquals(1, batchRequestsCount.size());
+        Assertions.assertEquals(1, batchRequestsCount.size());
     }
 
     @Test
@@ -196,8 +196,8 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         EArchiveBatchFilter filter = new EArchiveBatchFilter(Collections.singletonList(EArchiveRequestType.CONTINUOUS), null, null, null, null);
         List<EArchiveBatchRequestDTO> batchRequestsCount = eArchivingService.getBatchRequestList(filter);
         // second batch2 with only one message
-        Assert.assertEquals(2, batchRequestsCount.size());
-        Assert.assertEquals(batchRequestsCount.get(0).getMessageEndId(), batchRequestsCount.get(0).getMessageEndId());
+        Assertions.assertEquals(2, batchRequestsCount.size());
+        Assertions.assertEquals(batchRequestsCount.get(0).getMessageEndId(), batchRequestsCount.get(0).getMessageEndId());
     }
 
     @Test
@@ -209,9 +209,9 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         Long messageCount = eArchivingService.getExportedBatchUserMessageListCount(batchId);
         List<String> messageList = eArchivingService.getExportedBatchUserMessageList(batchId, null, null);
         // then
-        Assert.assertNotNull(messageCount);
-        Assert.assertEquals(3, messageList.size());
-        Assert.assertEquals(messageCount.intValue(), messageList.size());
+        Assertions.assertNotNull(messageCount);
+        Assertions.assertEquals(3, messageList.size());
+        Assertions.assertEquals(messageCount.intValue(), messageList.size());
     }
 
 
@@ -224,9 +224,9 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         Long messageCount = eArchivingService.getExportedBatchUserMessageListCount(batchId);
         List<String> messageList = eArchivingService.getExportedBatchUserMessageList(batchId, null, null);
         // then - no messages are exported!
-        Assert.assertNotNull(messageCount);
-        Assert.assertEquals(0, messageList.size());
-        Assert.assertEquals(messageCount.intValue(), messageList.size());
+        Assertions.assertNotNull(messageCount);
+        Assertions.assertEquals(0, messageList.size());
+        Assertions.assertEquals(messageCount.intValue(), messageList.size());
 
     }
 
@@ -244,9 +244,9 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
 
         // According to the discussion service must return all messages which does not have set archive date!
         int expectedCount = 8;
-        Assert.assertTrue(expectedCount <= messages.size()); // the db may contain messages from other non-transactional tests
-        Assert.assertTrue(messages.contains(uml1.getUserMessage().getMessageId()));
-        Assert.assertTrue(messages.contains(uml8_not_archived.getUserMessage().getMessageId()));
+        Assertions.assertTrue(expectedCount <= messages.size()); // the db may contain messages from other non-transactional tests
+        Assertions.assertTrue(messages.contains(uml1.getUserMessage().getMessageId()));
+        Assertions.assertTrue(messages.contains(uml8_not_archived.getUserMessage().getMessageId()));
     }
 
     @Test
@@ -263,7 +263,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
 
         // According to the discussion service must return all messages which does not have set archive date!
         int expectedCount = 8;
-        Assert.assertTrue(expectedCount <= count); // the db may contain messages from other non-transactional tests
+        Assertions.assertTrue(expectedCount <= count); // the db may contain messages from other non-transactional tests
     }
 
     @Test
@@ -274,9 +274,9 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
 
         // According to the discussion service must return all messages which does not have set archive date!
         int expectedCount = 8;
-        Assert.assertTrue(expectedCount <= messages.size()); // the db may contain messages from other non-transactional tests
-        Assert.assertTrue(messages.contains(uml1.getUserMessage().getMessageId()));
-        Assert.assertTrue(messages.contains(uml8_not_archived.getUserMessage().getMessageId()));
+        Assertions.assertTrue(expectedCount <= messages.size()); // the db may contain messages from other non-transactional tests
+        Assertions.assertTrue(messages.contains(uml1.getUserMessage().getMessageId()));
+        Assertions.assertTrue(messages.contains(uml8_not_archived.getUserMessage().getMessageId()));
     }
 
     @Test
@@ -284,8 +284,8 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     public void testExecuteBatchIsArchived() {
         // given
         List<EArchiveBatchUserMessage> messageList = eArchiveBatchUserMessageDao.getBatchMessageList(batch1.getBatchId(), null, null);
-        Assert.assertEquals(3, messageList.size());
-        Assert.assertNotEquals(EArchiveBatchStatus.ARCHIVED, batch1.getEArchiveBatchStatus());
+        Assertions.assertEquals(3, messageList.size());
+        Assertions.assertNotEquals(EArchiveBatchStatus.ARCHIVED, batch1.getEArchiveBatchStatus());
 
         // when
         eArchivingService.executeBatchIsArchived(batch1, messageList);
@@ -293,7 +293,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         //then
         EArchiveBatchEntity batchUpdated = eArchiveBatchDao.findEArchiveBatchByBatchId(batch1.getBatchId());
         // messages and
-        Assert.assertEquals(EArchiveBatchStatus.ARCHIVED, batchUpdated.getEArchiveBatchStatus());
+        Assertions.assertEquals(EArchiveBatchStatus.ARCHIVED, batchUpdated.getEArchiveBatchStatus());
     }
 
     @Test
@@ -301,8 +301,8 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     public void testExecuteBatchIsArchivedDelete() {
         // given
         List<EArchiveBatchUserMessage> messageList = eArchiveBatchUserMessageDao.getBatchMessageList(batch1.getBatchId(), null, null);
-        Assert.assertEquals(3, messageList.size());
-        Assert.assertNotEquals(EArchiveBatchStatus.ARCHIVED, batch1.getEArchiveBatchStatus());
+        Assertions.assertEquals(3, messageList.size());
+        Assertions.assertNotEquals(EArchiveBatchStatus.ARCHIVED, batch1.getEArchiveBatchStatus());
 
         // when
         eArchivingService.executeBatchIsArchived(batch1, messageList);
@@ -310,7 +310,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         //then
         EArchiveBatchEntity batchUpdated = eArchiveBatchDao.findEArchiveBatchByBatchId(batch1.getBatchId());
         // messages and
-        Assert.assertEquals(EArchiveBatchStatus.ARCHIVED, batchUpdated.getEArchiveBatchStatus());
+        Assertions.assertEquals(EArchiveBatchStatus.ARCHIVED, batchUpdated.getEArchiveBatchStatus());
 
         //delete messages
         List<Long> entityIds = new ArrayList<>();
@@ -327,13 +327,13 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     @Transactional
     public void testSetBatchClientStatusFail() {
         // given
-        Assert.assertNotEquals(EArchiveBatchStatus.ARCHIVE_FAILED, batch1.getEArchiveBatchStatus());
+        Assertions.assertNotEquals(EArchiveBatchStatus.ARCHIVE_FAILED, batch1.getEArchiveBatchStatus());
         String message = UUID.randomUUID().toString();
         // when
         eArchivingService.setBatchClientStatus(batch1.getBatchId(), EArchiveBatchStatus.ARCHIVE_FAILED, message);
         //then
         EArchiveBatchEntity batchUpdated = eArchiveBatchDao.findEArchiveBatchByBatchId(batch1.getBatchId());
-        Assert.assertEquals(EArchiveBatchStatus.ARCHIVE_FAILED, batchUpdated.getEArchiveBatchStatus());
-        Assert.assertEquals(message, batchUpdated.getMessage());
+        Assertions.assertEquals(EArchiveBatchStatus.ARCHIVE_FAILED, batchUpdated.getEArchiveBatchStatus());
+        Assertions.assertEquals(message, batchUpdated.getMessage());
     }
 }

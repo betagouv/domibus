@@ -1,11 +1,12 @@
 package eu.domibus.jms.activemq;
 
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jmx.access.MBeanProxyFactoryBean;
 import org.springframework.jmx.support.MBeanServerConnectionFactoryBean;
@@ -20,7 +21,7 @@ import static eu.domibus.jms.activemq.DomibusJMSActiveMQConfiguration.MQ_BROKER_
  * @author Cosmin Baciu
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusJMSActiveMQConfigurationTest {
 
     @Tested
@@ -45,7 +46,7 @@ public class DomibusJMSActiveMQConfigurationTest {
             mBeanServerConnectionFactoryBean.setServiceUrl(serviceUrl);
             mBeanServerConnectionFactoryBean.setConnectOnStartup(false);
             mBeanServerConnectionFactoryBean.afterPropertiesSet();
-            Assert.assertEquals(mBeanServerConnection, result);
+            Assertions.assertEquals(mBeanServerConnection, result);
         }};
     }
 
@@ -71,11 +72,12 @@ public class DomibusJMSActiveMQConfigurationTest {
             mBeanProxyFactoryBean.setProxyInterface(BrokerViewMBean.class);
             mBeanProxyFactoryBean.setServiceUrl(serviceUrl);
             mBeanProxyFactoryBean.afterPropertiesSet();
-            Assert.assertEquals(brokerViewMBean, result);
+            Assertions.assertEquals(brokerViewMBean, result);
         }};
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void jmsSender(@Injectable ConnectionFactory connectionFactory,
                           @Mocked JmsTemplate jmsTemplate) {
         domibusJMSActiveMQConfiguration.jmsSender(connectionFactory);

@@ -8,17 +8,17 @@ import eu.domibus.ext.exceptions.DomibusMonitoringExtException;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Soumya Chandran
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusMonitoringEbms3ServiceInterceptorTest {
 
     @Tested
@@ -44,7 +44,7 @@ public class DomibusMonitoringEbms3ServiceInterceptorTest {
         final Object interceptedResult = domibusMonitoringServiceInterceptor.intercept(joinPoint);
 
         // Then
-        Assert.assertEquals(monitoringInfoDTO, interceptedResult);
+        Assertions.assertEquals(monitoringInfoDTO, interceptedResult);
     }
 
     @Test
@@ -62,10 +62,10 @@ public class DomibusMonitoringEbms3ServiceInterceptorTest {
             domibusMonitoringServiceInterceptor.intercept(joinPoint);
         } catch (DomibusMonitoringExtException e) {
             // Then
-            Assert.assertTrue(domibusMonitoringExtException == e);
+            Assertions.assertTrue(domibusMonitoringExtException == e);
             return;
         }
-        Assert.fail();
+        Assertions.fail();
     }
 
     @Test
@@ -82,9 +82,9 @@ public class DomibusMonitoringEbms3ServiceInterceptorTest {
         try {
             domibusMonitoringServiceInterceptor.intercept(joinPoint);
         } catch (DomibusMonitoringExtException e) {
-            Assert.assertTrue(domibusMonitoringExtException == e);
+            Assertions.assertTrue(domibusMonitoringExtException == e);
             return;
         }
-        Assert.fail();
+        Assertions.fail();
     }
 }

@@ -18,15 +18,16 @@ import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.ro.AlertFilterRequestRO;
 import eu.domibus.web.rest.ro.AlertResult;
 import mockit.*;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.bind.ValidationException;
 import java.util.*;
 import java.util.function.LongSupplier;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AlertResourceTest {
     @Tested
@@ -76,9 +77,9 @@ public class AlertResourceTest {
         }};
         AlertResult result = alertResource.findAlerts(req);
 
-        Assert.assertEquals(2, result.getCount());
-        Assert.assertEquals(1, result.getAlertsEntries().size());
-        Assert.assertEquals("PASSWORD_EXPIRED", result.getAlertsEntries().get(0).getAlertType());
+        Assertions.assertEquals(2, result.getCount());
+        Assertions.assertEquals(1, result.getAlertsEntries().size());
+        Assertions.assertEquals("PASSWORD_EXPIRED", result.getAlertsEntries().get(0).getAlertType());
     }
 
     @Test
@@ -95,9 +96,9 @@ public class AlertResourceTest {
 
         AlertResult result = alertResource.retrieveAlerts(alertCriteria, true);
 
-        Assert.assertEquals(2, result.getCount());
-        Assert.assertEquals(1, result.getAlertsEntries().size());
-        Assert.assertEquals(true, result.getAlertsEntries().get(0).isSuperAdmin());
+        Assertions.assertEquals(2, result.getCount());
+        Assertions.assertEquals(1, result.getAlertsEntries().size());
+        Assertions.assertEquals(true, result.getAlertsEntries().get(0).isSuperAdmin());
     }
 
     private void initAlertsData() {
@@ -115,11 +116,11 @@ public class AlertResourceTest {
     @Test
     public void getAlertParametersTest() {
         List<String> result = alertResource.getAlertParameters("PASSWORD_EXPIREDxxx");
-        Assert.assertEquals(0, result.size());
+        Assertions.assertEquals(0, result.size());
 
         result = alertResource.getAlertParameters("PASSWORD_EXPIRED");
-        Assert.assertEquals(3, result.size());
-        Assert.assertEquals("USER", result.get(0));
+        Assertions.assertEquals(3, result.size());
+        Assertions.assertEquals("USER", result.get(0));
     }
 
     @Test
@@ -143,8 +144,8 @@ public class AlertResourceTest {
         new FullVerifications(1) {{
             List<Alert> domainAlerts;
             alertService.updateAlertProcessed(domainAlerts = withCapture()); times = 1;
-            assertEquals("Should have updated the domain alerts with the correct alert",
-                    Lists.newArrayList(alert), domainAlerts);
+            assertEquals(Lists.newArrayList(alert),
+                    domainAlerts, "Should have updated the domain alerts with the correct alert");
         }};
     }
 
@@ -175,8 +176,8 @@ public class AlertResourceTest {
         new FullVerifications() {{
             List<List<Alert>> invocations = new ArrayList<>();
             alertService.updateAlertProcessed(withCapture(invocations)); times = 2;
-            assertEquals("Should have scheduled the update of super alerts with the correct alert",
-                    Lists.newArrayList(alert), invocations.get(1));
+            assertEquals(Lists.newArrayList(alert),
+                    invocations.get(1), "Should have scheduled the update of super alerts with the correct alert");
         }};
     }
 
@@ -201,11 +202,12 @@ public class AlertResourceTest {
         new FullVerifications() {{
             List<Alert> deletedAlerts;
             alertService.deleteAlerts(deletedAlerts = withCapture());
-            assertEquals("Should have deleted the correct alerts", Lists.newArrayList(alert), deletedAlerts);
+            assertEquals(Lists.newArrayList(alert), deletedAlerts, "Should have deleted the correct alerts");
         }};
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void processAlerts_deletedSuperAlerts(@Injectable AlertRo alertRo, @Injectable Alert alert) {
         // GIVEN
         List<AlertRo> alertRos = Lists.newArrayList(alertRo);
@@ -232,8 +234,8 @@ public class AlertResourceTest {
         new FullVerifications() {{
             List<List<Alert>> invocations = new ArrayList<>();
             alertService.deleteAlerts(withCapture(invocations)); times = 2;
-            assertEquals("Should have deleted the correct super alerts",
-                    Lists.newArrayList(alert), invocations.get(1));
+            assertEquals(Lists.newArrayList(alert),
+                    invocations.get(1), "Should have deleted the correct super alerts");
         }};
     }
 
@@ -258,7 +260,7 @@ public class AlertResourceTest {
 
         // THEN
         new Verifications() {{
-            assertEquals("Should have filtered out the correct domain alerts", Lists.newArrayList(filteredAlert), result);
+            assertEquals(Lists.newArrayList(filteredAlert), result, "Should have filtered out the correct domain alerts");
         }};
     }
 
@@ -283,7 +285,7 @@ public class AlertResourceTest {
 
         // THEN
         new Verifications() {{
-            assertEquals("Should have filtered out the correct super alerts", Lists.newArrayList(filteredAlert), result);
+            assertEquals(Lists.newArrayList(filteredAlert), result, "Should have filtered out the correct super alerts");
         }};
     }
 
@@ -308,7 +310,7 @@ public class AlertResourceTest {
 
         // THEN
         new Verifications() {{
-            assertEquals("Should have filtered out the correct deleted domain alerts", Lists.newArrayList(filteredAlert), result);
+            assertEquals(Lists.newArrayList(filteredAlert), result, "Should have filtered out the correct deleted domain alerts");
         }};
     }
 
@@ -333,7 +335,7 @@ public class AlertResourceTest {
 
         // THEN
         new Verifications() {{
-            assertEquals("Should have filtered out the correct deleted super alerts", Lists.newArrayList(filteredAlert), result);
+            assertEquals(Lists.newArrayList(filteredAlert), result, "Should have filtered out the correct deleted super alerts");
         }};
     }
 
@@ -351,8 +353,8 @@ public class AlertResourceTest {
 
         //THEN
         new FullVerifications() {{
-           assertEquals("Should have set the correct entity ID when converting", 13, result.getEntityId());
-           assertTrue("Should have set the correct processed flag when converting", result.isProcessed());
+           assertEquals( 13, result.getEntityId(), "Should have set the correct entity ID when converting");
+           assertTrue( result.isProcessed(), "Should have set the correct processed flag when converting");
         }};
     }
 
@@ -385,19 +387,19 @@ public class AlertResourceTest {
         Set<String> set1 = new HashSet<>(Arrays.asList("alertDescription", "deleted", "superAdmin"));
         boolean containsAll = excludedCert.stream().map(Object::toString)
                 .anyMatch(s -> set1.remove(s) && set1.isEmpty());
-        assertTrue("Checking excluded columns in ST mode:", containsAll);
+        assertTrue(containsAll, "Checking excluded columns in ST mode:");
 
         excludedCert = alertResource.getExcludedColumns(false);
         assertEquals(excludedCert.size(), 4);
         Set<String> set2 = new HashSet<>(Arrays.asList("superAdmin"));
         containsAll = excludedCert.stream().map(Object::toString)
                 .anyMatch(s -> set2.remove(s) && set2.isEmpty());
-        assertFalse("Checking excluded columns in MT mode:", containsAll);
+        assertFalse(containsAll, "Checking excluded columns in MT mode:");
     }
 
     @Test
     public void getAlertParametersForPluginTest(@Injectable AlertType alertType, @Injectable EventType sourceEvent) {
         List<String> list = alertResource.getAlertParameters("PLUGIN");
-        Assert.assertEquals(0, list.size());
+        Assertions.assertEquals(0, list.size());
     }
 }

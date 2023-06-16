@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws;
 
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.MessagingService;
@@ -14,10 +15,10 @@ import eu.domibus.test.DomibusConditionUtil;
 import eu.domibus.test.PModeUtil;
 import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.test.common.SoapSampleUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.SAXException;
@@ -55,14 +56,14 @@ public class GetStatusIT extends AbstractBackendWSIT {
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
-    @Before
-    public void before() throws IOException, XmlProcessingException {
+    @BeforeEach
+    public void before(WireMockRuntimeInfo wmRuntimeInfo) throws IOException, XmlProcessingException {
         payloadFileStorageProvider.initialize();
 
-        Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
+        Mockito.when(backendConnectorProvider.getBackendConnector(ArgumentMatchers.anyString()))
                 .thenReturn(new BackendConnectorMock("name"));
 
-        pModeUtil.uploadPmode(wireMockRule.port());
+        pModeUtil.uploadPmode(wmRuntimeInfo.getHttpPort());
     }
 
     @Test
@@ -74,7 +75,7 @@ public class GetStatusIT extends AbstractBackendWSIT {
 
         StatusRequestWithAccessPointRole messageStatusRequest = createMessageStatusRequest(messageId, MshRole.RECEIVING);
         MessageStatus response = webServicePluginInterface.getStatusWithAccessPointRole(messageStatusRequest);
-        Assert.assertEquals(MessageStatus.RECEIVED, response);
+        Assertions.assertEquals(MessageStatus.RECEIVED, response);
     }
 
     @Test
@@ -82,7 +83,7 @@ public class GetStatusIT extends AbstractBackendWSIT {
         String invalidMessageId = "invalid";
         StatusRequestWithAccessPointRole messageStatusRequest = createMessageStatusRequest(invalidMessageId, MshRole.RECEIVING);
         MessageStatus response = webServicePluginInterface.getStatusWithAccessPointRole(messageStatusRequest);
-        Assert.assertEquals(MessageStatus.NOT_FOUND, response);
+        Assertions.assertEquals(MessageStatus.NOT_FOUND, response);
     }
 
     @Test
@@ -91,10 +92,10 @@ public class GetStatusIT extends AbstractBackendWSIT {
         StatusRequestWithAccessPointRole messageStatusRequest = createMessageStatusRequest(emptyMessageId, MshRole.RECEIVING);
         try {
             webServicePluginInterface.getStatusWithAccessPointRole(messageStatusRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (StatusFault statusFault) {
             String message = "Message ID is empty";
-            Assert.assertEquals(message, statusFault.getMessage());
+            Assertions.assertEquals(message, statusFault.getMessage());
         }
     }
 

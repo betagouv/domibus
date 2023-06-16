@@ -9,13 +9,14 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
@@ -28,7 +29,7 @@ import java.util.*;
  * @author FERNANDES Henrique, GONCALVES Bruno
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class FSMessageTransformerTest {
 
     @Injectable
@@ -68,12 +69,12 @@ public class FSMessageTransformerTest {
     private static final String MYPROP_VALUE = "SomeValue";
     private static final String payloadContent = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+public void tearDown() throws Exception {
     }
 
     @Test
@@ -118,36 +119,36 @@ public class FSMessageTransformerTest {
         // Expected results for FSMessage
         UserMessage userMessage = fsMessage.getMetadata();
         From from = userMessage.getPartyInfo().getFrom();
-        Assert.assertEquals(messageId, userMessage.getMessageInfo().getMessageId());
-        Assert.assertEquals(refToMessageId, userMessage.getMessageInfo().getRefToMessageId());
-        Assert.assertEquals(UNREGISTERED_PARTY_TYPE, from.getPartyId().getType());
-        Assert.assertEquals(DOMIBUS_BLUE, from.getPartyId().getValue());
-        Assert.assertEquals(INITIATOR_ROLE, from.getRole());
+        Assertions.assertEquals(messageId, userMessage.getMessageInfo().getMessageId());
+        Assertions.assertEquals(refToMessageId, userMessage.getMessageInfo().getRefToMessageId());
+        Assertions.assertEquals(UNREGISTERED_PARTY_TYPE, from.getPartyId().getType());
+        Assertions.assertEquals(DOMIBUS_BLUE, from.getPartyId().getValue());
+        Assertions.assertEquals(INITIATOR_ROLE, from.getRole());
 
         To to = userMessage.getPartyInfo().getTo();
-        Assert.assertEquals(UNREGISTERED_PARTY_TYPE, to.getPartyId().getType());
-        Assert.assertEquals(DOMIBUS_RED, to.getPartyId().getValue());
-        Assert.assertEquals(RESPONDER_ROLE, to.getRole());
+        Assertions.assertEquals(UNREGISTERED_PARTY_TYPE, to.getPartyId().getType());
+        Assertions.assertEquals(DOMIBUS_RED, to.getPartyId().getValue());
+        Assertions.assertEquals(RESPONDER_ROLE, to.getRole());
 
         CollaborationInfo collaborationInfo = userMessage.getCollaborationInfo();
-        Assert.assertEquals(SERVICE_TYPE_TC1, collaborationInfo.getService().getType());
-        Assert.assertEquals(SERVICE_NOPROCESS, collaborationInfo.getService().getValue());
-        Assert.assertEquals(ACTION_TC1LEG1, collaborationInfo.getAction());
-        Assert.assertEquals(AGREEMENT_REF_TYPE_T1, collaborationInfo.getAgreementRef().getType());
-        Assert.assertEquals(AGREEMENT_REF_A1, collaborationInfo.getAgreementRef().getValue());
+        Assertions.assertEquals(SERVICE_TYPE_TC1, collaborationInfo.getService().getType());
+        Assertions.assertEquals(SERVICE_NOPROCESS, collaborationInfo.getService().getValue());
+        Assertions.assertEquals(ACTION_TC1LEG1, collaborationInfo.getAction());
+        Assertions.assertEquals(AGREEMENT_REF_TYPE_T1, collaborationInfo.getAgreementRef().getType());
+        Assertions.assertEquals(AGREEMENT_REF_A1, collaborationInfo.getAgreementRef().getValue());
 
         List<Property> propertyList = userMessage.getMessageProperties().getProperty();
-        Assert.assertEquals(2, propertyList.size());
+        Assertions.assertEquals(2, propertyList.size());
         Property property0 = propertyList.get(0);
-        Assert.assertEquals(PROPERTY_ORIGINAL_SENDER, property0.getName());
-        Assert.assertEquals(ORIGINAL_SENDER, property0.getValue());
+        Assertions.assertEquals(PROPERTY_ORIGINAL_SENDER, property0.getName());
+        Assertions.assertEquals(ORIGINAL_SENDER, property0.getValue());
         Property property1 = propertyList.get(1);
-        Assert.assertEquals(PROPERTY_FINAL_RECIPIENT, property1.getName());
-        Assert.assertEquals(FINAL_RECIPIENT, property1.getValue());
+        Assertions.assertEquals(PROPERTY_FINAL_RECIPIENT, property1.getName());
+        Assertions.assertEquals(FINAL_RECIPIENT, property1.getValue());
 
         FSPayload fSPayload = fsMessage.getPayloads().get(CONTENT_ID);
-        Assert.assertEquals(APPLICATION_XML, fSPayload.getMimeType());
-        Assert.assertEquals(payloadContent, IOUtils.toString(fSPayload.getDataHandler().getInputStream(), StandardCharsets.UTF_8));
+        Assertions.assertEquals(APPLICATION_XML, fSPayload.getMimeType());
+        Assertions.assertEquals(payloadContent, IOUtils.toString(fSPayload.getDataHandler().getInputStream(), StandardCharsets.UTF_8));
     }
 
     @Test
@@ -190,81 +191,84 @@ public class FSMessageTransformerTest {
         assertTransformPayloadInfo(submission);
     }
 
-    @Test(expected = FSPluginException.class)
+    @Test
     public void testTransformToSubmission_MultiplePartInfo() throws Exception {
         FSMessage fsMessage = buildMessage("testTransformToSubmissionNormalFlow_MultiplePartInfo_metadata.xml");
         FSMessageTransformer transformer = new FSMessageTransformer(new FSMimeTypeHelperImpl(), null);
         // expect exception on multiple PartInfo in PayloadInfo
-        transformer.transformToSubmission(fsMessage);
+        Assertions.assertThrows(FSPluginException.class, () -> {
+            transformer.transformToSubmission(fsMessage);
+
+        });
     }
 
     protected void assertDefaultValuesForPayloadInfo(Submission submission) throws IOException {
-        Assert.assertEquals(1, submission.getPayloads().size());
+        Assertions.assertEquals(1, submission.getPayloads().size());
         Submission.Payload submissionPayload = submission.getPayloads().iterator().next();
         Submission.TypedProperty payloadProperty = submissionPayload.getPayloadProperties().iterator().next();
-        Assert.assertEquals(MIME_TYPE, payloadProperty.getKey());
-        Assert.assertEquals(APPLICATION_XML, payloadProperty.getValue());
+        Assertions.assertEquals(MIME_TYPE, payloadProperty.getKey());
+        Assertions.assertEquals(APPLICATION_XML, payloadProperty.getValue());
 
         DataHandler payloadDatahandler = submissionPayload.getPayloadDatahandler();
-        Assert.assertEquals(APPLICATION_XML, payloadDatahandler.getContentType());
-        Assert.assertEquals(payloadContent, IOUtils.toString(payloadDatahandler.getInputStream(), StandardCharsets.UTF_8));
+        Assertions.assertEquals(APPLICATION_XML, payloadDatahandler.getContentType());
+        Assertions.assertEquals(payloadContent, IOUtils.toString(payloadDatahandler.getInputStream(), StandardCharsets.UTF_8));
     }
 
     protected void assertTransformPayloadInfo(Submission submission) {
-        Assert.assertEquals(1, submission.getPayloads().size());
+        Assertions.assertEquals(1, submission.getPayloads().size());
         Submission.Payload submissionPayload = submission.getPayloads().iterator().next();
-        Assert.assertEquals(CONTENT_ID_MYPAYLOAD, submissionPayload.getContentId());
+        Assertions.assertEquals(CONTENT_ID_MYPAYLOAD, submissionPayload.getContentId());
 
-        Assert.assertEquals(3, submissionPayload.getPayloadProperties().size());
+        Assertions.assertEquals(3, submissionPayload.getPayloadProperties().size());
         for (Submission.TypedProperty payloadProperty : submissionPayload.getPayloadProperties()) {
             if (MIME_TYPE.equals(payloadProperty.getKey())) {
-                Assert.assertEquals(TEXT_XML, payloadProperty.getValue());
+                Assertions.assertEquals(TEXT_XML, payloadProperty.getValue());
             }
             if (MYPROP.equals(payloadProperty.getKey())) {
-                Assert.assertEquals(MYPROP_TYPE, payloadProperty.getType());
-                Assert.assertEquals(MYPROP_VALUE, payloadProperty.getValue());
+                Assertions.assertEquals(MYPROP_TYPE, payloadProperty.getType());
+                Assertions.assertEquals(MYPROP_VALUE, payloadProperty.getValue());
             }
         }
     }
 
     protected void assertTransformValues(Submission submission) throws IOException {
 
-        Assert.assertNotNull(submission);
-        Assert.assertEquals(1, submission.getFromParties().size());
+        Assertions.assertNotNull(submission);
+        Assertions.assertEquals(1, submission.getFromParties().size());
         Submission.Party fromParty = submission.getFromParties().iterator().next();
-        Assert.assertEquals(DOMIBUS_BLUE, fromParty.getPartyId());
-        Assert.assertEquals(UNREGISTERED_PARTY_TYPE, fromParty.getPartyIdType());
-        Assert.assertEquals(INITIATOR_ROLE, submission.getFromRole());
+        Assertions.assertEquals(DOMIBUS_BLUE, fromParty.getPartyId());
+        Assertions.assertEquals(UNREGISTERED_PARTY_TYPE, fromParty.getPartyIdType());
+        Assertions.assertEquals(INITIATOR_ROLE, submission.getFromRole());
 
-        Assert.assertEquals(1, submission.getToParties().size());
+        Assertions.assertEquals(1, submission.getToParties().size());
         Submission.Party toParty = submission.getToParties().iterator().next();
-        Assert.assertEquals(DOMIBUS_RED, toParty.getPartyId());
-        Assert.assertEquals(UNREGISTERED_PARTY_TYPE, toParty.getPartyIdType());
-        Assert.assertEquals(RESPONDER_ROLE, submission.getToRole());
+        Assertions.assertEquals(DOMIBUS_RED, toParty.getPartyId());
+        Assertions.assertEquals(UNREGISTERED_PARTY_TYPE, toParty.getPartyIdType());
+        Assertions.assertEquals(RESPONDER_ROLE, submission.getToRole());
 
-        Assert.assertNull(submission.getAgreementRefType());
-        Assert.assertNull(submission.getAgreementRef());
-        Assert.assertEquals(SERVICE_NOPROCESS, submission.getService());
-        Assert.assertEquals(SERVICE_TYPE_TC1, submission.getServiceType());
-        Assert.assertEquals(ACTION_TC1LEG1, submission.getAction());
-        Assert.assertEquals(CONVERSATIONID_CONV1, submission.getConversationId());
+        Assertions.assertNull(submission.getAgreementRefType());
+        Assertions.assertNull(submission.getAgreementRef());
+        Assertions.assertEquals(SERVICE_NOPROCESS, submission.getService());
+        Assertions.assertEquals(SERVICE_TYPE_TC1, submission.getServiceType());
+        Assertions.assertEquals(ACTION_TC1LEG1, submission.getAction());
+        Assertions.assertEquals(CONVERSATIONID_CONV1, submission.getConversationId());
 
-        Assert.assertEquals(2, submission.getMessageProperties().size());
+        Assertions.assertEquals(2, submission.getMessageProperties().size());
         for (Submission.TypedProperty typedProperty : submission.getMessageProperties()) {
             if (PROPERTY_ORIGINAL_SENDER.equalsIgnoreCase(typedProperty.getKey())) {
-                Assert.assertEquals(ORIGINAL_SENDER, typedProperty.getValue());
+                Assertions.assertEquals(ORIGINAL_SENDER, typedProperty.getValue());
             }
             if (PROPERTY_FINAL_RECIPIENT.equalsIgnoreCase(typedProperty.getKey())) {
-                Assert.assertEquals(FINAL_RECIPIENT, typedProperty.getValue());
+                Assertions.assertEquals(FINAL_RECIPIENT, typedProperty.getValue());
             }
         }
 
-        Assert.assertEquals(1, submission.getPayloads().size());
+        Assertions.assertEquals(1, submission.getPayloads().size());
         Submission.Payload submissionPayload = submission.getPayloads().iterator().next();
 
         DataHandler payloadDatahandler = submissionPayload.getPayloadDatahandler();
-        Assert.assertEquals(APPLICATION_XML, payloadDatahandler.getContentType());
-        Assert.assertEquals(payloadContent, IOUtils.toString(payloadDatahandler.getInputStream(), StandardCharsets.UTF_8));
+        Assertions.assertEquals(APPLICATION_XML, payloadDatahandler.getContentType());
+        Assertions.assertEquals(payloadContent, IOUtils.toString(payloadDatahandler.getInputStream(), StandardCharsets.UTF_8));
 
     }
 
@@ -293,9 +297,9 @@ public class FSMessageTransformerTest {
         }};
         try {
             fsMessageTransformer.getPartyInfoFromSubmission(submission);
-            Assert.fail();
+            Assertions.fail();
         } catch (FSPluginException ex) {
-            Assert.assertEquals("Mandatory field From PartyId is not provided.", ex.getMessage());
+            Assertions.assertEquals("Mandatory field From PartyId is not provided.", ex.getMessage());
         }
 
         new Verifications() {{
@@ -309,9 +313,9 @@ public class FSMessageTransformerTest {
     public void validateFromParty() {
         try {
             fsMessageTransformer.validateFromParty(null, null);
-            Assert.fail();
+            Assertions.fail();
         } catch (FSPluginException ex) {
-            Assert.assertEquals("Mandatory field PartyInfo/From is not provided.", ex.getMessage());
+            Assertions.assertEquals("Mandatory field PartyInfo/From is not provided.", ex.getMessage());
         }
     }
 
@@ -324,9 +328,9 @@ public class FSMessageTransformerTest {
         }};
         try {
             fsMessageTransformer.validateFromParty(fromParty, null);
-            Assert.fail();
+            Assertions.fail();
         } catch (FSPluginException ex) {
-            Assert.assertEquals("Mandatory field From PartyId is not provided.", ex.getMessage());
+            Assertions.assertEquals("Mandatory field From PartyId is not provided.", ex.getMessage());
         }
     }
 
@@ -335,9 +339,9 @@ public class FSMessageTransformerTest {
 
         try {
             fsMessageTransformer.validateFromRole(" ");
-            Assert.fail();
+            Assertions.fail();
         } catch (FSPluginException ex) {
-            Assert.assertEquals("Mandatory field From Role is not provided.", ex.getMessage());
+            Assertions.assertEquals("Mandatory field From Role is not provided.", ex.getMessage());
         }
     }
 

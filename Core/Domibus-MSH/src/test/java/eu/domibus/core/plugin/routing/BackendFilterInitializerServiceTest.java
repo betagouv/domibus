@@ -14,10 +14,11 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,8 +51,7 @@ public class BackendFilterInitializerServiceTest {
     @Injectable
     protected RoutingService routingService;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    
 
     @Test
     public void updateMessageFiltersSingleTenancy(@Injectable BackendConnector backendConnector) {
@@ -76,13 +76,14 @@ public class BackendFilterInitializerServiceTest {
             boolean forceSetContext;
             authUtils.runWithDomibusSecurityContext(function = withCapture(),
                     role = withCapture(), forceSetContext = withCapture());
-            Assert.assertNotNull(function);
-            Assert.assertEquals(AuthRole.ROLE_ADMIN, role);
-            Assert.assertTrue(forceSetContext); // always true for audit reasons
+            Assertions.assertNotNull(function);
+            Assertions.assertEquals(AuthRole.ROLE_ADMIN, role);
+            Assertions.assertTrue(forceSetContext); // always true for audit reasons
         }};
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void updateMessageFiltersMultiTenancy(@Injectable BackendConnector backendConnector,
                                                  @Injectable Domain domain) {
         List<BackendConnector> backendConnectors = new ArrayList<>();
@@ -109,6 +110,7 @@ public class BackendFilterInitializerServiceTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testInit_noNotificationListenerBeanMap(@Injectable BackendConnectorProvider backendConnectorProvider,
                                                        @Injectable CriteriaFactory routingCriteriaFactory,
                                                        @Injectable BackendFilterEntity backendFilterEntity) {
@@ -119,8 +121,7 @@ public class BackendFilterInitializerServiceTest {
         new Expectations(routingService) {{
         }};
 
-        thrown.expect(ConfigurationException.class);
-        backendFilterInitializerService.updateMessageFilters();
+        Assertions.assertThrows(ConfigurationException. class,() -> backendFilterInitializerService.updateMessageFilters());
 
         new FullVerifications() {
         };

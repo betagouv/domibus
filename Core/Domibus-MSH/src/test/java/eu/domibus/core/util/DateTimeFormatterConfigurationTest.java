@@ -5,11 +5,12 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -20,7 +21,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author François Gautier
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DateTimeFormatterConfigurationTest {
 
     public static final String DEFAULT_DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss[.SSSSSSSSS][.SSSSSS][.SSS][z]";
@@ -30,7 +31,7 @@ public class DateTimeFormatterConfigurationTest {
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         new Expectations(){{
             domibusPropertyProvider.getProperty(DOMIBUS_DATE_TIME_PATTERN_ON_RECEIVING);
@@ -39,8 +40,8 @@ public class DateTimeFormatterConfigurationTest {
         }};
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+public void tearDown() {
         new FullVerifications(){};
     }
 
@@ -68,9 +69,9 @@ public class DateTimeFormatterConfigurationTest {
         parse("2020-06-02T20:00:00.000000000");
     }
 
-    @Test(expected = DateTimeParseException.class)
+    @Test
     public void format_frac7() {
-        parse("2020-06-02T20:00:00.0000000");
+        Assertions.assertThrows(DateTimeParseException. class,() -> parse("2020-06-02T20:00:00.0000000"));
     }
 
     @Test
@@ -78,9 +79,9 @@ public class DateTimeFormatterConfigurationTest {
         parse("2020-06-02T20:00:00Z");
     }
 
-    @Test(expected = DateTimeParseException.class)
+    @Test
     public void format_FractionalSeconds1_UTC() {
-        parse("2020-06-02T09:00:00.0Z");
+        Assertions.assertThrows(DateTimeParseException. class,() -> parse("2020-06-02T09:00:00.0Z"));
     }
 
     /**
@@ -91,9 +92,9 @@ public class DateTimeFormatterConfigurationTest {
         parse("2020-06-02T09:00:00.12Z");
     }
 
-    @Test(expected = DateTimeParseException.class)
+    @Test
     public void format_FractionalSeconds2() {
-        parse("2020-06-02T09:00:00.12");
+        Assertions.assertThrows(DateTimeParseException. class,() -> parse("2020-06-02T09:00:00.12"));
     }
 
     @Test
@@ -116,9 +117,9 @@ public class DateTimeFormatterConfigurationTest {
         parse("2020-06-02T23:00:00.000000000+03:00");
     }
 
-    @Test(expected = DateTimeParseException.class)
+    @Test
     public void format_FractionalSeconds12_timeZone() {
-        parse("2020-06-02T23:00:00.000000000000+03:00");
+        Assertions.assertThrows(DateTimeParseException. class,() -> parse("2020-06-02T23:00:00.000000000000+03:00"));
     }
 
     @Test
@@ -126,8 +127,8 @@ public class DateTimeFormatterConfigurationTest {
         parse("2020-06-02T23:00:00+03:00");
     }
 
-    @Test(expected = DateTimeParseException.class)
+    @Test
     public void format_z() {
-        parse("2000-03-04T20:00:00z");
+        Assertions.assertThrows(DateTimeParseException. class,() -> parse("2000-03-04T20:00:00z"));
     }
 }

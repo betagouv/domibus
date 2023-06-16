@@ -8,17 +8,15 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.acknowledge.MessageAcknowledgementDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.List;
 
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Cosmin Baciu
@@ -35,7 +33,7 @@ public class MessageAttemptDaoTestIT extends AbstractIT {
     @Autowired
     ITTestsService itTestsService;
 
-    @Before
+    @BeforeEach
     public void setup() {
         LOG.debug("Setting up");
     }

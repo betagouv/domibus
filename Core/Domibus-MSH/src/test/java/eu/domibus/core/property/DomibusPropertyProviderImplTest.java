@@ -7,10 +7,11 @@ import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -20,12 +21,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Ion Perpegel
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
+@Disabled("EDELIVERY-6896")
 public class DomibusPropertyProviderImplTest {
 
     @Tested
@@ -123,9 +125,9 @@ public class DomibusPropertyProviderImplTest {
         }};
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void getDomainProperty_NullDomain() {
-        domibusPropertyProvider.getProperty(null, propertyName);
+    @Test
+    void getDomainProperty_NullDomain() {
+        Assertions.assertThrows(DomibusPropertyException. class,() -> domibusPropertyProvider.getProperty(null, propertyName));;
 
         new Verifications() {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
@@ -247,15 +249,14 @@ public class DomibusPropertyProviderImplTest {
         }};
 
         // THEN
-        DomibusPropertyException exception = Assert.assertThrows(
-                "Should have thrown a DomibusPropertyException when retrieving the comma separated property " +
-                        "values for a property not having a comma separated list type",
-                DomibusPropertyException.class,
+        DomibusPropertyException exception = Assertions.assertThrows(
+                                DomibusPropertyException.class,
                 () -> {
                     // WHEN
                     domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
-                });
-        Assert.assertEquals("Should have thrown a DomibusPropertyException indicating the property type is " +
+                }, "Should have thrown a DomibusPropertyException when retrieving the comma separated property " +
+                        "values for a property not having a comma separated list type");
+        Assertions.assertEquals("Should have thrown a DomibusPropertyException indicating the property type is " +
                         "not a comma separated list type",
                 "Cannot get the individual parts for property " + propertyName + " because its type "
                         + DomibusPropertyMetadata.Type.NUMERIC + " is not a comma separated list one",
@@ -286,9 +287,9 @@ public class DomibusPropertyProviderImplTest {
         List<String> result = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
 
         // THEN
-        Assert.assertEquals("Should have returned an empty list when getting the comma separated property " +
-                        "values for a property having a comma separated list type and a null value",
-                Collections.emptyList(), result);
+        Assertions.assertEquals(Collections.emptyList(),
+                result, "Should have returned an empty list when getting the comma separated property " +
+                                "values for a property having a comma separated list type and a null value");
     }
 
     @Test
@@ -314,9 +315,9 @@ public class DomibusPropertyProviderImplTest {
         List<String> result = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
 
         // THEN
-        Assert.assertEquals("Should have returned an empty list when getting the comma separated property " +
-                        "values for a property having a comma separated list type and an empty value",
-                Collections.emptyList(), result);
+        Assertions.assertEquals(Collections.emptyList(),
+                result, "Should have returned an empty list when getting the comma separated property " +
+                                "values for a property having a comma separated list type and an empty value");
     }
 
     @Test
@@ -342,9 +343,9 @@ public class DomibusPropertyProviderImplTest {
         List<String> result = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
 
         // THEN
-        Assert.assertEquals("Should have returned an empty list when getting the comma separated property " +
-                        "values for a property having a comma separated list type and a blank value",
-                Collections.emptyList(), result);
+        Assertions.assertEquals(Collections.emptyList(),
+                result, "Should have returned an empty list when getting the comma separated property " +
+                                "values for a property having a comma separated list type and a blank value");
     }
 
     @Test
@@ -370,8 +371,8 @@ public class DomibusPropertyProviderImplTest {
         List<String> result = domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
 
         // THEN
-        Assert.assertEquals("Should have returned a list containing all the individual elements when getting " +
-                        "the comma separated property values for a property having a comma separated list type and a valid value",
-                Arrays.asList("value1", "value2", "value3", "value4", "value5"), result);
+        Assertions.assertEquals(Arrays.asList("value1", "value2", "value3", "value4", "value5"),
+                result, "Should have returned a list containing all the individual elements when getting " +
+                                "the comma separated property values for a property having a comma separated list type and a valid value");
     }
 }

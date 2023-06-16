@@ -8,8 +8,8 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.test.AbstractIT;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -62,8 +62,8 @@ public class FSPluginPropertiesWriteIT extends AbstractIT {
         String value1 = fsPluginProperties.getKnownPropertyValue(domainDefault, propertyName1);
         String value2 = fsPluginProperties.getKnownPropertyValue(domainDefault, propertyName2);
 
-        Assert.assertEquals(oldPropertyValue1, value1);
-        Assert.assertEquals(oldPropertyValue2, value2);
+        Assertions.assertEquals(oldPropertyValue1, value1);
+        Assertions.assertEquals(oldPropertyValue2, value2);
 
         // test set value
         fsPluginProperties.setKnownPropertyValue(domainDefault, propertyName1, newPropertyValue1, false);
@@ -75,10 +75,10 @@ public class FSPluginPropertiesWriteIT extends AbstractIT {
         String persistedPropertyName1 = findPropertyInFile(domain.getCode() + "." + propertyName1, propertyFile);
         String persistedPropertyName2 = findPropertyInFile(domain.getCode() + "." + propertyName2, propertyFile);
 
-        Assert.assertEquals(persistedPropertyName1, value1);
-        Assert.assertEquals(persistedPropertyName2, value2);
-        Assert.assertEquals(newPropertyValue1, value1);
-        Assert.assertEquals(newPropertyValue2, value2);
+        Assertions.assertEquals(persistedPropertyName1, value1);
+        Assertions.assertEquals(persistedPropertyName2, value2);
+        Assertions.assertEquals(newPropertyValue1, value1);
+        Assertions.assertEquals(newPropertyValue2, value2);
 
         // reset context
         fsPluginProperties.setKnownPropertyValue(domainDefault, propertyName1, oldPropertyValue1, false);

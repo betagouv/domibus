@@ -34,7 +34,8 @@
         <hibernate.version>5.6.15.Final</hibernate.version>
         <activemq.version>5.16.5</activemq.version>
         <aspectj.version>1.9.9.1</aspectj.version>
-        <slf4j.version>1.7.36</slf4j.version> <!-- upgrading from 1.7.36 to 2.0.3 causing DomibusLoggerTest crash with a npe on domibusLogger.getCopyOfContextMap().containsKey -->
+        <slf4j.version>1.7.36
+        </slf4j.version> <!-- upgrading from 1.7.36 to 2.0.3 causing DomibusLoggerTest crash with a npe on domibusLogger.getCopyOfContextMap().containsKey -->
         <logback.version>1.2.11</logback.version>
         <httpclient.version>4.5.14</httpclient.version>
         <commons-configuration.version>1.10</commons-configuration.version>
@@ -67,14 +68,15 @@
         <h2.version>2.1.214</h2.version>
         <liquibase.version>4.17.0</liquibase.version>
         <mysql.connector.java.version>8.0.32</mysql.connector.java.version>
-        <wiremock.version>2.27.2</wiremock.version>
+        <wiremock.version>3.0.0-beta-9</wiremock.version>
         <handlebars.version>4.3.1</handlebars.version>
         <dropwizard.metrics.version>4.2.17</dropwizard.metrics.version>
         <owasp.dependency.check.version>7.4.4</owasp.dependency.check.version>
         <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
         <hikaricp.version>4.0.3</hikaricp.version>
         <wlthint3client.version>12.1.1</wlthint3client.version>
-        <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0</com.oracle.css.weblogic.security.wls_7.0.0.0.version>
+        <com.oracle.css.weblogic.security.wls_7.0.0.0.version>12.1.2-0-0
+        </com.oracle.css.weblogic.security.wls_7.0.0.0.version>
         <dss.version>5.8</dss.version>
         <tomcat-embed.version>9.0.72</tomcat-embed.version>
         <json-smart.version>2.4.8</json-smart.version>
@@ -132,9 +134,8 @@
         <guava.version>31.1-jre</guava.version>
         <opencsv.version>5.7.1</opencsv.version>
         <javaee-api.version>8.0.1</javaee-api.version>
-        <junit.version>4.13.2</junit.version>
         <awaitility.version>4.2.0</awaitility.version>
-        <jmockit.version>1.22</jmockit.version>
+        <jmockit.version>1.49</jmockit.version>
         <org.reflections.version>0.10.2</org.reflections.version>
         <jaxws-api.version>2.3.1</jaxws-api.version>
         <javax.annotation.version>1.3.2</javax.annotation.version>
@@ -179,10 +180,12 @@
         <javassist.version>3.28.0-GA</javassist.version>
         <project.scm.id>edelivery-scm</project.scm.id>
         <maven-release-plugin.version>3.0.0-M7</maven-release-plugin.version>
+        <junit.version>5.9.3</junit.version>
     </properties>
 
     <scm>
-        <developerConnection>scm:git:https://ec.europa.eu/digital-building-blocks/code/scm/edelivery/domibus.git</developerConnection>
+        <developerConnection>scm:git:https://ec.europa.eu/digital-building-blocks/code/scm/edelivery/domibus.git
+        </developerConnection>
     </scm>
 
     <!-- Where to deploy the binaries -->
@@ -1179,12 +1182,20 @@
                 </exclusions>
                 <scope>test</scope>
             </dependency>
+
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
                 <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
             <dependency>
                 <groupId>org.jmockit</groupId>
                 <artifactId>jmockit</artifactId>
@@ -1193,8 +1204,14 @@
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
-                <artifactId>mockito-all</artifactId>
-                <version>${mockito.version}</version>
+                <artifactId>mockito-core</artifactId>
+                <version>5.3.1</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>5.3.1</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -1381,13 +1398,14 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.18.1</version>
+                    <version>3.1.2</version>
                     <executions>
                         <execution>
                             <id>default-test</id>
                             <configuration>
                                 <!--suppress UnresolvedMavenProperty -->
                                 <argLine>-server -ea -Duser.language=en -Xms512m -Xmx1024m ${surefire.argLine}
+                                    -javaagent:${settings.localRepository}/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar
                                 </argLine>
                                 <excludes>
                                     <exclude>**/IT*.java</exclude>
@@ -1536,6 +1554,54 @@
             </modules>
         </profile>
         <profile>
+            <id>intellij</id>
+            <activation>
+                <property>
+                    <name>default</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <echo message="Creating junit directory"/>
+                                        <mkdir dir="${project.basedir}/../.junit"/>
+                                        <echo message="Write template file"/>
+                                        <echoxml file="${project.basedir}/../.junit/Template JUnit.run.xml">
+                                            <component name="ProjectRunConfigurationManager">
+                                                <configuration default="true" type="JUnit" factoryName="JUnit">
+                                                    <extension name="software.aws.toolkits.jetbrains.core.execution.JavaAwsConnectionExtension">
+                                                        <option name="credential" />
+                                                        <option name="region" />
+                                                        <option name="useCurrentConnection" value="false" />
+                                                    </extension>
+                                                    <option name="METHOD_NAME" value=""/>
+                                                    <option name="TEST_OBJECT" value="class"/>
+                                                    <option name="VM_PARAMETERS"
+                                                            value="-ea -javaagent:$MAVEN_REPOSITORY$/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar"/>
+                                                    <method v="2">
+                                                        <option name="Make" enabled="true"/>
+                                                    </method>
+                                                </configuration>
+                                            </component>
+                                        </echoxml>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>sample-configuration</id>
             <activation>
                 <property>
@@ -1674,7 +1740,8 @@
                                     |Similar to Apache License but with the acknowledgment clause removed
                                     |Apache License|The Apache Software License, Version 2.0
                                     |Apache Public License 2.0|Apache 2|Apache License, version 2.0
-                                    |The Apache License, Version 2.0</licenseMerge>
+                                    |The Apache License, Version 2.0
+                                </licenseMerge>
                                 <!--  Common Public License Version 1.0|CPL was replaced by Eclipse Public License -->
                                 <licenseMerge>Eclipse Public License 1.0/2.0 (EPL-1.0/2.0)
                                     |Eclipse Public License 1.0 (EPL-1.0)
@@ -1689,7 +1756,8 @@
                                     |EDL 1.0
                                     |Common Public License Version 1.0
                                     |CPL
-                                    |MPL 2.0 or EPL 1.0</licenseMerge>
+                                    |MPL 2.0 or EPL 1.0
+                                </licenseMerge>
                                 <licenseMerge>The MIT License|MIT License</licenseMerge>
                                 <!-- jaxen  - jaxen:jaxen:1.1.4 from the page is noted BSD license -->
                                 <licenseMerge>BSD license (all versions)
@@ -1704,25 +1772,29 @@
                                     |3-Clause BSD License
                                     |BSD-Style License
                                     |BSD-3-Clause
-                                    |New BSD License</licenseMerge>
+                                    |New BSD License
+                                </licenseMerge>
                                 <licenseMerge>Dual license consisting of the CDDL v1.1 and GPL v2
                                     |CDDL+GPLv2
                                     |CDDL + GPLv2 with classpath exception
                                     |CDDL/GPLv2+CE
-                                    |CDDL+GPL License</licenseMerge>
+                                    |CDDL+GPL License
+                                </licenseMerge>
                                 <licenseMerge>Common Development and Distribution License (CDDL) (all versions)
                                     |COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
                                     |Common Development and Distribution License (CDDL) v1.0
                                     |Common Development and Distribution License (CDDL)
                                     |Common Development and Distribution License
                                     |Common Development and Distribution
-                                    |CDDL 1.1|</licenseMerge>
+                                    |CDDL 1.1|
+                                </licenseMerge>
                                 <!-- https://hibernate.org/community/license/ - hibernate label it as GNU Library General Public License v2.1 == GNU Lesser General Public License version 2.1  -->
                                 <licenseMerge>GNU Lesser General Public License
                                     |GNU Lesser General Public License, version 2.1
                                     |GNU Library General Public License v2.1 or later
                                     |LGPL-2.1
-                                    |LGPL</licenseMerge>
+                                    |LGPL
+                                </licenseMerge>
                             </licenseMerges>
                             <failOnMissing>true</failOnMissing>
                             <failOnBlacklist>true</failOnBlacklist>
@@ -1751,7 +1823,9 @@
                             javax.xml.soap:saaj-api:1.3.1 - CDDL
                             org.roda-project:commons-ip2:2.0.0-alpha1 - LGPL (https://github.com/keeps/commons-ip)
                             -->
-                            <excludedArtifacts>servlet-api|dom4j|saaj-api|commons-ip2|jsr311-api|aopalliance|json|reactive-streams</excludedArtifacts>
+                            <excludedArtifacts>
+                                servlet-api|dom4j|saaj-api|commons-ip2|jsr311-api|aopalliance|json|reactive-streams
+                            </excludedArtifacts>
                             <excludedScopes>system,test,provided,runtime</excludedScopes>
                         </configuration>
                     </plugin>

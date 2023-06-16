@@ -17,9 +17,10 @@ import network.oxalis.vefa.peppol.lookup.api.LookupException;
 import network.oxalis.vefa.peppol.lookup.locator.BusdoxLocator;
 import network.oxalis.vefa.peppol.security.lang.PeppolSecurityException;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -94,27 +95,27 @@ public class DynamicDiscoveryServicePEPPOLIT extends AbstractIT {
     @Autowired
     private DynamicDiscoveryServicePEPPOL dynamicDiscoveryServicePEPPOL;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() {
         serviceMetadata = buildServiceMetadata(CertificateTestUtils.loadCertificateFromJKSFile("keystores/gateway_keystore.jks", "red_gw", "test123"));
         expired_serviceMetadata = buildServiceMetadata(CertificateTestUtils.loadCertificateFromJKSFile("keystores/expired_gateway_keystore.jks", "red_gw", "test123"));
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         uploadPMode(SERVICE_PORT);
         createStore(DOMIBUS_TRUSTSTORE_NAME, "keystores/gateway_truststore.jks");
         createStore(DOMIBUS_KEYSTORE_NAME, "keystores/gateway_keystore.jks");
     }
 
-    @Test(expected = AuthenticationException.class)
-    public void lookupInformation_expired() throws EbMS3Exception {
-        dynamicDiscoveryServicePEPPOL.lookupInformation("domain",
+    @Test
+    void lookupInformation_expired() throws EbMS3Exception {
+        Assertions.assertThrows(AuthenticationException. class,() -> dynamicDiscoveryServicePEPPOL.lookupInformation("domain",
                 "participantId_expired",
                 "participantIdScheme",
                 "scheme::value",
                 "urn:epsosPatientService::List",
-                "ehealth-procid-qns");
+                "ehealth-procid-qns"));
     }
 
     @Test

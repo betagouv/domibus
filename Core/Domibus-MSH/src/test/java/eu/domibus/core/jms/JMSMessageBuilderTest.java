@@ -2,16 +2,16 @@ package eu.domibus.core.jms;
 
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.jms.JmsMessage;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Created by Cosmin Baciu on 02-Sep-16.
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class JMSMessageBuilderTest {
 
     @Test

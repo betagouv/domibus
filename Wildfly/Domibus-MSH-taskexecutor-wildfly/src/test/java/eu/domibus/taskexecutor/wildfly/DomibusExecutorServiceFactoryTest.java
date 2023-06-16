@@ -4,23 +4,23 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Cosmin Baciu
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusExecutorServiceFactoryTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusExecutorServiceFactoryTest.class);

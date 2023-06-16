@@ -10,22 +10,22 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Cosmin Baciu
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserMessagePriorityEbms3ServiceImplTest {
 
     @Tested
@@ -75,14 +75,16 @@ public class UserMessagePriorityEbms3ServiceImplTest {
         assertEquals(priorityValue, userMessagePriorityService.convertPriorityToInteger(priorityValueString));
     }
 
-    @Test(expected = UserMessageException.class)
-    public void validatePriorityWithHigherUnacceptedValue() {
-        userMessagePriorityService.validatePriority(10);
+    @Test
+    void validatePriorityWithHigherUnacceptedValue() {
+        Assertions.assertThrows(UserMessageException.class,
+                () -> userMessagePriorityService.validatePriority(10));
     }
 
-    @Test(expected = UserMessageException.class)
-    public void validatePriorityWithLowerUnacceptedValue() {
-        userMessagePriorityService.validatePriority(-1);
+    @Test
+    void validatePriorityWithLowerUnacceptedValue() {
+        Assertions.assertThrows(UserMessageException.class,
+                () -> userMessagePriorityService.validatePriority(-1));
     }
 
     @Test
@@ -242,8 +244,8 @@ public class UserMessagePriorityEbms3ServiceImplTest {
         }};
 
         List<UserMessagePriorityConfiguration> configuredRulesWithConcurrency = userMessagePriorityService.getConfiguredRulesWithConcurrency(domain);
-        Assert.assertEquals(1, configuredRulesWithConcurrency.size());
-        Assert.assertEquals(priorityConfiguration, configuredRulesWithConcurrency.iterator().next());
+        Assertions.assertEquals(1, configuredRulesWithConcurrency.size());
+        Assertions.assertEquals(priorityConfiguration, configuredRulesWithConcurrency.iterator().next());
     }
 
     @Test

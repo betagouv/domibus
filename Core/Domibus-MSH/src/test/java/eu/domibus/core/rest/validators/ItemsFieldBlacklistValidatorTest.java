@@ -5,8 +5,8 @@ import eu.domibus.web.rest.validators.ItemsWhiteListed;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ItemsFieldBlacklistValidatorTest {
     @Tested
@@ -32,15 +32,15 @@ public class ItemsFieldBlacklistValidatorTest {
         boolean actualInvalid = blacklistValidator.isValid(invalidValue);
         boolean emptyIsValid = blacklistValidator.isValid(emptyValue);
 
-        Assert.assertEquals(true, actualValid);
-        Assert.assertEquals(false, actualInvalid);
-        Assert.assertEquals(true, emptyIsValid);
+        Assertions.assertEquals(true, actualValid);
+        Assertions.assertEquals(false, actualInvalid);
+        Assertions.assertEquals(true, emptyIsValid);
     }
 
     @Test
     public void testGetErrorMessage() {
         String actual = blacklistValidator.getErrorMessage();
-        Assert.assertEquals(ItemsWhiteListed.MESSAGE, actual);
+        Assertions.assertEquals(ItemsWhiteListed.MESSAGE, actual);
     }
 
 }

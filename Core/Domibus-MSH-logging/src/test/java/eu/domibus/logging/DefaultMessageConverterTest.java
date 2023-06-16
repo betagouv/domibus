@@ -2,17 +2,18 @@ package eu.domibus.logging;
 
 import eu.domibus.logging.api.MessageCode;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import mockit.internal.startup.Startup;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Cosmin Baciu
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DefaultMessageConverterTest {
 
     @Tested
@@ -20,6 +21,7 @@ public class DefaultMessageConverterTest {
 
     @Test
     public void testGetMessageWithMarker() throws Exception {
+        Startup.verifyInitialization();
         final MessageCode testMessageCode = new MessageCode() {
             @Override
             public String getCode() {
@@ -37,6 +39,7 @@ public class DefaultMessageConverterTest {
 
     @Test
     public void testGetMessage() throws Exception {
+        Startup.verifyInitialization();
         final MessageCode testMessageCode = new MessageCode() {
             @Override
             public String getCode() {

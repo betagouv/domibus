@@ -6,8 +6,8 @@ import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import mockit.*;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -128,7 +128,7 @@ public class PartyIdentifierValidatorTest {
         List<Identifier> identifierList = partyIdentifierValidator.getDuplicateIdentifiers(identifierSet, party1);
 
         new FullVerifications(partyIdentifierValidator) {{
-            Assert.assertNotNull(identifierList);
+            Assertions.assertNotNull(identifierList);
         }};
     }
 

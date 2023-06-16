@@ -8,7 +8,11 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.mock.TransactionalTestService;
 import org.hamcrest.MatcherAssert;
-import org.junit.*;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -28,9 +32,10 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.core.spring.DomibusApplicationContextListener.SYNC_LOCK_KEY;
 import static org.awaitility.Awaitility.await;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ion Perpegel
@@ -60,13 +65,13 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
 
     private final String VALUE_FROM_TASK_2 = "from-task_2-thread";
 
-    @Before
+    @BeforeEach
     public void setUp() {
         transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
-    @After
-    public void cleanup() {
+    @AfterEach
+public void cleanup() {
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -99,11 +104,11 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
                     }
                     atomicInteger.getAndIncrement();
                     LOG.info("Task 2 exit");
-                    Assert.fail();
+                    Assertions.fail();
                 }
         );
 
-        Assert.assertEquals(1, atomicInteger.get());
+        Assertions.assertEquals(1, atomicInteger.get());
     }
 
     @Test
@@ -131,13 +136,13 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
                     LOG.info("Task 2 exit");
                 }
         );
-        Assert.assertEquals(2, i.get());
+        Assertions.assertEquals(2, i.get());
     }
 
     @Test
     public void whenOwnerThreadStartsTransactionAndNoExceptionsThenNoRollback() {
         //given
-        assertFalse("This test expects to not be in an active transaction", TransactionSynchronizationManager.isActualTransactionActive());
+        assertFalse(TransactionSynchronizationManager.isActualTransactionActive(), "This test expects to not be in an active transaction");
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -174,7 +179,7 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
     @Test
     public void whenOwnerThreadStartsTransactionAndChildNoResultExceptionThenRollbackOnlyThatChild() {
         //given
-        assertFalse("This test expects to not be in an active transaction", TransactionSynchronizationManager.isActualTransactionActive());
+        assertFalse(TransactionSynchronizationManager.isActualTransactionActive(), "This test expects to not be in an active transaction");
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -211,7 +216,7 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
     @Test
     public void whenOwnerThreadStartsTransactionAndChildExceptionThenNoRollback() {
         //given
-        assertFalse("This test expects to not be in an active transaction", TransactionSynchronizationManager.isActualTransactionActive());
+        assertFalse(TransactionSynchronizationManager.isActualTransactionActive(), "This test expects to not be in an active transaction");
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -249,7 +254,7 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
     @Test
     public void whenOwnerThreadStartsTransactionAndChildExceptionFromTransactionalMethodThenRollbackOnlyChild() {
         //given
-        assertFalse("This test expects to not be in an active transaction", TransactionSynchronizationManager.isActualTransactionActive());
+        assertFalse(TransactionSynchronizationManager.isActualTransactionActive(), "This test expects to not be in an active transaction");
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -289,7 +294,7 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
     @Test
     public void whenOwnerThreadStartsTransactionAndOwnerExceptionThenRollbackOnlyOwner() {
         //given
-        assertFalse("This test expects to not be in an active transaction", TransactionSynchronizationManager.isActualTransactionActive());
+        assertFalse(TransactionSynchronizationManager.isActualTransactionActive(), "This test expects to not be in an active transaction");
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -331,7 +336,7 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
     @Test
     public void whenChildStartsTransactionAndNoExceptionsThenNoRollback() {
         //given
-        assertFalse("This test expects to not be in an active transaction", TransactionSynchronizationManager.isActualTransactionActive());
+        assertFalse(TransactionSynchronizationManager.isActualTransactionActive(), "This test expects to not be in an active transaction");
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -361,7 +366,7 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
     @Test
     public void whenChildStartsTransactionAndNoResultExceptionThenRollbackOnlyChild() {
         //given
-        assertFalse("This test expects to not be in an active transaction", TransactionSynchronizationManager.isActualTransactionActive());
+        assertFalse(TransactionSynchronizationManager.isActualTransactionActive(), "This test expects to not be in an active transaction");
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -392,7 +397,7 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
     @Test
     public void whenChildStartsTransactionAndExceptionThenNoRollback() {
         //given
-        assertFalse("This test expects to not be in an active transaction", TransactionSynchronizationManager.isActualTransactionActive());
+        assertFalse(TransactionSynchronizationManager.isActualTransactionActive(), "This test expects to not be in an active transaction");
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -423,7 +428,7 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
     @Test
     public void whenChildStartsTransactionAndExceptionFromTransactionalMethodThenRollbackOnlyThatChild() {
         //given
-        assertFalse("This test expects to not be in an active transaction", TransactionSynchronizationManager.isActualTransactionActive());
+        assertFalse(TransactionSynchronizationManager.isActualTransactionActive(), "This test expects to not be in an active transaction");
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -456,7 +461,7 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
     @Test
     public void whenParallelChildStartsTransactionAndExceptionFromTransactionalMethodThenRollbackOnlyThatChild() {
         //given
-        assertFalse("This test expects to not be in an active transaction", TransactionSynchronizationManager.isActualTransactionActive());
+        assertFalse(TransactionSynchronizationManager.isActualTransactionActive(), "This test expects to not be in an active transaction");
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -489,7 +494,7 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
     @Test
     public void whenParallelChildStartsTransactionAndExceptionThenNoRollback() {
         //given
-        assertFalse("This test expects to not be in an active transaction", TransactionSynchronizationManager.isActualTransactionActive());
+        assertFalse(TransactionSynchronizationManager.isActualTransactionActive(), "This test expects to not be in an active transaction");
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -520,7 +525,7 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
     @Test
     public void whenParallelChildStartsTransactionAndNoResultExceptionThenRollbackOnlyThatChild() {
         //given
-        assertFalse("This test expects to not be in an active transaction", TransactionSynchronizationManager.isActualTransactionActive());
+        assertFalse(TransactionSynchronizationManager.isActualTransactionActive(), "This test expects to not be in an active transaction");
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
@@ -601,12 +606,12 @@ public class DBClusterSynchronizedRunnableIT extends AbstractIT {
 
     private void assertDatabaseIsClean() {
         List<String> valuesInDb = getAllValuesFromThisTest();
-        MatcherAssert.assertThat("Expecting the table to not contain any data related to this test", valuesInDb, empty());
+        assertThat("Expecting the table to not contain any data related to this test", valuesInDb, empty());
     }
 
     private void assertDatabaseContainsOnly(String... values) {
         List<String> valuesInDb = getAllValuesFromThisTest();
-        MatcherAssert.assertThat(valuesInDb, containsInAnyOrder(values));
+        assertThat(valuesInDb, containsInAnyOrder(values));
     }
 
     private List<String> getAllValuesFromThisTest() {

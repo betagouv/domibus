@@ -8,8 +8,8 @@ import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.property.DomibusPropertyResourceHelperImpl;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.stereotype.Service;
@@ -38,9 +38,9 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
 
         try {
             configurationPropertyResourceHelper.setPropertyValue(DOMIBUS_DISPATCHER_TIMEOUT, isDomain, propertyValue);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusPropertyException ex) {
-            Assert.assertTrue(ex.getMessage().contains("it is not writable"));
+            Assertions.assertTrue(ex.getMessage().contains("it is not writable"));
         }
     }
 
@@ -52,9 +52,9 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
 
         try {
             configurationPropertyResourceHelper.setPropertyValue(propertyName, isDomain, propertyValue);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusPropertyException ex) {
-            Assert.assertTrue(ex.getMessage().contains("it does not exist"));
+            Assertions.assertTrue(ex.getMessage().contains("it does not exist"));
         }
     }
 
@@ -74,12 +74,12 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
 
         try {
             configurationPropertyResourceHelper.setPropertyValue(propertyName, isDomain, propertyValue);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusPropertyException ex) {
-            Assert.assertTrue(ex.getMessage().contains("You can only set its nested properties"));
+            Assertions.assertTrue(ex.getMessage().contains("You can only set its nested properties"));
 
             List<DomibusProperty> result2 = configurationPropertyResourceHelper.getAllProperties(filter);
-            Assert.assertTrue(1 <= result2.size());
+            Assertions.assertTrue(1 <= result2.size());
         }
     }
 
@@ -95,8 +95,8 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
 
         DomibusProperty result = configurationPropertyResourceHelper.getProperty(propertyName);
 
-        Assert.assertEquals(propertyName, result.getMetadata().getName());
-        Assert.assertEquals(propertyValue, result.getValue());
+        Assertions.assertEquals(propertyName, result.getMetadata().getName());
+        Assertions.assertEquals(propertyValue, result.getValue());
 
         configurationPropertyResourceHelper.setPropertyValue(propertyName, isDomain, initial.getValue());
     }
@@ -126,13 +126,13 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
 
         DomibusProperty result = configurationPropertyResourceHelper.getProperty(nestedPropertyName);
 
-        Assert.assertEquals(nestedPropertyName, result.getMetadata().getName());
-        Assert.assertEquals(propertyValue, result.getValue());
+        Assertions.assertEquals(nestedPropertyName, result.getMetadata().getName());
+        Assertions.assertEquals(propertyValue, result.getValue());
 
         List<DomibusProperty> result2 = configurationPropertyResourceHelper.getAllProperties(filter);
-        Assert.assertEquals(2, result2.size());
-        Assert.assertEquals(composablePropertyName, result2.get(0).getMetadata().getName());
-        Assert.assertEquals(nestedPropertyName, result2.get(1).getMetadata().getName());
+        Assertions.assertEquals(2, result2.size());
+        Assertions.assertEquals(composablePropertyName, result2.get(0).getMetadata().getName());
+        Assertions.assertEquals(nestedPropertyName, result2.get(1).getMetadata().getName());
     }
 
     @Test
@@ -148,28 +148,28 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
 
         try {
             DomibusProperty result = configurationPropertyResourceHelper.getProperty(nestedPropertyName);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusPropertyException ex) {
-            Assert.assertTrue(ex.getMessage().contains("Unknown property"));
+            Assertions.assertTrue(ex.getMessage().contains("Unknown property"));
         }
     }
 
     @Test
     public void testGetPropertyWithValidValue() {
         DomibusProperty result = configurationPropertyResourceHelper.getProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY_HIBERNATE_FORMAT_SQL);
-        Assert.assertEquals(result.getUsedValue(), result.getValue());
+        Assertions.assertEquals(result.getUsedValue(), result.getValue());
     }
 
     @Test
     public void testGetPropertyWithInvalidValue() {
         DomibusProperty result = configurationPropertyResourceHelper.getProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
-        Assert.assertNotEquals(result.getUsedValue(), result.getValue());
+        Assertions.assertNotEquals(result.getUsedValue(), result.getValue());
     }
 
     @Test
     public void testGetPropertyDefaultInvalidValue() {
         DomibusProperty result = configurationPropertyResourceHelper.getProperty(DOMIBUS_PROXY_HTTP_PORT);
-        Assert.assertEquals(StringUtils.EMPTY, result.getValue());
-        Assert.assertEquals(StringUtils.EMPTY, result.getUsedValue());
+        Assertions.assertEquals(StringUtils.EMPTY, result.getValue());
+        Assertions.assertEquals(StringUtils.EMPTY, result.getUsedValue());
     }
 }

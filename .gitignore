@@ -29,6 +29,7 @@ cargo
 
 ## Intellij IDEA files 
 .idea/
+.junit/
 *.iml
 *.ipr
 *.iws

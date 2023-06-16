@@ -7,14 +7,14 @@ import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.vfs.FileObjectDataSource;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.*;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -26,7 +26,7 @@ import java.io.InputStream;
  * @author Catalin Enache
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class FSProcessFileServiceTest {
 
     @Tested
@@ -59,7 +59,7 @@ public class FSProcessFileServiceTest {
     private UserMessage metadata;
     private UserMessage pullMetaData;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException, JAXBException {
         String location = "ram:///FSProcessFileServiceTest";
 
@@ -99,8 +99,8 @@ public class FSProcessFileServiceTest {
         }
     }
 
-    @After
-    public void tearDown() throws FileSystemException {
+    @AfterEach
+public void tearDown() throws FileSystemException {
         rootDir.close();
         outgoingFolder.close();
     }
@@ -109,7 +109,7 @@ public class FSProcessFileServiceTest {
     public void test_processFile_FileExists_Success() throws Exception {
         final String messageId = "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
 
-        new Expectations(1, fsProcessFileService) {{
+        new Expectations(fsProcessFileService) {{
 
             fsPluginProperties.getPayloadId(null);
             result = "cid:message";
@@ -125,21 +125,21 @@ public class FSProcessFileServiceTest {
 
             backendFSPlugin.submit(with(new Delegate<FSMessage>() {
                 void delegate(FSMessage message) throws IOException {
-                    Assert.assertNotNull(message);
-                    Assert.assertNotNull(message.getPayloads());
+                    Assertions.assertNotNull(message);
+                    Assertions.assertNotNull(message.getPayloads());
                     FSPayload fsPayload = message.getPayloads().get("cid:message");
-                    Assert.assertNotNull(fsPayload);
-                    Assert.assertNotNull(fsPayload.getDataHandler());
-                    Assert.assertNotNull(message.getMetadata());
+                    Assertions.assertNotNull(fsPayload);
+                    Assertions.assertNotNull(fsPayload.getDataHandler());
+                    Assertions.assertNotNull(message.getMetadata());
 
                     DataSource dataSource = fsPayload.getDataHandler().getDataSource();
-                    Assert.assertNotNull(dataSource);
-                    Assert.assertEquals("content.xml", dataSource.getName());
-                    Assert.assertTrue(
+                    Assertions.assertNotNull(dataSource);
+                    Assertions.assertEquals("content.xml", dataSource.getName());
+                    Assertions.assertTrue(
                             IOUtils.contentEquals(dataSource.getInputStream(), contentFile.getContent().getInputStream())
                     );
 
-                    Assert.assertEquals(metadata, message.getMetadata());
+                    Assertions.assertEquals(metadata, message.getMetadata());
                 }
             }));
             result = messageId;
@@ -148,11 +148,11 @@ public class FSProcessFileServiceTest {
         //tested method
         fsProcessFileService.processFile(contentFile, domain);
 
-        new VerificationsInOrder(1) {{
+        new VerificationsInOrder() {{
             FSMessage message = null;
             backendFSPlugin.submit(message = withCapture());
-            Assert.assertEquals(message.getPayloads().size(), 1);
-            Assert.assertEquals(ProcessingType.PUSH,message.getMetadata().getProcessingType());
+            Assertions.assertEquals(message.getPayloads().size(), 1);
+            Assertions.assertEquals(ProcessingType.PUSH,message.getMetadata().getProcessingType());
         }};
     }
 
@@ -160,7 +160,7 @@ public class FSProcessFileServiceTest {
     public void test_processFileToPUll_FileExists_Success() throws Exception {
         final String messageId = "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
 
-        new Expectations(1, fsProcessFileService) {{
+        new Expectations( fsProcessFileService) {{
 
             fsPluginProperties.getPayloadId(null);
             result = "cid:message";
@@ -176,21 +176,21 @@ public class FSProcessFileServiceTest {
 
             backendFSPlugin.submit(with(new Delegate<FSMessage>() {
                 void delegate(FSMessage message) throws IOException {
-                    Assert.assertNotNull(message);
-                    Assert.assertNotNull(message.getPayloads());
+                    Assertions.assertNotNull(message);
+                    Assertions.assertNotNull(message.getPayloads());
                     FSPayload fsPayload = message.getPayloads().get("cid:message");
-                    Assert.assertNotNull(fsPayload);
-                    Assert.assertNotNull(fsPayload.getDataHandler());
-                    Assert.assertNotNull(message.getMetadata());
+                    Assertions.assertNotNull(fsPayload);
+                    Assertions.assertNotNull(fsPayload.getDataHandler());
+                    Assertions.assertNotNull(message.getMetadata());
 
                     DataSource dataSource = fsPayload.getDataHandler().getDataSource();
-                    Assert.assertNotNull(dataSource);
-                    Assert.assertEquals("content.xml", dataSource.getName());
-                    Assert.assertTrue(
+                    Assertions.assertNotNull(dataSource);
+                    Assertions.assertEquals("content.xml", dataSource.getName());
+                    Assertions.assertTrue(
                             IOUtils.contentEquals(dataSource.getInputStream(), contentFile.getContent().getInputStream())
                     );
 
-                    Assert.assertEquals(pullMetaData, message.getMetadata());
+                    Assertions.assertEquals(pullMetaData, message.getMetadata());
                 }
             }));
             result = messageId;
@@ -199,11 +199,11 @@ public class FSProcessFileServiceTest {
         //tested method
         fsProcessFileService.processFile(contentFile, domain);
 
-        new VerificationsInOrder(1) {{
+        new VerificationsInOrder() {{
             FSMessage message = null;
             backendFSPlugin.submit(message = withCapture());
-            Assert.assertEquals(message.getPayloads().size(), 1);
-            Assert.assertEquals(ProcessingType.PULL,message.getMetadata().getProcessingType());
+            Assertions.assertEquals(message.getPayloads().size(), 1);
+            Assertions.assertEquals(ProcessingType.PULL,message.getMetadata().getProcessingType());
         }};
     }
 
@@ -223,9 +223,9 @@ public class FSProcessFileServiceTest {
         try {
             //tested method
             fsProcessFileService.renameProcessedFile(contentFile, messageId);
-            Assert.fail("exception expected");
+            Assertions.fail("exception expected");
         } catch (Exception e) {
-            Assert.assertEquals(FSPluginException.class, e.getClass());
+            Assertions.assertEquals(FSPluginException.class, e.getClass());
         }
     }
 
@@ -233,7 +233,7 @@ public class FSProcessFileServiceTest {
     @Test()
     public void test_processFile_MetaDataException(final @Mocked FileObject processableFile, final @Mocked FileObject metadataFile) throws Exception {
 
-        new Expectations(1, fsProcessFileService) {{
+        new Expectations(fsProcessFileService) {{
             fsFilesManager.resolveSibling(processableFile, FSSendMessagesService.METADATA_FILE_NAME);
             result = metadataFile;
 

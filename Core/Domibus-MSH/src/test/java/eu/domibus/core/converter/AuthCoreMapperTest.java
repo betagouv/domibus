@@ -5,7 +5,7 @@ import eu.domibus.api.user.User;
 import eu.domibus.api.user.plugin.AuthenticationEntity;
 import eu.domibus.web.rest.ro.PluginUserRO;
 import eu.domibus.web.rest.ro.UserResponseRO;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

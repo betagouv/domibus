@@ -8,14 +8,14 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import org.apache.commons.vfs2.FileSystemException;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STORAGE_LOCATION;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author François Gautier
@@ -100,7 +100,7 @@ public class EArchiveFileStorageTest {
 
     @Test
     public void getStorageDirectory(@Injectable Domain domain) {
-        Assert.assertNull(eArchiveFileStorage.getStorageDirectory());
+        Assertions.assertNull(eArchiveFileStorage.getStorageDirectory());
     }
 
 }

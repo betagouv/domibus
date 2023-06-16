@@ -7,21 +7,21 @@ import eu.europa.esig.dss.service.http.proxy.ProxyConfig;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Set;
 
 import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.*;
 import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.AUTHENTICATION_DSS_PROXY_HTTPS_EXCLUDEDHOSTS;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Dussart
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class NetworkConfigurationListenerTest {
 
     @Test

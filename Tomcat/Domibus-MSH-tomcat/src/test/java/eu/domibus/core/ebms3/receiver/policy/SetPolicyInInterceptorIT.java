@@ -14,9 +14,9 @@ import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.neethi.Policy;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +49,7 @@ public class SetPolicyInInterceptorIT extends AbstractIT {
     @Autowired
     MessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
 
-    @Before
+    @BeforeEach
     public void before() throws IOException, XmlProcessingException {
         uploadPMode(SERVICE_PORT);
     }
@@ -65,18 +65,18 @@ public class SetPolicyInInterceptorIT extends AbstractIT {
 
         setPolicyInInterceptorServer.handleMessage(sm);
 
-        Assert.assertEquals(expectedPolicy, ((Policy) sm.get(PolicyConstants.POLICY_OVERRIDE)).getId());
-        Assert.assertEquals(expectedSecurityAlgorithm, sm.get(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM));
+        Assertions.assertEquals(expectedPolicy, ((Policy) sm.get(PolicyConstants.POLICY_OVERRIDE)).getId());
+        Assertions.assertEquals(expectedSecurityAlgorithm, sm.get(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM));
     }
 
-    @Test(expected = org.apache.cxf.interceptor.Fault.class)
-    public void testHandleMessageNull() throws IOException {
+    @Test
+    void testHandleMessageNull() throws IOException {
 
         String filename = "SOAPMessageNoMessaging.xml";
         SoapMessage sm = createSoapMessage(filename, UUID.randomUUID() + "@domibus.eu");
 
         // handle message without adding any content
-        setPolicyInInterceptorServer.handleMessage(sm);
+        Assertions.assertThrows(org.apache.cxf.interceptor.Fault. class,() -> setPolicyInInterceptorServer.handleMessage(sm));
     }
 
 
@@ -95,10 +95,10 @@ public class SetPolicyInInterceptorIT extends AbstractIT {
         try {
             String reply = ((MockHttpServletResponse) sm.get(AbstractHTTPDestination.HTTP_RESPONSE)).getContentAsString();
 
-            Assert.assertTrue(reply.contains("domibus-MSH"));
+            Assertions.assertTrue(reply.contains("domibus-MSH"));
 
         } catch (UnsupportedEncodingException e) {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 

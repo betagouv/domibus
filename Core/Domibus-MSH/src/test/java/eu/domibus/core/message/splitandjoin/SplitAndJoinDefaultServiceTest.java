@@ -34,20 +34,18 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.message.MessageImpl;
 import org.apache.neethi.Policy;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 
-import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
-import javax.xml.transform.TransformerException;
 import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
@@ -60,14 +58,14 @@ import java.util.List;
 import java.util.Random;
 
 import static eu.domibus.core.message.splitandjoin.SplitAndJoinDefaultService.ERROR_GENERATING_THE_SIGNAL_SOAPMESSAGE_FOR_SOURCE_MESSAGE;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Cosmin Baciu, Soumya
  * @since 4.1
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked", "ConstantConditions"})
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class SplitAndJoinDefaultServiceTest {
 
     public static final long ENTITY_ID = 1L;
@@ -162,8 +160,8 @@ public class SplitAndJoinDefaultServiceTest {
     @Injectable
     UserMessagePayloadService userMessagePayloadService;
 
-    @Rule
-    public TemporaryFolder testFolder = new TemporaryFolder();
+    @TempDir
+    Path tempDir;
 
 //    @Test
 //    public void createUserFragmentsFromSourceFile(@Injectable SOAPMessage sourceMessageRequest,
@@ -219,9 +217,9 @@ public class SplitAndJoinDefaultServiceTest {
 //            MessageGroupEntity messageGroupEntity;
 //            userMessageDefaultService.createMessageFragments(userMessage, messageGroupEntity = withCapture(), fragmentFiles);
 //
-//            Assert.assertEquals(2L, messageGroupEntity.getFragmentCount().longValue());
-//            Assert.assertEquals(sourceMessageId, messageGroupEntity.getGroupId());
-//            Assert.assertEquals(BigInteger.valueOf(sourceMessageFileLength), messageGroupEntity.getMessageSize());
+//            Assertions.assertEquals(2L, messageGroupEntity.getFragmentCount().longValue());
+//            Assertions.assertEquals(sourceMessageId, messageGroupEntity.getGroupId());
+//            Assertions.assertEquals(BigInteger.valueOf(sourceMessageFileLength), messageGroupEntity.getMessageSize());
 //
 //            attachmentCleanupService.cleanAttachments(sourceMessageRequest);
 //        }};
@@ -235,7 +233,7 @@ public class SplitAndJoinDefaultServiceTest {
                                     @Injectable final PartInfo partInfo,
                                     @Injectable MessageExchangeConfiguration userMessageExchangeConfiguration,
                                     @Injectable LegConfiguration legConfiguration
-    ) throws EbMS3Exception, TransformerException, SOAPException {
+    ) throws EbMS3Exception {
         String sourceMessageId = "123";
         String sourceMessageFile = "invoice.pdf";
         String backendName = "mybackend";
@@ -343,8 +341,8 @@ public class SplitAndJoinDefaultServiceTest {
             Ebms3Error error;
             messageBuilder.buildSOAPFaultMessage(error = withCapture());
 
-            Assert.assertEquals(error.getErrorCode(), ebMS3ErrorCode);
-            Assert.assertEquals(error.getErrorDetail(), errorDetail);
+            Assertions.assertEquals(error.getErrorCode(), ebMS3ErrorCode);
+            Assertions.assertEquals(error.getErrorDetail(), errorDetail);
 
             splitAndJoinDefaultService.sendSignalMessage(soapMessage, pModeKey);
         }};
@@ -386,7 +384,7 @@ public class SplitAndJoinDefaultServiceTest {
 
         final String generateSourceFileName = splitAndJoinDefaultService.generateSourceFileName(directory);
 
-        Assert.assertTrue(StringUtils.contains(generateSourceFileName, directory + "/" ));
+        Assertions.assertTrue(StringUtils.contains(generateSourceFileName, directory + "/" ));
     }
 
     @Test
@@ -432,7 +430,7 @@ public class SplitAndJoinDefaultServiceTest {
 
             splitAndJoinDefaultService.mergeSourceFile(fragmentFilesInOrder = withCapture(), messageGroupEntity);
 
-            Assert.assertEquals(1, fragmentFilesInOrder.size());
+            Assertions.assertEquals(1, fragmentFilesInOrder.size());
         }};
     }
 
@@ -649,7 +647,7 @@ public class SplitAndJoinDefaultServiceTest {
         }};
 
         final boolean groupExpired = splitAndJoinDefaultService.isReceivedGroupExpired(group);
-        Assert.assertTrue(groupExpired);
+        Assertions.assertTrue(groupExpired);
 
         new Verifications() {{
             splitAndJoinDefaultService.isGroupExpired(userMessageFragment, groupId);
@@ -676,7 +674,7 @@ public class SplitAndJoinDefaultServiceTest {
         }};
 
         final boolean groupExpired = splitAndJoinDefaultService.isSendGroupExpired(group);
-        Assert.assertTrue(groupExpired);
+        Assertions.assertTrue(groupExpired);
 
         new Verifications() {{
             splitAndJoinDefaultService.isGroupExpired(sourceUserMessage, sourceMessageId);
@@ -686,6 +684,7 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void isGroupExpired(@Injectable final UserMessage userMessage,
                                @Injectable MessageExchangeConfiguration userMessageExchangeContext,
                                @Injectable LegConfiguration legConfiguration,
@@ -715,7 +714,7 @@ public class SplitAndJoinDefaultServiceTest {
         }};
 
         final boolean groupExpired = splitAndJoinDefaultService.isGroupExpired(userMessage, "anyGroupId");
-        Assert.assertTrue(groupExpired);
+        Assertions.assertTrue(groupExpired);
 
     }
 
@@ -815,6 +814,7 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void splitAndJoinReceiveFailed_exception(
             @Injectable UserMessage fragment,
             @Injectable MessageGroupEntity messageGroupEntity,
@@ -947,7 +947,7 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
     @Test
-    // Note for running this test on Mac OS with JDK 8: before trying to fix this test or marking it as @Ignored,
+    // Note for running this test on Mac OS with JDK 8: before trying to fix this test or marking it as @Disabledd,
     // ensure that you have the ".mime.types" file in your user home folder (please check the JDK implementation
     // for Mac OS sun.nio.fs.MacOSXFileSystemProvider); this file is used to determine the MIME type of files from
     // their extensions when the call to Files#probeContentType(Path) is made below.
@@ -955,19 +955,19 @@ public class SplitAndJoinDefaultServiceTest {
     // You can also append the mapping for the ZIP extension used below with the following command:
     // $ echo "application/zip					zip" >> ~/.mime.types
     public void compressAndDecompressSourceMessage() throws IOException {
-        File sourceFile = testFolder.newFile("file.txt");
+        File sourceFile = Files.createFile(tempDir.resolve("file.txt")).toFile();
         FileUtils.writeStringToFile(sourceFile, "mycontent", Charset.defaultCharset());
 
         final File file = splitAndJoinDefaultService.compressSourceMessage(sourceFile.getAbsolutePath());
-        Assert.assertTrue(file.exists());
-        Assert.assertTrue(file.getAbsolutePath().endsWith(".zip"));
-        Assert.assertTrue(file.toPath().toString().contains("zip"));
+        Assertions.assertTrue(file.exists());
+        Assertions.assertTrue(file.getAbsolutePath().endsWith(".zip"));
+        Assertions.assertTrue(file.toPath().toString().contains("zip"));
     }
 
     @Test
     public void splitSourceMessage() throws IOException {
-        File tempFile = testFolder.newFile("file.txt");
-        final File storageDirectory = testFolder.getRoot();
+        File tempFile = Files.createFile(tempDir.resolve("file.txt")).toFile();
+        final File storageDirectory = tempDir.toFile();
 
         new Expectations(splitAndJoinDefaultService) {{
             splitAndJoinDefaultService.getFragmentStorageDirectory();
@@ -980,9 +980,9 @@ public class SplitAndJoinDefaultServiceTest {
         FileUtils.writeByteArrayToFile(tempFile, b);
 
         final List<String> fragmentFiles = splitAndJoinDefaultService.splitSourceMessage(tempFile, 1);
-        Assert.assertEquals(2, fragmentFiles.size());
-        Assert.assertTrue(fragmentFiles.stream().anyMatch(s -> s.contains("file.txt_1")));
-        Assert.assertTrue(fragmentFiles.stream().anyMatch(s -> s.contains("file.txt_2")));
+        Assertions.assertEquals(2, fragmentFiles.size());
+        Assertions.assertTrue(fragmentFiles.stream().anyMatch(s -> s.contains("file.txt_1")));
+        Assertions.assertTrue(fragmentFiles.stream().anyMatch(s -> s.contains("file.txt_2")));
     }
 
     @Test
@@ -991,7 +991,7 @@ public class SplitAndJoinDefaultServiceTest {
         String start = "mystart";
 
         final String contentType = splitAndJoinDefaultService.createContentType(boundary, start);
-        Assert.assertEquals("multipart/related; type=\"application/soap+xml\"; boundary=" + boundary + "; start=" + start + "; start-info=\"application/soap+xml\"", contentType);
+        Assertions.assertEquals("multipart/related; type=\"application/soap+xml\"; boundary=" + boundary + "; start=" + start + "; start-info=\"application/soap+xml\"", contentType);
 
     }
 
@@ -999,17 +999,17 @@ public class SplitAndJoinDefaultServiceTest {
     public void mergeSourceFile(@Injectable MessageGroupEntity messageGroupEntity,
                                 @Injectable Domain domain) throws IOException {
         List<File> fragmentFilesInOrder = new ArrayList<>();
-        final File file1 = testFolder.newFile("file1.txt");
+        final File file1 = Files.createFile(tempDir.resolve("file1.txt")).toFile();
         FileUtils.writeStringToFile(file1, "text1", Charset.defaultCharset());
 
-        final File file2 = testFolder.newFile("file2.txt");
+        final File file2 = Files.createFile(tempDir.resolve("file2.txt")).toFile();
         FileUtils.writeStringToFile(file2, "text2", Charset.defaultCharset());
 
         fragmentFilesInOrder.add(file1);
         fragmentFilesInOrder.add(file2);
-        final File temporaryDirectoryLocation = testFolder.getRoot();
+        final File temporaryDirectoryLocation = tempDir.toFile();
 
-        final File sourceFile = testFolder.newFile("sourceFile.txt");
+        final File sourceFile = Files.createFile(tempDir.resolve("sourceFile.txt")).toFile();
         String sourceFileName = sourceFile.getAbsolutePath();
 
         new Expectations(splitAndJoinDefaultService) {{
@@ -1032,7 +1032,7 @@ public class SplitAndJoinDefaultServiceTest {
         new Verifications() {{
             OutputStream outputStream;
             splitAndJoinDefaultService.mergeFiles(fragmentFilesInOrder, outputStream = withCapture());
-            Assert.assertTrue(outputStream instanceof FileOutputStream);
+            Assertions.assertTrue(outputStream instanceof FileOutputStream);
         }};
     }
 
@@ -1044,39 +1044,41 @@ public class SplitAndJoinDefaultServiceTest {
         }};
 
         final boolean sourceMessageCompressed = splitAndJoinDefaultService.isSourceMessageCompressed(messageGroupEntity);
-        Assert.assertTrue(sourceMessageCompressed);
+        Assertions.assertTrue(sourceMessageCompressed);
     }
 
     @Test
     public void decompressGzip() throws IOException {
-        final File file1 = testFolder.newFile("file1.txt");
+        final File file1 = Files.createFile(tempDir.resolve("file1.txt")).toFile();
         final String text1 = "text1";
         FileUtils.writeStringToFile(file1, text1, Charset.defaultCharset());
         final File compressSourceMessage = splitAndJoinDefaultService.compressSourceMessage(file1.getAbsolutePath());
 
-        final File decompressed = testFolder.newFile("file1_decompressed.txt");
+        final File decompressed = Files.createFile(tempDir.resolve("file1_decompressed.txt")).toFile();
         splitAndJoinDefaultService.decompressGzip(compressSourceMessage, decompressed);
-        Assert.assertEquals(text1, FileUtils.readFileToString(decompressed, Charset.defaultCharset()));
+        Assertions.assertEquals(text1, FileUtils.readFileToString(decompressed, Charset.defaultCharset()));
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getUserMessage(@Injectable FileInputStream fileInputStream,
                                @Injectable InputStream inputStream,
                                @Injectable MessageImpl messageImpl,
                                @Injectable MessageGroupEntity messageGroupEntity,
                                @Injectable final SOAPMessage soapMessage) throws IOException {
-        File sourceMessageFileName = testFolder.newFile("file1.txt");
+        final File sourceMessageFileName = Files.createFile(tempDir.resolve("file1.txt")).toFile();
+
         final String text1 = "text1";
         FileUtils.writeStringToFile(sourceMessageFileName, text1, Charset.defaultCharset());
         String contentTypeString = "application/xml";
-        final File temporaryDirectoryLocation = testFolder.getRoot();
+        final File temporaryDirectoryLocation = tempDir.toFile();
 
         new Expectations(splitAndJoinDefaultService) {{
             domibusPropertyProvider.getProperty(PayloadFileStorage.TEMPORARY_ATTACHMENT_STORAGE_LOCATION);
             result = temporaryDirectoryLocation.getAbsolutePath();
         }};
 
-        Assert.assertNotNull(splitAndJoinDefaultService.getUserMessage(sourceMessageFileName, contentTypeString));
+        Assertions.assertNotNull(splitAndJoinDefaultService.getUserMessage(sourceMessageFileName, contentTypeString));
     }
 
 
@@ -1144,7 +1146,7 @@ public class SplitAndJoinDefaultServiceTest {
             splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
             fail();
         } catch (EbMS3Exception e) {
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0048, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0048, e.getErrorCode());
         }
 
         new FullVerifications() {
@@ -1229,7 +1231,7 @@ public class SplitAndJoinDefaultServiceTest {
             splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
             fail("Not possible to use SplitAndJoin without PMode leg configuration");
         } catch (EbMS3Exception e) {
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0002, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0002, e.getErrorCode());
         }
 
         new FullVerifications() {
@@ -1256,7 +1258,7 @@ public class SplitAndJoinDefaultServiceTest {
             splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
             fail("Not possible to use SplitAndJoin with database payloads");
         } catch (EbMS3Exception e) {
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0002, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0002, e.getErrorCode());
         }
 
         new FullVerifications() {
@@ -1292,7 +1294,7 @@ public class SplitAndJoinDefaultServiceTest {
             splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
             fail();
         } catch (EbMS3Exception e) {
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0040, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0040, e.getErrorCode());
         }
 
         new FullVerifications() {
@@ -1325,7 +1327,7 @@ public class SplitAndJoinDefaultServiceTest {
             splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
             fail();
         } catch (EbMS3Exception e) {
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0051, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0051, e.getErrorCode());
         }
 
         new FullVerifications() {

@@ -21,9 +21,9 @@ import eu.domibus.core.message.PartInfoDao;
 import eu.domibus.core.message.reliability.ReliabilityChecker;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
@@ -32,7 +32,7 @@ import javax.xml.soap.SOAPMessage;
  * @author Soumya Chandran
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class SourceMessageSenderTest {
 
     @Tested

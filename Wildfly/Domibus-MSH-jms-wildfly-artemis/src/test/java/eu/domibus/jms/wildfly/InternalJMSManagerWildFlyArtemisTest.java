@@ -8,14 +8,14 @@ import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.jms.spi.InternalJmsMessage;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.activemq.artemis.api.core.RoutingType;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
 import org.apache.activemq.artemis.api.core.management.AddressControl;
 import org.apache.activemq.artemis.api.core.management.ObjectNameBuilder;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.jms.core.JmsOperations;
 
 import javax.jms.MapMessage;
@@ -27,13 +27,13 @@ import java.util.stream.Collectors;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.ACTIVE_MQ_ARTEMIS_BROKER;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_JMS_INTERNAL_ADDRESS_EXPRESSION;
 import static org.apache.activemq.artemis.api.core.SimpleString.toSimpleString;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ion Perpegel
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class InternalJMSManagerWildFlyArtemisTest {
 
     @Tested
@@ -174,7 +174,7 @@ public class InternalJMSManagerWildFlyArtemisTest {
 
         // THEN
         new Verifications() {{
-            Assert.assertEquals("Should have built the map of queue object names from the provided addresses",
+            Assertions.assertEquals("Should have built the map of queue object names from the provided addresses",
                     new HashSet(Arrays.asList(
                             "jms.queue.DomibusSendMessageQueue1->org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"jms.queue.DomibusSendMessageQueue\",subcomponent=queues,routing-type=\"anycast\",queue=\"jms.queue.DomibusSendMessageQueue1\"",
                             "jms.queue.DomibusSplitAndJoinQueue1->org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"jms.queue.DomibusSplitAndJoinQueue\",subcomponent=queues,routing-type=\"anycast\",queue=\"jms.queue.DomibusSplitAndJoinQueue1\"",
@@ -325,7 +325,7 @@ public class InternalJMSManagerWildFlyArtemisTest {
 
         // THEN
         new Verifications() {{
-            Assert.assertEquals("Should have built the map of queue object names from the provided addresses",
+            Assertions.assertEquals("Should have built the map of queue object names from the provided addresses",
                     new HashSet(Arrays.asList(
                             "jms.queue.DomibusSendMessageQueue1->org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"jms.queue.DomibusSendMessageQueue\",subcomponent=queues,routing-type=\"anycast\",queue=\"jms.queue.DomibusSendMessageQueue1\"",
                             "jms.queue.DomibusSendMessageQueue2->org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"jms.queue.DomibusSendMessageQueue\",subcomponent=queues,routing-type=\"anycast\",queue=\"jms.queue.DomibusSendMessageQueue2\"")),
@@ -386,7 +386,7 @@ public class InternalJMSManagerWildFlyArtemisTest {
 
         // THEN
         new Verifications() {{
-            Assert.assertEquals("Should have built the map of queue object names from the provided addresses",
+            Assertions.assertEquals("Should have built the map of queue object names from the provided addresses",
                     new HashSet(Arrays.asList(
                             "jms.queue.DomibusSplitAndJoinQueue1->org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"jms.queue.DomibusSplitAndJoinQueue\",subcomponent=queues,routing-type=\"anycast\",queue=\"jms.queue.DomibusSplitAndJoinQueue1\"")),
                     queues.entrySet().stream()
@@ -412,7 +412,7 @@ public class InternalJMSManagerWildFlyArtemisTest {
 
         // THEN
         new Verifications() {{
-            Assert.assertEquals("Should have returned the correct queue object names", queueObjectNames, queues);
+            Assertions.assertEquals("Should have returned the correct queue object names", queueObjectNames, queues);
         }};
     }
 
@@ -432,7 +432,7 @@ public class InternalJMSManagerWildFlyArtemisTest {
 
         // THEN
         new Verifications() {{
-            Assert.assertEquals("Should have returned the correct topic object names", topicObjectNames, topics);
+            Assertions.assertEquals("Should have returned the correct topic object names", topicObjectNames, topics);
         }};
     }
 
@@ -455,7 +455,7 @@ public class InternalJMSManagerWildFlyArtemisTest {
 
         // THEN
         new Verifications() {{
-            Assert.assertEquals("Should have built the map of queue object names for the provided address",
+            Assertions.assertEquals("Should have built the map of queue object names for the provided address",
                     new HashSet(Arrays.asList(
                             "jms.queue.DomibusSendMessageQueue1->org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"jms.queue.DomibusSendMessageQueue\",subcomponent=queues,routing-type=\"anycast\",queue=\"jms.queue.DomibusSendMessageQueue1\"",
                             "DomibusSendMessageQueue1->org.apache.activemq.artemis:broker=\"localhost\",component=addresses,address=\"jms.queue.DomibusSendMessageQueue\",subcomponent=queues,routing-type=\"anycast\",queue=\"jms.queue.DomibusSendMessageQueue1\"",
@@ -465,9 +465,9 @@ public class InternalJMSManagerWildFlyArtemisTest {
                             .map(entry -> entry.getKey() + "->" + entry.getValue().toString())
                             .collect(Collectors.toSet())
             );
-            Assert.assertSame("Should have created entries for both the fully qualified and the non qualified queue names (first queue)",
+            Assertions.assertSame("Should have created entries for both the fully qualified and the non qualified queue names (first queue)",
                     queues.get("jms.queue.DomibusSendMessageQueue1"), queues.get("DomibusSendMessageQueue1"));
-            Assert.assertSame("Should have created entries for both the fully qualified and the non qualified queue names (first queue)",
+            Assertions.assertSame("Should have created entries for both the fully qualified and the non qualified queue names (first queue)",
                     queues.get("jms.queue.DomibusSendMessageQueue2"), queues.get("DomibusSendMessageQueue2"));
         }};
     }

@@ -7,24 +7,23 @@ import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.audit.envers.ModificationType;
 import eu.domibus.core.converter.AuditLogCoreMapper;
 import eu.domibus.web.rest.ro.AuditFilterRequestRO;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Date;
 import java.util.List;
 
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Thomas Dussart
  * @since 4.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuditResourceTest {
 
     @Mock

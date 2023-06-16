@@ -3,15 +3,15 @@ package eu.domibus.core.pmode;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.pmode.PModeArchiveInfo;
 import eu.domibus.common.model.configuration.ConfigurationRaw;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author François Gautier
@@ -29,7 +29,7 @@ public class ConfigurationRawDAOIT  extends AbstractIT {
     @Autowired
     private ConfigurationRawTestService configurationRawServiceTest;
 
-    @Before
+    @BeforeEach
     public void initialize() {
         configurationRawServiceTest.createConfigurationRawAudited(persistEntity("1st Created never updated"));
 

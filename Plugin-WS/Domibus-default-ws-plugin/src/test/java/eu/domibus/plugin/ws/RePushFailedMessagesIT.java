@@ -1,6 +1,7 @@
 package eu.domibus.plugin.ws;
 
 
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.messaging.XmlProcessingException;
@@ -10,9 +11,9 @@ import eu.domibus.test.DomibusConditionUtil;
 import eu.domibus.test.PModeUtil;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,10 +43,10 @@ public class RePushFailedMessagesIT extends AbstractBackendWSIT {
     @Autowired
     SoapSampleUtil soapSampleUtil;
 
-    @Before
-    public void before() throws IOException, XmlProcessingException {
+    @BeforeEach
+    public void before(WireMockRuntimeInfo wmRuntimeInfo) throws IOException, XmlProcessingException {
         domibusConditionUtil.waitUntilDatabaseIsInitialized();
-        pModeUtil.uploadPmode(wireMockRule.port());
+        pModeUtil.uploadPmode(wmRuntimeInfo.getHttpPort());
     }
 
     @Test
@@ -56,10 +57,10 @@ public class RePushFailedMessagesIT extends AbstractBackendWSIT {
         RePushFailedMessagesRequest rePushRequest = createRePushFailedMessagesRequest(messageIds);
         try {
             webServicePluginInterface.rePushFailedMessages(rePushRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (RePushFailedMessagesFault rePushFault) {
             String message = "Invalid Message Id. ";
-            Assert.assertEquals(message, rePushFault.getMessage());
+            Assertions.assertEquals(message, rePushFault.getMessage());
         }
     }
 
@@ -71,10 +72,10 @@ public class RePushFailedMessagesIT extends AbstractBackendWSIT {
         RePushFailedMessagesRequest rePushRequest = createRePushFailedMessagesRequest(messageIds);
         try {
             webServicePluginInterface.rePushFailedMessages(rePushRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (RePushFailedMessagesFault rePushFault) {
             String message = "Message ID is empty";
-            Assert.assertEquals(message, rePushFault.getMessage());
+            Assertions.assertEquals(message, rePushFault.getMessage());
         }
     }
 
@@ -86,10 +87,10 @@ public class RePushFailedMessagesIT extends AbstractBackendWSIT {
         RePushFailedMessagesRequest rePushRequest = createRePushFailedMessagesRequest(messageIds);
         try {
             webServicePluginInterface.rePushFailedMessages(rePushRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (RePushFailedMessagesFault rePushFault) {
             String message = "Invalid Message Id. ";
-            Assert.assertEquals(message, rePushFault.getMessage());
+            Assertions.assertEquals(message, rePushFault.getMessage());
         }
     }
 

@@ -5,15 +5,15 @@ import eu.domibus.core.property.DomibusPropertyResourceHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SMART_RETRY_ENABLED;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 public class ReliabilityServiceIT extends AbstractIT {
@@ -28,7 +28,7 @@ public class ReliabilityServiceIT extends AbstractIT {
     DomibusPropertyResourceHelper domibusPropertyResourceHelper;
 
 
-    @Before
+    @BeforeEach
     public void before() {
         try {
             uploadPMode(18001);

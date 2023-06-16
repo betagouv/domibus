@@ -37,14 +37,16 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import mockit.Injectable;
 import mockit.Verifications;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
-import org.mockito.internal.util.reflection.Whitebox;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.xml.bind.JAXBContext;
 import java.io.InputStream;
@@ -60,11 +62,11 @@ import java.util.UUID;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DynamicDiscoveryPModeProviderTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryPModeProviderTest.class);
@@ -105,14 +107,14 @@ public class DynamicDiscoveryPModeProviderTest {
     @Mock
     private DynamicDiscoveryServiceOASIS dynamicDiscoveryServiceOASIS;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Spy
     private CertificateServiceImpl certificateService = initCertificateService();
 
     @InjectMocks
     private DynamicDiscoveryPModeProvider dynamicDiscoveryPModeProvider;
+
+    @Mock
+    DynamicDiscoveryService dynamicDiscoveryService;
 
     @Spy
     ConfigurationDAO configurationDAO;
@@ -136,10 +138,16 @@ public class DynamicDiscoveryPModeProviderTest {
 
     @Mock
     private X509CertificateService x509CertificateService;
+    private AutoCloseable closeable;
 
-    @Before
-    public void initMocks() {
-        MockitoAnnotations.initMocks(this);
+    @BeforeEach
+    public void init() {
+        closeable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    public void reset() throws Exception {
+        closeable.close();
     }
 
     private CertificateServiceImpl initCertificateService() {
@@ -219,8 +227,8 @@ public class DynamicDiscoveryPModeProviderTest {
 
         EndpointInfo testDataEndpoint = buildAS4EndpointWithArguments(ADDRESS);
         doReturn(testDataEndpoint).when(dynamicDiscoveryServiceOASIS).lookupInformation(DOMAIN.getCode(), UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
-        doReturn(KeyStore.getInstance(KeyStore.getDefaultType())).when(multiDomainCertificateProvider).getTrustStore(DomainService.DEFAULT_DOMAIN);
-        doReturn(true).when(multiDomainCertificateProvider).addCertificate(null, testDataEndpoint.getCertificate(), EXPECTED_COMMON_NAME, true);
+        lenient().doReturn(KeyStore.getInstance(KeyStore.getDefaultType())).when(multiDomainCertificateProvider).getTrustStore(DomainService.DEFAULT_DOMAIN);
+        lenient().doReturn(true).when(multiDomainCertificateProvider).addCertificate(null, testDataEndpoint.getCertificate(), EXPECTED_COMMON_NAME, true);
         doReturn(DOMAIN).when(domainProvider).getCurrentDomain();
 
         UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());
@@ -230,8 +238,8 @@ public class DynamicDiscoveryPModeProviderTest {
         assertEquals(2, dynamicDiscoveryPModeProvider.getConfiguration().getBusinessProcesses().getParties().size());
     }
 
-    @Test(expected = EbMS3Exception.class)
-    public void testDoDynamicDiscoveryOnSenderNullCertificate() throws Exception {
+    @Test
+    void testDoDynamicDiscoveryOnSenderNullCertificate() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
         doReturn(true).when(configurationDAO).configurationExists();
         doReturn(testData).when(configurationDAO).readEager();
@@ -239,11 +247,12 @@ public class DynamicDiscoveryPModeProviderTest {
 
         EndpointInfo testDataEndpoint = buildAS4EndpointWithArguments(null);
         doReturn(testDataEndpoint).when(dynamicDiscoveryServiceOASIS).lookupInformation(DOMAIN.getCode(), UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
-        doReturn(null).when(multiDomainCertificateProvider).getTrustStore(null);
-        doReturn(true).when(multiDomainCertificateProvider).addCertificate(null, testDataEndpoint.getCertificate(), EXPECTED_COMMON_NAME, true);
+        lenient().doReturn(null).when(multiDomainCertificateProvider).getTrustStore(null);
+        lenient().doReturn(true).when(multiDomainCertificateProvider).addCertificate(null, testDataEndpoint.getCertificate(), EXPECTED_COMMON_NAME, true);
         doReturn(DOMAIN).when(domainProvider).getCurrentDomain();
         UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());
-        dynamicDiscoveryPModeProvider.doDynamicDiscovery(userMessage, MSHRole.SENDING);
+        Assertions.assertThrows(EbMS3Exception.class,
+                () -> dynamicDiscoveryPModeProvider.doDynamicDiscovery(userMessage, MSHRole.SENDING));
     }
 
     @Test
@@ -277,15 +286,15 @@ public class DynamicDiscoveryPModeProviderTest {
         DynamicDiscoveryPModeProvider classUnderTest = mock(DynamicDiscoveryPModeProvider.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
         doReturn(testData).when(classUnderTest).getConfiguration();
         doNothing().when(classUnderTest).refresh();
-        Whitebox.setInternalState(classUnderTest, "domainProvider", domainProvider);
-        Whitebox.setInternalState(classUnderTest, "domibusPropertyProvider", domibusPropertyProvider);
+        ReflectionTestUtils.setField(classUnderTest, "domainProvider", domainProvider);
+        ReflectionTestUtils.setField(classUnderTest, "domibusPropertyProvider", domibusPropertyProvider);
 
         classUnderTest.dynamicResponderProcesses = classUnderTest.findDynamicResponderProcesses();
 
         UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(null, null, null, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());
 
-        doReturn("false").when(domibusPropertyProvider).getProperty(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY);
-        doReturn(false).when(domibusPropertyProvider).getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
+        lenient().doReturn("false").when(domibusPropertyProvider).getProperty(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY);
+        lenient().doReturn(false).when(domibusPropertyProvider).getBooleanProperty(DOMIBUS_PARTYINFO_ROLES_VALIDATION_ENABLED);
         try {
             partyId = userMessage.getPartyInfo().getFrom().getFromPartyId();
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, null);
@@ -295,8 +304,8 @@ public class DynamicDiscoveryPModeProviderTest {
             assertEquals(("Sender party could not be found for the value  " + partyId), ex.getErrorDetail());
         }
 
-        doReturn(DISCOVERY_ZONE).when(domibusPropertyProvider).getProperty(DOMIBUS_SMLZONE);
-        doReturn(true).when(domibusPropertyProvider).getBooleanProperty(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY);
+        lenient().doReturn(DISCOVERY_ZONE).when(domibusPropertyProvider).getProperty(DOMIBUS_SMLZONE);
+        lenient().doReturn(true).when(domibusPropertyProvider).getBooleanProperty(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY);
         try {
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, null);
             fail();
@@ -369,7 +378,6 @@ public class DynamicDiscoveryPModeProviderTest {
 
     @Test
     public void testDoDynamicThings_NoCandidates_EbMS3ExceptionExpected() throws Exception {
-        thrown.expect(EbMS3Exception.class);
 
         Configuration testData = initializeConfiguration(NO_DYNINITIATOR_AND_NOT_SELF);
 
@@ -380,7 +388,7 @@ public class DynamicDiscoveryPModeProviderTest {
 
         UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(null, null, null, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());
 
-        classUnderTest.doDynamicDiscovery(userMessage, MSHRole.SENDING);
+        Assertions.assertThrows(EbMS3Exception.class, () -> classUnderTest.doDynamicDiscovery(userMessage, MSHRole.SENDING));
     }
 
     @Test
@@ -396,12 +404,11 @@ public class DynamicDiscoveryPModeProviderTest {
 
     @Test
     public void testExtractCommonName_PublicKeyWithCommonNameNotAvailable_IllegalArgumentExceptionExpected() throws Exception {
-        thrown.expect(IllegalArgumentException.class);
 
         X509Certificate testData = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_NOT_AVAILABLE, CERT_PASSWORD);
         assertNotNull(testData);
 
-        certificateService.extractCommonName(testData);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> certificateService.extractCommonName(testData));
     }
 
     @Test

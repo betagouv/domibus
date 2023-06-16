@@ -10,9 +10,9 @@ import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.auth.StaticUserAuthenticator;
 import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * This class tests SmbFileProvider by calling the public API of VFS and casting
@@ -27,7 +27,7 @@ public class SmbFileProviderTest {
     public SmbFileProviderTest() {
     }
     
-    @Before
+    @BeforeEach
     public void setUp() throws FileSystemException {
         manager = VFS.getManager();
         
@@ -55,26 +55,26 @@ public class SmbFileProviderTest {
         
         Collection<Capability> result = manager.getProviderCapabilities("smb");
         
-        Assert.assertNotNull(result);
-        Assert.assertEquals(expectedCapabilities.size(), result.size());
-        Assert.assertTrue(result.containsAll(expectedCapabilities));
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(expectedCapabilities.size(), result.size());
+        Assertions.assertTrue(result.containsAll(expectedCapabilities));
     }
     
     @Test
     public void testResolveFile() throws FileSystemException {
         SmbFileObject result = (SmbFileObject) manager.resolveFile("smb://example.org/sharename/file1", defaultAuthOpts);
         
-        Assert.assertNotNull(result);
-        Assert.assertNotNull(result.getName());
-        Assert.assertEquals("smb://example.org/sharename/file1", result.getName().getURI());
+        Assertions.assertNotNull(result);
+        Assertions.assertNotNull(result.getName());
+        Assertions.assertEquals("smb://example.org/sharename/file1", result.getName().getURI());
     }
 
     @Test
     public void testResolveURI() throws FileSystemException {
         SmbFileName result = (SmbFileName) manager.resolveURI("smb://example.org/sharename/file2");
         
-        Assert.assertNotNull(result);
-        Assert.assertEquals("smb://example.org/sharename/file2", result.getURI());
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals("smb://example.org/sharename/file2", result.getURI());
     }
     
 }

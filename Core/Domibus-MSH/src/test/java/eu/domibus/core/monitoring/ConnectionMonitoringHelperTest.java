@@ -3,20 +3,20 @@ package eu.domibus.core.monitoring;
 import eu.domibus.api.party.PartyService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import junit.framework.TestCase;
+
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(JMockit.class)
-public class ConnectionMonitoringHelperTest extends TestCase {
+@ExtendWith(JMockitExtension.class)
+public class ConnectionMonitoringHelperTest {
 
     @Tested
     ConnectionMonitoringHelper connectionMonitoringHelper;
@@ -51,6 +51,6 @@ public class ConnectionMonitoringHelperTest extends TestCase {
         }};
 
         String res = connectionMonitoringHelper.fixParties(Arrays.asList(partyId1, partyId2));
-        Assert.assertEquals(enabledPair, res);
+        Assertions.assertEquals(enabledPair, res);
     }
 }

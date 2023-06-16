@@ -3,22 +3,22 @@ package eu.domibus.core.message;
 import eu.domibus.api.model.*;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.*;
 
 import static eu.domibus.core.message.UserMessageDefaultServiceHelperTest.PartyIdBuilder.aPartyId;
 import static eu.domibus.core.message.UserMessageDefaultServiceHelperTest.PropertyBuilder.aProperty;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Sebastian-Ion TINCU
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserMessageDefaultServiceHelperTest {
 
     public static final String ORIGINAL_SENDER = "sender";
@@ -174,7 +174,7 @@ public class UserMessageDefaultServiceHelperTest {
 
         whenRetrievingTheToParty();
 
-        assertNull("The receiving party should have been null when the user message has no party identifiers for the receiving party", partyTo);
+        assertNull( partyTo, "The receiving party should have been null when the user message has no party identifiers for the receiving party");
     }
 
     @Test
@@ -185,7 +185,7 @@ public class UserMessageDefaultServiceHelperTest {
 
         whenRetrievingTheToParty();
 
-        assertEquals("The receiving party should have been found when the user message has party identifiers for the receiving party", "first", partyTo);
+        assertEquals( "first", partyTo, "The receiving party should have been found when the user message has party identifiers for the receiving party");
     }
 
     private void givenNullUserMessage() {
@@ -251,7 +251,7 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     private void thenOriginalSenderIsEqualTo(String expected, String message) {
-        assertEquals(message, expected, originalSender);
+        assertEquals(expected, originalSender, message);
     }
 
     private void thenFinalRecipientIsNull(String message) {
@@ -259,7 +259,7 @@ public class UserMessageDefaultServiceHelperTest {
     }
 
     private void thenFinalRecipientIsEqualTo(String expected, String message) {
-        assertEquals(message, expected, finalRecipient);
+        assertEquals(expected, finalRecipient, message);
     }
 
     @Test

@@ -10,8 +10,9 @@ import eu.domibus.core.logging.LoggingEntry;
 import eu.domibus.core.logging.LoggingService;
 import eu.domibus.web.rest.ro.LoggingFilterRequestRO;
 import org.apache.commons.lang3.BooleanUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -67,7 +68,7 @@ public class LoggingResourceIT extends AbstractIT {
 
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(loggingResource).build();
     }
@@ -76,11 +77,11 @@ public class LoggingResourceIT extends AbstractIT {
         // intentionally empty to avoid base class auth setup
     }
 
-    @Test(expected = NestedServletException.class)
+    @Test
     @WithMockUser
-    public void getLogLevel_accessDenied() throws Exception {
+    void getLogLevel_accessDenied() {
         // the order of the items are not checked
-        mockMvc.perform(get("/rest/logging/loglevel"));
+        Assertions.assertThrows(NestedServletException.class, () -> mockMvc.perform(get("/rest/logging/loglevel")));
     }
 
     @Test
@@ -112,13 +113,13 @@ public class LoggingResourceIT extends AbstractIT {
 
         // the order of the items are not checked
         mockMvc.perform(get("/rest/logging/loglevel")
-                .param("page", loggingFilterRequestRO.getPage() + "")
-                .param("loggerName", loggingFilterRequestRO.getLoggerName())
-                .param("pageSize", loggingFilterRequestRO.getPageSize() + "")
-                .param("orderBy", loggingFilterRequestRO.getOrderBy())
-                .param("asc", BooleanUtils.toStringTrueFalse(loggingFilterRequestRO.getAsc()))
-                .param("showClasses", BooleanUtils.toStringTrueFalse(loggingFilterRequestRO.isShowClasses()))
-        )
+                        .param("page", loggingFilterRequestRO.getPage() + "")
+                        .param("loggerName", loggingFilterRequestRO.getLoggerName())
+                        .param("pageSize", loggingFilterRequestRO.getPageSize() + "")
+                        .param("orderBy", loggingFilterRequestRO.getOrderBy())
+                        .param("asc", BooleanUtils.toStringTrueFalse(loggingFilterRequestRO.getAsc()))
+                        .param("showClasses", BooleanUtils.toStringTrueFalse(loggingFilterRequestRO.isShowClasses()))
+                )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(jsonPath("$.filter.loggerName").value(loggingFilterRequestRO.getLoggerName()))
                 .andExpect(jsonPath("$.filter.showClasses").value(loggingFilterRequestRO.isShowClasses()))

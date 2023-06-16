@@ -11,12 +11,12 @@ import eu.domibus.plugin.ws.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.ws.backend.rules.WSPluginDispatchRulesService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,13 +26,14 @@ import static eu.domibus.plugin.ws.backend.WSBackendMessageType.DELETED_BATCH;
 import static eu.domibus.plugin.ws.backend.WSBackendMessageType.SEND_SUCCESS;
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PUSH_ENABLED;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author François Gautier
  * @since 5.0
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class WSPluginBackendServiceTest {
 
     public static final String FINAL_RECIPIENT = "finalRecipient";
@@ -222,11 +223,11 @@ public class WSPluginBackendServiceTest {
         new FullVerifications() {
         };
 
-        Assert.assertEquals(3, rulesForFinalRecipients.size());
+        Assertions.assertEquals(3, rulesForFinalRecipients.size());
 
-        Assert.assertEquals(rulesRecipient, getRules(rulesForFinalRecipients, FINAL_RECIPIENT));
-        Assert.assertEquals(rulesRecipient2, getRules(rulesForFinalRecipients, FINAL_RECIPIENT2));
-        Assert.assertEquals(0, getRules(rulesForFinalRecipients, FINAL_RECIPIENT3).size());
+        Assertions.assertEquals(rulesRecipient, getRules(rulesForFinalRecipients, FINAL_RECIPIENT));
+        Assertions.assertEquals(rulesRecipient2, getRules(rulesForFinalRecipients, FINAL_RECIPIENT2));
+        Assertions.assertEquals(0, getRules(rulesForFinalRecipients, FINAL_RECIPIENT3).size());
     }
 
     private List<WSPluginDispatchRule> getRules(List<RulesPerRecipient> rulesForFinalRecipients, String finalRecipient) {
@@ -249,10 +250,10 @@ public class WSPluginBackendServiceTest {
 
         Map<String, List<String>> stringListMap = wsPluginBackendService.sortMessageIdsPerFinalRecipients(messageDeletedBatchEvent);
 
-        Assert.assertThat(stringListMap.get(FINAL_RECIPIENT), CoreMatchers.hasItems("1", "2"));
-        Assert.assertEquals(2, stringListMap.get(FINAL_RECIPIENT).size());
-        Assert.assertThat(stringListMap.get(FINAL_RECIPIENT2), CoreMatchers.hasItems("3"));
-        Assert.assertEquals(1, stringListMap.get(FINAL_RECIPIENT2).size());
+        assertThat(stringListMap.get(FINAL_RECIPIENT), CoreMatchers.hasItems("1", "2"));
+        Assertions.assertEquals(2, stringListMap.get(FINAL_RECIPIENT).size());
+        assertThat(stringListMap.get(FINAL_RECIPIENT2), CoreMatchers.hasItems("3"));
+        Assertions.assertEquals(1, stringListMap.get(FINAL_RECIPIENT2).size());
         new FullVerifications() {
         };
     }
@@ -270,9 +271,9 @@ public class WSPluginBackendServiceTest {
 
         wsPluginBackendService.addMessageIdToMap(getMessageDeletedEvent(MESSAGE_ID, FINAL_RECIPIENT), messageIdGroupedByRecipient);
 
-        Assert.assertEquals(1, messageIdGroupedByRecipient.size());
-        Assert.assertEquals(1, messageIdGroupedByRecipient.get(FINAL_RECIPIENT).size());
-        Assert.assertEquals(MESSAGE_ID, messageIdGroupedByRecipient.get(FINAL_RECIPIENT).get(0));
+        Assertions.assertEquals(1, messageIdGroupedByRecipient.size());
+        Assertions.assertEquals(1, messageIdGroupedByRecipient.get(FINAL_RECIPIENT).size());
+        Assertions.assertEquals(MESSAGE_ID, messageIdGroupedByRecipient.get(FINAL_RECIPIENT).get(0));
 
     }
 
@@ -282,7 +283,7 @@ public class WSPluginBackendServiceTest {
 
         wsPluginBackendService.addMessageIdToMap(new MessageDeletedEvent(), messageIdGroupedByRecipient);
 
-        Assert.assertEquals(0, messageIdGroupedByRecipient.size());
+        Assertions.assertEquals(0, messageIdGroupedByRecipient.size());
     }
 
     @Test

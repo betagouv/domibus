@@ -8,10 +8,10 @@ import eu.domibus.api.security.DomibusUserDetails;
 import eu.domibus.api.security.functions.AuthenticatedProcedure;
 import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,15 +22,16 @@ import java.util.*;
 import java.util.function.Consumer;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author François Gautier
  * @since 4.2
  */
 @SuppressWarnings("AccessStaticViaInstance")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class AuthUtilsImplTest {
 
     public static final String STRING = "TEST";
@@ -112,9 +113,8 @@ public class AuthUtilsImplTest {
         };
     }
 
-    @Test(expected = AuthenticationException.class)
-    public void getOriginalUserFromSecurityContext_noAuth(
-            @Mocked SecurityContextHolder securityContextHolder) {
+    @Test
+    void getOriginalUserFromSecurityContext_noAuth() {
         new Expectations(authUtilsImpl) {{
             authUtilsImpl.isUnsecureLoginAllowed();
             result = false;
@@ -122,14 +122,13 @@ public class AuthUtilsImplTest {
             SecurityContextHolder.getContext().getAuthentication();
             result = null;
         }};
-        authUtilsImpl.getOriginalUserWithUnsecureLoginAllowed();
+        Assertions.assertThrows(AuthenticationException.class, () -> authUtilsImpl.getOriginalUserWithUnsecureLoginAllowed());
         new FullVerifications() {
         };
     }
 
-    @Test(expected = AuthenticationException.class)
-    public void getOriginalUserFromSecurityContext_noContext(
-            @Mocked SecurityContextHolder securityContextHolder) {
+    @Test
+    void getOriginalUserFromSecurityContext_noContext() {
         new Expectations(authUtilsImpl) {{
             authUtilsImpl.isUnsecureLoginAllowed();
             result = false;
@@ -137,7 +136,7 @@ public class AuthUtilsImplTest {
             SecurityContextHolder.getContext();
             result = null;
         }};
-        authUtilsImpl.getOriginalUserWithUnsecureLoginAllowed();
+        Assertions.assertThrows(AuthenticationException. class,() -> authUtilsImpl.getOriginalUserWithUnsecureLoginAllowed());
         new FullVerifications() {
         };
     }
@@ -297,8 +296,8 @@ public class AuthUtilsImplTest {
         };
     }
 
-    @Test(expected = AuthenticationException.class)
-    public void hasUserOrAdminRole_blankUser() {
+    @Test
+    void hasUserOrAdminRole_blankUser() {
 
         new Expectations(authUtilsImpl) {{
             authUtilsImpl.isAdmin();
@@ -309,7 +308,7 @@ public class AuthUtilsImplTest {
             result = "";
         }};
 
-        authUtilsImpl.checkHasAdminRoleOrUserRoleWithOriginalUser();
+        Assertions.assertThrows(AuthenticationException. class,() -> authUtilsImpl.checkHasAdminRoleOrUserRoleWithOriginalUser());
 
         new FullVerifications() {
         };
@@ -498,9 +497,9 @@ public class AuthUtilsImplTest {
         String expectedPassword = UUID.randomUUID().toString();
         new Expectations(authUtilsImpl) {{
             domibusConfigurationService.isMultiTenantAware();
-            result=true;
+            result = true;
 
-            authUtilsImpl.setAuthenticationToSecurityContext(anyString, anyString, (AuthRole)any);
+            authUtilsImpl.setAuthenticationToSecurityContext(anyString, anyString, (AuthRole) any);
             expectedFunction.invoke();
             authUtilsImpl.clearSecurityContext();
         }};
@@ -513,11 +512,11 @@ public class AuthUtilsImplTest {
             String password;
             AuthRole role;
             authUtilsImpl.runWithSecurityContext(function = withCapture(),
-                    username=withCapture(), password=withCapture(), role=withCapture());
-            Assert.assertEquals(expectedFunction, function);
-            Assert.assertEquals(expectedUsername,username);
-            Assert.assertEquals(expectedPassword,password);
-            Assert.assertEquals(AuthRole.ROLE_ADMIN,role);
+                    username = withCapture(), password = withCapture(), role = withCapture());
+            Assertions.assertEquals(expectedFunction, function);
+            Assertions.assertEquals(expectedUsername, username);
+            Assertions.assertEquals(expectedPassword, password);
+            Assertions.assertEquals(AuthRole.ROLE_ADMIN, role);
         }};
     }
 
@@ -527,10 +526,10 @@ public class AuthUtilsImplTest {
         String expectedPassword = UUID.randomUUID().toString();
         new Expectations(authUtilsImpl) {{
             domibusConfigurationService.isMultiTenantAware();
-            result=false;
+            result = false;
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED);
-            result=true;
+            result = true;
 
             expectedFunction.invoke();
         }};
@@ -539,10 +538,10 @@ public class AuthUtilsImplTest {
 
         new FullVerifications(authUtilsImpl) {{
             authUtilsImpl.setAuthenticationToSecurityContext(anyString, anyString, (AuthRole) any);
-            times=0;
+            times = 0;
             expectedFunction.invoke();
             authUtilsImpl.clearSecurityContext();
-            times=0;
+            times = 0;
         }};
     }
 
@@ -553,10 +552,10 @@ public class AuthUtilsImplTest {
         String expectedPassword = UUID.randomUUID().toString();
         new Expectations(authUtilsImpl) {{
             domibusConfigurationService.isMultiTenantAware();
-            result=false;
+            result = false;
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_AUTH_UNSECURE_LOGIN_ALLOWED);
-            result=true;
+            result = true;
 
             expectedFunction.invoke();
         }};
@@ -565,10 +564,10 @@ public class AuthUtilsImplTest {
 
         new FullVerifications(authUtilsImpl) {{
             authUtilsImpl.setAuthenticationToSecurityContext(anyString, anyString, (AuthRole) any);
-            times=1;
+            times = 1;
             expectedFunction.invoke();
             authUtilsImpl.clearSecurityContext();
-            times=1;
+            times = 1;
         }};
     }
 
@@ -588,7 +587,7 @@ public class AuthUtilsImplTest {
             // ignore
         }
         // verify that clearSecurityContext was called
-        new FullVerificationsInOrder(authUtilsImpl) {{
+        new FullVerifications(authUtilsImpl) {{
             authUtilsImpl.setAuthenticationToSecurityContext(anyString, anyString, (AuthRole) any);
             runnable.invoke();
             authUtilsImpl.clearSecurityContext();

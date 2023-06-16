@@ -12,9 +12,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,7 +26,7 @@ import static eu.domibus.messaging.MessageConstants.COMPRESSION_PROPERTY_KEY;
 import static eu.domibus.messaging.MessageConstants.COMPRESSION_PROPERTY_VALUE;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PayloadProfileValidatorTest {
     private static final String MIME_TYPE_VALUE = "gzip";
     private static final String PMODE_KEY = "pmodeKey";
@@ -38,13 +39,13 @@ public class PayloadProfileValidatorTest {
     PModeProvider pModeProvider;
     UserMessage userMessage;
 
-    public PayloadProfileValidatorTest(){
+    public PayloadProfileValidatorTest() {
         userMessage = new UserMessage();
         userMessage.setMessageId("messageId");
     }
 
-    @Test(expected = EbMS3Exception.class)
-    public void validateCompressPartInfoUnexpectedCompressionType() throws EbMS3Exception {
+    @Test
+    void validateCompressPartInfoUnexpectedCompressionType() {
         new Expectations() {{
             pModeProvider.getLegConfiguration(PMODE_KEY);
             result = getLegConfiguration(null);
@@ -55,11 +56,12 @@ public class PayloadProfileValidatorTest {
         property.setName(COMPRESSION_PROPERTY_KEY);
         property.setValue("someOtherValue");
 
-        payloadProfileValidator.validate(userMessage, Collections.singletonList(partInfo), PMODE_KEY);
+        Assertions.assertThrows(EbMS3Exception.class,
+                () -> payloadProfileValidator.validate(userMessage, Collections.singletonList(partInfo), PMODE_KEY));
     }
 
-    @Test(expected = EbMS3Exception.class)
-    public void validateCompressPartInfoMissingMimeType() throws EbMS3Exception {
+    @Test
+    void validateCompressPartInfoMissingMimeType() {
         new Expectations() {{
             pModeProvider.getLegConfiguration(PMODE_KEY);
             result = getLegConfiguration(null);
@@ -70,16 +72,17 @@ public class PayloadProfileValidatorTest {
         property.setName(COMPRESSION_PROPERTY_KEY);
         property.setValue(COMPRESSION_PROPERTY_VALUE);
 
-        payloadProfileValidator.validate(userMessage, Collections.singletonList(partInfo), PMODE_KEY);
+        Assertions.assertThrows(EbMS3Exception.class,
+                () -> payloadProfileValidator.validate(userMessage, Collections.singletonList(partInfo), PMODE_KEY));
     }
 
-    @Test(expected = EbMS3Exception.class)
-    public void validatePayloadProfileNotMatchingCid(@Injectable PayloadProfile payloadProfile) throws EbMS3Exception {
+    @Test
+    void validatePayloadProfileNotMatchingCid(@Injectable PayloadProfile payloadProfile) throws EbMS3Exception {
         new Expectations() {{
             pModeProvider.getLegConfiguration(PMODE_KEY);
             result = getLegConfiguration(payloadProfile);
 
-            Payload payload =  getPayload("", "");
+            Payload payload = getPayload("", "");
             payloadProfile.getPayloads();
             result = Collections.singleton(payload);
         }};
@@ -92,22 +95,24 @@ public class PayloadProfileValidatorTest {
         propertyMimeType.setValue(MIME_TYPE_VALUE);
         partInfo.setPartProperties(new HashSet<>(Arrays.asList(propertyCompression, propertyMimeType)));
 
-        payloadProfileValidator.validate(userMessage, Collections.singletonList(partInfo), PMODE_KEY);
+        Assertions.assertThrows(EbMS3Exception.class,
+                () -> payloadProfileValidator.validate(userMessage, Collections.singletonList(partInfo), PMODE_KEY));
     }
 
-    @Test(expected = EbMS3Exception.class)
-    public void validatePayloadProfileNotMatchingMimeType(@Mocked PayloadProfile payloadProfile) throws EbMS3Exception {
+    @Test
+    void validatePayloadProfileNotMatchingMimeType(@Mocked PayloadProfile payloadProfile) {
         new Expectations() {{
             pModeProvider.getLegConfiguration(PMODE_KEY);
             result = getLegConfiguration(payloadProfile);
 
             payloadProfile.getPayloads();
-            Payload payload =  getPayload("", "otherMimeType");
+            Payload payload = getPayload("", "otherMimeType");
             result = Collections.singleton(payload);
         }};
         PartInfo partInfo = buildPartInfo(PART_HREF);
 
-        payloadProfileValidator.validate(userMessage, Collections.singletonList(partInfo), PMODE_KEY);
+        Assertions.assertThrows(EbMS3Exception.class,
+                () -> payloadProfileValidator.validate(userMessage, Collections.singletonList(partInfo), PMODE_KEY));
     }
 
     private static LegConfiguration getLegConfiguration(PayloadProfile payloadProfile) {
@@ -130,14 +135,14 @@ public class PayloadProfileValidatorTest {
         return partInfo;
     }
 
-    @Test(expected = EbMS3Exception.class)
-    public void validatePayloadProfileRequiredLegPayloadIsMissing(@Mocked PayloadProfile payloadProfile) throws EbMS3Exception {
+    @Test
+    void validatePayloadProfileRequiredLegPayloadIsMissing(@Mocked PayloadProfile payloadProfile) {
         new Expectations() {{
             pModeProvider.getLegConfiguration(PMODE_KEY);
             result = getLegConfiguration(payloadProfile);
 
             payloadProfile.getPayloads();
-            Payload payload =  getPayload("mimeTypePayload", MIME_TYPE_VALUE);
+            Payload payload = getPayload("mimeTypePayload", MIME_TYPE_VALUE);
             Payload requiredPartInfo = getPayload("requiredPayload", "");
             requiredPartInfo.setRequired(true);
             result = new HashSet<>(Arrays.asList(payload, requiredPartInfo));
@@ -145,7 +150,8 @@ public class PayloadProfileValidatorTest {
         }};
         PartInfo partInfo = buildPartInfo(PART_HREF);
 
-        payloadProfileValidator.validate(userMessage, Collections.singletonList(partInfo), PMODE_KEY);
+        Assertions.assertThrows(EbMS3Exception.class,
+                () -> payloadProfileValidator.validate(userMessage, Collections.singletonList(partInfo), PMODE_KEY));
     }
 
     @Test
@@ -155,7 +161,7 @@ public class PayloadProfileValidatorTest {
             result = getLegConfiguration(payloadProfile);
 
             payloadProfile.getPayloads();
-            Payload payload =  getPayload("mimeTypePayload", MIME_TYPE_VALUE);
+            Payload payload = getPayload("mimeTypePayload", MIME_TYPE_VALUE);
             Payload requiredPartInfo = getPayload("requiredPayload", "");
             requiredPartInfo.setRequired(false);
             result = new HashSet<>(Arrays.asList(payload, requiredPartInfo));
@@ -173,7 +179,7 @@ public class PayloadProfileValidatorTest {
             result = getLegConfiguration(payloadProfile);
 
             payloadProfile.getPayloads();
-            Payload payload =  getPayload("", MIME_TYPE_VALUE);
+            Payload payload = getPayload("", MIME_TYPE_VALUE);
             result = Collections.singleton(payload);
         }};
         PartInfo partInfo = buildPartInfo(PART_HREF);

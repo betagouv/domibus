@@ -4,11 +4,12 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.task.TaskRejectedException;
 
 import javax.enterprise.concurrent.ManagedExecutorService;
@@ -16,13 +17,13 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RejectedExecutionException;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Cosmin Baciu
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusWildFlyTaskExecutorTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusWildFlyTaskExecutorTest.class);
@@ -30,9 +31,9 @@ public class DomibusWildFlyTaskExecutorTest {
     @Tested
     DomibusWildFlyTaskExecutor domibusWildFlyTaskExecutor;
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testExecuteWithNoExecutorService(@Injectable Runnable task) {
-        domibusWildFlyTaskExecutor.execute(task);
+        Assertions.assertThrows(IllegalStateException. class,() -> domibusWildFlyTaskExecutor.execute(task));
     }
 
     @Test

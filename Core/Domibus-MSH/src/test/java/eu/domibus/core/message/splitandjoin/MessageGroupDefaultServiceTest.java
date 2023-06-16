@@ -6,7 +6,7 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Cosmin Baciu

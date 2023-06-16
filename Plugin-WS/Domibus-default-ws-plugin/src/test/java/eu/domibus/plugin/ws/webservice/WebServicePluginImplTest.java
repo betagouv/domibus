@@ -15,11 +15,11 @@ import eu.domibus.plugin.ws.message.WSMessageLogService;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.messaging.MessageNotFoundException;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.xml.ws.Holder;
 import java.time.LocalDateTime;
@@ -27,15 +27,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PROP_LIST_REPUSH_MESSAGES_MAXCOUNT;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Cosmin Baciu
  * @since 4.0.2
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class WebServicePluginImplTest {
 
     public static final String MESSAGE_ID = "messageId";
@@ -74,11 +74,11 @@ public class WebServicePluginImplTest {
     private DateExtService dateUtil;
 
 
-    @Test(expected = SubmitMessageFault.class)
-    public void validateSubmitRequestWithPayloadsAndBodyLoad(@Injectable SubmitRequest submitRequest,
-                                                             @Injectable LargePayloadType payload1,
-                                                             @Injectable LargePayloadType payload2,
-                                                             @Injectable LargePayloadType bodyLoad) throws SubmitMessageFault {
+    @Test
+    void validateSubmitRequestWithPayloadsAndBodyLoad(@Injectable SubmitRequest submitRequest,
+                                                      @Injectable LargePayloadType payload1,
+                                                      @Injectable LargePayloadType payload2,
+                                                      @Injectable LargePayloadType bodyLoad) {
         List<LargePayloadType> payloadList = new ArrayList<>();
         payloadList.add(payload1);
         payloadList.add(payload2);
@@ -100,12 +100,12 @@ public class WebServicePluginImplTest {
             result = "null";
         }};
 
-        webServicePlugin.validateSubmitRequest(submitRequest);
+        Assertions.assertThrows(SubmitMessageFault.class, () -> webServicePlugin.validateSubmitRequest(submitRequest));
     }
 
-    @Test(expected = SubmitMessageFault.class)
-    public void validateSubmitRequestWithMissingPayloadIdForPayload(@Injectable SubmitRequest submitRequest,
-                                                                    @Injectable LargePayloadType payload1) throws SubmitMessageFault {
+    @Test
+    void validateSubmitRequestWithMissingPayloadIdForPayload(@Injectable SubmitRequest submitRequest,
+                                                             @Injectable LargePayloadType payload1) {
         List<LargePayloadType> payloadList = new ArrayList<>();
         payloadList.add(payload1);
 
@@ -117,12 +117,12 @@ public class WebServicePluginImplTest {
             result = null;
         }};
 
-        webServicePlugin.validateSubmitRequest(submitRequest);
+        Assertions.assertThrows(SubmitMessageFault.class, () -> webServicePlugin.validateSubmitRequest(submitRequest));
     }
 
-    @Test(expected = SubmitMessageFault.class)
-    public void validateSubmitRequestWithPayloadIdAddedForBodyLoad(@Injectable SubmitRequest submitRequest,
-                                                                   @Injectable LargePayloadType bodyLoad) throws SubmitMessageFault {
+    @Test
+    void validateSubmitRequestWithPayloadIdAddedForBodyLoad(@Injectable SubmitRequest submitRequest,
+                                                            @Injectable LargePayloadType bodyLoad) throws SubmitMessageFault {
 
         new Expectations() {{
             submitRequest.getBodyload();
@@ -132,7 +132,7 @@ public class WebServicePluginImplTest {
             result = "cid:message";
         }};
 
-        webServicePlugin.validateSubmitRequest(submitRequest);
+        Assertions.assertThrows(SubmitMessageFault.class, () -> webServicePlugin.validateSubmitRequest(submitRequest));
     }
 
     @Test
@@ -152,7 +152,7 @@ public class WebServicePluginImplTest {
         new Verifications() {{
             String messageId;
             messageExtService.cleanMessageIdentifier(messageId = withCapture());
-            assertEquals("The message identifier should have been cleaned before retrieving the message", "-Dom137-- ", messageId);
+            assertEquals("-Dom137-- ", messageId, "The message identifier should have been cleaned before retrieving the message");
         }};
     }
 
@@ -171,7 +171,7 @@ public class WebServicePluginImplTest {
         new Verifications() {{
             String messageId;
             messageExtService.cleanMessageIdentifier(messageId = withCapture());
-            assertEquals("The message identifier should have been cleaned before retrieving the message", "-Dom137--", messageId);
+            assertEquals("-Dom137--", messageId, "The message identifier should have been cleaned before retrieving the message");
         }};
     }
 
@@ -218,7 +218,7 @@ public class WebServicePluginImplTest {
 
         try {
             webServicePlugin.validateAccessPointRole(statusRequest.getAccessPointRole());
-            Assert.fail();
+            Assertions.fail();
         } catch (StatusFault statusFault) {
             assertEquals("Access point role is invalid", statusFault.getMessage());
         }
@@ -238,7 +238,7 @@ public class WebServicePluginImplTest {
 
         try {
             webServicePlugin.validateMessageId(statusRequest.getMessageID());
-            Assert.fail();
+            Assertions.fail();
         } catch (StatusFault statusFault) {
             assertEquals(statusFault.getMessage(), "Message ID is empty");
         }
@@ -259,9 +259,9 @@ public class WebServicePluginImplTest {
 
         try {
             webServicePlugin.listPushFailedMessages(listPushFailedMessagesRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (ListPushFailedMessagesFault listPushFailedMessagesFault) {
-            assertEquals("Message ID is empty", listPushFailedMessagesFault.getMessage());
+            assertEquals(listPushFailedMessagesFault.getMessage(), "Message ID is empty");
         }
     }
 
@@ -288,9 +288,9 @@ public class WebServicePluginImplTest {
 
         try {
             webServicePlugin.rePushFailedMessages(rePushFailedMessagesRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (RePushFailedMessagesFault rePushFailedMessagesFault) {
-            assertEquals("Invalid Message Id. ", rePushFailedMessagesFault.getMessage());
+            assertEquals(rePushFailedMessagesFault.getMessage(), "Invalid Message Id. ");
         }
     }
 

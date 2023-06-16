@@ -14,10 +14,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +31,7 @@ import java.util.*;
  * @since 3.3
  */
 @SuppressWarnings({"unchecked", "ConstantConditions", "ResultOfMethodCallIgnored"})
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PModeResourceTest {
 
     private static final String PMODE_FILE_HAS_BEEN_SUCCESSFULLY_UPLOADED = "PMode file has been successfully uploaded.";
@@ -140,10 +140,10 @@ public class PModeResourceTest {
     }
 
     private void validateResponseEntity(ResponseEntity<? extends Resource> responseEntity, HttpStatus httpStatus) {
-        Assert.assertNotNull(responseEntity);
-        Assert.assertEquals(httpStatus, responseEntity.getStatusCode());
-        Assert.assertEquals("attachment; filename=Pmodes.xml", responseEntity.getHeaders().get("content-disposition").get(0));
-        Assert.assertEquals("Byte array resource [resource loaded from byte array]", responseEntity.getBody().getDescription());
+        Assertions.assertNotNull(responseEntity);
+        Assertions.assertEquals(httpStatus, responseEntity.getStatusCode());
+        Assertions.assertEquals("attachment; filename=Pmodes.xml", responseEntity.getHeaders().get("content-disposition").get(0));
+        Assertions.assertEquals("Byte array resource [resource loaded from byte array]", responseEntity.getBody().getDescription());
     }
 
     @Test
@@ -160,9 +160,9 @@ public class PModeResourceTest {
         ValidationResponseRO response = pModeResource.uploadPMode(file, "description");
 
         // Then
-        Assert.assertNotNull(response);
-        Assert.assertEquals(0, response.getIssues().size());
-        Assert.assertEquals(PMODE_FILE_HAS_BEEN_SUCCESSFULLY_UPLOADED, response.getMessage());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(0, response.getIssues().size());
+        Assertions.assertEquals(PMODE_FILE_HAS_BEEN_SUCCESSFULLY_UPLOADED, response.getMessage());
     }
 
     @Test
@@ -182,10 +182,10 @@ public class PModeResourceTest {
         ValidationResponseRO response = pModeResource.uploadPMode(file, "description");
 
         // Then
-        Assert.assertNotNull(response);
-        Assert.assertEquals(1, response.getIssues().size());
-        Assert.assertEquals("issue1", response.getIssues().get(0).getMessage());
-        Assert.assertEquals(PMODE_FILE_HAS_BEEN_SUCCESSFULLY_UPLOADED, response.getMessage());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(1, response.getIssues().size());
+        Assertions.assertEquals("issue1", response.getIssues().get(0).getMessage());
+        Assertions.assertEquals(PMODE_FILE_HAS_BEEN_SUCCESSFULLY_UPLOADED, response.getMessage());
     }
 
     @Test()
@@ -204,10 +204,10 @@ public class PModeResourceTest {
             pModeResource.uploadPMode(file, "description");
         } catch (PModeException ex) {
 //         Then
-            Assert.assertTrue(ex instanceof PModeValidationException);
+            Assertions.assertTrue(ex instanceof PModeValidationException);
             PModeValidationException pex = (PModeValidationException) ex;
-            Assert.assertEquals(1, pex.getIssues().size());
-            Assert.assertEquals("issue1", pex.getIssues().get(0).getMessage());
+            Assertions.assertEquals(1, pex.getIssues().size());
+            Assertions.assertEquals("issue1", pex.getIssues().get(0).getMessage());
         }
     }
 
@@ -220,9 +220,9 @@ public class PModeResourceTest {
         final ResponseEntity<String> response = pModeResource.deletePModes(emptyList);
 
         // Then
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        Assert.assertEquals("Failed to delete PModes since the list of ids was empty.", response.getBody());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals("Failed to delete PModes since the list of ids was empty.", response.getBody());
     }
 
     @Test
@@ -236,9 +236,9 @@ public class PModeResourceTest {
         final ResponseEntity<String> response = pModeResource.deletePModes(stringList);
 
         // Then
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertEquals("PModes were deleted\n", response.getBody());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals("PModes were deleted\n", response.getBody());
     }
 
     @Test
@@ -257,9 +257,9 @@ public class PModeResourceTest {
         final ResponseEntity<String> response = pModeResource.deletePModes(stringList);
 
         // Then
-        Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        Assert.assertEquals("Impossible to delete PModes due to \nMocked exception", response.getBody());
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        Assertions.assertEquals("Impossible to delete PModes due to \nMocked exception", response.getBody());
     }
 
     @Test
@@ -276,7 +276,7 @@ public class PModeResourceTest {
         final ValidationResponseRO response;
         try {
             response = pModeResource.restorePmode(1L);
-            Assert.fail();
+            Assertions.fail();
         } catch (Exception e) {
             //OK
         }
@@ -309,8 +309,8 @@ public class PModeResourceTest {
         final ValidationResponseRO response = pModeResource.restorePmode(1L);
 
         // Then
-        Assert.assertEquals("PMode file has been successfully restored. Some issues were detected:", response.getMessage());
-        Assert.assertEquals(1, response.getIssues().size());
+        Assertions.assertEquals("PMode file has been successfully restored. Some issues were detected:", response.getMessage());
+        Assertions.assertEquals(1, response.getIssues().size());
     }
 
     @Test
@@ -339,12 +339,12 @@ public class PModeResourceTest {
         final List<PModeResponseRO> pModeResponseROSGot = pModeResource.pmodeList();
 
         // Then
-        Assert.assertEquals(1, pModeResponseROSGot.size());
-        Assert.assertEquals("1", pModeResponseRO.getId());
-        Assert.assertEquals(date, pModeResponseRO.getConfigurationDate());
-        Assert.assertEquals(username, pModeResponseRO.getUsername());
-        Assert.assertEquals(description, pModeResponseRO.getDescription());
-        Assert.assertTrue(pModeResponseRO.isCurrent());
+        Assertions.assertEquals(1, pModeResponseROSGot.size());
+        Assertions.assertEquals("1", pModeResponseRO.getId());
+        Assertions.assertEquals(date, pModeResponseRO.getConfigurationDate());
+        Assertions.assertEquals(username, pModeResponseRO.getUsername());
+        Assertions.assertEquals(description, pModeResponseRO.getDescription());
+        Assertions.assertTrue(pModeResponseRO.isCurrent());
 
     }
 
@@ -378,8 +378,8 @@ public class PModeResourceTest {
         final ResponseEntity<String> csv = pModeResource.getCsv();
 
         // Then
-        Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
-        Assert.assertEquals("Configuration Date, Username, Description" + System.lineSeparator() +
+        Assertions.assertEquals(HttpStatus.OK, csv.getStatusCode());
+        Assertions.assertEquals("Configuration Date, Username, Description" + System.lineSeparator() +
                         date + ", user1, description1" + System.lineSeparator() +
                         date + ", user2, description2" + System.lineSeparator(),
                 csv.getBody());

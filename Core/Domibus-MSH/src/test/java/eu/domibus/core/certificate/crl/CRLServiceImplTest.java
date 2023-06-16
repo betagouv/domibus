@@ -4,11 +4,12 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.pki.PKIUtil;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -19,13 +20,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by Cosmin Baciu on 07-Jul-16.
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class CRLServiceImplTest {
 
     @Tested
@@ -45,7 +46,7 @@ public class CRLServiceImplTest {
 
     PKIUtil pkiUtil = new PKIUtil();
 
-    @Before
+    @BeforeEach
     public void init() {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
     }
@@ -119,7 +120,7 @@ public class CRLServiceImplTest {
             result = crlUrlList;
 
             domibusPropertyProvider.getProperty(CRLServiceImpl.CRL_EXCLUDED_PROTOCOLS);
-            returns("ftp","http");
+            returns("ftp", "http");
         }};
         boolean certificateRevoked = crlService.isCertificateRevoked(certificate);
         assertFalse(certificateRevoked);
@@ -139,11 +140,11 @@ public class CRLServiceImplTest {
         //when
         boolean certificateRevoked = crlService.isCertificateRevoked(certificate);
         //then
-        assertFalse("No supported CRL distribution point found for certificate ", certificateRevoked);
+        assertFalse(certificateRevoked, "No supported CRL distribution point found for certificate ");
     }
 
-    @Test(expected = DomibusCRLException.class)
-    public void testIsCertificateRevokedWithCRLNotDownloaded(@Injectable final X509Certificate certificate) throws Exception {
+    @Test
+    void testIsCertificateRevokedWithCRLNotDownloaded(@Injectable final X509Certificate certificate) {
         final String crlUrl1 = "ftp://domain1.crl";
         final List<String> crlUrlList = Arrays.asList(crlUrl1);
 
@@ -154,7 +155,7 @@ public class CRLServiceImplTest {
             crlUtil.downloadCRL(crlUrl1, false);
             result = new DomibusCRLException();
         }};
-        crlService.isCertificateRevoked(certificate);
+        Assertions.assertThrows(DomibusCRLException.class, () -> crlService.isCertificateRevoked(certificate));
     }
 
     @Test

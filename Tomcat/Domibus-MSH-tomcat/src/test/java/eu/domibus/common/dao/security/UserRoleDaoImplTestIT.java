@@ -4,7 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.core.user.ui.UserRoleDaoImpl;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,8 +13,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.List;
 
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Ion Perpegel

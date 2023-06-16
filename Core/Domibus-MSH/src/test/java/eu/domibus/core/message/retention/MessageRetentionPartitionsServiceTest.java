@@ -15,10 +15,10 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author idragusa
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MessageRetentionPartitionsServiceTest {
 
     @Tested
@@ -75,8 +75,8 @@ public class MessageRetentionPartitionsServiceTest {
         String partitionNameOld = "P23032207";
         String partitionNameNew = "SYS_P12345";
 
-        Assert.assertTrue(partitionNameOld.matches(MessageRetentionPartitionsService.PARTITION_NAME_REGEXP));
-        Assert.assertTrue(partitionNameNew.matches(MessageRetentionPartitionsService.PARTITION_NAME_REGEXP));
+        Assertions.assertTrue(partitionNameOld.matches(MessageRetentionPartitionsService.PARTITION_NAME_REGEXP));
+        Assertions.assertTrue(partitionNameNew.matches(MessageRetentionPartitionsService.PARTITION_NAME_REGEXP));
     }
 
     @Test
@@ -116,6 +116,6 @@ public class MessageRetentionPartitionsServiceTest {
 
         }};
 
-        Assert.assertTrue(messageRetentionPartitionsService.verifyIfAllMessagesAreArchived("mypart"));
+        Assertions.assertTrue(messageRetentionPartitionsService.verifyIfAllMessagesAreArchived("mypart"));
     }
 }

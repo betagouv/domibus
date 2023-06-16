@@ -20,22 +20,22 @@ import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Ion Perpegel
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class SuperUserManagementServiceImplTest {
 
     @Tested

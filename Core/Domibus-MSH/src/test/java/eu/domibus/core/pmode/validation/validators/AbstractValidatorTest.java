@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.common.model.configuration.Party;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ public abstract class AbstractValidatorTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         SimpleModule simpleModule = new SimpleModule();
         simpleModule.addKeyDeserializer(Party.class, new YourClassKeyDeserializer());

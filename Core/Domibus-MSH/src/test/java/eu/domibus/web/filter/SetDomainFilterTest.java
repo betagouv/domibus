@@ -5,10 +5,10 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -20,7 +20,7 @@ import java.io.IOException;
  * @author Ion Perpegel
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class SetDomainFilterTest {
 
     @Tested
@@ -72,6 +72,6 @@ public class SetDomainFilterTest {
         }};
 
         String result = setDomainFilter.getDomain(domibusUserDetails);
-        Assert.assertEquals(domainCode, result);
+        Assertions.assertEquals(domainCode, result);
     }
 }

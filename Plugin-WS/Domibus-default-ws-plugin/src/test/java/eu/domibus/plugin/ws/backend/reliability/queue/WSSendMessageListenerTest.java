@@ -10,10 +10,10 @@ import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginMessageSender;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -26,7 +26,7 @@ import static eu.domibus.plugin.ws.backend.WSBackendMessageType.SUBMIT_MESSAGE;
  * @since 5.0
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class WSSendMessageListenerTest {
     public static final long ID = 1L;
     @Tested
@@ -84,8 +84,8 @@ public class WSSendMessageListenerTest {
             DomainDTO domain;
             domainContextExtService.setCurrentDomain(domain = withCapture());
 
-            Assert.assertEquals(MessageConstants.DOMAIN, domain.getCode());
-            Assert.assertEquals(MessageConstants.DOMAIN, domain.getName());
+            Assertions.assertEquals(MessageConstants.DOMAIN, domain.getCode());
+            Assertions.assertEquals(MessageConstants.DOMAIN, domain.getName());
         }};
     }
 
@@ -122,8 +122,8 @@ public class WSSendMessageListenerTest {
             DomainDTO domain;
             domainContextExtService.setCurrentDomain(domain = withCapture());
 
-            Assert.assertEquals(MessageConstants.DOMAIN, domain.getCode());
-            Assert.assertEquals(MessageConstants.DOMAIN, domain.getName());
+            Assertions.assertEquals(MessageConstants.DOMAIN, domain.getCode());
+            Assertions.assertEquals(MessageConstants.DOMAIN, domain.getName());
         }};
     }
 
@@ -157,8 +157,8 @@ public class WSSendMessageListenerTest {
             DomainDTO domain;
             domainContextExtService.setCurrentDomain(domain = withCapture());
 
-            Assert.assertEquals(MessageConstants.DOMAIN, domain.getCode());
-            Assert.assertEquals(MessageConstants.DOMAIN, domain.getName());
+            Assertions.assertEquals(MessageConstants.DOMAIN, domain.getCode());
+            Assertions.assertEquals(MessageConstants.DOMAIN, domain.getName());
         }};
     }
 
@@ -192,8 +192,8 @@ public class WSSendMessageListenerTest {
             DomainDTO domain;
             domainContextExtService.setCurrentDomain(domain = withCapture());
 
-            Assert.assertEquals(MessageConstants.DOMAIN, domain.getCode());
-            Assert.assertEquals(MessageConstants.DOMAIN, domain.getName());
+            Assertions.assertEquals(MessageConstants.DOMAIN, domain.getCode());
+            Assertions.assertEquals(MessageConstants.DOMAIN, domain.getName());
 
             wsPluginMessageSender.sendNotification(backendMessage);
             times = 1;

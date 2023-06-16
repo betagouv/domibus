@@ -9,14 +9,14 @@ import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.Security;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.test.common.PojoInstaciatorUtil;
+import mockit.Expectations;
 import mockit.Injectable;
-import mockit.NonStrictExpectations;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,14 +24,14 @@ import java.util.List;
 import java.util.Set;
 
 import static eu.domibus.core.message.pull.PullProcessStatus.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Dussart
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PullProcessValidatorTest {
 
     @Tested
@@ -42,17 +42,6 @@ public class PullProcessValidatorTest {
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
-
-    @Before
-    public void init() {
-        new NonStrictExpectations() {{
-            getPullProcessValidator.allowDynamicInitiatorInPullProcess();
-            result = false;
-
-            getPullProcessValidator.allowMultipleLegsInPullProcess();
-            result = false;
-        }};
-    }
 
     @Test
     public void checkProcessValidityWithMoreThanOneLegAndDifferentResponder() throws Exception {
@@ -140,7 +129,7 @@ public class PullProcessValidatorTest {
     @Test
     public void testcheckMpcConfigurationSameSecurityPolicy() throws EbMS3Exception {
         Process process = PojoInstaciatorUtil.instanciate(Process.class, "mep[name:oneway]", "mepBinding[name:pull]", "legs{[name:leg1,defaultMpc[name:test1,qualifiedName:qntest]];[name:leg2,defaultMpc[name:test2,qualifiedName:qntest]]}", "responderParties{[name:resp1]}");
-        Assert.assertEquals(PullProcessStatus.ONE_MATCHING_PROCESS, pullProcessValidator.checkMpcConfigurationSameSecurityPolicy(process));
+        Assertions.assertEquals(PullProcessStatus.ONE_MATCHING_PROCESS, pullProcessValidator.checkMpcConfigurationSameSecurityPolicy(process));
     }
 
     @Test
@@ -153,7 +142,7 @@ public class PullProcessValidatorTest {
         Security security2 = new Security();
         security2.setName("eDeliveryAS4_BST");
         iterator.next().setSecurity(security2);
-        Assert.assertEquals(PullProcessStatus.MULTIPLE_LEGS_DIFFERENT_SECURITY, pullProcessValidator.checkMpcConfigurationSameSecurityPolicy(process));
+        Assertions.assertEquals(PullProcessStatus.MULTIPLE_LEGS_DIFFERENT_SECURITY, pullProcessValidator.checkMpcConfigurationSameSecurityPolicy(process));
     }
 
     private Set<PullProcessStatus> getProcessStatuses(Process process) {

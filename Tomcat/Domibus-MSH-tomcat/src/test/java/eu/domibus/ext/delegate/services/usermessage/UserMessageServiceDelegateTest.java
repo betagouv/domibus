@@ -9,14 +9,14 @@ import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.messaging.MessageNotFoundException;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Date;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserMessageServiceDelegateTest {
 
     public static final String FINAL_RECIPIENT = "finalRecipient";
@@ -92,10 +92,10 @@ public class UserMessageServiceDelegateTest {
         // When
         try {
             userMessageServiceDelegate.getMessage(MESSAGE_ID, eu.domibus.common.MSHRole.RECEIVING);
-            Assert.fail();
+            Assertions.fail();
         } catch (MessageNotFoundException e) {
             // Then
-            Assert.assertSame(notFoundException, e);
+            Assertions.assertSame(notFoundException, e);
         }
 
     }
@@ -111,11 +111,11 @@ public class UserMessageServiceDelegateTest {
         UserMessageDTO message = null;
         try {
             message = userMessageServiceDelegate.getMessage(MESSAGE_ID, eu.domibus.common.MSHRole.RECEIVING);
-            Assert.fail();
+            Assertions.fail();
         } catch (MessageNotFoundException e) {
             //OK
         }
-        Assert.assertNull(message);
+        Assertions.assertNull(message);
 
         new FullVerifications() {{
             userMessageSecurityService.checkMessageAuthorization(MESSAGE_ID, MSHRole.RECEIVING);
@@ -132,7 +132,7 @@ public class UserMessageServiceDelegateTest {
         }};
 
         String finalRecipient = userMessageServiceDelegate.getFinalRecipient(MESSAGE_ID, eu.domibus.common.MSHRole.RECEIVING);
-        Assert.assertEquals(FINAL_RECIPIENT, finalRecipient);
+        Assertions.assertEquals(FINAL_RECIPIENT, finalRecipient);
         new FullVerifications() {{
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESSAGE_ID, MSHRole.RECEIVING);
             times = 1;
@@ -150,7 +150,7 @@ public class UserMessageServiceDelegateTest {
 //        }};
 //
 //        String finalRecipient = userMessageServiceDelegate.getUserMessageEnvelope(MESSAGE_ID, eu.domibus.common.MSHRole.RECEIVING);
-//        Assert.assertEquals(FINAL_RECIPIENT, finalRecipient);
+//        Assertions.assertEquals(FINAL_RECIPIENT, finalRecipient);
 //        new FullVerifications() {{
 //            userMessageSecurityService.checkMessageAuthorization(MESSAGE_ID, MSHRole.RECEIVING);
 //            times = 1;
@@ -166,7 +166,7 @@ public class UserMessageServiceDelegateTest {
         }};
 
         String finalRecipient = userMessageServiceDelegate.getSignalMessageEnvelope(MESSAGE_ID, eu.domibus.common.MSHRole.RECEIVING);
-        Assert.assertEquals(FINAL_RECIPIENT, finalRecipient);
+        Assertions.assertEquals(FINAL_RECIPIENT, finalRecipient);
         new FullVerifications() {{
             userMessageSecurityService.checkMessageAuthorization(MESSAGE_ID, MSHRole.RECEIVING);
             times = 1;

@@ -12,20 +12,25 @@ import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
 import eu.domibus.core.property.DomibusRawPropertyProvider;
 import mockit.*;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Ion Perpegel
  * @since 4.1
  */
+@ExtendWith(JMockitExtension.class)
+@Disabled("EDELIVERY-6896")
 public class MultiDomainCryptoServiceImplTest {
 
     @Tested

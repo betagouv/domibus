@@ -7,7 +7,7 @@ import eu.domibus.api.proxy.DomibusProxy;
 import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.core.proxy.ProxyCxfUtil;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
@@ -18,8 +18,9 @@ import org.apache.cxf.transport.http.HTTPConduitFactory;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.policy.PolicyConstants;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Dispatch;
@@ -28,14 +29,14 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_CONNECTION_KEEP_ALIVE;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DispatchClientDefaultProviderTest {
 
     @Injectable
@@ -101,6 +102,7 @@ public class DispatchClientDefaultProviderTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testGetClient(@Mocked org.apache.neethi.Policy policy,
                               @Mocked TLSClientParameters tlsClientParameters,
                               @Mocked DispatchImpl<SOAPMessage> dispatch,

@@ -7,10 +7,10 @@ import eu.domibus.core.user.UserService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.List;
  * @author Soumya Chandran (azhikso)
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusMonitoringDefaultEbms3ServiceTest {
     @Tested
     DomibusMonitoringDefaultService domibusMonitoringDefaultService;
@@ -53,7 +53,7 @@ public class DomibusMonitoringDefaultEbms3ServiceTest {
         }};
        MonitoringInfo monitoringInfo = domibusMonitoringDefaultService.getMonitoringDetails(filter);
 
-        Assert.assertNotNull(monitoringInfo);
+        Assertions.assertNotNull(monitoringInfo);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class DomibusMonitoringDefaultEbms3ServiceTest {
 
         MonitoringInfo monitoringInfo = domibusMonitoringDefaultService.getMonitoringDetails(filter);
 
-        Assert.assertNotNull(monitoringInfo);
+        Assertions.assertNotNull(monitoringInfo);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class DomibusMonitoringDefaultEbms3ServiceTest {
 
         MonitoringInfo monitoringInfo = domibusMonitoringDefaultService.getMonitoringDetails(filter);
 
-        Assert.assertNotNull(monitoringInfo);
+        Assertions.assertNotNull(monitoringInfo);
     }
 
     @Test
@@ -117,7 +117,7 @@ public class DomibusMonitoringDefaultEbms3ServiceTest {
 
         MonitoringInfo monitoringInfo = domibusMonitoringDefaultService.getMonitoringDetails(filter);
 
-        Assert.assertNotNull(monitoringInfo);
+        Assertions.assertNotNull(monitoringInfo);
     }
     @Test
     public void getDataBaseDetailsTest() {
@@ -128,7 +128,7 @@ public class DomibusMonitoringDefaultEbms3ServiceTest {
 
         DataBaseInfo dataBaseInfo = domibusMonitoringDefaultService.getDataBaseDetails();
 
-        Assert.assertNotNull(dataBaseInfo);
+        Assertions.assertNotNull(dataBaseInfo);
     }
 
     @Test
@@ -141,7 +141,7 @@ public class DomibusMonitoringDefaultEbms3ServiceTest {
 
         JmsBrokerInfo jmsBrokerInfo = domibusMonitoringDefaultService.getJMSBrokerDetails();
 
-        Assert.assertNotNull(jmsBrokerInfo);
+        Assertions.assertNotNull(jmsBrokerInfo);
     }
 
     @Test
@@ -159,6 +159,6 @@ public class DomibusMonitoringDefaultEbms3ServiceTest {
 
         QuartzInfo quartzInfoResult = domibusMonitoringDefaultService.getQuartzTriggerDetails();
 
-        Assert.assertNotNull(quartzInfoResult);
+        Assertions.assertNotNull(quartzInfoResult);
     }
 }

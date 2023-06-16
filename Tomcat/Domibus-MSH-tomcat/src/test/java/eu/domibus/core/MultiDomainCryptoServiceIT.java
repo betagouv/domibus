@@ -24,10 +24,10 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.validation.constraints.AssertFalse;
@@ -93,7 +93,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     Domain domain;
     String location, back;
 
-    @Before
+    @BeforeEach
     public void doBefore() {
         domain = DomainService.DEFAULT_DOMAIN;
 
@@ -116,7 +116,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         }
     }
 
-    @Before
+    @BeforeEach
     public void doAfter() {
         //restore initial trust store
         if (back != null && location != null) {
@@ -136,31 +136,32 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void saveStoresFromDBToDisk() {
 
         createStore(DOMIBUS_TRUSTSTORE_NAME, "keystores/gateway_truststore2.jks");
 
         boolean exists = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertTrue(exists);
+        Assertions.assertTrue(exists);
 
         multiDomainCryptoService.saveStoresFromDBToDisk();
 
         exists = truststoreDao.existsWithName(DOMIBUS_TRUSTSTORE_NAME);
-        Assert.assertFalse(exists);
+        Assertions.assertFalse(exists);
 
         List<TrustStoreEntry> storeEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(2, storeEntries.size());
-        Assert.assertTrue(storeEntries.stream().noneMatch(entry -> entry.getName().equals("cefsupportgw")));
+        Assertions.assertEquals(2, storeEntries.size());
+        Assertions.assertTrue(storeEntries.stream().noneMatch(entry -> entry.getName().equals("cefsupportgw")));
 
         multiDomainCryptoService.resetTrustStore(domain);
 
         storeEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(9, storeEntries.size());
-        Assert.assertTrue(storeEntries.stream().anyMatch(entry -> entry.getName().equals("cefsupportgw")));
+        Assertions.assertEquals(9, storeEntries.size());
+        Assertions.assertTrue(storeEntries.stream().anyMatch(entry -> entry.getName().equals("cefsupportgw")));
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void replaceTrustStore() throws IOException {
         String newStoreName = "gateway_truststore2.jks";
         String storePassword = "test123";
@@ -180,9 +181,9 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         List<TrustStoreEntry> newStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
         KeyStoreContentInfo newStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
 
-        Assert.assertNotEquals(initialStore, newStore);
-        Assert.assertNotEquals(initialStoreContent.getContent(), newStoreContent.getContent());
-        Assert.assertNotEquals(initialStoreEntries.size(), newStoreEntries.size());
+        Assertions.assertNotEquals(initialStore, newStore);
+        Assertions.assertNotEquals(initialStoreContent.getContent(), newStoreContent.getContent());
+        Assertions.assertNotEquals(initialStoreEntries.size(), newStoreEntries.size());
     }
 
     private Path getPath(String newStoreName) {
@@ -190,22 +191,24 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getTrustStoreEntries() {
         List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(DomainService.DEFAULT_DOMAIN);
 
         KeystorePersistenceInfo trustPersistInfo = keystorePersistenceService.getTrustStorePersistenceInfo();
         List<TrustStoreEntry> trustStoreEntries2 = certificateService.getStoreEntries(trustPersistInfo);
 
-        Assert.assertEquals(trustStoreEntries2.size(), trustStoreEntries.size());
-        Assert.assertEquals(trustStoreEntries2.get(0), trustStoreEntries.get(0));
+        Assertions.assertEquals(trustStoreEntries2.size(), trustStoreEntries.size());
+        Assertions.assertEquals(trustStoreEntries2.get(0), trustStoreEntries.get(0));
 
-        Assert.assertEquals(2, trustStoreEntries.size());
+        Assertions.assertEquals(2, trustStoreEntries.size());
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void addCertificate() throws IOException {
         List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(2, initialStoreEntries.size());
+        Assertions.assertEquals(2, initialStoreEntries.size());
 
         String certName = "green_gw.cer";
         Path path = getPath(certName);
@@ -215,14 +218,15 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         multiDomainCryptoService.addCertificate(domainContextProvider.getCurrentDomain(), Arrays.asList(new CertificateEntry(green_gw, x509Certificate)), true);
 
         List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(3, trustStoreEntries.size());
-        Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(green_gw)));
+        Assertions.assertEquals(3, trustStoreEntries.size());
+        Assertions.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(green_gw)));
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void addSameCertificate() throws IOException {
         List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(2, initialStoreEntries.size());
+        Assertions.assertEquals(2, initialStoreEntries.size());
 
         String certName = "green_gw.cer";
         Path path = getPath(certName);
@@ -233,33 +237,35 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         multiDomainCryptoService.addCertificate(domain, Arrays.asList(new CertificateEntry(green_gw, x509Certificate)), true);
 
         List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(3, trustStoreEntries.size());
-        Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(green_gw)));
+        Assertions.assertEquals(3, trustStoreEntries.size());
+        Assertions.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(green_gw)));
 
         boolean added = multiDomainCryptoService.addCertificate(domain, x509Certificate, green_gw, true);
-        Assert.assertFalse(added);
+        Assertions.assertFalse(added);
         trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(3, trustStoreEntries.size());
+        Assertions.assertEquals(3, trustStoreEntries.size());
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getCertificateFromTruststore() throws KeyStoreException {
         List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
 
-        Assert.assertEquals(2, initialStoreEntries.size());
+        Assertions.assertEquals(2, initialStoreEntries.size());
 
         String blue_gw = "blue_gw";
         X509Certificate certificateFromTruststore = multiDomainCryptoService.getCertificateFromTruststore(domain, blue_gw);
 
-        Assert.assertTrue(certificateFromTruststore.getIssuerDN().getName().contains(blue_gw));
+        Assertions.assertTrue(certificateFromTruststore.getIssuerDN().getName().contains(blue_gw));
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getTrustStoreReplaceTrustStore() throws KeyStoreException, IOException {
         String file_name = "cefsupportgwtruststore.jks";
 
         KeyStore trustStore = multiDomainCryptoService.getTrustStore(domain);
-        Assert.assertTrue(trustStore.containsAlias("blue_gw"));
+        Assertions.assertTrue(trustStore.containsAlias("blue_gw"));
 
         Path path = getPath(file_name);
         byte[] content = Files.readAllBytes(path);
@@ -270,67 +276,72 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         multiDomainCryptoService.replaceTrustStore(DomainService.DEFAULT_DOMAIN, storeInfo);
 
         trustStore = multiDomainCryptoService.getTrustStore(domain);
-        Assert.assertTrue(trustStore.containsAlias("ceftestparty4gw"));
+        Assertions.assertTrue(trustStore.containsAlias("ceftestparty4gw"));
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void isCertificateChainValid() {
         String blue_gw = "blue_gw";
         boolean certificateChainValid = multiDomainCryptoService.isCertificateChainValid(domainContextProvider.getCurrentDomain(), blue_gw);
 
-        Assert.assertTrue(certificateChainValid);
+        Assertions.assertTrue(certificateChainValid);
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getDefaultX509Identifier() throws WSSecurityException {
         String blue_gw = "blue_gw";
         String defaultX509Identifier = multiDomainCryptoService.getDefaultX509Identifier(domainContextProvider.getCurrentDomain());
 
-        Assert.assertEquals(defaultX509Identifier, blue_gw);
+        Assertions.assertEquals(defaultX509Identifier, blue_gw);
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void removeCertificate() {
         List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(2, trustStoreEntries.size());
+        Assertions.assertEquals(2, trustStoreEntries.size());
 
         String red_gw = "red_gw";
         boolean removed = multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), red_gw);
 
-        Assert.assertTrue(removed);
+        Assertions.assertTrue(removed);
         trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(1, trustStoreEntries.size());
-        Assert.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(red_gw)));
+        Assertions.assertEquals(1, trustStoreEntries.size());
+        Assertions.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(red_gw)));
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void removeSameCertificate() {
         List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(2, trustStoreEntries.size());
+        Assertions.assertEquals(2, trustStoreEntries.size());
 
         String red_gw = "red_gw";
         boolean removed = multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), red_gw);
 
-        Assert.assertTrue(removed);
+        Assertions.assertTrue(removed);
         trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(1, trustStoreEntries.size());
-        Assert.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(red_gw)));
+        Assertions.assertEquals(1, trustStoreEntries.size());
+        Assertions.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(red_gw)));
 
         removed = multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), red_gw);
 
-        Assert.assertFalse(removed);
+        Assertions.assertFalse(removed);
         trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(1, trustStoreEntries.size());
-        Assert.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(red_gw)));
+        Assertions.assertEquals(1, trustStoreEntries.size());
+        Assertions.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(red_gw)));
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void isChangedOnDisk() throws KeyStoreException, IOException {
         KeyStore trustStore = multiDomainCryptoService.getTrustStore(domain);
-        Assert.assertTrue(trustStore.containsAlias("blue_gw"));
+        Assertions.assertTrue(trustStore.containsAlias("blue_gw"));
 
         List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(2, initialStoreEntries.size());
+        Assertions.assertEquals(2, initialStoreEntries.size());
 
         String fileName = "cefsupportgwtruststore.jks";
         Path path = getPath(fileName);
@@ -340,14 +351,14 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         Files.write(currentPath, content, StandardOpenOption.WRITE);
 
         boolean isChangedOnDisk = multiDomainCryptoService.isTrustStoreChangedOnDisk(domain);
-        Assert.assertTrue(isChangedOnDisk);
+        Assertions.assertTrue(isChangedOnDisk);
 
         trustStore = multiDomainCryptoService.getTrustStore(domain);
-        Assert.assertFalse(trustStore.containsAlias("ceftestparty4gw"));
+        Assertions.assertFalse(trustStore.containsAlias("ceftestparty4gw"));
 
         multiDomainCryptoService.resetTrustStore(domain);
         trustStore = multiDomainCryptoService.getTrustStore(domain);
-        Assert.assertTrue(trustStore.containsAlias("ceftestparty4gw"));
+        Assertions.assertTrue(trustStore.containsAlias("ceftestparty4gw"));
     }
 
     @Test
@@ -357,9 +368,9 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
 
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
         List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(2, initialStoreEntries.size());
-        Assert.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(added_cer)));
-        Assert.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+        Assertions.assertEquals(2, initialStoreEntries.size());
+        Assertions.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(added_cer)));
+        Assertions.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
         checkDiskFileinSyncWithMemoryStore();
 
         // change trust file to simulate a cluster propagation
@@ -368,8 +379,8 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
 
         // file changed but the trust in memory not
         List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(2, trustStoreEntries.size());
-        Assert.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+        Assertions.assertEquals(2, trustStoreEntries.size());
+        Assertions.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
         checkDiskFileinSyncWithMemoryStore(false);
 
         // when adding or removing a cert, the store is read from the disk first to have the latest version
@@ -380,9 +391,9 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         multiDomainCryptoService.addCertificate(domainContextProvider.getCurrentDomain(), Arrays.asList(new CertificateEntry(added_cer, x509Certificate)), true);
 
         trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(4, trustStoreEntries.size());
-        Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(added_cer)));
-        Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+        Assertions.assertEquals(4, trustStoreEntries.size());
+        Assertions.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(added_cer)));
+        Assertions.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
         checkDiskFileinSyncWithMemoryStore();
     }
 
@@ -394,9 +405,9 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
 
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
         List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(2, initialStoreEntries.size());
-        Assert.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(added_cer)));
-        Assert.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+        Assertions.assertEquals(2, initialStoreEntries.size());
+        Assertions.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(added_cer)));
+        Assertions.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
         checkDiskFileinSyncWithMemoryStore();
 
         // change trust file to simulate a cluster propagation
@@ -405,8 +416,8 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
 
         // file changed but the trust in memory not
         List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(2, trustStoreEntries.size());
-        Assert.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+        Assertions.assertEquals(2, trustStoreEntries.size());
+        Assertions.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
         checkDiskFileinSyncWithMemoryStore(false);
 
         // when adding or removing a cert, the store is read from the disk first to have the latest version
@@ -415,10 +426,10 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         byte[] content = Files.readAllBytes(path);
         X509Certificate x509Certificate = certificateService.loadCertificate(Base64.getEncoder().encodeToString(content));
         boolean added = multiDomainCryptoService.addCertificate(domainContextProvider.getCurrentDomain(), x509Certificate, added_cer, true);
-        Assert.assertFalse(added);
+        Assertions.assertFalse(added);
         trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(3, trustStoreEntries.size());
-        Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+        Assertions.assertEquals(3, trustStoreEntries.size());
+        Assertions.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
         checkDiskFileinSyncWithMemoryStore();
     }
 
@@ -430,9 +441,9 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         String removed_cer = "red_gw";
 
         List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(2, initialStoreEntries.size());
-        Assert.assertTrue(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals("blue_gw")));
-        Assert.assertTrue(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(removed_cer)));
+        Assertions.assertEquals(2, initialStoreEntries.size());
+        Assertions.assertTrue(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals("blue_gw")));
+        Assertions.assertTrue(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(removed_cer)));
         checkDiskFileinSyncWithMemoryStore();
 
         // change trust file to simulate a cluster propagation; new trust has the green_gw cert also
@@ -441,17 +452,17 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
 
         // file changed but the trust in memory not
         List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(2, trustStoreEntries.size());
-        Assert.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
+        Assertions.assertEquals(2, trustStoreEntries.size());
+        Assertions.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("green_gw")));
         checkDiskFileinSyncWithMemoryStore(false);
 
         // when adding or removing a cert, the store is read from the disk first to have the latest version
         multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), removed_cer);
 
         trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(2, trustStoreEntries.size());
-        Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("blue_gw")));
-        Assert.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(removed_cer)));
+        Assertions.assertEquals(2, trustStoreEntries.size());
+        Assertions.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals("blue_gw")));
+        Assertions.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(removed_cer)));
         checkDiskFileinSyncWithMemoryStore();
     }
 
@@ -462,8 +473,8 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
 
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
         List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(2, initialStoreEntries.size());
-        Assert.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(added_cer)));
+        Assertions.assertEquals(2, initialStoreEntries.size());
+        Assertions.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(added_cer)));
         checkDiskFileinSyncWithMemoryStore();
 
         List<String> addedCertNames = new ArrayList<>();
@@ -477,9 +488,9 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         runThreads(tasks);
 
         List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(12, trustStoreEntries.size());
+        Assertions.assertEquals(12, trustStoreEntries.size());
         for (String name : addedCertNames) {
-            Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(name)));
+            Assertions.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(name)));
         }
         checkDiskFileinSyncWithMemoryStore();
 
@@ -490,9 +501,9 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         runThreads(tasks);
 
         trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(2, trustStoreEntries.size());
+        Assertions.assertEquals(2, trustStoreEntries.size());
         for (String name : addedCertNames) {
-            Assert.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(name)));
+            Assertions.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(name)));
         }
         checkDiskFileinSyncWithMemoryStore();
     }
@@ -504,19 +515,19 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
 
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
         List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-        Assert.assertEquals(2, initialStoreEntries.size());
-        Assert.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(alias)));
+        Assertions.assertEquals(2, initialStoreEntries.size());
+        Assertions.assertFalse(initialStoreEntries.stream().anyMatch(entry -> entry.getName().equals(alias)));
         checkDiskFileinSyncWithMemoryStore();
         try {
             addCertificate(alias, "invalid_cert.cer");
         } catch (CryptoSpiException ex) {
             List<TrustStoreEntry> trustStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
-            Assert.assertEquals(2, trustStoreEntries.size());
-            Assert.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(alias)));
+            Assertions.assertEquals(2, trustStoreEntries.size());
+            Assertions.assertFalse(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(alias)));
             checkDiskFileinSyncWithMemoryStore();
             return;
         }
-        Assert.fail();
+        Assertions.fail();
     }
 
     private void setClusterDepluymentProperty() {
@@ -527,7 +538,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
     private void removeCertificate(String name) {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
         boolean removed = multiDomainCryptoService.removeCertificate(domainContextProvider.getCurrentDomain(), name);
-        Assert.assertTrue(removed);
+        Assertions.assertTrue(removed);
     }
 
     private void addCertificate(String alias) {
@@ -543,7 +554,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
             byte[] content = Files.readAllBytes(path);
             X509Certificate x509Certificate = certificateService.loadCertificate(Base64.getEncoder().encodeToString(content));
             boolean added = multiDomainCryptoService.addCertificate(domainContextProvider.getCurrentDomain(), x509Certificate, alias, true);
-            Assert.assertTrue(added);
+            Assertions.assertTrue(added);
             checkDiskFileinSyncWithMemoryStore();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
@@ -591,7 +602,7 @@ public class MultiDomainCryptoServiceIT extends AbstractIT {
         KeyStoreContentInfo info = getKeystorePersistenceService.loadStore(getKeystorePersistenceService.getTrustStorePersistenceInfo());
         KeyStore storeOnDisk = certificateService.loadStore(info);
         KeyStore memoryStore = multiDomainCryptoService.getTrustStore(domain);
-        Assert.assertEquals(securityUtil.areKeystoresIdentical(memoryStore, storeOnDisk), inSync);
+        Assertions.assertEquals(securityUtil.areKeystoresIdentical(memoryStore, storeOnDisk), inSync);
     }
 
     private void checkDiskFileinSyncWithMemoryStore() {

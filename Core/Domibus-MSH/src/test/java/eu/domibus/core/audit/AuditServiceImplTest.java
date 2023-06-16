@@ -15,22 +15,22 @@ import eu.domibus.core.audit.model.PModeArchiveAudit;
 import eu.domibus.core.audit.model.PModeAudit;
 import eu.domibus.core.converter.AuditLogCoreMapper;
 import eu.domibus.core.util.AnnotationsUtil;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Thomas Dussart
  * @since 4.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuditServiceImplTest {
 
     @Spy

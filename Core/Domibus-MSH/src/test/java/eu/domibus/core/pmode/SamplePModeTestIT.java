@@ -10,15 +10,15 @@ import eu.domibus.core.util.xml.XMLUtilImpl;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.xml.bind.JAXBContext;
@@ -29,12 +29,12 @@ import java.io.InputStream;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SCHEMAFACTORY;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by Cosmin Baciu on 16-Sep-16.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class SamplePModeTestIT {
 
@@ -135,8 +135,8 @@ public class SamplePModeTestIT {
             fail("Should have prevented the external entity since DTDs should be disabled");
         } catch (Exception e) {
             Throwable cause = ExceptionUtils.getRootCause(e);
-            Assert.assertTrue("Should have thrown the correct exception indicating the XML entity is unknown",
-                    cause instanceof WstxParsingException && cause.getMessage().startsWith("Undeclared general entity \"xxe\""));
+            Assertions.assertTrue(cause instanceof WstxParsingException && cause.getMessage().startsWith("Undeclared general entity \"xxe\""),
+                    "Should have thrown the correct exception indicating the XML entity is unknown");
         }
     }
 }

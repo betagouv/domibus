@@ -14,9 +14,9 @@ import eu.domibus.ext.domain.MessageAcknowledgementRequestDTO;
 import eu.domibus.messaging.XmlProcessingException;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -74,7 +75,7 @@ public class MessageAcknowledgementExtResourceIT extends AbstractIT {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws XmlProcessingException, IOException {
         mockMvc = MockMvcBuilders.webAppContextSetup(webAppContext)
                 .build();
@@ -98,7 +99,7 @@ public class MessageAcknowledgementExtResourceIT extends AbstractIT {
         // then
         String content = result.getResponse().getContentAsString();
         List<?> resultList = objectMapper.readValue(content, List.class);
-        Assert.assertEquals(0, resultList.size());
+        Assertions.assertEquals(0, resultList.size());
     }
 
     @Test
@@ -122,7 +123,7 @@ public class MessageAcknowledgementExtResourceIT extends AbstractIT {
 
         String content = result.getResponse().getContentAsString();
         Exception resultList = objectMapper.readValue(content, Exception.class);
-        MatcherAssert.assertThat(resultList.getMessage(), CoreMatchers.containsString("You are not allowed to handle this message [" + uml1.getUserMessage().getMessageId()));
+        assertThat(resultList.getMessage(), CoreMatchers.containsString("You are not allowed to handle this message [" + uml1.getUserMessage().getMessageId()));
     }
     @Test
     public void getAck_delivered() throws Exception {
@@ -139,7 +140,7 @@ public class MessageAcknowledgementExtResourceIT extends AbstractIT {
 
         String content = result.getResponse().getContentAsString();
         MessageAcknowledgementDTO acknowledgementDTO = objectMapper.readValue(content, MessageAcknowledgementDTO.class);
-        Assert.assertNotNull(acknowledgementDTO);
+        Assertions.assertNotNull(acknowledgementDTO);
     }
 
     @Test
@@ -157,6 +158,6 @@ public class MessageAcknowledgementExtResourceIT extends AbstractIT {
 
         String content = result.getResponse().getContentAsString();
         MessageAcknowledgementDTO acknowledgementDTO = objectMapper.readValue(content, MessageAcknowledgementDTO.class);
-        Assert.assertNotNull(acknowledgementDTO);
+        Assertions.assertNotNull(acknowledgementDTO);
     }
 }

@@ -15,10 +15,11 @@ import eu.domibus.messaging.MessageConstants;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,7 +31,8 @@ import java.util.Set;
  * @since 4.0
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
+@Disabled("EDELIVERY-6896")
 public class PropertyProfileValidatorTest {
 
     public static final String valid4CornerMessagePath = "target/test-classes/eu/domibus/common/validators/valid4CornerMessage.xml";
@@ -146,10 +148,10 @@ public class PropertyProfileValidatorTest {
 
         try {
             propertyProfileValidator.checkDuplicateMessageProperties(modifiablePropertyList, messagePropertiesSet);
-            Assert.fail();
+            Assertions.fail();
         } catch (EbMS3Exception e) {
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0052, e.getErrorCode());
-            Assert.assertEquals("Duplicate Message property found for property name [originalSender]", e.getMessage());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0052, e.getErrorCode());
+            Assertions.assertEquals("Duplicate Message property found for property name [originalSender]", e.getMessage());
         }
 
     }

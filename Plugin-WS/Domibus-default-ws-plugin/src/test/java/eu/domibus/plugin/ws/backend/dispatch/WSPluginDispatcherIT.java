@@ -3,9 +3,9 @@ package eu.domibus.plugin.ws.backend.dispatch;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import eu.domibus.plugin.ws.backend.WSBackendMessageLogEntity;
 import eu.domibus.plugin.ws.backend.WSBackendMessageType;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.xml.soap.SOAPMessage;
@@ -27,7 +27,7 @@ public class WSPluginDispatcherIT extends AbstractBackendWSIT {
     private WSPluginDispatcher wsPluginDispatcher;
 
     @Test
-    @Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
+    @Disabled("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
     public void sendSuccess() {
         WSBackendMessageLogEntity wsBackendMessageLogEntity = new WSBackendMessageLogEntity();
         wsBackendMessageLogEntity.setMessageId(UUID.randomUUID().toString());
@@ -38,9 +38,9 @@ public class WSPluginDispatcherIT extends AbstractBackendWSIT {
                 "http://localhost:" + backendPort + "/backend");
 
         String[] authHeader = msgToSend.getMimeHeaders().getHeader("Authorization");
-        Assert.assertNotNull(authHeader);
+        Assertions.assertNotNull(authHeader);
         String decodedCredentials = new String(Base64.getDecoder().decode(authHeader[0].replace("Basic ", "")));
-        Assert.assertTrue(decodedCredentials.contains("usertest"));
-        Assert.assertTrue(decodedCredentials.contains("passwordtest"));
+        Assertions.assertTrue(decodedCredentials.contains("usertest"));
+        Assertions.assertTrue(decodedCredentials.contains("passwordtest"));
     }
 }

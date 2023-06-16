@@ -20,10 +20,10 @@ import eu.europa.ec.dynamicdiscovery.core.security.impl.DefaultProxy;
 import eu.europa.ec.dynamicdiscovery.core.security.impl.DefaultSignatureValidator;
 import eu.europa.ec.dynamicdiscovery.model.*;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ProcessType;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ServiceGroupType;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ServiceMetadataType;
@@ -37,12 +37,13 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
+import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ioana Dragusanu (idragusa)
@@ -50,7 +51,7 @@ import static org.junit.Assert.*;
  * @since 3.2.5
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DynamicDiscoveryEbms3ServiceOASISTest {
 
 
@@ -300,13 +301,13 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
         // Given
         new MockUp<DefaultProxy>() {
             void $init(Invocation invocation, String serverAddress, int serverPort, String user, String password, String nonProxyHosts) {
-                Assert.assertTrue("Should have created the correct proxy configuration when the proxy user is not empty",
-                        invocation.getInvocationCount() == 1
+                Assertions.assertTrue(invocation.getInvocationCount() == 1
                                 && "192.168.0.0".equals(serverAddress)
                                 && 1234 == serverPort
                                 && "proxyUser".equals(user)
                                 && "proxyPassword".equals(password)
-                                && "host1,host2".equals(nonProxyHosts)
+                                && "host1,host2".equals(nonProxyHosts),
+                        "Should have created the correct proxy configuration when the proxy user is not empty"
                 );
             }
         };
@@ -334,7 +335,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
         DefaultProxy defaultProxy = dynamicDiscoveryServiceOASIS.getConfiguredProxy();
 
         //then
-        Assert.assertNotNull(defaultProxy);
+        Assertions.assertNotNull(defaultProxy);
     }
 
     @Test
@@ -342,13 +343,13 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
         // Given
         new MockUp<DefaultProxy>() {
             void $init(Invocation invocation, String serverAddress, int serverPort, String user, String password, String nonProxyHosts) {
-                Assert.assertTrue("Should have created the correct proxy configuration when the proxy user is empty",
-                        invocation.getInvocationCount() == 1
+                Assertions.assertTrue(invocation.getInvocationCount() == 1
                                 && "192.168.0.0".equals(serverAddress)
                                 && 1234 == serverPort
                                 && user == null
                                 && password == null
-                                && "host1,host2".equals(nonProxyHosts)
+                                && "host1,host2".equals(nonProxyHosts),
+                        "Should have created the correct proxy configuration when the proxy user is empty"
                 );
             }
         };
@@ -376,7 +377,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
         DefaultProxy defaultProxy = dynamicDiscoveryServiceOASIS.getConfiguredProxy();
 
         //then
-        Assert.assertNotNull(defaultProxy);
+        Assertions.assertNotNull(defaultProxy);
     }
 
     @Test
@@ -391,7 +392,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
         DefaultProxy defaultProxy = dynamicDiscoveryServiceOASIS.getConfiguredProxy();
 
         //then
-        Assert.assertNull(defaultProxy);
+        Assertions.assertNull(defaultProxy);
     }
 
     @Test
@@ -423,9 +424,9 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
 
         //when
         DynamicDiscovery dynamicDiscovery = dynamicDiscoveryServiceOASIS.createDynamicDiscoveryClient();
-        Assert.assertNotNull(dynamicDiscovery);
+        Assertions.assertNotNull(dynamicDiscovery);
         DefaultProxy defaultProxy = (DefaultProxy) ReflectionTestUtils.getField(dynamicDiscovery.getService().getMetadataFetcher(), "proxyConfiguration");
-        Assert.assertNull(defaultProxy);
+        Assertions.assertNull(defaultProxy);
     }
 
     @Test
@@ -438,7 +439,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
             times = 1;
         }};
         String partyIdType = dynamicDiscoveryServiceOASIS.getPartyIdType();
-        Assert.assertEquals(partyIdType, URN_TYPE_VALUE);
+        Assertions.assertEquals(partyIdType, URN_TYPE_VALUE);
     }
 
     @Test
@@ -449,7 +450,7 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
             times = 1;
         }};
         String partyIdType = dynamicDiscoveryServiceOASIS.getPartyIdType();
-        Assert.assertNull(partyIdType);
+        Assertions.assertNull(partyIdType);
     }
 
     @Test
@@ -463,27 +464,31 @@ public class DynamicDiscoveryEbms3ServiceOASISTest {
         }};
         String responderRole = dynamicDiscoveryServiceOASIS.getResponderRole();
 
-        Assert.assertEquals(responderRole, DEFAULT_RESPONDER_ROLE);
+        Assertions.assertEquals(responderRole, DEFAULT_RESPONDER_ROLE);
     }
 
-    @Test(expected = ConfigurationException.class)
-    public void testSmlZoneEmpty() throws EbMS3Exception {
+    @Test
+    void testSmlZoneEmpty() {
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);
             result = "";
             times = 1;
         }};
-        dynamicDiscoveryServiceOASIS.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
+        Assertions.assertThrows(ConfigurationException.class,
+                () -> dynamicDiscoveryServiceOASIS.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE))
+        ;
     }
 
-    @Test(expected = ConfigurationException.class)
-    public void testSmlZoneNull() throws EbMS3Exception {
+    @Test
+    void testSmlZoneNull() {
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);
             result = null;
             times = 1;
         }};
-        dynamicDiscoveryServiceOASIS.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
+        Assertions.assertThrows(ConfigurationException.class,
+                () -> dynamicDiscoveryServiceOASIS.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE))
+        ;
     }
 
 }

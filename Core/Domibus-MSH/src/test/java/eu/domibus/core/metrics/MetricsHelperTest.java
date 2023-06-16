@@ -6,16 +6,16 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Catalin Enache
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MetricsHelperTest {
 
     @Injectable
@@ -38,7 +38,7 @@ public class MetricsHelperTest {
             result = true;
         }};
 
-        Assert.assertTrue(metricsHelper.showJMSCounts());
+        Assertions.assertTrue(metricsHelper.showJMSCounts());
         new FullVerifications() {{
 
         }};
@@ -56,8 +56,8 @@ public class MetricsHelperTest {
             result = false;
         }};
 
-        Assert.assertTrue(metricsHelper.showJMSCounts());
-        Assert.assertFalse(metricsHelper.showJMSCounts());
+        Assertions.assertTrue(metricsHelper.showJMSCounts());
+        Assertions.assertFalse(metricsHelper.showJMSCounts());
         new FullVerifications() {{
             domibusConfigurationService.isSingleTenantAware();
         }};

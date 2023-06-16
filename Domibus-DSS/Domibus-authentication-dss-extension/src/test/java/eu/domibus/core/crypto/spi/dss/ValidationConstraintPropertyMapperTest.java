@@ -4,10 +4,10 @@ import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.europa.esig.dss.i18n.MessageTag;
 import mockit.Expectations;
 import mockit.Mocked;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +20,7 @@ import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.*;
  * @author Thomas Dussart
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class ValidationConstraintPropertyMapperTest {
 
     @Test
@@ -54,10 +54,10 @@ public class ValidationConstraintPropertyMapperTest {
                         domibusPropertyExtService);
 
         final List<ConstraintInternal> constraints = constraintPropertyMapper.map();
-        Assert.assertEquals(2, constraints.size());
-        Assert.assertTrue(constraints.stream()
+        Assertions.assertEquals(2, constraints.size());
+        Assertions.assertTrue(constraints.stream()
                 .anyMatch(constraintInternal -> constraintInternal.getName().equals(trustAnchorConstraint.name()) && constraintInternal.getStatus().equals("OK")));
-        Assert.assertTrue(constraints.stream()
+        Assertions.assertTrue(constraints.stream()
                 .anyMatch(constraintInternal -> constraintInternal.getName().equals(qualTlFresh.name()) && constraintInternal.getStatus().equals("WARNING")));
 
     }

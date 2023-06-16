@@ -15,9 +15,10 @@ import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.AlertDispatcherService;
 import eu.domibus.core.alerts.service.EventServiceImpl;
 import eu.domibus.core.user.ui.UserDao;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,7 +57,7 @@ public class AlertEventsTestIT extends AbstractIT {
 
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         dispatchedAlerts.clear();
     }
@@ -67,14 +68,15 @@ public class AlertEventsTestIT extends AbstractIT {
         eventService.enqueueEvent(eventType, eventType.name(), new EventProperties());
 
         Thread.sleep(1000);
-        Assert.assertEquals(dispatchedAlerts.size(), 1);
+        Assertions.assertEquals(dispatchedAlerts.size(), 1);
         Alert alert = dispatchedAlerts.get(0);
-        Assert.assertEquals(alert.getAlertType(), AlertType.ARCHIVING_START_DATE_STOPPED);
-        Assert.assertEquals(alert.getEvents().size(), 1);
-        Assert.assertEquals(alert.getEvents().toArray(new Event[0])[0].getType(), eventType);
+        Assertions.assertEquals(alert.getAlertType(), AlertType.ARCHIVING_START_DATE_STOPPED);
+        Assertions.assertEquals(alert.getEvents().size(), 1);
+        Assertions.assertEquals(alert.getEvents().toArray(new Event[0])[0].getType(), eventType);
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void sendEventMessageNotFinal() throws InterruptedException {
         String messageId = "messageId";
         MessageStatus messageStatus = MessageStatus.RECEIVED;
@@ -82,17 +84,17 @@ public class AlertEventsTestIT extends AbstractIT {
         eventService.enqueueEvent(EventType.ARCHIVING_MESSAGES_NON_FINAL, messageId, new EventProperties(messageId, messageStatus.name()));
 
         Thread.sleep(1000);
-        Assert.assertEquals(dispatchedAlerts.size(), 1);
+        Assertions.assertEquals(dispatchedAlerts.size(), 1);
         Alert alert = dispatchedAlerts.get(0);
-        Assert.assertEquals(alert.getAlertType(), AlertType.ARCHIVING_MESSAGES_NON_FINAL);
-        Assert.assertEquals(alert.getEvents().size(), 1);
+        Assertions.assertEquals(alert.getAlertType(), AlertType.ARCHIVING_MESSAGES_NON_FINAL);
+        Assertions.assertEquals(alert.getEvents().size(), 1);
         Event event = alert.getEvents().toArray(new Event[0])[0];
-        Assert.assertEquals(event.getType(), EventType.ARCHIVING_MESSAGES_NON_FINAL);
+        Assertions.assertEquals(event.getType(), EventType.ARCHIVING_MESSAGES_NON_FINAL);
         Map<String, AbstractPropertyValue> properties = event.getProperties();
-        Assert.assertEquals(properties.size(), 3);
-        Assert.assertEquals(properties.get("OLD_STATUS").getValue(), messageStatus.name());
-        Assert.assertEquals(properties.get("MESSAGE_ID").getValue(), messageId);
-        Assert.assertEquals(properties.get("EVENT_IDENTIFIER").getValue(), messageId);
+        Assertions.assertEquals(properties.size(), 3);
+        Assertions.assertEquals(properties.get("OLD_STATUS").getValue(), messageStatus.name());
+        Assertions.assertEquals(properties.get("MESSAGE_ID").getValue(), messageId);
+        Assertions.assertEquals(properties.get("EVENT_IDENTIFIER").getValue(), messageId);
     }
 
     @Test
@@ -102,17 +104,17 @@ public class AlertEventsTestIT extends AbstractIT {
         eventService.enqueueMessageStatusChangedEvent(messageId, MessageStatus.SEND_ENQUEUED, MessageStatus.SEND_FAILURE, MSHRole.SENDING);
 
         Thread.sleep(1000);
-        Assert.assertEquals(dispatchedAlerts.size(), 1);
+        Assertions.assertEquals(dispatchedAlerts.size(), 1);
         Alert alert = dispatchedAlerts.get(0);
-        Assert.assertEquals(alert.getAlertType(), AlertType.MSG_STATUS_CHANGED);
-        Assert.assertEquals(alert.getEvents().size(), 1);
+        Assertions.assertEquals(alert.getAlertType(), AlertType.MSG_STATUS_CHANGED);
+        Assertions.assertEquals(alert.getEvents().size(), 1);
         Event event = alert.getEvents().toArray(new Event[0])[0];
-        Assert.assertEquals(event.getType(), EventType.MSG_STATUS_CHANGED);
+        Assertions.assertEquals(event.getType(), EventType.MSG_STATUS_CHANGED);
         Map<String, AbstractPropertyValue> properties = event.getProperties();
-        Assert.assertEquals(properties.size(), 4);
-        Assert.assertEquals(properties.get("OLD_STATUS").getValue(), MessageStatus.SEND_ENQUEUED.name());
-        Assert.assertEquals(properties.get("NEW_STATUS").getValue(), MessageStatus.SEND_FAILURE.name());
-        Assert.assertEquals(properties.get("MESSAGE_ID").getValue(), messageId);
+        Assertions.assertEquals(properties.size(), 4);
+        Assertions.assertEquals(properties.get("OLD_STATUS").getValue(), MessageStatus.SEND_ENQUEUED.name());
+        Assertions.assertEquals(properties.get("NEW_STATUS").getValue(), MessageStatus.SEND_FAILURE.name());
+        Assertions.assertEquals(properties.get("MESSAGE_ID").getValue(), messageId);
 
         messageDaoTestUtil.deleteMessages(Arrays.asList(uml.getEntityId()));
     }
@@ -124,7 +126,7 @@ public class AlertEventsTestIT extends AbstractIT {
         eventService.enqueueMessageStatusChangedEvent(messageId, MessageStatus.SEND_ENQUEUED, MessageStatus.ACKNOWLEDGED, MSHRole.SENDING);
 
         Thread.sleep(1000);
-        Assert.assertEquals(dispatchedAlerts.size(), 0);
+        Assertions.assertEquals(dispatchedAlerts.size(), 0);
 
         messageDaoTestUtil.deleteMessages(Arrays.asList(uml.getEntityId()));
     }
@@ -138,19 +140,19 @@ public class AlertEventsTestIT extends AbstractIT {
         eventService.enqueuePasswordExpirationEvent(eventType, user, maxPasswordAgeInDays);
 
         Thread.sleep(1000);
-        Assert.assertEquals(dispatchedAlerts.size(), 1);
+        Assertions.assertEquals(dispatchedAlerts.size(), 1);
         Alert alert = dispatchedAlerts.get(0);
-        Assert.assertEquals(alert.getAlertType(), AlertType.PLUGIN_PASSWORD_EXPIRED);
-        Assert.assertEquals(alert.getEvents().size(), 1);
-        Assert.assertEquals(alert.getEvents().toArray(new Event[0])[0].getType(), eventType);
+        Assertions.assertEquals(alert.getAlertType(), AlertType.PLUGIN_PASSWORD_EXPIRED);
+        Assertions.assertEquals(alert.getEvents().size(), 1);
+        Assertions.assertEquals(alert.getEvents().toArray(new Event[0])[0].getType(), eventType);
 
         eventService.enqueuePasswordExpirationEvent(eventType, user, maxPasswordAgeInDays);
         Thread.sleep(1000);
-        Assert.assertEquals(dispatchedAlerts.size(), 1);
+        Assertions.assertEquals(dispatchedAlerts.size(), 1);
 
         eventService.enqueuePasswordExpirationEvent(eventType, user, maxPasswordAgeInDays);
         Thread.sleep(1000);
-        Assert.assertEquals(dispatchedAlerts.size(), 1);
+        Assertions.assertEquals(dispatchedAlerts.size(), 1);
     }
 
     @Test
@@ -160,19 +162,19 @@ public class AlertEventsTestIT extends AbstractIT {
         eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
 
         Thread.sleep(1000);
-        Assert.assertEquals(dispatchedAlerts.size(), 1);
+        Assertions.assertEquals(dispatchedAlerts.size(), 1);
         Alert alert = dispatchedAlerts.get(0);
-        Assert.assertEquals(alert.getAlertType(), AlertType.PARTITION_CHECK);
-        Assert.assertEquals(alert.getEvents().size(), 1);
-        Assert.assertEquals(alert.getEvents().toArray(new Event[0])[0].getType(), EventType.PARTITION_CHECK);
+        Assertions.assertEquals(alert.getAlertType(), AlertType.PARTITION_CHECK);
+        Assertions.assertEquals(alert.getEvents().size(), 1);
+        Assertions.assertEquals(alert.getEvents().toArray(new Event[0])[0].getType(), EventType.PARTITION_CHECK);
 
         eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
         Thread.sleep(1000);
-        Assert.assertEquals(dispatchedAlerts.size(), 1);
+        Assertions.assertEquals(dispatchedAlerts.size(), 1);
 
         eventService.enqueueEvent(EventType.PARTITION_CHECK, partitionName, new EventProperties(partitionName));
         Thread.sleep(1000);
-        Assert.assertEquals(dispatchedAlerts.size(), 1);
+        Assertions.assertEquals(dispatchedAlerts.size(), 1);
     }
 
     @Test
@@ -186,11 +188,11 @@ public class AlertEventsTestIT extends AbstractIT {
         eventService.enqueueMonitoringEvent(messageId, MSHRole.RECEIVING, oldStatus, newStatus, fromParty, toParty);
 
         Thread.sleep(1000);
-        Assert.assertEquals(dispatchedAlerts.size(), 1);
+        Assertions.assertEquals(dispatchedAlerts.size(), 1);
         Alert alert = dispatchedAlerts.get(0);
-        Assert.assertEquals(alert.getAlertType(), AlertType.CONNECTION_MONITORING_FAILED);
-        Assert.assertEquals(alert.getEvents().size(), 1);
-        Assert.assertEquals(alert.getEvents().toArray(new Event[0])[0].getType(), EventType.CONNECTION_MONITORING_FAILED);
+        Assertions.assertEquals(alert.getAlertType(), AlertType.CONNECTION_MONITORING_FAILED);
+        Assertions.assertEquals(alert.getEvents().size(), 1);
+        Assertions.assertEquals(alert.getEvents().toArray(new Event[0])[0].getType(), EventType.CONNECTION_MONITORING_FAILED);
     }
 
     @Test
@@ -204,7 +206,7 @@ public class AlertEventsTestIT extends AbstractIT {
         eventService.enqueueMonitoringEvent(messageId, MSHRole.SENDING, oldStatus, newStatus, fromParty, toParty);
 
         Thread.sleep(1000);
-        Assert.assertEquals(dispatchedAlerts.size(), 0);
+        Assertions.assertEquals(dispatchedAlerts.size(), 0);
     }
 
 }

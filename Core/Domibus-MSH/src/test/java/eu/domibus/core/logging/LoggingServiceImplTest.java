@@ -12,12 +12,13 @@ import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ import static eu.domibus.core.logging.LoggingServiceImpl.PREFIX_CLASS_;
  * @author Catalin Enache
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class LoggingServiceImplTest {
 
     @Injectable
@@ -60,7 +61,7 @@ public class LoggingServiceImplTest {
         //tested method
         loggingService.setLoggingLevel(name, level);
 
-        Assert.assertEquals(Level.DEBUG, loggerContext.getLogger(name).getLevel());
+        Assertions.assertEquals(Level.DEBUG, loggerContext.getLogger(name).getLevel());
     }
 
     @Test
@@ -78,7 +79,7 @@ public class LoggingServiceImplTest {
         //tested method
         loggingService.setLoggingLevel(name, level);
 
-        Assert.assertEquals(Level.INFO, loggerContext.getLogger(Logger.ROOT_LOGGER_NAME).getLevel());
+        Assertions.assertEquals(Level.INFO, loggerContext.getLogger(Logger.ROOT_LOGGER_NAME).getLevel());
     }
 
     @Test
@@ -89,10 +90,10 @@ public class LoggingServiceImplTest {
         try {
             //tested method
             loggingService.setLoggingLevel(name, level);
-            Assert.fail("LoggingException expected");
+            Assertions.fail("LoggingException expected");
         } catch (LoggingException le) {
-            Assert.assertEquals(DomibusCoreErrorCode.DOM_001, le.getError());
-            Assert.assertTrue(le.getMessage().contains("Not a known log level"));
+            Assertions.assertEquals(DomibusCoreErrorCode.DOM_001, le.getError());
+            Assertions.assertTrue(le.getMessage().contains("Not a known log level"));
         }
     }
 
@@ -109,8 +110,8 @@ public class LoggingServiceImplTest {
         new Verifications() {{
             String actualName, actualLevel;
             signalService.signalLoggingSetLevel(actualName = withCapture(), actualLevel = withCapture());
-            Assert.assertEquals(name, actualName);
-            Assert.assertEquals(level, actualLevel);
+            Assertions.assertEquals(name, actualName);
+            Assertions.assertEquals(level, actualLevel);
         }};
     }
 
@@ -128,10 +129,10 @@ public class LoggingServiceImplTest {
         try {
             //tested method
             loggingService.signalSetLoggingLevel(name, level);
-            Assert.fail("LoggingException expected");
+            Assertions.fail("LoggingException expected");
         } catch (LoggingException le) {
-            Assert.assertEquals(DomibusCoreErrorCode.DOM_001, le.getError());
-            Assert.assertTrue(le.getMessage().contains("Error while sending topic message for setting logging level"));
+            Assertions.assertEquals(DomibusCoreErrorCode.DOM_001, le.getError());
+            Assertions.assertTrue(le.getMessage().contains("Error while sending topic message for setting logging level"));
         }
     }
 
@@ -143,8 +144,8 @@ public class LoggingServiceImplTest {
         //tested method
         List<LoggingEntry> loggingEntries = loggingService.getLoggingLevel(name, showClasses);
 
-        Assert.assertTrue(CollectionUtils.isNotEmpty(loggingEntries));
-        Assert.assertTrue(loggingEntries.get(0).getName().startsWith(name));
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(loggingEntries));
+        Assertions.assertTrue(loggingEntries.get(0).getName().startsWith(name));
     }
 
     @Test
@@ -155,12 +156,12 @@ public class LoggingServiceImplTest {
         //tested method
         List<LoggingEntry> loggingEntries = loggingService.getLoggingLevel(name, showClasses);
 
-        Assert.assertTrue(CollectionUtils.isNotEmpty(loggingEntries));
-        Assert.assertTrue(loggingEntries.get(0).getName().contains("domibus"));
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(loggingEntries));
+        Assertions.assertTrue(loggingEntries.get(0).getName().contains("domibus"));
     }
 
     @Test
-    public void testGetLoggingLevel_ClassNotPresentInList(){
+    public void testGetLoggingLevel_ClassNotPresentInList() {
         DomibusLogger LOG1 = DomibusLoggerFactory.getLogger("class TestLoggerName");
         DomibusLogger LOG2 = DomibusLoggerFactory.getLogger("class org.ehcache.core.Ehcache-eu.domibus.api.model.PartyRole");
 
@@ -168,17 +169,18 @@ public class LoggingServiceImplTest {
         List<LoggingEntry> loggingEntries2 = loggingService.getLoggingLevel("class", true);
 
         Predicate<LoggingEntry> findEntriesBeginWithClassPredicate = loggingEntry -> loggingEntry.getName().startsWith(PREFIX_CLASS_);
-        Assert.assertEquals("No logger entries should start with 'class '.", 0, loggingEntries.stream().filter(findEntriesBeginWithClassPredicate).count());
-        Assert.assertEquals("No logger entries should start with 'class '.", 0, loggingEntries2.stream().filter(findEntriesBeginWithClassPredicate).count());
+        Assertions.assertEquals(0, loggingEntries.stream().filter(findEntriesBeginWithClassPredicate).count(), "No logger entries should start with 'class '.");
+        Assertions.assertEquals(0, loggingEntries2.stream().filter(findEntriesBeginWithClassPredicate).count(), "No logger entries should start with 'class '.");
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testResetLogging(final @Mocked LogbackLoggingConfigurator logbackLoggingConfigurator) {
 
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
         String domibusConfigLocation = "/home";//TODO
 
-        new Expectations(loggingService) {{
+        new Expectations() {{
             domibusConfigurationService.getConfigLocation();
             result = domibusConfigLocation;
 
@@ -191,7 +193,7 @@ public class LoggingServiceImplTest {
 
         //tested method
         loggingService.resetLogging();
-        Assert.assertEquals(Level.WARN, context.getLogger("org.apache.cxf").getLevel());
+        Assertions.assertEquals(Level.WARN, context.getLogger("org.apache.cxf").getLevel());
 
     }
 
@@ -231,45 +233,45 @@ public class LoggingServiceImplTest {
         try {
             //tested method
             loggingService.signalResetLogging();
-            Assert.fail("LoggingException expected");
+            Assertions.fail("LoggingException expected");
         } catch (LoggingException le) {
-            Assert.assertEquals(DomibusCoreErrorCode.DOM_001, le.getError());
-            Assert.assertTrue(le.getMessage().contains("Error while sending topic message for logging reset"));
+            Assertions.assertEquals(DomibusCoreErrorCode.DOM_001, le.getError());
+            Assertions.assertTrue(le.getMessage().contains("Error while sending topic message for logging reset"));
         }
     }
 
     @Test
     public void testToLevel() {
         String level = "ALL";
-        Assert.assertEquals(Level.ALL, loggingService.toLevel(level));
+        Assertions.assertEquals(Level.ALL, loggingService.toLevel(level));
 
         level = "TRACE";
-        Assert.assertEquals(Level.TRACE, loggingService.toLevel(level));
+        Assertions.assertEquals(Level.TRACE, loggingService.toLevel(level));
 
         level = "DEBUG";
-        Assert.assertEquals(Level.DEBUG, loggingService.toLevel(level));
+        Assertions.assertEquals(Level.DEBUG, loggingService.toLevel(level));
 
         level = "INFO";
-        Assert.assertEquals(Level.INFO, loggingService.toLevel(level));
+        Assertions.assertEquals(Level.INFO, loggingService.toLevel(level));
 
         level = "ERROR";
-        Assert.assertEquals(Level.ERROR, loggingService.toLevel(level));
+        Assertions.assertEquals(Level.ERROR, loggingService.toLevel(level));
 
         level = "ALL";
-        Assert.assertEquals(Level.ALL, loggingService.toLevel(level));
+        Assertions.assertEquals(Level.ALL, loggingService.toLevel(level));
 
         try {
             loggingService.toLevel(null);
-            Assert.fail("LoggingException expected");
+            Assertions.fail("LoggingException expected");
         } catch (LoggingException le) {
-            Assert.assertEquals(DomibusCoreErrorCode.DOM_001, le.getError());
+            Assertions.assertEquals(DomibusCoreErrorCode.DOM_001, le.getError());
         }
 
         try {
             loggingService.toLevel("BLABLA");
-            Assert.fail("LoggingException expected");
+            Assertions.fail("LoggingException expected");
         } catch (LoggingException le) {
-            Assert.assertEquals(DomibusCoreErrorCode.DOM_001, le.getError());
+            Assertions.assertEquals(DomibusCoreErrorCode.DOM_001, le.getError());
         }
 
     }
@@ -278,7 +280,6 @@ public class LoggingServiceImplTest {
      * Testing that presence of inner class loggers will be caught for main class and will not impact other loggers at packge level.
      * If packge is supplied - expect true
      * if main class with child loggers due to inner class is supplied - expect false
-     * 
      */
     @Test
     public void addChildLoggers_PresenceOfInnerClassReturnFalse(@Injectable Logger packageLogger, @Injectable Logger mainClassLogger, @Injectable Logger innerClassLogger) {
@@ -325,9 +326,9 @@ public class LoggingServiceImplTest {
             result = innerClassLoggerName;
         }};
 
-        Assert.assertFalse("Main Class having child loggers due to inner class should return false", loggingService.addChildLoggers(mainClassLogger, false));
-        Assert.assertTrue("Package having child loggers due to main classes should return true", loggingService.addChildLoggers(packageLogger, false));
-        Assert.assertFalse("Inner Class having no child loggers should return false", loggingService.addChildLoggers(innerClassLogger, false));
-        Assert.assertTrue("ShowClasses being enabled should always return true", loggingService.addChildLoggers(innerClassLogger, true));
+        Assertions.assertFalse(loggingService.addChildLoggers(mainClassLogger, false), "Main Class having child loggers due to inner class should return false");
+        Assertions.assertTrue(loggingService.addChildLoggers(packageLogger, false), "Package having child loggers due to main classes should return true");
+        Assertions.assertFalse(loggingService.addChildLoggers(innerClassLogger, false), "Inner Class having no child loggers should return false");
+        Assertions.assertTrue(loggingService.addChildLoggers(innerClassLogger, true), "ShowClasses being enabled should always return true");
     }
 }

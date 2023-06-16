@@ -5,10 +5,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,17 +22,17 @@ import java.util.Iterator;
  * @author Thomas Dussart
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DssRefreshCommandTest {
 
     @Test
     public void canHandleTrue() {
-        Assert.assertTrue(new DssRefreshCommand(null, null).canHandle(DssRefreshCommand.COMMAND_NAME));
+        Assertions.assertTrue(new DssRefreshCommand(null, null).canHandle(DssRefreshCommand.COMMAND_NAME));
     }
 
     @Test
     public void canHandleFalse() {
-        Assert.assertFalse(new DssRefreshCommand(null, null).canHandle("test"));
+        Assertions.assertFalse(new DssRefreshCommand(null, null).canHandle("test"));
     }
 
     @Test

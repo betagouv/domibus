@@ -8,16 +8,16 @@ import eu.domibus.ext.exceptions.PartyExtServiceException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PartyExtService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Catalin Enache
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PartyExtResourceTest {
 
     @Tested
@@ -53,9 +53,9 @@ public class PartyExtResourceTest {
             partyExtService.getParties(partyNameActual = withCapture(),
                     anyString, anyString,
                     anyString, pageStartActual = withCapture(), pageSizeActual = withCapture());
-            Assert.assertEquals(partyName, partyNameActual);
-            Assert.assertEquals(1, pageStartActual);
-            Assert.assertEquals(12, pageSizeActual);
+            Assertions.assertEquals(partyName, partyNameActual);
+            Assertions.assertEquals(1, pageStartActual);
+            Assertions.assertEquals(12, pageSizeActual);
         }};
 
 
@@ -84,7 +84,7 @@ public class PartyExtResourceTest {
         try {
             partyExtResource.createParty(partyDTO);
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof PartyExtServiceException);
+            Assertions.assertTrue(e instanceof PartyExtServiceException);
         }
     }
 
@@ -98,7 +98,7 @@ public class PartyExtResourceTest {
         new FullVerifications() {{
             String partyNameActual;
             partyExtService.deleteParty(partyNameActual = withCapture());
-            Assert.assertEquals(partyName, partyNameActual);
+            Assertions.assertEquals(partyName, partyNameActual);
         }};
     }
 
@@ -112,7 +112,7 @@ public class PartyExtResourceTest {
         new FullVerifications() {{
             String partyNameActual;
             partyExtService.getPartyCertificateFromTruststore(partyNameActual = withCapture());
-            Assert.assertEquals(partyName, partyNameActual);
+            Assertions.assertEquals(partyName, partyNameActual);
         }};
     }
 
@@ -148,7 +148,7 @@ public class PartyExtResourceTest {
             String partyNameActual;
             partyExtService.getParties(partyNameActual = withCapture(), anyString,
                     anyString, anyString, anyInt, anyInt);
-            Assert.assertEquals(partyName, partyNameActual);
+            Assertions.assertEquals(partyName, partyNameActual);
         }};
     }
 
@@ -161,18 +161,19 @@ public class PartyExtResourceTest {
         new FullVerifications(partyExtService) {{
             PartyDTO partyDTOActual;
             partyExtService.updateParty(partyDTOActual = withCapture());
-            Assert.assertNotNull(partyDTOActual);
+            Assertions.assertNotNull(partyDTOActual);
         }};
     }
 
     @Test
-    public void test_handlePartyExtServiceException(final @Mocked PartyExtServiceException partyExtServiceException) {
+    public void test_handlePartyExtServiceException() {
 
         //tested method
-        partyExtResource.handlePartyExtServiceException(partyExtServiceException);
+        PartyExtServiceException e = new PartyExtServiceException(new Throwable());
+        partyExtResource.handlePartyExtServiceException(e);
 
         new FullVerifications() {{
-            extExceptionHelper.handleExtException(partyExtServiceException);
+            extExceptionHelper.handleExtException(e);
         }};
     }
 }

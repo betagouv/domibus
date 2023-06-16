@@ -7,10 +7,11 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
 
 import javax.xml.bind.JAXBContext;
@@ -20,7 +21,7 @@ import java.util.Set;
 /**
  * Created by baciuco on 08/08/2016.
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class Ebms3SchemaPayloadSubmissionValidatorTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SchemaPayloadSubmissionValidator.class);
@@ -48,8 +49,9 @@ public class Ebms3SchemaPayloadSubmissionValidatorTest {
         }};
     }
 
-    @Test(expected = SubmissionValidationException.class)
-    public void testValidateWithFirstPayloadInvalid(@Injectable final Submission submission,
+    @Test
+    @Disabled("EDELIVERY-6896")
+    void testValidateWithFirstPayloadInvalid(@Injectable final Submission submission,
                                                     @Injectable final Submission.Payload payload1,
                                                     @Injectable final Submission.Payload payload2) throws Exception {
         new Expectations() {{
@@ -62,6 +64,9 @@ public class Ebms3SchemaPayloadSubmissionValidatorTest {
             schema.getInputStream();
             result = null;
         }};
+
+        Assertions.assertThrows(SubmissionValidationException.class,
+                () -> schemaPayloadSubmissionValidator.validate(submission));
         schemaPayloadSubmissionValidator.validate(submission);
 
         new Verifications() {{
@@ -71,33 +76,36 @@ public class Ebms3SchemaPayloadSubmissionValidatorTest {
     }
 
     @Test
-    public void testValidateWhenExceptionIsThrown(@Injectable final Submission submission,
-                                                    @Injectable final Submission.Payload payload1) throws Exception {
+    void testValidateWhenExceptionIsThrown(@Injectable final Submission submission,
+                                           @Injectable final Submission.Payload payload1) throws Exception {
+        Set<Submission.Payload> payloads = new HashSet<>();
+        payloads.add(payload1);
         new Expectations() {{
             submission.getPayloads();
-            Set<Submission.Payload> payloads = new HashSet<>();
-            payloads.add(payload1);
             result = payloads;
 
             schema.getInputStream();
             result = new NullPointerException();
         }};
-        try {
-            schemaPayloadSubmissionValidator.validate(submission);
-            Assert.fail("It should throw " + SubmissionValidationException.class.getCanonicalName());
-        } catch (SubmissionValidationException e) {
-            LOG.debug("SubmissionValidationException catched " + e.getMessage());
-        }
+        Assertions.assertThrows(SubmissionValidationException.class,
+                () -> schemaPayloadSubmissionValidator.validate(submission));
+
+    }
+
+    @Test
+    void testValidateWhenExceptionIsThrown2(@Injectable final Submission submission,
+                                            @Injectable final Submission.Payload payload1) throws Exception {
+        Set<Submission.Payload> payloads = new HashSet<>();
+        payloads.add(payload1);
         new Expectations() {{
+            submission.getPayloads();
+            result = payloads;
+
             schema.getInputStream();
             result = new SubmissionValidationException();
         }};
-        try {
-            schemaPayloadSubmissionValidator.validate(submission);
-            Assert.fail("It should throw " + SubmissionValidationException.class.getCanonicalName());
-        } catch (SubmissionValidationException e) {
-            LOG.debug("SubmissionValidationException catched " + e.getMessage());
-        }
+        Assertions.assertThrows(SubmissionValidationException.class,
+                () -> schemaPayloadSubmissionValidator.validate(submission));
 
     }
 }

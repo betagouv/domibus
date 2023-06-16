@@ -11,10 +11,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.List;
  * @author Cosmin Baciu
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class JMSPluginQueueServiceTest {
 
     @Tested
@@ -61,9 +61,9 @@ public class JMSPluginQueueServiceTest {
             QueueContext queueContext = null;
             jmsPluginQueueService.getJMSQueue(queueContext = withCapture(), defaultQueueProperty, routingQueuePrefixProperty);
 
-            Assert.assertEquals(messageId, queueContext.getMessageId());
-            Assert.assertEquals(service, queueContext.getService());
-            Assert.assertEquals(action, queueContext.getAction());
+            Assertions.assertEquals(messageId, queueContext.getMessageId());
+            Assertions.assertEquals(service, queueContext.getService());
+            Assertions.assertEquals(action, queueContext.getAction());
         }};
     }
 
@@ -91,7 +91,7 @@ public class JMSPluginQueueServiceTest {
         }};
 
         String queueValue = jmsPluginQueueService.getQueueValue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
-        Assert.assertEquals(queueValue, routingQueueValue);
+        Assertions.assertEquals(queueValue, routingQueueValue);
     }
 
     @Test
@@ -121,7 +121,7 @@ public class JMSPluginQueueServiceTest {
         }};
 
         String queueValue = jmsPluginQueueService.getQueueValue(queueContext, defaultQueueProperty, routingQueuePrefixProperty);
-        Assert.assertEquals(queueValue, defaultQueueValue);
+        Assertions.assertEquals(queueValue, defaultQueueValue);
     }
 
     @Test
@@ -139,7 +139,7 @@ public class JMSPluginQueueServiceTest {
         }};
 
         String routingQueueValue = jmsPluginQueueService.getRoutingQueueValue(routingQueuePrefixNameList, routingQueuePrefixProperty, queueContext, domainDTO);
-        Assert.assertEquals(queueValue, routingQueueValue);
+        Assertions.assertEquals(queueValue, routingQueueValue);
     }
 
     @Test
@@ -183,7 +183,7 @@ public class JMSPluginQueueServiceTest {
         }};
 
         String routingQueue = jmsPluginQueueService.getRoutingQueue(routingQueuePrefixProperty, routingQueuePrefixName, queueContext, domainDTO);
-        Assert.assertEquals(routingQueue, queueValue);
+        Assertions.assertEquals(routingQueue, queueValue);
     }
 
     @Test
@@ -193,7 +193,7 @@ public class JMSPluginQueueServiceTest {
 
         String suffix = "queue";
         String queue = jmsPluginQueueService.getQueuePropertyName(routingQueuePrefixProperty, routingQueuePrefixName, suffix);
-        Assert.assertEquals(routingQueuePrefixProperty + "." + routingQueuePrefixName + "." + suffix, queue);
+        Assertions.assertEquals(routingQueuePrefixProperty + "." + routingQueuePrefixName + "." + suffix, queue);
     }
 
     @Test
@@ -209,7 +209,7 @@ public class JMSPluginQueueServiceTest {
             result = action;
         }};
 
-        Assert.assertTrue(jmsPluginQueueService.matchesQueueContext(service, action, queueContext));
+        Assertions.assertTrue(jmsPluginQueueService.matchesQueueContext(service, action, queueContext));
     }
 
     @Test
@@ -225,7 +225,7 @@ public class JMSPluginQueueServiceTest {
             result = action;
         }};
 
-        Assert.assertFalse(jmsPluginQueueService.matchesQueueContext(service, "myAction", queueContext));
+        Assertions.assertFalse(jmsPluginQueueService.matchesQueueContext(service, "myAction", queueContext));
     }
 
     @Test
@@ -237,7 +237,7 @@ public class JMSPluginQueueServiceTest {
             result = service;
         }};
 
-        Assert.assertTrue(jmsPluginQueueService.matchesQueueContext(service, null, queueContext));
+        Assertions.assertTrue(jmsPluginQueueService.matchesQueueContext(service, null, queueContext));
 
         new Verifications() {{
             queueContext.getAction();
@@ -254,7 +254,7 @@ public class JMSPluginQueueServiceTest {
             result = service;
         }};
 
-        Assert.assertFalse(jmsPluginQueueService.matchesQueueContext("differentService", null, queueContext));
+        Assertions.assertFalse(jmsPluginQueueService.matchesQueueContext("differentService", null, queueContext));
 
         new Verifications() {{
             queueContext.getAction();
@@ -271,7 +271,7 @@ public class JMSPluginQueueServiceTest {
             result = action;
         }};
 
-        Assert.assertTrue(jmsPluginQueueService.matchesQueueContext(null, action, queueContext));
+        Assertions.assertTrue(jmsPluginQueueService.matchesQueueContext(null, action, queueContext));
 
         new Verifications() {{
             queueContext.getService();
@@ -288,7 +288,7 @@ public class JMSPluginQueueServiceTest {
             result = action;
         }};
 
-        Assert.assertFalse(jmsPluginQueueService.matchesQueueContext(null, "differentAction", queueContext));
+        Assertions.assertFalse(jmsPluginQueueService.matchesQueueContext(null, "differentAction", queueContext));
 
         new Verifications() {{
             queueContext.getService();
@@ -298,6 +298,6 @@ public class JMSPluginQueueServiceTest {
 
     @Test
     public void matchesSubmissionWithNoServiceAndNoAction(@Injectable QueueContext queueContext) {
-        Assert.assertFalse(jmsPluginQueueService.matchesQueueContext(null, null, queueContext));
+        Assertions.assertFalse(jmsPluginQueueService.matchesQueueContext(null, null, queueContext));
     }
 }

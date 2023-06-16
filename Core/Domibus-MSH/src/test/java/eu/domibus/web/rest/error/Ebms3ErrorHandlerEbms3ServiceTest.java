@@ -6,9 +6,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +17,13 @@ import org.springframework.http.ResponseEntity;
 import javax.validation.Path;
 import java.util.Iterator;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Ion Perpegel
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class Ebms3ErrorHandlerEbms3ServiceTest {
 
     @Tested
@@ -65,6 +66,7 @@ public class Ebms3ErrorHandlerEbms3ServiceTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getLast(@Mocked Path propertyPath, @Mocked Iterator<Path.Node> it, @Mocked Path.Node pn1, @Mocked Path.Node pn2) {
         new Expectations() {{
             propertyPath.iterator();

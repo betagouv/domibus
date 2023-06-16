@@ -5,10 +5,11 @@ import eu.domibus.api.security.AuthUtils;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerEndpointRegistrar;
@@ -23,10 +24,9 @@ import java.util.List;
  * @author Cosmin Baciu
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PluginAsyncNotificationJMSConfigurerTest {
 
-    @Tested
     PluginAsyncNotificationJMSConfigurer pluginAsyncNotificationJMSConfigurer;
 
     @Injectable
@@ -35,20 +35,14 @@ public class PluginAsyncNotificationJMSConfigurerTest {
     @Injectable
     protected JmsListenerContainerFactory internalJmsListenerContainerFactory;
 
-    @Injectable
-    protected AuthUtils authUtils;
 
-    @Injectable
-    protected DomainContextProvider domainContextProvider;
-
-    @Injectable
-    protected PluginEventNotifierProvider pluginEventNotifierProvider;
-
-    @Injectable
-    List<AsyncNotificationConfiguration> notificationListenerServices;
+    @BeforeEach
+    void setUp() {
+        pluginAsyncNotificationJMSConfigurer = new PluginAsyncNotificationJMSConfigurer(internalJmsListenerContainerFactory, asyncNotificationListenerProvider, null);
+    }
 
     @Test
-    public void configureJmsListenersWithNoAsyncPlugins(@Injectable JmsListenerEndpointRegistrar registrar) throws JMSException {
+    public void configureJmsListenersWithNoAsyncPlugins(@Injectable JmsListenerEndpointRegistrar registrar)  {
         pluginAsyncNotificationJMSConfigurer.asyncNotificationConfigurations = null;
 
         new Expectations(pluginAsyncNotificationJMSConfigurer) {{
@@ -104,7 +98,7 @@ public class PluginAsyncNotificationJMSConfigurerTest {
         }};
 
         SimpleJmsListenerEndpoint jmsListener = pluginAsyncNotificationJMSConfigurer.createJMSListener(asyncNotificationListener);
-        Assert.assertEquals(jmsListener.getMessageListener(), pluginAsyncNotificationListener);
-        Assert.assertEquals(jmsListener.getDestination(), queueName);
+        Assertions.assertEquals(jmsListener.getMessageListener(), pluginAsyncNotificationListener);
+        Assertions.assertEquals(jmsListener.getDestination(), queueName);
     }
 }

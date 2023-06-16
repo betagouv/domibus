@@ -8,15 +8,15 @@ import eu.domibus.core.rest.validators.DomibusPropertyValueValidator;
 import eu.domibus.core.rest.validators.FieldBlacklistValidator;
 import mockit.*;
 import org.apache.commons.collections.map.HashedMap;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.property.DomibusPropertyResourceHelperImpl.ACCEPTED_CHARACTERS_IN_PROPERTY_NAMES;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DomibusPropertyResourceHelperImplTest {
 
     @Tested
@@ -64,7 +64,7 @@ public class DomibusPropertyResourceHelperImplTest {
     Map<String, DomibusPropertyMetadata> props1, props2, allProps;
     List<DomibusPropertyMetadata> propertiesMetadataList;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         props1 = Arrays.stream(new DomibusPropertyMetadata[]{
                 new DomibusPropertyMetadata(DOMIBUS_UI_TITLE_NAME, DomibusPropertyMetadata.Usage.DOMAIN, true),
@@ -117,9 +117,9 @@ public class DomibusPropertyResourceHelperImplTest {
         filter.setType(testValue);
         List<DomibusProperty> actual = configurationPropertyResourceHelper.getAllProperties(filter);
 
-        Assert.assertEquals(3, actual.size());
-        Assert.assertEquals(true, actual.stream().anyMatch(el -> el.getMetadata().getName().equals(DOMIBUS_UI_TITLE_NAME)));
-        Assert.assertEquals(testValue, actual.stream().filter(el -> el.getMetadata().getName().equals(DOMIBUS_UI_TITLE_NAME)).findFirst().get().getValue());
+        Assertions.assertEquals(3, actual.size());
+        Assertions.assertEquals(true, actual.stream().anyMatch(el -> el.getMetadata().getName().equals(DOMIBUS_UI_TITLE_NAME)));
+        Assertions.assertEquals(testValue, actual.stream().filter(el -> el.getMetadata().getName().equals(DOMIBUS_UI_TITLE_NAME)).findFirst().get().getValue());
     }
 
     @Test
@@ -139,8 +139,8 @@ public class DomibusPropertyResourceHelperImplTest {
         }};
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void setPropertyValueError() {
+    @Test
+    void setPropertyValueError() {
         String name = DOMIBUS_UI_TITLE_NAME;
         boolean isDomain = false;
         String value = "propValue";
@@ -151,7 +151,8 @@ public class DomibusPropertyResourceHelperImplTest {
             result = false;
         }};
 
-        configurationPropertyResourceHelper.setPropertyValue(name, isDomain, value);
+        Assertions.assertThrows(DomibusPropertyException.class,
+                () -> configurationPropertyResourceHelper.setPropertyValue(name, isDomain, value));
 
         new Verifications() {{
             domibusPropertyProvider.setProperty(name, value);
@@ -189,8 +190,8 @@ public class DomibusPropertyResourceHelperImplTest {
 
         List<DomibusProperty> actual = configurationPropertyResourceHelper.getPropertyValues(propertiesMetadataList);
 
-        Assert.assertEquals(3, actual.size());
-        Assert.assertEquals("val1", actual.get(0).getValue());
+        Assertions.assertEquals(3, actual.size());
+        Assertions.assertEquals("val1", actual.get(0).getValue());
 
         new Verifications() {{
             domibusPropertyProvider.getProperty(propertiesMetadataList.get(0).getName());
@@ -222,10 +223,10 @@ public class DomibusPropertyResourceHelperImplTest {
 
         List<DomibusProperty> actual = configurationPropertyResourceHelper.getNestedProperties(propMeta);
 
-        Assert.assertEquals(3, actual.size());
-        Assert.assertEquals(parentProp, actual.get(0));
-        Assert.assertEquals(prop1, actual.get(1));
-        Assert.assertEquals(prop2, actual.get(2));
+        Assertions.assertEquals(3, actual.size());
+        Assertions.assertEquals(parentProp, actual.get(0));
+        Assertions.assertEquals(prop1, actual.get(1));
+        Assertions.assertEquals(prop2, actual.get(2));
     }
 
     @Test
@@ -245,8 +246,8 @@ public class DomibusPropertyResourceHelperImplTest {
 
         List<DomibusPropertyMetadata> actual = configurationPropertyResourceHelper.filterProperties(props1, filter);
 
-        Assert.assertEquals(1, actual.size());
-        Assert.assertTrue(actual.stream().anyMatch(el -> el.getName().equals(DOMIBUS_UI_TITLE_NAME)));
+        Assertions.assertEquals(1, actual.size());
+        Assertions.assertTrue(actual.stream().anyMatch(el -> el.getName().equals(DOMIBUS_UI_TITLE_NAME)));
     }
 
     @Test
@@ -266,8 +267,8 @@ public class DomibusPropertyResourceHelperImplTest {
 
         List<DomibusPropertyMetadata> actual = configurationPropertyResourceHelper.filterProperties(props1, filter);
 
-        Assert.assertEquals(1, actual.size());
-        Assert.assertTrue(actual.stream().anyMatch(el -> el.getName().equals(DOMIBUS_UI_TITLE_NAME)));
+        Assertions.assertEquals(1, actual.size());
+        Assertions.assertTrue(actual.stream().anyMatch(el -> el.getName().equals(DOMIBUS_UI_TITLE_NAME)));
     }
 
     @Test
@@ -281,8 +282,8 @@ public class DomibusPropertyResourceHelperImplTest {
 
         DomibusProperty actual = configurationPropertyResourceHelper.getValueAndCreateProperty(propMeta);
 
-        Assert.assertNotNull(actual);
-        Assert.assertEquals(propertyValue, actual.getValue());
+        Assertions.assertNotNull(actual);
+        Assertions.assertEquals(propertyValue, actual.getValue());
     }
 
     @Test
@@ -297,7 +298,7 @@ public class DomibusPropertyResourceHelperImplTest {
         }};
 
         DomibusPropertyMetadata result = configurationPropertyResourceHelper.getPropertyMetadata(propertyName);
-        Assert.assertEquals(propMeta, result);
+        Assertions.assertEquals(propMeta, result);
 
         new Verifications() {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
@@ -316,7 +317,7 @@ public class DomibusPropertyResourceHelperImplTest {
         }};
 
         DomibusPropertyMetadata result = configurationPropertyResourceHelper.getPropertyMetadata(propertyName);
-        Assert.assertEquals(propMeta, result);
+        Assertions.assertEquals(propMeta, result);
 
         new Verifications() {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
@@ -336,7 +337,7 @@ public class DomibusPropertyResourceHelperImplTest {
         }};
 
         DomibusPropertyMetadata result = configurationPropertyResourceHelper.getPropertyMetadata(propertyName);
-        Assert.assertEquals(null, result);
+        Assertions.assertEquals(null, result);
 
         new Verifications() {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
@@ -394,8 +395,8 @@ public class DomibusPropertyResourceHelperImplTest {
         }};
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void validatePropertyLengthNotOK() {
+    @Test
+    void validatePropertyLengthNotOK() {
         String propertyName = "propName";
         String propertyValue = "value too long";
         int maxLength = 10;
@@ -405,7 +406,8 @@ public class DomibusPropertyResourceHelperImplTest {
             result = maxLength;
         }};
 
-        configurationPropertyResourceHelper.validatePropertyLength(propertyName, propertyValue);
+        Assertions.assertThrows(DomibusPropertyException.class,
+                () -> configurationPropertyResourceHelper.validatePropertyLength(propertyName, propertyValue));
     }
 
     @Test
@@ -468,8 +470,8 @@ public class DomibusPropertyResourceHelperImplTest {
         }};
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void validatePropertyMetadataNotWritable(@Mocked DomibusPropertyMetadata prop) {
+    @Test
+    void validatePropertyMetadataNotWritable(@Mocked DomibusPropertyMetadata prop) {
         String propertyName = "propName";
 
         new Expectations(configurationPropertyResourceHelper) {{
@@ -477,11 +479,12 @@ public class DomibusPropertyResourceHelperImplTest {
             result = false;
         }};
 
-        configurationPropertyResourceHelper.validatePropertyMetadata(propertyName, prop);
+        Assertions.assertThrows(DomibusPropertyException.class,
+                () -> configurationPropertyResourceHelper.validatePropertyMetadata(propertyName, prop));
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void validatePropertyMetadataComposable(@Mocked DomibusPropertyMetadata prop) {
+    @Test
+    void validatePropertyMetadataComposable(@Mocked DomibusPropertyMetadata prop) {
         String propertyName = "propName";
 
         new Expectations(configurationPropertyResourceHelper) {{
@@ -495,36 +498,38 @@ public class DomibusPropertyResourceHelperImplTest {
             result = true;
         }};
 
-        configurationPropertyResourceHelper.validatePropertyMetadata(propertyName, prop);
+        Assertions.assertThrows(DomibusPropertyException.class,
+                () -> configurationPropertyResourceHelper.validatePropertyMetadata(propertyName, prop));
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void validatePropertyMetadataNotExistent() {
+    @Test
+    void validatePropertyMetadataNotExistent() {
         String propertyName = "propName";
 
-        configurationPropertyResourceHelper.validatePropertyMetadata(propertyName, null);
+        Assertions.assertThrows(DomibusPropertyException.class,
+                () -> configurationPropertyResourceHelper.validatePropertyMetadata(propertyName, null));
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void getPropertyUnknown() {
+    @Test
+    void getPropertyUnknown() {
         String propName = "some.unknown.property";
         new Expectations() {{
             globalPropertyMetadataManager.hasKnownProperty(propName);
             result = false;
         }};
 
-        configurationPropertyResourceHelper.getProperty(propName);
+        Assertions.assertThrows(DomibusPropertyException.class, () -> configurationPropertyResourceHelper.getProperty(propName));
     }
 
     @Test
     public void initSortMap() {
         configurationPropertyResourceHelper.initSortMap();
 
-        Assert.assertEquals(configurationPropertyResourceHelper.sortingComparatorsMap.size(), 8);
-        Assert.assertTrue(configurationPropertyResourceHelper.sortingComparatorsMap.containsKey(new DomibusPropertyResourceHelperImpl.SortMapKey("name", true)));
-        Assert.assertTrue(configurationPropertyResourceHelper.sortingComparatorsMap.containsKey(new DomibusPropertyResourceHelperImpl.SortMapKey("type", true)));
-        Assert.assertTrue(configurationPropertyResourceHelper.sortingComparatorsMap.containsKey(new DomibusPropertyResourceHelperImpl.SortMapKey("module", true)));
-        Assert.assertTrue(configurationPropertyResourceHelper.sortingComparatorsMap.containsKey(new DomibusPropertyResourceHelperImpl.SortMapKey("usageText", true)));
+        Assertions.assertEquals(configurationPropertyResourceHelper.sortingComparatorsMap.size(), 8);
+        Assertions.assertTrue(configurationPropertyResourceHelper.sortingComparatorsMap.containsKey(new DomibusPropertyResourceHelperImpl.SortMapKey("name", true)));
+        Assertions.assertTrue(configurationPropertyResourceHelper.sortingComparatorsMap.containsKey(new DomibusPropertyResourceHelperImpl.SortMapKey("type", true)));
+        Assertions.assertTrue(configurationPropertyResourceHelper.sortingComparatorsMap.containsKey(new DomibusPropertyResourceHelperImpl.SortMapKey("module", true)));
+        Assertions.assertTrue(configurationPropertyResourceHelper.sortingComparatorsMap.containsKey(new DomibusPropertyResourceHelperImpl.SortMapKey("usageText", true)));
     }
 
     private <T> T mockExecutorSubmit() throws Exception {
@@ -546,7 +551,7 @@ public class DomibusPropertyResourceHelperImplTest {
         try {
             configurationPropertyResourceHelper.validatePositiveDecimalMaxValue(propValue, propMeta);
         } catch (DomibusPropertyException ex) {
-            Assert.assertEquals(ex.getMessage(), "Invalid property value. The value [2147483647.99] is greater than the maximum decimal value allowed");
+            Assertions.assertEquals(ex.getMessage(), "Invalid property value. The value [2147483647.99] is greater than the maximum decimal value allowed");
         }
     }
 
@@ -556,7 +561,7 @@ public class DomibusPropertyResourceHelperImplTest {
         try {
             configurationPropertyResourceHelper.validatePositiveIntegerMaxValue(propValue, propMeta);
         } catch (DomibusPropertyException ex) {
-            Assert.assertEquals(ex.getMessage(), "Invalid property value. The value [2147483649] is greater than the maximum integer value allowed");
+            Assertions.assertEquals(ex.getMessage(), "Invalid property value. The value [2147483649] is greater than the maximum integer value allowed");
         }
     }
 
@@ -567,7 +572,7 @@ public class DomibusPropertyResourceHelperImplTest {
         try {
             configurationPropertyResourceHelper.validateNumericPropertyValueRange(propValue, propMeta);
         } catch (DomibusPropertyException ex) {
-            Assert.assertEquals(ex.getMessage(), "Invalid property value. The value [-9223372036854775809] is not in the long value range");
+            Assertions.assertEquals(ex.getMessage(), "Invalid property value. The value [-9223372036854775809] is not in the long value range");
         }
     }
 }

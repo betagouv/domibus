@@ -3,19 +3,19 @@ package eu.domibus.core.crypto.spi.dss;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.cache.Cache;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Dussart
  * @since 4.2
  */
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DssCacheTest {
 
     @Test

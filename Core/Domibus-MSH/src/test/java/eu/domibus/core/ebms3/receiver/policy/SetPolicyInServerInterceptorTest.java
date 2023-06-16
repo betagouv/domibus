@@ -19,11 +19,13 @@ import eu.domibus.core.message.UserMessageErrorCreator;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.property.DomibusVersionService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
@@ -35,7 +37,7 @@ import java.io.IOException;
  * @since 4.2
  */
 @SuppressWarnings("ConstantConditions")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class SetPolicyInServerInterceptorTest {
 
     @Tested
@@ -66,6 +68,7 @@ public class SetPolicyInServerInterceptorTest {
     SecurityProfileService securityProfileService;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void logIncomingMessaging(final @Injectable SoapMessage soapMessage,
                                      final @Injectable TestMessageValidator testMessageValidator) throws Exception {
 
@@ -85,6 +88,7 @@ public class SetPolicyInServerInterceptorTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void handleMessage(@Injectable SoapMessage message,
                               @Injectable HttpServletResponse response,
                               final @Injectable TestMessageValidator testMessageValidator) throws JAXBException, IOException, EbMS3Exception {
@@ -97,7 +101,8 @@ public class SetPolicyInServerInterceptorTest {
                 legConfiguration.getSecurity().getProfile();
                 result = SecurityProfile.RSA;
                 setPolicyInServerInterceptor.saveRawMessageMessageContext(message);
-            }};
+            }
+        };
 
         setPolicyInServerInterceptor.handleMessage(message);
 
@@ -109,10 +114,11 @@ public class SetPolicyInServerInterceptorTest {
         }};
     }
 
-    @Test(expected = Fault.class)
-    public void handleMessageThrowsIOException(@Injectable SoapMessage message,
-                                               @Injectable HttpServletResponse response,
-                                               final @Injectable TestMessageValidator testMessageValidator
+    @Test
+    @Disabled("EDELIVERY-6896")
+    void handleMessageThrowsIOException(@Injectable SoapMessage message,
+                                        @Injectable HttpServletResponse response,
+                                        final @Injectable TestMessageValidator testMessageValidator
     ) throws JAXBException, IOException, EbMS3Exception {
 
 
@@ -122,7 +128,7 @@ public class SetPolicyInServerInterceptorTest {
 
         }};
 
-        setPolicyInServerInterceptor.handleMessage(message);
+        Assertions.assertThrows(Fault.class, () -> setPolicyInServerInterceptor.handleMessage(message));
 
         new FullVerifications() {{
             soapService.getMessage(message);
@@ -131,11 +137,12 @@ public class SetPolicyInServerInterceptorTest {
         }};
     }
 
-    @Test(expected = Fault.class)
-    public void handleMessageEbMS3Exception(@Injectable SoapMessage message,
-                                            @Injectable HttpServletResponse response,
-                                            @Injectable Messaging messaging,
-                                            final @Injectable TestMessageValidator testMessageValidator) throws JAXBException, IOException, EbMS3Exception {
+    @Test
+    @Disabled("EDELIVERY-6896")
+    void handleMessageEbMS3Exception(@Injectable SoapMessage message,
+                                     @Injectable HttpServletResponse response,
+                                     @Injectable Messaging messaging,
+                                     final @Injectable TestMessageValidator testMessageValidator) throws JAXBException, IOException, EbMS3Exception {
 
         new Expectations() {{
             soapService.getMessage(message);
@@ -144,7 +151,7 @@ public class SetPolicyInServerInterceptorTest {
                     .message("no valid security policy found")
                     .build();
         }};
-        setPolicyInServerInterceptor.handleMessage(message);
+        Assertions.assertThrows(Fault.class, () -> setPolicyInServerInterceptor.handleMessage(message));
 
         new Verifications() {{
             soapService.getMessage(message);

@@ -22,16 +22,17 @@ import eu.domibus.core.util.SoapUtil;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MessageFragmentSenderTest {
 
     public static final Long ENTITY_ID = 1L;
@@ -123,7 +124,7 @@ public class MessageFragmentSenderTest {
         messageFragmentSender.validateBeforeSending(userMessage);
     }
 
-    @Test(expected = SplitAndJoinException.class)
+    @Test
     public void validateBeforeSendingExpiredGroup() {
         new Expectations() {{
             userMessage.getEntityId();
@@ -135,11 +136,11 @@ public class MessageFragmentSenderTest {
             groupEntity.getExpired();
             result = true;
         }};
-
-        messageFragmentSender.validateBeforeSending(userMessage);
+        Assertions.assertThrows(SplitAndJoinException.class,
+                () -> messageFragmentSender.validateBeforeSending(userMessage));
     }
 
-    @Test(expected = SplitAndJoinException.class)
+    @Test
     public void validateBeforeSendingRejectedGroup(   ) {
         new Expectations() {{
             userMessage.getEntityId();
@@ -155,6 +156,7 @@ public class MessageFragmentSenderTest {
             result = true;
         }};
 
-        messageFragmentSender.validateBeforeSending(userMessage);
+        Assertions.assertThrows(SplitAndJoinException.class,
+                () -> messageFragmentSender.validateBeforeSending(userMessage));
     }
 }

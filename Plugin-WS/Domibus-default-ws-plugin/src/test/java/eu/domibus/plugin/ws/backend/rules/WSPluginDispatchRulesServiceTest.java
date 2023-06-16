@@ -7,11 +7,12 @@ import eu.domibus.plugin.ws.backend.WSBackendMessageType;
 import eu.domibus.plugin.ws.backend.reliability.strategy.WSPluginRetryStrategyType;
 import eu.domibus.plugin.ws.exception.WSPluginException;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,13 +20,14 @@ import java.util.Collections;
 import java.util.List;
 
 import static eu.domibus.plugin.ws.backend.rules.WSPluginDispatchRulesService.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author François Gautier
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class WSPluginDispatchRulesServiceTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WSPluginDispatchRulesServiceTest.class);
@@ -71,16 +73,16 @@ public class WSPluginDispatchRulesServiceTest {
         assertEquals(WSPluginRetryStrategyType.CONSTANT, build.getRetryStrategy());
     }
 
-    @Test(expected = WSPluginException.class)
-    public void setRetryInformation_NumberFormatException() {
+    @Test
+    void setRetryInformation_NumberFormatException() {
         WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(RULE_NAME_1);
-        rulesService.setRetryInformation(ruleBuilder, "60:5:CONSTANT");
+        Assertions.assertThrows(WSPluginException.class, () -> rulesService.setRetryInformation(ruleBuilder, "60:5:CONSTANT"));
     }
 
-    @Test(expected = WSPluginException.class)
-    public void setRetryInformation_OutOfBound() {
+    @Test
+    void setRetryInformation_OutOfBound() {
         WSPluginDispatchRuleBuilder ruleBuilder = new WSPluginDispatchRuleBuilder(RULE_NAME_1);
-        rulesService.setRetryInformation(ruleBuilder, "60;5");
+        Assertions.assertThrows(WSPluginException.class, () -> rulesService.setRetryInformation(ruleBuilder, "60;5"));
     }
 
     @Test
@@ -168,14 +170,14 @@ public class WSPluginDispatchRulesServiceTest {
         assertThat(types, CoreMatchers.hasItems(WSBackendMessageType.SEND_SUCCESS, WSBackendMessageType.RECEIVE_FAIL));
     }
 
-    @Test(expected = WSPluginException.class)
-    public void getTypes_noType() {
-        rulesService.getTypes("");
+    @Test
+    void getTypes_noType() {
+        Assertions.assertThrows(WSPluginException.class, () -> rulesService.getTypes(""));
     }
 
-    @Test(expected = WSPluginException.class)
-    public void getTypes_typeDoesntExists() {
-        rulesService.getTypes("NOPE");
+    @Test
+    void getTypes_typeDoesntExists() {
+        Assertions.assertThrows(WSPluginException.class, () -> rulesService.getTypes("NOPE"));
     }
 
     @Test

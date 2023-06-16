@@ -4,9 +4,9 @@ import eu.domibus.common.JPAConstants;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +30,7 @@ public class WSMessageLogDaoIT extends AbstractBackendWSIT {
     private javax.persistence.EntityManager em;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         wsMessageLogDao.deleteAll(wsMessageLogDao.findAll());
 
@@ -75,7 +75,7 @@ public class WSMessageLogDaoIT extends AbstractBackendWSIT {
     @Test
     public void findByMessageId_notFound() {
         WSMessageLogEntity byMessageId = wsMessageLogDao.findByMessageId("");
-        Assert.assertNull(byMessageId);
+        Assertions.assertNull(byMessageId);
     }
 
     @Test
@@ -89,7 +89,7 @@ public class WSMessageLogDaoIT extends AbstractBackendWSIT {
         em.flush();
 
         WSMessageLogEntity byMessageId = wsMessageLogDao.findByMessageId("messageId");
-        Assert.assertNotNull(byMessageId);
+        Assertions.assertNotNull(byMessageId);
     }
 
     @Test
@@ -97,27 +97,27 @@ public class WSMessageLogDaoIT extends AbstractBackendWSIT {
     public void findAll_WithFilter() {
        List<WSMessageLogEntity> wsMessageLogEntityList =  wsMessageLogDao.findAllWithFilter(null, "domibus-blue", null,
                 null, null, null, null, null, 0);
-       Assert.assertTrue(CollectionUtils.isNotEmpty(wsMessageLogEntityList));
-       Assert.assertEquals(2, wsMessageLogEntityList.size());
-       Assert.assertEquals("messageID_1", wsMessageLogEntityList.get(0).getMessageId());
+       Assertions.assertTrue(CollectionUtils.isNotEmpty(wsMessageLogEntityList));
+       Assertions.assertEquals(2, wsMessageLogEntityList.size());
+       Assertions.assertEquals("messageID_1", wsMessageLogEntityList.get(0).getMessageId());
 
         wsMessageLogEntityList =  wsMessageLogDao.findAllWithFilter(null, "domibus-blue", null,
                 "refToMessageID_2", null, null, null, null, 0);
-        Assert.assertTrue(CollectionUtils.isNotEmpty(wsMessageLogEntityList));
-        Assert.assertEquals(1, wsMessageLogEntityList.size());
-        Assert.assertEquals("messageID_2", wsMessageLogEntityList.get(0).getMessageId());
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(wsMessageLogEntityList));
+        Assertions.assertEquals(1, wsMessageLogEntityList.size());
+        Assertions.assertEquals("messageID_2", wsMessageLogEntityList.get(0).getMessageId());
 
         wsMessageLogEntityList =  wsMessageLogDao.findAllWithFilter(null, null, "conversationID_3",
                 null, null, null, null, null, 0);
-        Assert.assertTrue(CollectionUtils.isNotEmpty(wsMessageLogEntityList));
-        Assert.assertEquals(1, wsMessageLogEntityList.size());
-        Assert.assertEquals("messageID_3", wsMessageLogEntityList.get(0).getMessageId());
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(wsMessageLogEntityList));
+        Assertions.assertEquals(1, wsMessageLogEntityList.size());
+        Assertions.assertEquals("messageID_3", wsMessageLogEntityList.get(0).getMessageId());
 
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         wsMessageLogEntityList =  wsMessageLogDao.findAllWithFilter(null, null, null,
                 null, null, null, now.minus(Period.ofDays(3)), now, 0);
-        Assert.assertTrue(CollectionUtils.isNotEmpty(wsMessageLogEntityList));
-        Assert.assertEquals(3, wsMessageLogEntityList.size());
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(wsMessageLogEntityList));
+        Assertions.assertEquals(3, wsMessageLogEntityList.size());
 
     }
 }

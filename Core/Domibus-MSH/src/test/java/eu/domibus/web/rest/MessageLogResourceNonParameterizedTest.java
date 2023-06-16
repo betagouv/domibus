@@ -12,15 +12,18 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RunWith(JMockit.class)
+import static eu.domibus.core.message.MessageLogInfoFilter.*;
+
+@ExtendWith(JMockitExtension.class)
 public class MessageLogResourceNonParameterizedTest {
 
     @Tested
@@ -51,8 +54,12 @@ public class MessageLogResourceNonParameterizedTest {
     public void getCsv_fourCornersModeEnabled(@Injectable MessageLogFilterRequestRO messageLogFilter) {
         // GIVEN
         new Expectations(messageLogResource) {{
-            domibusConfigurationService.isFourCornerEnabled(); result = true;
-            messageLogResource.exportToCSV((List<?>) any, (Class<?>) any, (Map<String, String>) any, (List<String>) any, anyString); result = any;
+            requestFilterUtils.createFilterMap(messageLogFilter);
+            result = createFilterMap();
+            domibusConfigurationService.isFourCornerEnabled();
+            result = true;
+            messageLogResource.exportToCSV((List<?>) any, (Class<?>) any, (Map<String, String>) any, (List<String>) any, anyString);
+            result = any;
         }};
 
         // WHEN
@@ -63,17 +70,23 @@ public class MessageLogResourceNonParameterizedTest {
             List<String> excludedColumns;
             messageLogResource.exportToCSV((List<?>) any, (Class<?>) any, (Map<String, String>) any, excludedColumns = withCapture(), anyString);
 
-            Assert.assertTrue("Should have not excluded the Original Sender and the Final Recipient columns when the four corners mode is enabled",
-                    excludedColumns.stream().allMatch(excludedColumn -> !Sets.newHashSet("originalSender", "finalRecipient").contains(excludedColumn)));
+            Assertions.assertTrue(excludedColumns.stream().allMatch(excludedColumn -> !Sets.newHashSet("originalSender", "finalRecipient").contains(excludedColumn)),
+                    "Should have not excluded the Original Sender and the Final Recipient columns when the four corners mode is enabled");
         }};
     }
 
     @Test
     public void getCsv_fourCornersModeDisabled(@Injectable MessageLogFilterRequestRO messageLogFilter) {
+
+        HashMap<Object, Object> objectObjectHashMap = new HashMap<>();
         // GIVEN
         new Expectations(messageLogResource) {{
-            domibusConfigurationService.isFourCornerEnabled(); result = false;
-            messageLogResource.exportToCSV((List<?>) any, (Class<?>) any, (Map<String, String>) any, (List<String>) any, anyString); result = any;
+            requestFilterUtils.createFilterMap(messageLogFilter);
+            result = createFilterMap();
+            domibusConfigurationService.isFourCornerEnabled();
+            result = false;
+            messageLogResource.exportToCSV((List<?>) any, (Class<?>) any, (Map<String, String>) any, (List<String>) any, anyString);
+            result = any;
         }};
 
         // WHEN
@@ -84,8 +97,16 @@ public class MessageLogResourceNonParameterizedTest {
             List<String> excludedColumns;
             messageLogResource.exportToCSV((List<?>) any, (Class<?>) any, (Map<String, String>) any, excludedColumns = withCapture(), anyString);
 
-            Assert.assertTrue("Should have excluded the Original Sender and the Final Recipient columns when the four corners mode is disabled",
-                    excludedColumns.containsAll(Sets.newHashSet("originalSender", "finalRecipient")));
+            Assertions.assertTrue(excludedColumns.containsAll(Sets.newHashSet("originalSender", "finalRecipient")),
+                    "Should have excluded the Original Sender and the Final Recipient columns when the four corners mode is disabled");
         }};
+    }
+
+    protected HashMap<String, Object> createFilterMap() {
+        HashMap<String, Object> filters = new HashMap<>();
+        filters.put(MESSAGE_ACTION, "request.getAction()");
+        filters.put(MESSAGE_SERVICE_TYPE, "request.getServiceType()");
+        filters.put(MESSAGE_SERVICE_VALUE, "request.getServiceValue()");
+        return filters;
     }
 }

@@ -2,17 +2,17 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
 import eu.domibus.core.message.signal.SignalMessageLogBuilder;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Federico Martini
  * @since 3.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MessageLogBuilderTest {
 
     @Test

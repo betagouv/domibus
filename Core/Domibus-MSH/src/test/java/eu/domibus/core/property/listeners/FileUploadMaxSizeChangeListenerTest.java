@@ -2,11 +2,11 @@ package eu.domibus.core.property.listeners;
 
 import mockit.FullVerifications;
 import mockit.Mocked;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_FILE_UPLOAD_MAX_SIZE;
@@ -15,7 +15,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Ion Perpegel
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class FileUploadMaxSizeChangeListenerTest {
 
     @Mocked
@@ -23,19 +23,19 @@ public class FileUploadMaxSizeChangeListenerTest {
 
     protected FileUploadMaxSizeChangeListener listener ;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         listener = new FileUploadMaxSizeChangeListener(multipartResolver);
     }
 
     @Test
     public void handlesProperty_true() {
-        Assert.assertTrue(listener.handlesProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE));
+        Assertions.assertTrue(listener.handlesProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE));
     }
 
     @Test
     public void handlesProperty_false() {
-        Assert.assertFalse(listener.handlesProperty("OTHER"));
+        Assertions.assertFalse(listener.handlesProperty("OTHER"));
     }
 
     @Test
@@ -48,9 +48,9 @@ public class FileUploadMaxSizeChangeListenerTest {
         }};
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidPropertyValueChanged() {
-        listener.propertyValueChanged("default", DOMIBUS_FILE_UPLOAD_MAX_SIZE, "invalid");
-        Assert.fail("Invalid property value shouldn't have been accepted");
+    @Test
+    void testInvalidPropertyValueChanged() {
+        Assertions.assertThrows(IllegalArgumentException. class,
+        () -> listener.propertyValueChanged("default", DOMIBUS_FILE_UPLOAD_MAX_SIZE, "invalid"));
     }
 }

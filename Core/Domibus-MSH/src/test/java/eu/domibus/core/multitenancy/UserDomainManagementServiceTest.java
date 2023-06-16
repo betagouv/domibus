@@ -9,10 +9,10 @@ import eu.domibus.core.user.plugin.AuthenticationDAO;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import mockit.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static java.util.Arrays.asList;
@@ -21,7 +21,7 @@ import static java.util.Arrays.asList;
  * @author François Gautier
  * @version 5.1
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserDomainManagementServiceTest {
 
     @Injectable
@@ -41,7 +41,7 @@ public class UserDomainManagementServiceTest {
     private Domain domain;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         domain = new Domain("red", "Red");
     }

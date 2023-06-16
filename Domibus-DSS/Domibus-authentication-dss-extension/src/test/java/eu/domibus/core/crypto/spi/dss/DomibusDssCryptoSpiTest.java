@@ -10,10 +10,10 @@ import eu.europa.esig.dss.validation.reports.CertificateReports;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
@@ -22,13 +22,13 @@ import java.util.Collections;
 import java.util.List;
 
 import static eu.domibus.core.crypto.spi.dss.ValidationReport.BBB_XCV_CCCBB;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Dussart
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusDssCryptoSpiTest {
 
     @Test(expected = WSSecurityException.class)

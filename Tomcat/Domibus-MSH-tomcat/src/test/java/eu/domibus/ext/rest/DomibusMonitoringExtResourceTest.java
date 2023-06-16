@@ -5,10 +5,10 @@ import eu.domibus.ext.exceptions.DomibusMonitoringExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.DomibusMonitoringExtService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.List;
  * @author Soumya Chandran
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusMonitoringExtResourceTest {
 
     @Tested
@@ -43,16 +43,17 @@ public class DomibusMonitoringExtResourceTest {
 
         final MonitoringInfoDTO responseList = domibusMonitoringExtResource.getMonitoringDetails(filter);
 
-        Assert.assertNotNull(responseList);
+        Assertions.assertNotNull(responseList);
     }
 
     @Test
-    public void test_handleDomibusMonitoringExtException(final @Mocked DomibusMonitoringExtException domibusMonitoringExtException) {
+    public void test_handleDomibusMonitoringExtException() {
         //tested method
-        domibusMonitoringExtResource.handleDomibusMonitoringExtException(domibusMonitoringExtException);
+        DomibusMonitoringExtException e = new DomibusMonitoringExtException(new Throwable());
+        domibusMonitoringExtResource.handleDomibusMonitoringExtException(e);
 
         new FullVerifications() {{
-            extExceptionHelper.handleExtException(domibusMonitoringExtException);
+            extExceptionHelper.handleExtException(e);
         }};
     }
 

@@ -13,11 +13,11 @@ import eu.domibus.web.rest.ro.TestServiceRequestRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.collections.map.HashedMap;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.Map;
  * @author Tiago Miguel
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class TestServiceResourceTest {
 
     @Tested
@@ -69,7 +69,7 @@ public class TestServiceResourceTest {
         List<String> testParties = testServiceResource.getTestParties();
 
         // Then
-        Assert.assertEquals(testPartiesList, testParties);
+        Assertions.assertEquals(testPartiesList, testParties);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class TestServiceResourceTest {
         String submitTest = testServiceResource.submitTest(testServiceRequestRO);
 
         // Then
-        Assert.assertEquals("test", submitTest);
+        Assertions.assertEquals("test", submitTest);
     }
 
     @Test
@@ -109,6 +109,6 @@ public class TestServiceResourceTest {
         String submitTestDynamicDiscovery = testServiceResource.submitTestDynamicDiscovery(testServiceRequestRO);
 
         // Then
-        Assert.assertEquals("dynamicdiscovery", submitTestDynamicDiscovery);
+        Assertions.assertEquals("dynamicdiscovery", submitTestDynamicDiscovery);
     }
 }

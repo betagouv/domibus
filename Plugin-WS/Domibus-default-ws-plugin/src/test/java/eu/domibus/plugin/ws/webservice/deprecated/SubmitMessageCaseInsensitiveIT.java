@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.webservice.deprecated;
 
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.messaging.XmlProcessingException;
@@ -8,9 +9,9 @@ import eu.domibus.plugin.webService.generated.SubmitRequest;
 import eu.domibus.plugin.webService.generated.SubmitResponse;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -28,9 +29,9 @@ public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
     @Autowired
     JMSManager jmsManager;
 
-    @Before
-    public void updatePMode() throws IOException, XmlProcessingException {
-        uploadPmode(wireMockRule.port());
+    @BeforeEach
+    public void updatePMode(WireMockRuntimeInfo wmRuntimeInfo) throws IOException, XmlProcessingException {
+        uploadPmode(wmRuntimeInfo.getHttpPort());
     }
 
     /**
@@ -39,7 +40,7 @@ public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
      *
      */
     @Test
-    @Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
+    @Disabled("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
     public void testSubmitMessageOK() throws SubmitMessageFault {
         String payloadHref = "cid:message";
         SubmitRequest submitRequest = createSubmitRequest(payloadHref);

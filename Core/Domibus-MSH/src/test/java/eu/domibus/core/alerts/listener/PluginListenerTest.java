@@ -7,15 +7,15 @@ import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Thomas Dussart
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PluginListenerTest {
 
     @Tested

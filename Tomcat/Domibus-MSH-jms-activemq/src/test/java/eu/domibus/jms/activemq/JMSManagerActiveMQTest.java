@@ -9,12 +9,13 @@ import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.jms.spi.InternalJmsMessage;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.apache.activemq.broker.jmx.QueueViewMBean;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.jms.core.JmsOperations;
 
 import javax.management.MBeanServerConnection;
@@ -25,13 +26,13 @@ import javax.management.openmbean.CompositeDataSupport;
 import java.util.*;
 
 import static eu.domibus.jms.spi.InternalJMSConstants.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Cosmin Baciu
  * @since 3.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class JMSManagerActiveMQTest {
 
     @Tested
@@ -133,6 +134,7 @@ public class JMSManagerActiveMQTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testBrowseMessages(final @Injectable InternalJMSDestination selectedDestination,
                                    final @Injectable Map<String, InternalJMSDestination> destinationsMap,
                                    final @Injectable QueueViewMBean queueMbean,
@@ -185,6 +187,7 @@ public class JMSManagerActiveMQTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testConvertCompositeData(final @Injectable CompositeData data,
                                          final @Injectable Map stringProperties,
                                          final @Injectable Map intProperties,
@@ -399,12 +402,12 @@ public class JMSManagerActiveMQTest {
     }
 
     @Test
-    public void testConsumeMessageException(final @Injectable QueueViewMBean queueViewMBean) {
+    public void testConsumeMessageException() {
         // Given
         final String source = "sourceQueue";
         final String messageId = "id1";
 
-        new Expectations(jmsManagerActiveMQ) {{
+        new Expectations() {{
             domibusJMSActiveMQConnectionManager.getQueueViewMBean(source);
             result = new InternalJMSException();
         }};

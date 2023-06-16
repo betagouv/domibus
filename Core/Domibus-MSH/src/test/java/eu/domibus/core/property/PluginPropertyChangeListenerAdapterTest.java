@@ -1,17 +1,18 @@
 package eu.domibus.core.property;
 
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
-import junit.framework.TestCase;
-import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(JMockit.class)
-public class PluginPropertyChangeListenerAdapterTest extends TestCase {
+import mockit.*;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+@ExtendWith(JMockitExtension.class)
+public class PluginPropertyChangeListenerAdapterTest {
 
     @Tested
     PluginPropertyChangeListenerAdapter pluginPropertyChangeListenerAdapter;
@@ -29,26 +30,27 @@ public class PluginPropertyChangeListenerAdapterTest extends TestCase {
 
         boolean res = pluginPropertyChangeListenerAdapter.handlesProperty(propertyName);
 
-        Assert.assertEquals(handles, res);
+        Assertions.assertEquals(handles, res);
     }
 
     @Test
     public void propertyValueChanged_error(@Injectable String domainCode, @Injectable String propertyName,
-                                           @Injectable String propertyValue, @Injectable DomibusPropertyExtException exception) {
+                                           @Injectable String propertyValue) {
         String errorMessage = "errorMessage";
+        DomibusCoreException cause = new DomibusCoreException("test");
+        DomibusPropertyException exception = new DomibusPropertyException(errorMessage, cause);
+
         new Expectations() {{
-            exception.getMessage();
-            result = errorMessage;
             pluginPropertyChangeListener.propertyValueChanged(domainCode, propertyName, propertyValue);
             result = exception;
         }};
 
         try {
             pluginPropertyChangeListenerAdapter.propertyValueChanged(domainCode, propertyName, propertyValue);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusPropertyException ex) {
-            Assert.assertEquals(ex.getCause(), exception);
-            Assert.assertTrue(ex.getMessage().contains(errorMessage));
+            Assertions.assertEquals(ex.getCause(), cause);
+            Assertions.assertTrue(ex.getMessage().contains(errorMessage));
         }
     }
 

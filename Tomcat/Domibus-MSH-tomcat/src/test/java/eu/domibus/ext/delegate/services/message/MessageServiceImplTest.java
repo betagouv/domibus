@@ -3,8 +3,8 @@ package eu.domibus.ext.delegate.services.message;
 import eu.domibus.api.util.DomibusStringUtil;
 import mockit.Injectable;
 import mockit.Tested;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Sebastian-Ion TINCU
@@ -22,8 +22,7 @@ public class MessageServiceImplTest {
 
         String trimmedMessageId = messageService.cleanMessageIdentifier(messageId);
 
-        Assert.assertEquals("Should have trimmed control characters at the beginning and the end of the message identifier when cleaning it",
-                "-Dom137--", trimmedMessageId);
+        Assertions.assertEquals("-Dom137--", trimmedMessageId, "Should have trimmed control characters at the beginning and the end of the message identifier when cleaning it");
     }
 
     @Test
@@ -32,8 +31,7 @@ public class MessageServiceImplTest {
 
         String trimmedMessageId = messageService.cleanMessageIdentifier(messageId);
 
-        Assert.assertEquals("Should have returned the message as is when cleaning it if the message does not contain control characters",
-                "-Dom138--", trimmedMessageId);
+        Assertions.assertEquals("-Dom138--", trimmedMessageId, "Should have returned the message as is when cleaning it if the message does not contain control characters");
     }
 
 }

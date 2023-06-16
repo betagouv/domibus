@@ -8,10 +8,10 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomainDaoImplTest {
 
     @Injectable
@@ -83,7 +83,7 @@ public class DomainDaoImplTest {
 
         try {
             domainDao.checkValidDomain(domains, domainCode);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusCoreException ex) {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
             assertEquals(ex.getMessage(), "[DOM_001]:Forbidden characters like capital letters or special characters, except underscore found in domain name. Invalid domain name:Domain&7");
@@ -100,7 +100,7 @@ public class DomainDaoImplTest {
         domains.add(domain1);
         try {
             domainDao.checkValidDomain(domains, domainCode);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusCoreException ex) {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
             assertEquals(ex.getMessage(), "[DOM_001]:Found duplicate domain name :domaina");
@@ -129,7 +129,7 @@ public class DomainDaoImplTest {
 
         try {
             domainDao.checkValidDomain(domains, domainCode);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusCoreException ex) {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
             assertEquals(ex.getMessage(), "[DOM_001]:Domain name should not start with a number. Invalid domain name:1domain22");

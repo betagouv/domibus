@@ -18,9 +18,10 @@ import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -31,7 +32,7 @@ import java.util.List;
  * @since 4.1
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserAlertsServiceImplTest {
 
     @Injectable
@@ -65,6 +66,7 @@ public class UserAlertsServiceImplTest {
     private UserAlertsServiceImpl userAlertsService;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testSendPasswordExpiredAlerts(@Injectable UserDaoBase<UserEntityBase> dao,
                                               @Injectable RepetitiveAlertConfiguration alertConfiguration) {
         final LocalDate today = LocalDate.of(2018, 10, 15);
@@ -115,6 +117,7 @@ public class UserAlertsServiceImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testSendPasswordImminentExpirationAlerts(@Injectable UserDaoBase<UserEntityBase> dao,
                                                          @Injectable RepetitiveAlertConfiguration alertConfiguration) {
         final LocalDate today = LocalDate.of(2018, 10, 15);

@@ -1,5 +1,5 @@
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestMigrationVersion {
 
@@ -18,7 +18,7 @@ public class TestMigrationVersion {
     public static final String INTO_TB_VERSION = "INSERT INTO TB_VERSION";
     private static File sqlScriptsFolder;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         sqlScriptsFolder = Paths.get(TARGET_SQL_SCRIPTS).toFile();
     }
@@ -40,8 +40,8 @@ public class TestMigrationVersion {
             }
             String targetVersion = getTargetVersion(fileName);
             if (targetVersion != null) {
-                assertTrue(String.format("File %s should contain '%s' with version %s. Check the property DomibusVersion is set correctly in the pom.xml", fileName, INTO_TB_VERSION, targetVersion),
-                        lineHavingVersion.get().contains(targetVersion));
+                assertTrue(lineHavingVersion.get().contains(targetVersion),
+                        String.format("File %s should contain '%s' with version %s. Check the property DomibusVersion is set correctly in the pom.xml", fileName, INTO_TB_VERSION, targetVersion));
             }
         } catch (IOException e) {
             fail("Failure reading file " + fileName + ": " + e.getMessage());

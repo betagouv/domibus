@@ -5,11 +5,11 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.api.spring.SpringContextProvider;
 import mockit.Mocked;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.binding.soap.SoapMessage;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
 
 import javax.xml.bind.JAXBException;
@@ -25,7 +25,7 @@ import java.security.cert.CertificateException;
  * @author idragusa
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PrepareAttachmentInterceptorTest extends SoapInterceptorTest {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PrepareAttachmentInterceptorTest.class);
 
@@ -33,11 +33,11 @@ public class PrepareAttachmentInterceptorTest extends SoapInterceptorTest {
     PrepareAttachmentInterceptor prepareAttachmentInterceptor;
 
     @Test
-    public void testHandleMessage(@Mocked SpringContextProvider springContextProvider) throws XMLStreamException, ParserConfigurationException, JAXBException, IOException, CertificateException, NoSuchAlgorithmException, KeyStoreException, SOAPException {
+    public void testHandleMessage() throws XMLStreamException, ParserConfigurationException, SOAPException {
         Document doc = readDocument("dataset/as4/SoapRequestBinaryToken.xml");
         SoapMessage soapMessage = getSoapMessageForDom(doc);
         prepareAttachmentInterceptor.handleMessage(soapMessage);
-        Assert.assertNotNull(soapMessage.getAttachments());
-        Assert.assertEquals(1, soapMessage.getAttachments().size());
+        Assertions.assertNotNull(soapMessage.getAttachments());
+        Assertions.assertEquals(1, soapMessage.getAttachments().size());
     }
 }

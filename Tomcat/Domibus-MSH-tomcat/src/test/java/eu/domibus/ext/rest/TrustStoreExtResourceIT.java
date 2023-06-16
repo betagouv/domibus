@@ -2,9 +2,9 @@ package eu.domibus.ext.rest;
 
 import eu.domibus.ext.rest.util.LegacyRestUtil;
 import eu.domibus.ext.rest.util.RestUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -29,7 +29,7 @@ public class TrustStoreExtResourceIT extends TrustStoreExtResourceBaseIT {
     public static final String TEST_ENDPOINT_DELETE = TEST_ENDPOINT_RESOURCE + "/entries/{alias}";
     public static final String TEST_ENDPOINT_DELETE_WITH_SECURITY_PROFILES = TEST_ENDPOINT_RESOURCE + "/certificates/{partyName:.+}";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         mockMvc = MockMvcBuilders.standaloneSetup(truststoreExtResource).build();
         restUtil = new RestUtil(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD, mockMvc);
@@ -48,7 +48,7 @@ public class TrustStoreExtResourceIT extends TrustStoreExtResourceBaseIT {
 
         //then
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals("Truststore file has been successfully replaced.", content);
+        Assertions.assertEquals("Truststore file has been successfully replaced.", content);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class TrustStoreExtResourceIT extends TrustStoreExtResourceBaseIT {
 
         // then
         String content = result.getResponse().getContentAsString();
-        Assert.assertNotNull(content);
+        Assertions.assertNotNull(content);
     }
 
     @Test
@@ -78,7 +78,7 @@ public class TrustStoreExtResourceIT extends TrustStoreExtResourceBaseIT {
 
         //then
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals("Certificate [red_gw] has been successfully added to the truststore.", content);
+        Assertions.assertEquals("Certificate [red_gw] has been successfully added to the truststore.", content);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class TrustStoreExtResourceIT extends TrustStoreExtResourceBaseIT {
 
         //then
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully added to the truststore.", content);
+        Assertions.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully added to the truststore.", content);
     }
 
     @Test
@@ -108,7 +108,7 @@ public class TrustStoreExtResourceIT extends TrustStoreExtResourceBaseIT {
 
         //then
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals("Certificate [blue_gw] has been successfully removed from the truststore.", content);
+        Assertions.assertEquals("Certificate [blue_gw] has been successfully removed from the truststore.", content);
     }
 
     @Test
@@ -124,6 +124,6 @@ public class TrustStoreExtResourceIT extends TrustStoreExtResourceBaseIT {
 
         //then
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully removed from the truststore.", content);
+        Assertions.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully removed from the truststore.", content);
     }
 }

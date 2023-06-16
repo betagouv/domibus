@@ -25,10 +25,10 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -91,11 +91,11 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
     @Autowired
     private EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         payloadFileStorageProvider.initialize();
 
-        Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
+        Mockito.when(backendConnectorProvider.getBackendConnector(ArgumentMatchers.anyString()))
                 .thenReturn(new BackendConnectorMock("name"));
         domain = new Domain("default", "default");
         uploadPMode(SERVICE_PORT);
@@ -119,7 +119,7 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
     public void startBatch() {
         ReflectionTestUtils.setField(eArchiveBatchDispatcherService, "jmsManager", jmsManager);
         eArchiveBatchDispatcherService.startBatch(domain, EArchiveRequestType.CONTINUOUS);
-        Assert.assertTrue(jmsManagerTriggered);
+        Assertions.assertTrue(jmsManagerTriggered);
 
         jmsManagerTriggered = false;
 
@@ -138,6 +138,6 @@ public class EArchiveBatchDispatcherServiceIT extends AbstractIT {
                 }
             }
         }
-        Assert.assertEquals(1, userMessageFound);
+        Assertions.assertEquals(1, userMessageFound);
     }
 }

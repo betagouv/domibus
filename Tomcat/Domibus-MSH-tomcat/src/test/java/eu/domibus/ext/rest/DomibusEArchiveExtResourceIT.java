@@ -14,11 +14,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -31,7 +31,8 @@ import org.springframework.web.context.WebApplicationContext;
 import java.time.ZoneOffset;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -59,8 +60,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
     public static final String TEST_ENDPOINT_EXPORTED_BATCHID_MESSAGES = TEST_ENDPOINT_EXPORTED + "/{batchId}/messages";
     public static final String TEST_ENDPOINT_BATCH_CLOSE = TEST_ENDPOINT_EXPORTED + "/{batchId}/close";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+
 
     private MockMvc mockMvc;
 
@@ -88,7 +88,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
     UserMessageLog uml7_not_archived;
     UserMessageLog uml8_not_archived;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webAppContext)
                 .build();
@@ -160,7 +160,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         BatchDTO batchDTO = objectMapper.readValue(content, BatchDTO.class);
 
         assertNotNull(batchDTO);
-        Assert.assertEquals(ExportedBatchStatusType.QUEUED, batchDTO.getStatus());
+        Assertions.assertEquals(ExportedBatchStatusType.QUEUED, batchDTO.getStatus());
     }
 
 
@@ -175,7 +175,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        Assert.assertTrue(content.contains("{\"message\":\"[DOM_009]:eArchive batch not found batchId: [unknown]"));
+        Assertions.assertTrue(content.contains("{\"message\":\"[DOM_009]:eArchive batch not found batchId: [unknown]"));
     }
 
     @Test
@@ -193,7 +193,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        Assert.assertTrue(content.contains("{\"message\":\"[DOM_009]:eArchive batch not found batchId: [unknown]"));
+        Assertions.assertTrue(content.contains("{\"message\":\"[DOM_009]:eArchive batch not found batchId: [unknown]"));
     }
 
     @Test
@@ -211,7 +211,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        Assert.assertTrue(StringUtils.contains(content, "QUEUED"));
+        Assertions.assertTrue(StringUtils.contains(content, "QUEUED"));
     }
 
     @Test
@@ -229,7 +229,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        Assert.assertTrue(content.contains("{\"message\":\"[DOM_009]:eArchive batch not found batchId: [unknown]"));
+        Assertions.assertTrue(content.contains("{\"message\":\"[DOM_009]:eArchive batch not found batchId: [unknown]"));
     }
 
     @Test
@@ -247,7 +247,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        Assert.assertTrue(StringUtils.contains(content, batch1.getBatchId()) && StringUtils.contains(content, "ARCHIVED"));
+        Assertions.assertTrue(StringUtils.contains(content, batch1.getBatchId()) && StringUtils.contains(content, "ARCHIVED"));
     }
 
     @Test
@@ -408,7 +408,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         assertEquals(batch3.getRequestType().name(), responseBatch.getRequestType().name());
         // test date formatting
         LOG.info(content);
-        MatcherAssert.assertThat(content, CoreMatchers.containsString("\"enqueuedTimestamp\":\"" + batch3.getDateRequested().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime()));
+        assertThat(content, CoreMatchers.containsString("\"enqueuedTimestamp\":\"" + batch3.getDateRequested().toInstant().atZone(ZoneOffset.UTC).toLocalDateTime()));
     }
 
     @Test

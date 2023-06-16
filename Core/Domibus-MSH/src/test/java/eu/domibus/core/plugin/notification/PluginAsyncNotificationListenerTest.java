@@ -10,14 +10,15 @@ import eu.domibus.common.NotificationType;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.jms.config.JmsListenerContainerFactory;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -26,7 +27,7 @@ import java.util.Map;
  * @author Cosmin Baciu
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PluginAsyncNotificationListenerTest {
 
     @Tested
@@ -54,7 +55,6 @@ public class PluginAsyncNotificationListenerTest {
     @Test
     public void onMessage(@Injectable Message message,
                           @Injectable PluginEventNotifier pluginEventNotifier,
-                          @Injectable Map<String, String> messageProperties,
                           @Injectable DeliverMessageEvent deliverMessageEvent) throws JMSException {
         String messageId = "123";
         NotificationType notificationType = NotificationType.MESSAGE_FRAGMENT_RECEIVED;
@@ -75,7 +75,7 @@ public class PluginAsyncNotificationListenerTest {
             result = pluginEventNotifier;
 
             pluginAsyncNotificationListener.getMessageProperties(message);
-            result = messageProperties;
+            result = new HashMap<>();
         }};
 
         pluginAsyncNotificationListener.doOnMessage(message);
@@ -88,8 +88,7 @@ public class PluginAsyncNotificationListenerTest {
 
     @Test
     public void onMessage_addsAuthentication(@Injectable Message message,
-                                             @Injectable PluginEventNotifier pluginEventNotifier,
-                                             @Injectable Map<String, String> messageProperties)  throws JMSException {
+                                             @Injectable PluginEventNotifier pluginEventNotifier){
         // Given
         new Expectations() {{
             authUtils.runWithSecurityContext((AuthenticatedProcedure)any, anyString, anyString, (AuthRole)any);
@@ -106,10 +105,10 @@ public class PluginAsyncNotificationListenerTest {
             AuthRole role;
             authUtils.runWithSecurityContext(function = withCapture(),
                     username=withCapture(), password=withCapture(), role=withCapture());
-            Assert.assertNotNull(function);
-            Assert.assertEquals("notif",username);
-            Assert.assertEquals("notif",password);
-            Assert.assertEquals(AuthRole.ROLE_ADMIN,role);
+            Assertions.assertNotNull(function);
+            Assertions.assertEquals("notif",username);
+            Assertions.assertEquals("notif",password);
+            Assertions.assertEquals(AuthRole.ROLE_ADMIN,role);
 
         }};
     }

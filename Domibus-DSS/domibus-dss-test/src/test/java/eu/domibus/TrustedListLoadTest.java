@@ -34,8 +34,8 @@ import eu.europa.esig.dss.tsl.source.TLSource;
 import eu.europa.esig.dss.tsl.sync.AcceptAllStrategy;
 import eu.europa.esig.dss.tsl.sync.TrustedListCertificateSourceSynchronizer;
 import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +88,7 @@ public class TrustedListLoadTest {
         executeTLSourcesAnalysis(tlSources, dssFileLoader);
         synchronizeTLCertificateSource(tlSources.toArray(new TLSource[]{}),lotlSources.toArray(new LOTLSource[]{}),new TrustedListsCertificateSource());
         Collection<File> files = FileUtils.listFiles(cacheDirectory, null, false);
-        Assert.assertEquals(31l,files.stream().count());
+        Assertions.assertEquals(31l,files.stream().count());
     }
 
 

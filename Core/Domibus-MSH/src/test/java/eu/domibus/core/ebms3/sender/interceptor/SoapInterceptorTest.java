@@ -26,7 +26,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyBuilderImpl;
 import org.apache.wss4j.policy.SPConstants;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -112,7 +112,7 @@ public class SoapInterceptorTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void init() {
         System.setProperty("javax.xml.soap.MessageFactory", "com.sun.xml.messaging.saaj.soap.ver1_2.SOAPMessageFactory1_2Impl");
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());

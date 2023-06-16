@@ -9,14 +9,14 @@ import eu.domibus.api.proxy.DomibusProxyService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class EArchiveConfigurationTest {
     @Tested
     private EArchiveConfiguration eArchiveConfiguration;

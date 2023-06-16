@@ -4,8 +4,8 @@ import eu.domibus.AbstractIT;
 import eu.domibus.core.user.ui.User;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.PersistenceContext;
@@ -22,7 +22,7 @@ public class AuditIT extends AbstractIT {
     @PersistenceContext
     private javax.persistence.EntityManager em;
 
-    @Before
+    @BeforeEach
     public void setup() {
         LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
     }

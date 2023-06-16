@@ -3,11 +3,11 @@ package eu.domibus.plugin.ws.property.listeners;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.xml.ws.Endpoint;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import java.util.HashMap;
  * @author Ion Perpegel
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MtomEnabledChangeListenerTest {
 
     @Injectable
@@ -27,7 +27,7 @@ public class MtomEnabledChangeListenerTest {
 
     private MtomEnabledChangeListener listener;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         listener = new MtomEnabledChangeListener(backendInterfaceEndpoint, backendInterfaceEndpointDeprecated);
     }
@@ -35,13 +35,13 @@ public class MtomEnabledChangeListenerTest {
     @Test
     public void handlesProperty_false() {
         boolean result = listener.handlesProperty("wsplugin.schema.validation.enabled");
-        Assert.assertFalse(result);
+        Assertions.assertFalse(result);
     }
 
     @Test
     public void handlesProperty_true() {
         boolean result = listener.handlesProperty("wsplugin.mtom.enabled");
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
@@ -57,8 +57,8 @@ public class MtomEnabledChangeListenerTest {
 
         listener.propertyValueChanged("default", "wsplugin.mtom.enabled", "true");
 
-        Assert.assertEquals("true", prop.get("mtom-enabled"));
-        Assert.assertEquals("true", propDeprecated.get("mtom-enabled"));
+        Assertions.assertEquals("true", prop.get("mtom-enabled"));
+        Assertions.assertEquals("true", propDeprecated.get("mtom-enabled"));
 
         new FullVerifications() {
         };

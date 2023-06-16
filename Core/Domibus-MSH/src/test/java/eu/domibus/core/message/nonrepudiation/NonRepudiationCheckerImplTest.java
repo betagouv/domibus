@@ -3,15 +3,18 @@ package eu.domibus.core.message.nonrepudiation;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.xml.XMLUtilImpl;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.IOUtils;
 import org.apache.wss4j.dom.WSConstants;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+
+import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.xml.soap.MessageFactory;
@@ -21,23 +24,22 @@ import javax.xml.soap.SOAPMessage;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Cosmin Baciu
  * @since 3.3.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class NonRepudiationCheckerImplTest {
 
     NonRepudiationCheckerImpl nonRepudiationChecker = new NonRepudiationCheckerImpl();
 
     static MessageFactory messageFactory = null;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws SOAPException {
         messageFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
     }
@@ -71,14 +73,13 @@ public class NonRepudiationCheckerImplTest {
         final List<String> referencesFromSecurityHeader = getNonRepudiationNodeListFromRequest("dataset/as4/MSHAS4Request.xml");
         final List<String> referencesFromNonRepudiationInformation = getNonRepudiationListFromResponse("dataset/as4/MSHAS4Response.xml");
         final boolean compareUnorderedReferenceNodeListsResult = nonRepudiationChecker.compareUnorderedReferenceNodeLists(referencesFromSecurityHeader, referencesFromNonRepudiationInformation);
-        Assert.assertTrue(compareUnorderedReferenceNodeListsResult);
+        Assertions.assertTrue(compareUnorderedReferenceNodeListsResult);
     }
 
     @Test
-    public void getNonRepudiationDetailsFromReceiptWithNullArgument() throws Exception {
-        thrown.expect(EbMS3Exception.class);
-        thrown.expectMessage("Not found NonRepudiationDetails element.");
-        nonRepudiationChecker.getNonRepudiationDetailsFromReceipt(null);
+    public void getNonRepudiationDetailsFromReceiptWithNullArgument() {
+        EbMS3Exception ebMS3Exception = Assertions.assertThrows(EbMS3Exception.class, () -> nonRepudiationChecker.getNonRepudiationDetailsFromReceipt(null));
+        MatcherAssert.assertThat(ebMS3Exception.getMessage(), Matchers.containsString("Not found NonRepudiationDetails element."));
     }
 
     @Test
@@ -86,7 +87,7 @@ public class NonRepudiationCheckerImplTest {
         final List<String> referencesFromSecurityHeader = getNonRepudiationNodeListFromRequest("dataset/as4/MSHAS4Request-signOnly.xml");
         final List<String> referencesFromNonRepudiationInformation = getNonRepudiationListFromResponse("dataset/as4/MSHAS4Response-signOnly.xml");
         final boolean compareUnorderedReferenceNodeListsResult = nonRepudiationChecker.compareUnorderedReferenceNodeLists(referencesFromSecurityHeader, referencesFromNonRepudiationInformation);
-        Assert.assertTrue(compareUnorderedReferenceNodeListsResult);
+        Assertions.assertTrue(compareUnorderedReferenceNodeListsResult);
     }
 
     protected List<String> getNonRepudiationNodeListFromRequest(String path) throws Exception {

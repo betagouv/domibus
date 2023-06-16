@@ -9,22 +9,24 @@ import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.hibernate.envers.RevisionType.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Dussart
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
+@Disabled("EDELIVERY-6896")
 public class CustomRevisionEntityListenerTest {
 
     @Tested

@@ -7,15 +7,15 @@ import eu.domibus.common.MessageStatus;
 import eu.domibus.messaging.DuplicateMessageException;
 import eu.domibus.messaging.MessageNotFoundException;
 import eu.domibus.plugin.Submission;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MessageRetrieverServiceDelegateIT extends AbstractIT {
     private static final String MESS_ID = UUID.randomUUID().toString();
@@ -29,7 +29,7 @@ public class MessageRetrieverServiceDelegateIT extends AbstractIT {
 
         try {
             messageRetrieverServiceDelegate.checkMessageAuthorization(MESS_ID);
-            Assert.fail("It should throw AuthenticationException");
+            Assertions.fail("It should throw AuthenticationException");
         } catch (eu.domibus.api.messaging.MessageNotFoundException adEx) {
             assertTrue(adEx.getMessage().contains("[DOM_009]:Message [" + MESS_ID + "] does not exist"));
         }
@@ -42,7 +42,7 @@ public class MessageRetrieverServiceDelegateIT extends AbstractIT {
 
         // When
         final MessageStatus status = messageRetrieverServiceDelegate.getStatus("not_found");
-        Assert.assertEquals(MessageStatus.NOT_FOUND, status);
+        Assertions.assertEquals(MessageStatus.NOT_FOUND, status);
 
     }
 
@@ -52,7 +52,7 @@ public class MessageRetrieverServiceDelegateIT extends AbstractIT {
         // When
         final MessageStatus status = messageRetrieverServiceDelegate.getStatus(MESS_1);
 
-        Assert.assertEquals(MessageStatus.ACKNOWLEDGED, status);
+        Assertions.assertEquals(MessageStatus.ACKNOWLEDGED, status);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class MessageRetrieverServiceDelegateIT extends AbstractIT {
         // When
         final MessageStatus status = messageRetrieverServiceDelegate.getStatus(MESS_1, MSHRole.RECEIVING);
 
-        Assert.assertEquals(MessageStatus.ACKNOWLEDGED, status);
+        Assertions.assertEquals(MessageStatus.ACKNOWLEDGED, status);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class MessageRetrieverServiceDelegateIT extends AbstractIT {
         // When
         final MessageStatus status = messageRetrieverServiceDelegate.getStatus(230412100000000001L);
 
-        Assert.assertEquals(MessageStatus.ACKNOWLEDGED, status);
+        Assertions.assertEquals(MessageStatus.ACKNOWLEDGED, status);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class MessageRetrieverServiceDelegateIT extends AbstractIT {
         // When
         final Submission msg = messageRetrieverServiceDelegate.downloadMessage(230412100000000001L, false);
 
-        Assert.assertNotNull(msg);
+        Assertions.assertNotNull(msg);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class MessageRetrieverServiceDelegateIT extends AbstractIT {
         // When
         final Submission msg = messageRetrieverServiceDelegate.downloadMessage(MESS_1, false);
 
-        Assert.assertNotNull(msg);
+        Assertions.assertNotNull(msg);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class MessageRetrieverServiceDelegateIT extends AbstractIT {
         // When
         final Submission msg = messageRetrieverServiceDelegate.downloadMessage(230412100000000001L);
 
-        Assert.assertNotNull(msg);
+        Assertions.assertNotNull(msg);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class MessageRetrieverServiceDelegateIT extends AbstractIT {
         // When
         final Submission msg = messageRetrieverServiceDelegate.downloadMessage(MESS_1);
 
-        Assert.assertNotNull(msg);
+        Assertions.assertNotNull(msg);
     }
 
     @Test
@@ -123,7 +123,7 @@ public class MessageRetrieverServiceDelegateIT extends AbstractIT {
         // When
         final Submission msg = messageRetrieverServiceDelegate.browseMessage(MESS_1, MSHRole.RECEIVING);
 
-        Assert.assertNotNull(msg);
+        Assertions.assertNotNull(msg);
     }
 
     @Test
@@ -132,7 +132,7 @@ public class MessageRetrieverServiceDelegateIT extends AbstractIT {
         // When
         final Submission msg = messageRetrieverServiceDelegate.browseMessage(230412100000000001L);
 
-        Assert.assertNotNull(msg);
+        Assertions.assertNotNull(msg);
     }
 
     @Test
@@ -141,7 +141,7 @@ public class MessageRetrieverServiceDelegateIT extends AbstractIT {
         // When
         final Submission msg = messageRetrieverServiceDelegate.browseMessage(MESS_1);
 
-        Assert.assertNotNull(msg);
+        Assertions.assertNotNull(msg);
     }
 
     @Test
@@ -150,7 +150,7 @@ public class MessageRetrieverServiceDelegateIT extends AbstractIT {
         // When
         List<? extends ErrorResult> errorsForMessage = messageRetrieverServiceDelegate.getErrorsForMessage(MESS_1);
 
-        Assert.assertEquals(0, errorsForMessage.size());
+        Assertions.assertEquals(0, errorsForMessage.size());
     }
     @Test
     public void getErrorsForMessage2() throws MessageNotFoundException {
@@ -158,7 +158,7 @@ public class MessageRetrieverServiceDelegateIT extends AbstractIT {
         // When
         List<? extends ErrorResult> errorsForMessage = messageRetrieverServiceDelegate.getErrorsForMessage(MESS_1, MSHRole.RECEIVING);
 
-        Assert.assertEquals(0, errorsForMessage.size());
+        Assertions.assertEquals(0, errorsForMessage.size());
     }
 
 

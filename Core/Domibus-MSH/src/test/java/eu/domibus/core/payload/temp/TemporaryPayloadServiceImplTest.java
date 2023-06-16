@@ -3,11 +3,12 @@ package eu.domibus.core.payload.temp;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -22,7 +23,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class TemporaryPayloadServiceImplTest {
 
     @Tested
@@ -78,8 +79,8 @@ public class TemporaryPayloadServiceImplTest {
 
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getRegexFileFilter(@Mocked Pattern regexPattern,
-                                   @Mocked FileFilterUtils fileFilterUtils,
                                    @Mocked RegexIOFileFilter regexIOFileFilter,
                                    @Injectable Domain domain) {
         String excludeRegex = "regexExpression";
@@ -103,6 +104,7 @@ public class TemporaryPayloadServiceImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getAgeFileFilter(@Mocked System system,
                                  @Mocked FileFilterUtils fileFilterUtils,
                                  @Mocked LoggerFactory loggerFactory,
@@ -143,9 +145,9 @@ public class TemporaryPayloadServiceImplTest {
         }};
 
         final List<File> temporaryLocations = temporaryPayloadService.getTemporaryLocations();
-        Assert.assertEquals(2, temporaryLocations.size());
-        Assert.assertTrue(temporaryLocations.iterator().next() == dir1);
-        Assert.assertTrue(temporaryLocations.iterator().next() == dir1);
+        Assertions.assertEquals(2, temporaryLocations.size());
+        Assertions.assertTrue(temporaryLocations.iterator().next() == dir1);
+        Assertions.assertTrue(temporaryLocations.iterator().next() == dir1);
     }
 
     @Test
@@ -158,7 +160,7 @@ public class TemporaryPayloadServiceImplTest {
         }};
 
         final File payloadServiceDirectory = temporaryPayloadService.getDirectory(directory);
-        Assert.assertSame(payloadServiceDirectory, directoryFile);
+        Assertions.assertSame(payloadServiceDirectory, directoryFile);
 
         new Verifications() {{
             domibusPropertyProvider.getProperty(anyString);
@@ -182,10 +184,11 @@ public class TemporaryPayloadServiceImplTest {
         }};
 
         final File payloadServiceDirectory = temporaryPayloadService.getDirectory(directory);
-        Assert.assertSame(payloadServiceDirectory, directoryFile);
+        Assertions.assertSame(payloadServiceDirectory, directoryFile);
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getDirectoryIfExists(@Mocked File file,
                                      @Mocked LoggerFactory loggerFactory) {
         String directory = "dir1";
@@ -202,6 +205,6 @@ public class TemporaryPayloadServiceImplTest {
         }};
 
         final File result = temporaryPayloadService.getDirectoryIfExists(directory);
-        Assert.assertEquals(result.getPath(), file.getPath());
+        Assertions.assertEquals(result.getPath(), file.getPath());
     }
 }

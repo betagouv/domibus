@@ -27,10 +27,10 @@ import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.user.ui.User;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.Queue;
 import java.text.ParseException;
@@ -47,7 +47,7 @@ import static eu.domibus.core.alerts.model.common.MessageEvent.*;
  * @since 4.0
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class EventServiceImplTest {
 
     @Tested
@@ -104,10 +104,10 @@ public class EventServiceImplTest {
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.MSG_STATUS_CHANGED.getQueueSelector());
             times = 1;
-            Assert.assertEquals(oldMessageStatus.name(), event.getProperties().get(OLD_STATUS.name()).getValue());
-            Assert.assertEquals(newMessageStatus.name(), event.getProperties().get(NEW_STATUS.name()).getValue());
-            Assert.assertEquals(messageId, event.getProperties().get(MESSAGE_ID.name()).getValue());
-            Assert.assertEquals(mshRole.name(), event.getProperties().get(ROLE.name()).getValue());
+            Assertions.assertEquals(oldMessageStatus.name(), event.getProperties().get(OLD_STATUS.name()).getValue());
+            Assertions.assertEquals(newMessageStatus.name(), event.getProperties().get(NEW_STATUS.name()).getValue());
+            Assertions.assertEquals(messageId, event.getProperties().get(MESSAGE_ID.name()).getValue());
+            Assertions.assertEquals(mshRole.name(), event.getProperties().get(ROLE.name()).getValue());
         }};
     }
 
@@ -131,9 +131,9 @@ public class EventServiceImplTest {
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.USER_LOGIN_FAILURE.getQueueSelector());
             times = 1;
-            Assert.assertEquals(userName, event.getProperties().get(USER.name()).getValue());
-            Assert.assertEquals(loginTime, event.getProperties().get(LOGIN_TIME.name()).getValue());
-            Assert.assertEquals("false", event.getProperties().get(ACCOUNT_DISABLED.name()).getValue());
+            Assertions.assertEquals(userName, event.getProperties().get(USER.name()).getValue());
+            Assertions.assertEquals(loginTime, event.getProperties().get(LOGIN_TIME.name()).getValue());
+            Assertions.assertEquals("false", event.getProperties().get(ACCOUNT_DISABLED.name()).getValue());
         }};
 
     }
@@ -157,9 +157,9 @@ public class EventServiceImplTest {
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.USER_ACCOUNT_DISABLED.getQueueSelector());
             times = 1;
-            Assert.assertEquals(userName, event.getProperties().get(USER.name()).getValue());
-            Assert.assertEquals(loginTime, event.getProperties().get(LOGIN_TIME.name()).getValue());
-            Assert.assertEquals("true", event.getProperties().get(ACCOUNT_DISABLED.name()).getValue());
+            Assertions.assertEquals(userName, event.getProperties().get(USER.name()).getValue());
+            Assertions.assertEquals(loginTime, event.getProperties().get(LOGIN_TIME.name()).getValue());
+            Assertions.assertEquals("true", event.getProperties().get(ACCOUNT_DISABLED.name()).getValue());
         }};
     }
 
@@ -182,9 +182,9 @@ public class EventServiceImplTest {
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.USER_ACCOUNT_ENABLED.getQueueSelector());
             times = 1;
-            Assert.assertEquals(userName, event.getProperties().get(USER.name()).getValue());
-            Assert.assertEquals(loginTime, event.getProperties().get(LOGIN_TIME.name()).getValue());
-            Assert.assertEquals("true", event.getProperties().get(ACCOUNT_ENABLED.name()).getValue());
+            Assertions.assertEquals(userName, event.getProperties().get(USER.name()).getValue());
+            Assertions.assertEquals(loginTime, event.getProperties().get(LOGIN_TIME.name()).getValue());
+            Assertions.assertEquals("true", event.getProperties().get(ACCOUNT_ENABLED.name()).getValue());
         }};
     }
 
@@ -207,8 +207,8 @@ public class EventServiceImplTest {
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.CERT_IMMINENT_EXPIRATION.getQueueSelector());
             times = 1;
-            Assert.assertEquals(alias, event.getProperties().get("ALIAS").getValue());
-            Assert.assertEquals(expirationDate, event.getProperties().get("EXPIRATION_DATE").getValue());
+            Assertions.assertEquals(alias, event.getProperties().get("ALIAS").getValue());
+            Assertions.assertEquals(expirationDate, event.getProperties().get("EXPIRATION_DATE").getValue());
         }};
     }
 
@@ -231,8 +231,8 @@ public class EventServiceImplTest {
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.CERT_EXPIRED.getQueueSelector());
             times = 1;
-            Assert.assertEquals(alias, event.getProperties().get("ALIAS").getValue());
-            Assert.assertEquals(expirationDate, event.getProperties().get("EXPIRATION_DATE").getValue());
+            Assertions.assertEquals(alias, event.getProperties().get("ALIAS").getValue());
+            Assertions.assertEquals(expirationDate, event.getProperties().get("EXPIRATION_DATE").getValue());
         }};
     }
 
@@ -258,9 +258,9 @@ public class EventServiceImplTest {
             eu.domibus.core.alerts.model.persist.Event capture;
             eventDao.create(capture = withCapture());
             final AbstractEventProperty stringEventProperty1 = capture.getProperties().get(key);
-            Assert.assertEquals(key, stringEventProperty1.getKey());
-            Assert.assertEquals(persistedEvent.getType(), stringEventProperty1.getEvent().getType());
-            Assert.assertEquals(1, event.getEntityId());
+            Assertions.assertEquals(key, stringEventProperty1.getKey());
+            Assertions.assertEquals(persistedEvent.getType(), stringEventProperty1.getEvent().getType());
+            Assertions.assertEquals(1, event.getEntityId());
         }};
     }
 
@@ -299,17 +299,17 @@ public class EventServiceImplTest {
             result = Lists.newArrayList(errorLogEntry);
         }};
         eventService.enrichMessageEvent(event);
-        Assert.assertEquals(fromParty, event.getProperties().get(FROM_PARTY.name()).getValue());
-        Assert.assertEquals(toParty, event.getProperties().get(TO_PARTY.name()).getValue());
-        Assert.assertEquals(error_detail, event.getProperties().get(DESCRIPTION.name()).getValue());
+        Assertions.assertEquals(fromParty, event.getProperties().get(FROM_PARTY.name()).getValue());
+        Assertions.assertEquals(toParty, event.getProperties().get(TO_PARTY.name()).getValue());
+        Assertions.assertEquals(error_detail, event.getProperties().get(DESCRIPTION.name()).getValue());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void enrichMessageEventWithIllegalArgumentExcption() {
+    @Test
+    void enrichMessageEventWithIllegalArgumentExcption() {
         final Event event = new Event();
         final String messageId = "messageId";
         event.addStringKeyValue(MESSAGE_ID.name(), messageId);
-        eventService.enrichMessageEvent(event);
+        Assertions.assertThrows(IllegalArgumentException. class,() -> eventService.enrichMessageEvent(event));
     }
 
     @Test
@@ -339,7 +339,7 @@ public class EventServiceImplTest {
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, anyString);
             times = 1;
-            Assert.assertEquals(user.getUserName(), event.getProperties().get("USER").getValue());
+            Assertions.assertEquals(user.getUserName(), event.getProperties().get("USER").getValue());
         }};
     }
 

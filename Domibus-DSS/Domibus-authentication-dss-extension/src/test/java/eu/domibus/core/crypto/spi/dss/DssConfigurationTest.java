@@ -3,9 +3,9 @@ package eu.domibus.core.crypto.spi.dss;
 import eu.domibus.ext.services.*;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -18,7 +18,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DssConfigurationTest {
 
     @Injectable
@@ -107,11 +107,11 @@ public class DssConfigurationTest {
     @Test
     public void loadCacertTrustStoreFromDefaultLocation(@Mocked KeyStore keyStore) {
         final String cacertPath = "";
-        Deencapsulation.setField(dssConfiguration, "cacertPath", cacertPath);
+        ReflectionTestUtils.setField(dssConfiguration, "cacertPath", cacertPath);
         final String cacertType = "cacertType";
-        Deencapsulation.setField(dssConfiguration, cacertType, cacertType);
+        ReflectionTestUtils.setField(dssConfiguration, cacertType, cacertType);
         final String cacertPassword = "cacertPassword";
-        Deencapsulation.setField(dssConfiguration, cacertPassword, cacertPassword);
+        ReflectionTestUtils.setField(dssConfiguration, cacertPassword, cacertPassword);
 
         new Expectations(dssConfiguration) {{
             dssConfiguration.getJavaHome();

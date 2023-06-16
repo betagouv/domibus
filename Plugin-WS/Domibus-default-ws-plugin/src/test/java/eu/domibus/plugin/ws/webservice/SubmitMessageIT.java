@@ -1,6 +1,7 @@
 package eu.domibus.plugin.ws.webservice;
 
 
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
@@ -9,9 +10,9 @@ import eu.domibus.plugin.ws.generated.body.SubmitRequest;
 import eu.domibus.plugin.ws.generated.body.SubmitResponse;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -19,8 +20,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Created by draguio on 17/02/2016.
@@ -30,15 +31,15 @@ public class SubmitMessageIT extends AbstractBackendWSIT {
     @Autowired
     MessageRetentionDefaultService messageRetentionDefaultService;
 
-    @Before
-    public void before() throws IOException, XmlProcessingException {
-        uploadPmode(wireMockRule.port());
+    @BeforeEach
+    public void before(WireMockRuntimeInfo wmRuntimeInfo) throws IOException, XmlProcessingException {
+        uploadPmode(wmRuntimeInfo.getHttpPort());
     }
 
     /**
      * Test for the backend sendMessage service with payload profile enabled
      */
-    @Ignore("will be fixed by EDELIVERY-11139") //TODO
+    @Disabled("will be fixed by EDELIVERY-11139") //TODO
     @Test
     public void testSubmitMessageValid() throws SubmitMessageFault {
         String payloadHref = "cid:message";

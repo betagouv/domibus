@@ -11,16 +11,16 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -32,7 +32,7 @@ import java.security.cert.X509CRL;
  * @author idragusa
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class HttpUtilImplTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(HttpUtilImplTest.class);
@@ -64,7 +64,7 @@ public class HttpUtilImplTest {
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
-    @Ignore
+    @Disabled
     public void testDownloadCRLViaProxy() throws Exception {
         new Expectations(proxyUtil) {{
             domibusProxyService.useProxy();
@@ -99,7 +99,7 @@ public class HttpUtilImplTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-8825 testDownloadCRLHttps: fix local run")
+    @Disabled("EDELIVERY-8825 testDownloadCRLHttps: fix local run")
     public void testDownloadCRLHttps() throws Exception {
         String url = "http://onsitecrl.verisign.com/offlineca/NATIONALITANDTELECOMAGENCYPEPPOLRootCA.crl";
         /* Added this crl file to git so we have it on https and use it for testing */
@@ -135,6 +135,6 @@ public class HttpUtilImplTest {
         X509CRL x509CRLSSL = (X509CRL) cfSSL.generateCRL(inputStreamSSL);
         LOG.info(x509CRLSSL.toString());
 
-        Assert.assertEquals(x509CRLSSL, x509CRL);
+        Assertions.assertEquals(x509CRLSSL, x509CRL);
     }
 }

@@ -8,10 +8,10 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.sql.Timestamp;
 
@@ -20,7 +20,7 @@ import java.sql.Timestamp;
  * @since 4.2
  */
 @SuppressWarnings("ConstantConditions")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PullMessageStateServiceImplTest {
     @Tested
     PullMessageStateServiceImpl pullMessageStateService;
@@ -54,7 +54,7 @@ public class PullMessageStateServiceImplTest {
             times = 1;
         }};
         pullMessageStateService.expirePullMessage(messageId);
-        Assert.assertNotNull(userMessageLog);
+        Assertions.assertNotNull(userMessageLog);
 
         new Verifications() {{
             rawEnvelopeLogDao.deleteUserMessageRawEnvelope(anyLong);
@@ -73,7 +73,7 @@ public class PullMessageStateServiceImplTest {
             result = userMessage;
         }};
         pullMessageStateService.sendFailed(userMessageLog, messageId);
-        Assert.assertNotNull(userMessage);
+        Assertions.assertNotNull(userMessage);
 
         new Verifications() {{
             updateRetryLoggingService.messageFailed(userMessage, userMessageLog);

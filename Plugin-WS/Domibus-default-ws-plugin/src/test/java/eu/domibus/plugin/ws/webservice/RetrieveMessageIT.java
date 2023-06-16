@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.webservice;
 
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.MessagingService;
@@ -16,17 +17,17 @@ import eu.domibus.plugin.ws.generated.body.RetrieveMessageResponse;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.UserMessage;
 import eu.domibus.test.common.SoapSampleUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.Holder;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RetrieveMessageIT extends AbstractBackendWSIT {
 
@@ -57,22 +58,22 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
     @Autowired
     MessageRetentionDefaultService messageRetentionDefaultService;
 
-    @Before
-    public void updatePMode() throws IOException, XmlProcessingException {
-        uploadPmode(wireMockRule.port());
+    @BeforeEach
+    public void updatePMode(WireMockRuntimeInfo wmRuntimeInfo) throws IOException, XmlProcessingException {
+        uploadPmode(wmRuntimeInfo.getHttpPort());
     }
 
-    @Test(expected = RetrieveMessageFault.class)
-    public void testMessageIdEmpty() throws RetrieveMessageFault {
-        retrieveMessageFail("", "Message ID is empty");
+    @Test
+    void testMessageIdEmpty() {
+        Assertions.assertThrows(RetrieveMessageFault.class, () -> retrieveMessageFail("", "Message ID is empty"));
     }
 
-    @Test(expected = RetrieveMessageFault.class)
-    public void testMessageNotFound() throws RetrieveMessageFault {
-        retrieveMessageFail("notFound", "Message not found, id [notFound]");
+    @Test
+    void testMessageNotFound() {
+        Assertions.assertThrows(RetrieveMessageFault.class, () -> retrieveMessageFail("notFound", "Message not found, id [notFound]"));
     }
 
-    @Ignore("will be fixed by EDELIVERY-11139") //TODO
+    @Disabled("will be fixed by EDELIVERY-11139") //TODO
     @Test
     public void testRetrieveMessageOk() throws Exception {
         String filename = "SOAPMessage2.xml";
@@ -89,7 +90,7 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         try {
             webServicePluginInterface.retrieveMessage(retrieveMessageRequest, retrieveMessageResponse, ebMSHeaderInfo);
         } catch (RetrieveMessageFault dmf) {
-            Assert.assertTrue(dmf.getMessage().contains(WebServiceImpl.MESSAGE_NOT_FOUND_ID));
+            Assertions.assertTrue(dmf.getMessage().contains(WebServiceImpl.MESSAGE_NOT_FOUND_ID));
             throw dmf;
         }
 
@@ -113,7 +114,7 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
             assertEquals(errorMessage, re.getMessage());
             throw re;
         }
-        Assert.fail("DownloadMessageFault was expected but was not raised");
+        Assertions.fail("DownloadMessageFault was expected but was not raised");
     }
 
 

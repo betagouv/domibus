@@ -17,13 +17,13 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class PluginUserResourceTest {
 
@@ -85,8 +85,8 @@ public class PluginUserResourceTest {
         }};
         PluginUserResultRO result = userResource.findUsers(req);
 
-        Assert.assertNotNull(result);
-        Assert.assertEquals(pluginUserRO, result.getEntries().get(0));
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(pluginUserRO, result.getEntries().get(0));
     }
 
     @Test

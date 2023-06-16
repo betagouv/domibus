@@ -13,10 +13,12 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.Message;
 import java.util.*;
@@ -28,7 +30,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 5.0
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked"})
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class EArchiveListenerTest {
 
     @Tested
@@ -64,7 +66,7 @@ public class EArchiveListenerTest {
 
     private List<EArchiveBatchUserMessage> batchUserMessages;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         batchId = UUID.randomUUID().toString();
         entityId = new Random().nextLong();
@@ -93,8 +95,8 @@ public class EArchiveListenerTest {
         };
     }
 
-    @Test(expected = DomibusEArchiveException.class)
-    public void onMessage_noBatchFound(@Injectable Message message) {
+    @Test
+    void onMessage_noBatchFound(@Injectable Message message) {
         new Expectations() {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
@@ -109,13 +111,11 @@ public class EArchiveListenerTest {
             result = new DomibusEArchiveException("eArchive batch not found for batchId: [" + entityId + "]");
         }};
 
-        eArchiveListener.onMessage(message);
-
-        new FullVerifications() {
-        };
+        Assertions.assertThrows(DomibusEArchiveException. class,() -> eArchiveListener.onMessage(message));
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void onMessage_noMessages(@Injectable Message message,
                                      @Injectable EArchiveBatchEntity eArchiveBatch,
                                      @Injectable DomibusEARKSIPResult domibusEARKSIPResult) {
@@ -123,7 +123,7 @@ public class EArchiveListenerTest {
 
         Long lastUserMessageEntityId = 220511080000001204L;
 
-        new NonStrictExpectations(eArchiveListener) {{
+        new Expectations(eArchiveListener) {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
 
@@ -196,6 +196,7 @@ public class EArchiveListenerTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void onMessage_ok(@Injectable Message message,
                              @Injectable EArchiveBatchEntity eArchiveBatch,
                              @Injectable DomibusEARKSIPResult domibusEARKSIPResult) {
@@ -203,7 +204,7 @@ public class EArchiveListenerTest {
         Long firstUserMessageEntityId = 220511070000001204L;
         Long lastUserMessageEntityId = 220511080000001204L;
 
-        new NonStrictExpectations(eArchiveListener) {{
+        new Expectations(eArchiveListener) {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
 

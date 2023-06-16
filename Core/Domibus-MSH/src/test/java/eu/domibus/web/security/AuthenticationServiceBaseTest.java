@@ -9,12 +9,12 @@ import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.multitenancy.AllUsersManagementServiceImpl;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,7 +31,7 @@ import java.util.function.Consumer;
  * @author Catalin Enache
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class AuthenticationServiceBaseTest {
 
     @Tested
@@ -53,7 +53,7 @@ public class AuthenticationServiceBaseTest {
 
     private List<Domain> domains = new ArrayList<>();
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         final Domain domain1 = new Domain("domain1", "domain 1");
         final Domain domain2 = new Domain("domain2", "domain 2");
@@ -76,9 +76,9 @@ public class AuthenticationServiceBaseTest {
         try {
             //tested method
             authenticationServiceBase.changeDomain(domainCode);
-            Assert.fail("Exception expected");
+            Assertions.fail("Exception expected");
         } catch (Exception e) {
-            Assert.assertEquals(DomainTaskException.class, e.getClass());
+            Assertions.assertEquals(DomainTaskException.class, e.getClass());
         }
 
         new FullVerifications() {{
@@ -95,9 +95,9 @@ public class AuthenticationServiceBaseTest {
         try {
             //tested method
             authenticationServiceBase.changeDomain(domainCode);
-            Assert.fail("Exception expected");
+            Assertions.fail("Exception expected");
         } catch (Exception e) {
-            Assert.assertEquals(DomainTaskException.class, e.getClass());
+            Assertions.assertEquals(DomainTaskException.class, e.getClass());
         }
 
         new FullVerifications() {{

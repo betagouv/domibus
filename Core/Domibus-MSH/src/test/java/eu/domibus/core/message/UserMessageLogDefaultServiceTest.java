@@ -10,10 +10,10 @@ import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -22,15 +22,15 @@ import static eu.domibus.api.model.MSHRole.SENDING;
 import static eu.domibus.api.model.MessageStatus.DELETED;
 import static eu.domibus.api.model.MessageStatus.SEND_ENQUEUED;
 import static eu.domibus.api.model.NotificationStatus.NOTIFIED;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Cosmin Baciu
  * @since 3.3
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserMessageLogDefaultServiceTest {
 
     @Tested
@@ -161,12 +161,12 @@ public class UserMessageLogDefaultServiceTest {
             UserMessageLog userMessageLog;
             userMessageLogDao.create(userMessageLog = withCapture());
             times = 1;
-            Assert.assertEquals(messageId, userMessageLog.getUserMessage().getMessageId());
-            Assert.assertEquals(SEND_ENQUEUED, userMessageLog.getMessageStatus());
-            Assert.assertEquals(NOTIFIED, userMessageLog.getNotificationStatus().getStatus());
-            Assert.assertEquals(SENDING, userMessageLog.getMshRole().getRole());
-            Assert.assertEquals(maxAttempts.intValue(), userMessageLog.getSendAttemptsMax());
-            Assert.assertEquals(backendName, userMessageLog.getBackend());
+            Assertions.assertEquals(messageId, userMessageLog.getUserMessage().getMessageId());
+            Assertions.assertEquals(SEND_ENQUEUED, userMessageLog.getMessageStatus());
+            Assertions.assertEquals(NOTIFIED, userMessageLog.getNotificationStatus().getStatus());
+            Assertions.assertEquals(SENDING, userMessageLog.getMshRole().getRole());
+            Assertions.assertEquals(maxAttempts.intValue(), userMessageLog.getSendAttemptsMax());
+            Assertions.assertEquals(backendName, userMessageLog.getBackend());
         }};
     }
 

@@ -1,16 +1,13 @@
 package eu.domibus.plugin.fs.property;
 
-import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.test.AbstractIT;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 
-import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.LOCATION;
 import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 
 /**
@@ -38,52 +35,52 @@ public class FSPluginPropertiesIT extends AbstractIT {
     @Test
     public void testGetLocation() {
         String location = fsPluginProperties.getLocation(DEFAULT_DOMAIN);
-        Assert.assertEquals(DEFAULT_LOCATION, location);
+        Assertions.assertEquals(DEFAULT_LOCATION, location);
     }
 
-    @Test(expected = DomibusPropertyExtException.class)
-    public void testGetLocation_NonExistentDomain() {
-        fsPluginProperties.getLocation(NONEXISTENT_DOMAIN);
+    @Test
+    void testGetLocation_NonExistentDomain() {
+        Assertions.assertThrows(DomibusPropertyExtException.class, () -> fsPluginProperties.getLocation(NONEXISTENT_DOMAIN));
     }
 
     @Test
     public void testGetSentAction() {
-        Assert.assertEquals(FSPluginProperties.ACTION_DELETE, fsPluginProperties.getSentAction(DEFAULT_DOMAIN));
+        Assertions.assertEquals(FSPluginProperties.ACTION_DELETE, fsPluginProperties.getSentAction(DEFAULT_DOMAIN));
     }
 
     @Test
     public void testGetSentPurgeWorkerCronExpression() {
-        Assert.assertEquals("0 0/1 * * * ?", fsPluginProperties.getSentPurgeWorkerCronExpression(DEFAULT_DOMAIN));
+        Assertions.assertEquals("0 0/1 * * * ?", fsPluginProperties.getSentPurgeWorkerCronExpression(DEFAULT_DOMAIN));
     }
 
     @Test
     public void testGetSentPurgeExpired() {
-        Assert.assertEquals(Integer.valueOf(600), fsPluginProperties.getSentPurgeExpired(DEFAULT_DOMAIN));
+        Assertions.assertEquals(Integer.valueOf(600), fsPluginProperties.getSentPurgeExpired(DEFAULT_DOMAIN));
     }
 
     @Test
     public void testGetFailedPurgeWorkerCronExpression() {
-        Assert.assertEquals("0 0/1 * * * ?", fsPluginProperties.getFailedPurgeWorkerCronExpression(DEFAULT_DOMAIN));
+        Assertions.assertEquals("0 0/1 * * * ?", fsPluginProperties.getFailedPurgeWorkerCronExpression(DEFAULT_DOMAIN));
     }
 
     @Test
     public void testGetFailedPurgeExpired() {
-        Assert.assertEquals(Integer.valueOf(600), fsPluginProperties.getFailedPurgeExpired(DEFAULT_DOMAIN));
+        Assertions.assertEquals(Integer.valueOf(600), fsPluginProperties.getFailedPurgeExpired(DEFAULT_DOMAIN));
     }
 
     @Test
     public void testGetReceivedPurgeExpired() {
-        Assert.assertEquals(Integer.valueOf(600), fsPluginProperties.getReceivedPurgeExpired(DEFAULT_DOMAIN));
+        Assertions.assertEquals(Integer.valueOf(600), fsPluginProperties.getReceivedPurgeExpired(DEFAULT_DOMAIN));
     }
 
-    @Test(expected = DomibusPropertyExtException.class)
-    public void testGetPayloadId_NullDomain() {
-        fsPluginProperties.getPayloadId(null);
+    @Test
+    void testGetPayloadId_NullDomain() {
+        Assertions.assertThrows(DomibusPropertyExtException.class, () -> fsPluginProperties.getPayloadId(null));
     }
 
     @Test
     public void testGetPayloadId_ok() {
-        Assert.assertEquals("cid:message", fsPluginProperties.getPayloadId(DEFAULT_DOMAIN));
+        Assertions.assertEquals("cid:message", fsPluginProperties.getPayloadId(DEFAULT_DOMAIN));
     }
 
     @Test
@@ -100,8 +97,8 @@ public class FSPluginPropertiesIT extends AbstractIT {
         String value1 = fsPluginProperties.getKnownPropertyValue(domainDefault, propertyName1);
         String value2 = fsPluginProperties.getKnownPropertyValue(domainDefault, propertyName2);
 
-        Assert.assertEquals(oldPropertyValue1, value1);
-        Assert.assertEquals(oldPropertyValue2, value2);
+        Assertions.assertEquals(oldPropertyValue1, value1);
+        Assertions.assertEquals(oldPropertyValue2, value2);
 
         // test set value
         fsPluginProperties.setKnownPropertyValue(domainDefault, propertyName1, newPropertyValue1, false);
@@ -110,8 +107,8 @@ public class FSPluginPropertiesIT extends AbstractIT {
         value1 = fsPluginProperties.getKnownPropertyValue(domainDefault, propertyName1);
         value2 = fsPluginProperties.getKnownPropertyValue(domainDefault, propertyName2);
 
-        Assert.assertEquals(newPropertyValue1, value1);
-        Assert.assertEquals(newPropertyValue2, value2);
+        Assertions.assertEquals(newPropertyValue1, value1);
+        Assertions.assertEquals(newPropertyValue2, value2);
 
         // reset context
         fsPluginProperties.setKnownPropertyValue(domainDefault, propertyName1, oldPropertyValue1, false);

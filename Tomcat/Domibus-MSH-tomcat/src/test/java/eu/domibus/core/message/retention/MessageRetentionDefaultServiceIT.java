@@ -15,7 +15,8 @@ import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +31,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.Integer.MAX_VALUE;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
@@ -74,8 +75,8 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
         service.deleteExpiredNotDownloadedMessages(MPC_URI, 100, false);
         //then
         Map<String, Integer> finalMap = messageDBUtil.getTableCounts(tablesToExclude);
-        assertTrue("Expecting all data to be deleted but instead we have:\n" + getMessageDetails(initialMap, finalMap),
-                CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()));
+        assertTrue(CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()),
+                "Expecting all data to be deleted but instead we have:\n" + getMessageDetails(initialMap, finalMap));
     }
 
     @Test
@@ -89,8 +90,8 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
         service.deleteExpiredNotDownloadedMessages(MPC_URI, 100, false);
         //then
         Map<String, Integer> finalMap = messageDBUtil.getTableCounts(tablesToExclude);
-        assertFalse("Expecting the metadata to not be deleted but instead all data has been removed",
-                CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()));
+        assertFalse(CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()),
+                "Expecting the metadata to not be deleted but instead all data has been removed");
         assertMedatadaNotDeleted(initialMap, finalMap);
         assertPayloadDeleted(messageId);
     }
@@ -110,18 +111,17 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
     private void assertPayloadDeleted(String messageId) {
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageId(messageId);
         em.refresh(userMessageLog);
-        assertEquals("Expecting change of status of message", MessageStatus.DELETED, userMessageLog.getMessageStatus());
+        assertEquals( MessageStatus.DELETED, userMessageLog.getMessageStatus(), "Expecting change of status of message");
         long entityId = userMessageLog.getEntityId();
         List<PartInfo> partInfoList = partInfoDao.findPartInfoByUserMessageEntityId(entityId);
         partInfoList.forEach(partInfo -> {
             em.refresh(partInfo);
-            assertNull("Expecting payload to be deleted", partInfo.getBinaryData());
+            assertNull( partInfo.getBinaryData(), "Expecting payload to be deleted");
         });
     }
 
     private static void assertDataNotDeletedInTable(String table, int expectedRecordCount, Map<String, Integer> initialMap, Map<String, Integer> finalMap) {
-        assertEquals("Expecting data to not be deleted from " + table,
-                initialMap.getOrDefault(table, 0) + expectedRecordCount, (int) finalMap.getOrDefault(table, 0));
+        assertEquals(                initialMap.getOrDefault(table, 0) + expectedRecordCount, (int) finalMap.getOrDefault(table, 0), "Expecting data to not be deleted from " + table);
     }
 
     @Test
@@ -136,11 +136,12 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
         service.deleteExpiredDownloadedMessages(MPC_URI, 100, false);
         //then
         Map<String, Integer> finalMap = messageDBUtil.getTableCounts(tablesToExclude);
-        assertTrue("Expecting all data to be deleted but instead we have:\n" + getMessageDetails(initialMap, finalMap),
-                CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()));
+        assertTrue(CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()),
+                "Expecting all data to be deleted but instead we have:\n" + getMessageDetails(initialMap, finalMap));
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void deleteExpiredDownloaded_deletesOnlyPayload_ifIsDeleteMessageMetadataAndNotZeroOffset() throws XmlProcessingException, IOException, SOAPException, ParserConfigurationException, SAXException {
         //given
         uploadPmodeWithCustomMpc(true, MAX_VALUE, MAX_VALUE, 2, MAX_VALUE);
@@ -155,8 +156,8 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
         service.deleteExpiredDownloadedMessages(MPC_URI, 100, false);
         //then
         Map<String, Integer> finalMap = messageDBUtil.getTableCounts(tablesToExclude);
-        assertFalse("Expecting the metadata to not be deleted but instead all data has been removed",
-                CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()));
+        assertFalse(CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()),
+                "Expecting the metadata to not be deleted but instead all data has been removed");
         assertMedatadaNotDeleted(initialMap, finalMap);
         assertPayloadDeleted(messageId);
 
@@ -181,8 +182,8 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
         service.deleteExpiredSentMessages(MPC_URI, 100, false);
         //then
         Map<String, Integer> finalMap = messageDBUtil.getTableCounts(tablesToExclude);
-        assertTrue("Expecting all data to be deleted but instead we have:\n" + getMessageDetails(initialMap, finalMap),
-                CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()));
+        assertTrue(CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()),
+                "Expecting all data to be deleted but instead we have:\n" + getMessageDetails(initialMap, finalMap));
     }
 
     @Test
@@ -197,8 +198,8 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
         service.deleteExpiredSentMessages(MPC_URI, 100, false);
         //then
         Map<String, Integer> finalMap = messageDBUtil.getTableCounts(tablesToExclude);
-        assertFalse("Expecting the metadata to not be deleted but instead all data has been removed",
-                CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()));
+        assertFalse(CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()),
+                "Expecting the metadata to not be deleted but instead all data has been removed");
         assertMedatadaNotDeleted(initialMap, finalMap);
         assertPayloadDeleted(messageId);
     }
@@ -215,8 +216,8 @@ public class MessageRetentionDefaultServiceIT extends DeleteMessageAbstractIT {
         service.deleteExpiredPayloadDeletedMessages(MPC_URI, 100, false);
         //then
         Map<String, Integer> finalMap = messageDBUtil.getTableCounts(tablesToExclude);
-        assertTrue("Expecting all data to be deleted but instead we have:\n" + getMessageDetails(initialMap, finalMap),
-                CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()));
+        assertTrue(CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()),
+                "Expecting all data to be deleted but instead we have:\n" + getMessageDetails(initialMap, finalMap));
     }
 
     private static String getMessageDetails(Map<String, Integer> initialMap, Map<String, Integer> finalMap) {

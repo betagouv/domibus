@@ -12,7 +12,7 @@
     </parent>
     <artifactId>domibus-msh-taskexecutor-wildfly</artifactId>
     <packaging>jar</packaging>
-	<name>Domibus MSH TaskExecutor for WildFly</name>
+    <name>Domibus MSH TaskExecutor for WildFly</name>
 
     <build>
         <plugins>
@@ -58,8 +58,8 @@
             <artifactId>domibus-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jmockit</groupId>

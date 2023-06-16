@@ -15,8 +15,9 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.test.common.BackendConnectorMock;
-import org.junit.*;
-import org.mockito.Matchers;
+
+import org.junit.jupiter.api.*;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -38,8 +39,8 @@ import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Ion Perpegel
@@ -99,7 +100,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Autowired
     PayloadFileStorageProvider payloadFileStorageProvider;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         before = dateUtil.fromString("2019-01-01T12:00:00Z");
         Date timeT = dateUtil.fromString("2020-01-01T12:00:00Z");
@@ -107,7 +108,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         old = Date.from(before.toInstant().minusSeconds(60 * 60 * 24)); // one day older than "before"
 
         uploadPMode();
-        Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
+        Mockito.when(backendConnectorProvider.getBackendConnector(ArgumentMatchers.anyString()))
                 .thenReturn(new BackendConnectorMock(WS_PLUGIN));
         String messageOneId = "msg1-" + randomUUID();
         String messageTwoId = "msg2-" + randomUUID();
@@ -169,12 +170,12 @@ public class UserMessageLogDaoIT extends AbstractIT {
         return msg;
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setTimezone() {
         TimeZone.setDefault(TimeZone.getTimeZone(TIMEZONE_ID_AMERICA_LOS_ANGELES));
     }
 
-    @AfterClass
+    @AfterAll
     public static void resetTimezone() {
         TimeZone.setDefault(null);
     }
@@ -292,12 +293,12 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     public void currentAndFutureDateTimesSavedInUtcIrrespectiveOfApplicationTimezone() {
         UserMessageLog retryMessage = userMessageLogDao.findByMessageId(testDate, MSHRole.RECEIVING);
-        Assert.assertNotNull("Should have found a retry message", retryMessage);
+        Assertions.assertNotNull(retryMessage, "Should have found a retry message");
 
         final Date now = dateUtil.getUtcDate();
-        Assert.assertTrue("Should have saved the received date in UTC, irrespective of the application timezone " +
-                        "(difference to UTC current date time less than 10 minutes)",
-                dateUtil.getDiffMinutesBetweenDates(now, retryMessage.getReceived()) < 10);
+        Assertions.assertTrue(dateUtil.getDiffMinutesBetweenDates(now, retryMessage.getReceived()) < 10,
+                "Should have saved the received date in UTC, irrespective of the application timezone " +
+                                "(difference to UTC current date time less than 10 minutes)");
     }
 
     private Map<String, String> getProperties(List<UserMessageLogDto> deletedUserMessagesOlderThan, String deletedWithProperties) {
@@ -457,7 +458,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         for (UserMessageLog uml : result) {
             em.refresh(uml);
-            Assert.assertNotNull(uml.getArchived());
+            Assertions.assertNotNull(uml.getArchived());
         }
     }
 
@@ -473,7 +474,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         for (UserMessageLog uml : result) {
             em.refresh(uml);
-            Assert.assertNotNull(uml.getExported());
+            Assertions.assertNotNull(uml.getExported());
         }
     }
 
@@ -531,14 +532,14 @@ public class UserMessageLogDaoIT extends AbstractIT {
         UserMessageLog userMessageLog = userMessageLogDao.findByMessageIdSafely(msg1.getUserMessage().getMessageId(),
                 msg1.getUserMessage().getMshRole().getRole());
 
-        Assert.assertNotNull(userMessageLog);
+        Assertions.assertNotNull(userMessageLog);
     }
 
     @Test
     public void findByEntityId() {
         UserMessageLog userMessageLog = userMessageLogDao.findByEntityId(msg1.getEntityId());
 
-        Assert.assertNotNull(userMessageLog);
+        Assertions.assertNotNull(userMessageLog);
     }
 
     @Test
@@ -552,7 +553,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     public void findByEntityIdSafely() {
         UserMessageLog userMessageLog = userMessageLogDao.findByEntityIdSafely(msg1.getEntityId());
 
-        Assert.assertNotNull(userMessageLog);
+        Assertions.assertNotNull(userMessageLog);
     }
 
     @Test
@@ -568,7 +569,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         UserMessageLog byEntityId = userMessageLogDao.findByEntityId(msg1.getEntityId());
         assertEquals(DELETED, byEntityId.getMessageStatus());
-        Assert.assertNotNull(byEntityId.getDeleted());
+        Assertions.assertNotNull(byEntityId.getDeleted());
         assertNull(byEntityId.getAcknowledged());
         assertNull(byEntityId.getDownloaded());
         assertNull(byEntityId.getFailed());
@@ -580,7 +581,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         UserMessageLog byEntityId = userMessageLogDao.findByEntityId(msg1.getEntityId());
         assertEquals(ACKNOWLEDGED, byEntityId.getMessageStatus());
         assertNull(byEntityId.getDeleted());
-        Assert.assertNotNull(byEntityId.getAcknowledged());
+        Assertions.assertNotNull(byEntityId.getAcknowledged());
         assertNull(byEntityId.getDownloaded());
         assertNull(byEntityId.getFailed());
     }
@@ -592,7 +593,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         UserMessageLog byEntityId = userMessageLogDao.findByEntityId(msg1.getEntityId());
         assertEquals(ACKNOWLEDGED_WITH_WARNING, byEntityId.getMessageStatus());
         assertNull(byEntityId.getDeleted());
-        Assert.assertNotNull(byEntityId.getAcknowledged());
+        Assertions.assertNotNull(byEntityId.getAcknowledged());
         assertNull(byEntityId.getDownloaded());
         assertNull(byEntityId.getFailed());
     }
@@ -605,7 +606,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         assertEquals(DOWNLOADED, byEntityId.getMessageStatus());
         assertNull(byEntityId.getDeleted());
         assertNull(byEntityId.getAcknowledged());
-        Assert.assertNotNull(byEntityId.getDownloaded());
+        Assertions.assertNotNull(byEntityId.getDownloaded());
         assertNull(byEntityId.getFailed());
     }
 
@@ -618,7 +619,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         assertNull(byEntityId.getDeleted());
         assertNull(byEntityId.getAcknowledged());
         assertNull(byEntityId.getDownloaded());
-        Assert.assertNotNull(byEntityId.getFailed());
+        Assertions.assertNotNull(byEntityId.getFailed());
     }
 
     @Test

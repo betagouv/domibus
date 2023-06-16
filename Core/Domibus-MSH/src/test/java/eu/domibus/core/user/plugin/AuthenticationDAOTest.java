@@ -3,10 +3,10 @@ package eu.domibus.core.user.plugin;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.user.plugin.AuthenticationEntity;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * @author Soumya Chandran
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class AuthenticationDAOTest {
     @Tested
     AuthenticationDAO authenticationDAO;
@@ -46,7 +46,7 @@ public class AuthenticationDAOTest {
         new Verifications() {{
             Object userNameActual;
             query.setParameter(AuthenticationEntity.USER_NAME, userNameActual = withCapture());
-            Assert.assertEquals(username, userNameActual);
+            Assertions.assertEquals(username, userNameActual);
         }};
     }
 
@@ -64,7 +64,7 @@ public class AuthenticationDAOTest {
         new Verifications() {{
             Object userNameActual;
             query.setParameter(AuthenticationEntity.USER_NAME, userNameActual = withCapture());
-            Assert.assertEquals(username, userNameActual);
+            Assertions.assertEquals(username, userNameActual);
         }};
     }
 
@@ -166,7 +166,7 @@ public class AuthenticationDAOTest {
 
         List<AuthRole> authRoles = authenticationDAO.getAuthRoles(query);
 
-        Assert.assertEquals(authRoles.size(), 2);
+        Assertions.assertEquals(authRoles.size(), 2);
     }
 
     @Test
@@ -176,7 +176,7 @@ public class AuthenticationDAOTest {
 
         List<Predicate> predicates = authenticationDAO.getPredicates(filters, cb, ele);
 
-        Assert.assertEquals(predicates.size(), 1);
+        Assertions.assertEquals(predicates.size(), 1);
     }
 
     @Test

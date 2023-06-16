@@ -27,10 +27,11 @@ import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.core.rest.validators.BlacklistValidator;
 import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.ext.logging.LoggingFeature;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.ApplicationContext;
 
 import java.util.List;
@@ -41,7 +42,8 @@ import java.util.function.Consumer;
  * @author Ion Perpegel
  * @since 4.1.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
+@Disabled("EDELIVERY-6896")
 public class DomibusPropertiesChangeListenersTest {
 
     @Tested

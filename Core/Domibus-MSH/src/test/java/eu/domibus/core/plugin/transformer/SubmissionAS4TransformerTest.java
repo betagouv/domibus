@@ -8,11 +8,11 @@ import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.dictionary.*;
 import eu.domibus.plugin.Submission;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 import java.util.*;
@@ -22,7 +22,7 @@ import java.util.*;
  * @since 4.0.1
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class SubmissionAS4TransformerTest {
 
     @Injectable
@@ -71,7 +71,7 @@ public class SubmissionAS4TransformerTest {
         }};
 
         String conversationId = submissionAS4Transformer.transformFromSubmission(submission).getConversationId();
-        Assert.assertEquals(generatedConvId, conversationId);
+        Assertions.assertEquals(generatedConvId, conversationId);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class SubmissionAS4TransformerTest {
         }};
 
         String  conversationId = submissionAS4Transformer.transformFromSubmission(submission).getConversationId();
-        Assert.assertEquals(StringUtils.EMPTY, conversationId);
+        Assertions.assertEquals(StringUtils.EMPTY, conversationId);
 
     }
 
@@ -105,7 +105,7 @@ public class SubmissionAS4TransformerTest {
         }};
 
         String  conversationId = submissionAS4Transformer.transformFromSubmission(submission).getConversationId();
-        Assert.assertEquals(submittedConvId, conversationId);
+        Assertions.assertEquals(submittedConvId, conversationId);
     }
 
     @Test
@@ -146,14 +146,14 @@ public class SubmissionAS4TransformerTest {
         }};
 
         final Submission submission = submissionAS4Transformer.transformFromMessaging(userMessage, Collections.singletonList(partInfo));
-        Assert.assertNotNull(submission);
+        Assertions.assertNotNull(submission);
 
         new Verifications() {{
             Submission submissionActual;
             PartInfo partInfoActual;
             submissionAS4Transformer.addPayload(submissionActual = withCapture(), partInfoActual = withCapture());
-            Assert.assertNotNull(submissionActual);
-            Assert.assertNotNull(partInfoActual);
+            Assertions.assertNotNull(submissionActual);
+            Assertions.assertNotNull(partInfoActual);
             times = 1;
         }};
     }
@@ -179,19 +179,19 @@ public class SubmissionAS4TransformerTest {
         //tested method
         submissionAS4Transformer.addPayload(submission, partInfo);
 
-        Assert.assertNotNull(submission);
-        Assert.assertEquals(1, submission.getPayloads().size());
+        Assertions.assertNotNull(submission);
+        Assertions.assertEquals(1, submission.getPayloads().size());
         Submission.Payload payload = submission.getPayloads().iterator().next();
-        Assert.assertEquals(2, payload.getPayloadProperties().size());
+        Assertions.assertEquals(2, payload.getPayloadProperties().size());
         Iterator<Submission.TypedProperty> typedProperties = payload.getPayloadProperties().iterator();
         Submission.TypedProperty typedProperty = typedProperties.next();
         Submission.TypedProperty typedProperty2 = typedProperties.next();
 
-        Assert.assertEquals("text/xml", typedProperty.getKey());
-        Assert.assertEquals("MimeType", typedProperty.getValue());
+        Assertions.assertEquals("text/xml", typedProperty.getKey());
+        Assertions.assertEquals("MimeType", typedProperty.getValue());
 
-        Assert.assertEquals("FileName", typedProperty2.getKey());
-        Assert.assertEquals(fileNameWithoutPath, typedProperty2.getValue());
+        Assertions.assertEquals("FileName", typedProperty2.getKey());
+        Assertions.assertEquals(fileNameWithoutPath, typedProperty2.getValue());
 
     }
 
@@ -202,7 +202,7 @@ public class SubmissionAS4TransformerTest {
         final UserMessage userMessage = null;
 
         final Submission submission = submissionAS4Transformer.transformFromMessaging(userMessage, null);
-        Assert.assertNotNull(submission);
+        Assertions.assertNotNull(submission);
     }
 
     private String createFileName() {

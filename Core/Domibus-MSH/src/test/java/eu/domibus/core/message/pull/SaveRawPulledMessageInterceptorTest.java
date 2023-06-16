@@ -10,11 +10,11 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.binding.soap.SoapMessage;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
 
 import javax.xml.bind.JAXBException;
@@ -30,7 +30,7 @@ import java.security.cert.CertificateException;
  * @author idragusa
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class SaveRawPulledMessageInterceptorTest extends SoapInterceptorTest {
 
     @Injectable
@@ -44,6 +44,6 @@ public class SaveRawPulledMessageInterceptorTest extends SoapInterceptorTest {
         Document doc = readDocument("dataset/as4/SoapRequestBinaryToken.xml");
         SoapMessage soapMessage = getSoapMessageForDom(doc);
         saveRawPulledMessageInterceptor.handleMessage(soapMessage);
-        Assert.assertEquals(soapMessage.get(MSHDispatcher.MESSAGE_TYPE_OUT), MessageType.USER_MESSAGE);
+        Assertions.assertEquals(soapMessage.get(MSHDispatcher.MESSAGE_TYPE_OUT), MessageType.USER_MESSAGE);
     }
 }

@@ -5,10 +5,10 @@ import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.web.rest.MessageFilterResource;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.Test;
+
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -28,8 +28,7 @@ public class MessageFilterResourceIT extends AbstractIT {
 
     public static final String TEST_ENDPOINT_RESOURCE = "/rest/messagefilters";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+
 
     @Autowired
     private BackendConnectorProvider backendConnectorProvider;
@@ -38,7 +37,7 @@ public class MessageFilterResourceIT extends AbstractIT {
 
     private MockMvc mockMvc;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(messageFilterResource).build();
     }

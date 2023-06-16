@@ -3,15 +3,15 @@ package eu.domibus.core.logging.cxf;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.ext.logging.event.EventType;
 import org.apache.cxf.ext.logging.event.LogEvent;
 import org.apache.cxf.helpers.IOUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusLoggingEventHelperImplTest {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusLoggingEventHelperImplTest.class);
 
@@ -48,8 +48,8 @@ public class DomibusLoggingEventHelperImplTest {
         new Verifications() {{
             final String payloadActual;
             logEvent.setPayload(payloadActual = withCapture());
-            Assert.assertNotNull(payloadActual);
-            Assert.assertTrue(payloadActual.split(DomibusLoggingEventHelperImpl.CONTENT_TYPE_MARKER).length == 2);
+            Assertions.assertNotNull(payloadActual);
+            Assertions.assertTrue(payloadActual.split(DomibusLoggingEventHelperImpl.CONTENT_TYPE_MARKER).length == 2);
         }};
     }
 
@@ -65,7 +65,7 @@ public class DomibusLoggingEventHelperImplTest {
 
 
         //tested method
-        Assert.assertTrue(domibusLoggingEventHelper.checkIfOperationIsAllowed(logEvent));
+        Assertions.assertTrue(domibusLoggingEventHelper.checkIfOperationIsAllowed(logEvent));
     }
 
 

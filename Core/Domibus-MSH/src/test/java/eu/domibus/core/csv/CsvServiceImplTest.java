@@ -17,12 +17,14 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.core.Is;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.lang.reflect.Field;
@@ -34,13 +36,14 @@ import java.util.*;
 import java.util.function.LongSupplier;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_CSV_MAX_ROWS;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author Tiago Miguel
  * @since 4.0
  */
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class CsvServiceImplTest {
 
     public static final LocalDateTime LOCAL_DATE_TIME = LocalDateTime.of(2020, 1, 1, 12, 59);
@@ -51,15 +54,11 @@ public class CsvServiceImplTest {
     private DomibusPropertyProvider domibusPropertyProvider;
 
     @Injectable
-    private List<CsvSerializer> csvSerializers;
-
-    @Injectable
     private DomibusStringUtil domibusStringUtil;
 
     @Injectable
     private Field field;
 
-    @Tested
     private CsvServiceImpl csvServiceImpl;
 
     private void setCsvSerializer() {
@@ -72,6 +71,11 @@ public class CsvServiceImplTest {
                 new CsvSerializerNull()));
     }
 
+    @BeforeEach
+    void setUp() {
+        csvServiceImpl = new CsvServiceImpl(domibusPropertyProvider, new ArrayList<>(), domibusStringUtil);
+    }
+
     @Test
     public void getPageSizeForExport() {
         new Expectations(csvServiceImpl) {{
@@ -81,7 +85,7 @@ public class CsvServiceImplTest {
 
         int pageSizeForExport = csvServiceImpl.getPageSizeForExport();
 
-        Assert.assertThat(pageSizeForExport, Is.is(2));
+        assertThat(pageSizeForExport, Is.is(2));
 
         new FullVerifications() {
         };
@@ -94,7 +98,7 @@ public class CsvServiceImplTest {
         final String exportToCSV = csvServiceImpl.exportToCSV(new ArrayList<>(), null, null, null);
 
         // Then
-        Assert.assertTrue(exportToCSV.trim().isEmpty());
+        Assertions.assertTrue(exportToCSV.trim().isEmpty());
     }
 
     @Test
@@ -104,7 +108,7 @@ public class CsvServiceImplTest {
         final String exportToCSV = csvServiceImpl.exportToCSV(null, null, null, null);
 
         // Then
-        Assert.assertTrue(exportToCSV.trim().isEmpty());
+        Assertions.assertTrue(exportToCSV.trim().isEmpty());
     }
 
     @Test
@@ -132,7 +136,7 @@ public class CsvServiceImplTest {
         activeFields.add(field);
         setCsvSerializer();
 
-        new Expectations(csvServiceImpl){{
+        new Expectations(csvServiceImpl) {{
             field.getName();
             result = "messageId";
             csvServiceImpl.getExportedFields(messageLogInfoList, MessageLogInfo.class, null);
@@ -146,8 +150,8 @@ public class CsvServiceImplTest {
         final String exportToCSV = csvServiceImpl.exportToCSV(messageLogInfoList, MessageLogInfo.class, null, null);
 
         // Then
-        Assert.assertTrue(exportToCSV.contains("Message Id"));
-       // Assert.assertTrue(exportToCSV.contains("messageId,fromPartyId,toPartyId,ACKNOWLEDGED,NOTIFIED," + csvDate + ",RECEIVING,1,5," + csvDate + ",Europe/Brussels,3600,conversationId,USER_MESSAGE," + (testMessage != null ? testMessage : "") + "," + csvDate + ",originalSender,finalRecipient,refToMessageId," + csvDate + "," + csvDate));
+        Assertions.assertTrue(exportToCSV.contains("Message Id"));
+        // Assertions.assertTrue(exportToCSV.contains("messageId,fromPartyId,toPartyId,ACKNOWLEDGED,NOTIFIED," + csvDate + ",RECEIVING,1,5," + csvDate + ",Europe/Brussels,3600,conversationId,USER_MESSAGE," + (testMessage != null ? testMessage : "") + "," + csvDate + ",originalSender,finalRecipient,refToMessageId," + csvDate + "," + csvDate));
     }
 
     private List<MessageLogInfo> getMessageList(Date date, Boolean testMessage) {
@@ -155,20 +159,20 @@ public class CsvServiceImplTest {
         MessageLogInfo messageLog = new MessageLogInfo("messageId", MessageStatus.ACKNOWLEDGED,
                 NotificationStatus.NOTIFIED, MSHRole.RECEIVING, date, date, 1, 5, date,
                 "Europe/Brussels", 3600, "conversationId", "fromPartyId", "toPartyId", "originalSender", "finalRecipient",
-                "refToMessageId", date, date, testMessage, false, false, "action", "serviceType", "serviceValue", "pluginType",1L, date);
+                "refToMessageId", date, date, testMessage, false, false, "action", "serviceType", "serviceValue", "pluginType", 1L, date);
         result.add(messageLog);
         return result;
     }
 
 
-    @Test(expected = RequestValidationException.class)
-    public void validateMaxRows() {
+    @Test
+    void validateMaxRows() {
         new Expectations() {{
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_UI_CSV_MAX_ROWS);
             result = 1000;
         }};
 
-        csvServiceImpl.validateMaxRows(5000);
+        Assertions.assertThrows(RequestValidationException.class, () -> csvServiceImpl.validateMaxRows(5000));
 
         new FullVerifications() {
         };
@@ -200,9 +204,9 @@ public class CsvServiceImplTest {
 
         try {
             csvServiceImpl.validateMaxRows(5000, actualCountSupplier);
-            Assert.fail("RequestValidationException not thrown");
+            Assertions.fail("RequestValidationException not thrown");
         } catch (RequestValidationException ex) {
-            Assert.assertTrue("Row count present in message", ex.getMessage().contains(actualCount + ""));
+            Assertions.assertTrue(ex.getMessage().contains(actualCount + ""), "Row count present in message");
         }
 
         new FullVerifications() {
@@ -217,7 +221,7 @@ public class CsvServiceImplTest {
 
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
-        Assert.assertEquals("", s);
+        Assertions.assertEquals("", s);
     }
 
     @Test
@@ -234,7 +238,7 @@ public class CsvServiceImplTest {
 
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
-        Assert.assertEquals("{\"key1\":\"value1\",\"key2\":\"value2\"}", s);
+        Assertions.assertEquals("{\"key1\":\"value1\",\"key2\":\"value2\"}", s);
 
         new FullVerifications() {
         };
@@ -251,7 +255,7 @@ public class CsvServiceImplTest {
 
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
-        Assert.assertEquals("2020-01-01 12:59:00GMT+0000", s);
+        Assertions.assertEquals("2020-01-01 12:59:00GMT+0000", s);
 
         new FullVerifications() {
         };
@@ -268,7 +272,7 @@ public class CsvServiceImplTest {
 
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
-        Assert.assertEquals("2020-01-01 12:59:00GMT+0000"   , s);
+        Assertions.assertEquals("2020-01-01 12:59:00GMT+0000", s);
 
         new FullVerifications() {
         };
@@ -285,14 +289,14 @@ public class CsvServiceImplTest {
 
         String s = csvServiceImpl.serializeFieldValue(declaredField, o);
 
-        Assert.assertEquals("TEST", s);
+        Assertions.assertEquals("TEST", s);
 
         new FullVerifications() {
         };
     }
 
-    @Test(expected = CsvException.class)
-    public void createCSVContents() throws IllegalAccessException, NoSuchFieldException, JsonProcessingException {
+    @Test
+    void createCSVContents() throws IllegalAccessException, NoSuchFieldException, JsonProcessingException {
         Object o = new Object();
         Field declaredField = TestCsvFields.class.getDeclaredField("stringField");
 
@@ -301,7 +305,9 @@ public class CsvServiceImplTest {
             result = new IllegalAccessException("TEST");
         }};
 
-        csvServiceImpl.createCSVContents(Collections.singletonList(o), null, Collections.singletonList(declaredField));
+        Assertions.assertThrows(CsvException.class,
+                () -> csvServiceImpl.createCSVContents(Collections.singletonList(o), null, Collections.singletonList(declaredField)))
+        ;
 
         new FullVerifications() {
         };
@@ -310,16 +316,16 @@ public class CsvServiceImplTest {
     @Test
     public void getCsvFilename() {
         String test = csvServiceImpl.getCsvFilename("test", "");
-        Assert.assertThat(test, CoreMatchers.containsString("test_datatable_"));
-        Assert.assertThat(test, CoreMatchers.containsString(".csv"));
+        assertThat(test, CoreMatchers.containsString("test_datatable_"));
+        assertThat(test, CoreMatchers.containsString(".csv"));
     }
 
     @Test
     public void getCsvFilename_domain() {
         String test = csvServiceImpl.getCsvFilename("test", "default");
-        Assert.assertThat(test, CoreMatchers.containsString("default"));
-        Assert.assertThat(test, CoreMatchers.containsString("test_datatable_"));
-        Assert.assertThat(test, CoreMatchers.containsString(".csv"));
+        assertThat(test, CoreMatchers.containsString("default"));
+        assertThat(test, CoreMatchers.containsString("test_datatable_"));
+        assertThat(test, CoreMatchers.containsString(".csv"));
     }
 
     @Test
@@ -335,7 +341,7 @@ public class CsvServiceImplTest {
         activeFields.add(field);
         setCsvSerializer();
 
-        new Expectations(csvServiceImpl){{
+        new Expectations(csvServiceImpl) {{
             field.getName();
             result = "errorSignalMessageId";
 
@@ -350,7 +356,7 @@ public class CsvServiceImplTest {
         final String exportToCSV = csvServiceImpl.exportToCSV(errorLogROList, ErrorLogRO.class, null, null);
 
         // Then
-        Assert.assertTrue(exportToCSV.contains("Error Signal Message Id"));
+        Assertions.assertTrue(exportToCSV.contains("Error Signal Message Id"));
     }
 
     @Test
@@ -373,7 +379,7 @@ public class CsvServiceImplTest {
         final String exportToCSV = csvServiceImpl.exportToCSV(messageFilterROList, MessageFilterCSV.class, null, null);
 
         // Then
-        Assert.assertThat(exportToCSV, CoreMatchers.containsString("backendName,from:from,,,,true"));
+        assertThat(exportToCSV, CoreMatchers.containsString("backendName,from:from,,,,true"));
     }
 
     private List<ErrorLogRO> getErrorLogList(Date date) {

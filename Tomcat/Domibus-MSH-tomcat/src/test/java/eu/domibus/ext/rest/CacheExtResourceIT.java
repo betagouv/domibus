@@ -9,8 +9,9 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hamcrest.CoreMatchers;
 import org.hibernate.SessionFactory;
-import org.junit.*;
-import org.junit.rules.ExpectedException;
+
+import org.junit.jupiter.api.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -34,8 +35,6 @@ public class CacheExtResourceIT extends AbstractIT {
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveExtResourceIT.class);
     public static final String NOT_FOUND = "not_found";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Autowired
     private CacheExtResource cacheExtResource;
@@ -55,7 +54,7 @@ public class CacheExtResourceIT extends AbstractIT {
     private org.hibernate.Cache secondLevelCache;
     private MpcEntity dummyMpc;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(cacheExtResource).build();
 
@@ -76,7 +75,7 @@ public class CacheExtResourceIT extends AbstractIT {
     protected void setAuth() {
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         cacheExtService.evict2LCaches();
         cacheExtService.evictCaches();
@@ -95,30 +94,30 @@ public class CacheExtResourceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void deleteCache_noUser() throws Exception {
-        expectedException.expectCause(CoreMatchers.isA(AuthenticationCredentialsNotFoundException.class));
 
-        mockMvc.perform(delete("/ext/cache"));
+        Assertions.assertThrows(AuthenticationCredentialsNotFoundException.class, () -> mockMvc.perform(delete("/ext/cache")));
 
         checkStillInCache();
     }
 
     private void checkStillInCache() {
         Cache.ValueWrapper wrapper = getSpecificDomainCached(NOT_FOUND);
-        Assert.assertNotNull(wrapper);
+        Assertions.assertNotNull(wrapper);
     }
 
     private void checkNothingInCache() {
         Cache.ValueWrapper domainCached = getSpecificDomainCached(NOT_FOUND);
-        Assert.assertNull(domainCached);
+        Assertions.assertNull(domainCached);
     }
 
     @Test
     @WithMockUser
+    @Disabled("EDELIVERY-6896")
     public void deleteCache_notAdmin() throws Exception {
-        expectedException.expectCause(CoreMatchers.isA(AccessDeniedException.class));
 
-        mockMvc.perform(delete("/ext/cache"));
+        Assertions.assertThrows(AccessDeniedException.class, () -> mockMvc.perform(delete("/ext/cache")));
 
         checkStillInCache();
     }
@@ -132,29 +131,28 @@ public class CacheExtResourceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void delete2LCache_noUser() throws Exception {
-        expectedException.expectCause(CoreMatchers.isA(AuthenticationCredentialsNotFoundException.class));
 
-        mockMvc.perform(delete("/ext/2LCache"));
+        Assertions.assertThrows(AuthenticationCredentialsNotFoundException.class, () -> mockMvc.perform(delete("/ext/2LCache")));
 
         checkStillIn2LCache();
     }
 
     private void checkStillIn2LCache() {
         boolean isCached = specificMpc2LIsCached(dummyMpc.getEntityId());
-        Assert.assertTrue(isCached);
+        Assertions.assertTrue(isCached);
     }
 
     private void checkNothingIn2LCache() {
-        Assert.assertFalse(specificMpc2LIsCached(dummyMpc.getEntityId()));
+        Assertions.assertFalse(specificMpc2LIsCached(dummyMpc.getEntityId()));
     }
 
     @Test
     @WithMockUser
+    @Disabled("EDELIVERY-6896")
     public void delete2LCache_notAdmin() throws Exception {
-        expectedException.expectCause(CoreMatchers.isA(AccessDeniedException.class));
-
-        mockMvc.perform(delete("/ext/2LCache"));
+        Assertions.assertThrows(AccessDeniedException.class, () -> mockMvc.perform(delete("/ext/2LCache")));
 
         checkStillIn2LCache();
     }

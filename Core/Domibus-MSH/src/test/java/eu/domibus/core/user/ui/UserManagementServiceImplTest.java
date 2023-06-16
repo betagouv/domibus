@@ -14,10 +14,10 @@ import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -27,7 +27,7 @@ import java.util.function.Function;
  * @author Thomas Dussart
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserManagementServiceImplTest {
 
     @Tested
@@ -90,8 +90,8 @@ public class UserManagementServiceImplTest {
 
         List<eu.domibus.api.user.User> result = userManagementService.findUsers();
 
-        Assert.assertEquals(users, result);
-        Assert.assertEquals(domainCode, result.get(0).getDomain());
+        Assertions.assertEquals(users, result);
+        Assertions.assertEquals(domainCode, result.get(0).getDomain());
     }
 
     @Test
@@ -106,8 +106,8 @@ public class UserManagementServiceImplTest {
 
         List<eu.domibus.api.user.UserRole> result = userManagementService.findUserRoles();
 
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals("userRole1", result.get(0).getRole());
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals("userRole1", result.get(0).getRole());
     }
 
     @Test
@@ -121,7 +121,7 @@ public class UserManagementServiceImplTest {
     }
 
     @Test
-    public void undoUserSuspension(@Mocked final System system) {
+    public void undoUserSuspension() {
         userManagementService.reactivateSuspendedUsers();
 
         new Verifications() {{
@@ -150,22 +150,22 @@ public class UserManagementServiceImplTest {
         }};
     }
 
-    @Test(expected = UserManagementException.class)
-    public void getUserWithName_null() {
+    @Test
+    void getUserWithName_null() {
         new Expectations() {{
             userDao.findByUserName("username");
             result = null;
         }};
-        userManagementService.getUserWithName("username");
+        Assertions.assertThrows(UserManagementException. class,() -> userManagementService.getUserWithName("username"));
     }
 
-    @Test(expected = UserManagementException.class)
-    public void getUserWithName_ok() {
+    @Test
+    void getUserWithName_ok() {
         new Expectations() {{
             userDao.findByUserName("username");
             result = null;
         }};
-        userManagementService.getUserWithName("username");
+        Assertions.assertThrows(UserManagementException. class,() -> userManagementService.getUserWithName("username"));
     }
 
     @Test
@@ -207,7 +207,7 @@ public class UserManagementServiceImplTest {
 
         Integer result = userManagementService.getDaysTillExpiration(username);
 
-        Assert.assertEquals(0, result.longValue());
+        Assertions.assertEquals(0, result.longValue());
         new Verifications() {{
             userPasswordManager.getDaysTillExpiration(username, true, passwordChangeDate);
             times = 1;
@@ -234,9 +234,9 @@ public class UserManagementServiceImplTest {
         }};
         try {
             userManagementService.ensureAtLeastOneActiveAdmin();
-            Assert.fail();
+            Assertions.fail();
         } catch (UserManagementException ex) {
-            Assert.assertEquals(DomibusCoreErrorCode.DOM_001, ex.getError());
+            Assertions.assertEquals(DomibusCoreErrorCode.DOM_001, ex.getError());
         }
     }
 
@@ -284,7 +284,7 @@ public class UserManagementServiceImplTest {
 
         List<eu.domibus.api.user.User> result = userManagementService.prepareUsers(getDomainForUserFn, userEntities);
 
-        Assert.assertEquals(users, result);
+        Assertions.assertEquals(users, result);
     }
 
     @Test
@@ -307,9 +307,9 @@ public class UserManagementServiceImplTest {
 
         eu.domibus.api.user.User result = userManagementService.convertAndPrepareUser(getDomainForUserFn, userEntity);
 
-        Assert.assertEquals(user, result);
-        Assert.assertEquals(domainCode, result.getDomain());
-        Assert.assertEquals(expDate, result.getExpirationDate());
+        Assertions.assertEquals(user, result);
+        Assertions.assertEquals(domainCode, result.getDomain());
+        Assertions.assertEquals(expDate, result.getExpirationDate());
     }
 
     @Test
@@ -394,7 +394,7 @@ public class UserManagementServiceImplTest {
         }};
 
         List<eu.domibus.api.user.User> result = userManagementService.findUsersWithFilters(AuthRole.ROLE_ADMIN, "admin", "true", 1, 10, getDomainForUserFn);
-        Assert.assertEquals(users, result);
+        Assertions.assertEquals(users, result);
 
         new FullVerifications() {{
 
@@ -433,7 +433,7 @@ public class UserManagementServiceImplTest {
 
         Map<String, Object> filters = userManagementService.createFilterMap("admin", "true", AuthRole.ROLE_ADMIN);
 
-        Assert.assertEquals(3, filters.size());
+        Assertions.assertEquals(3, filters.size());
     }
 
     @Test

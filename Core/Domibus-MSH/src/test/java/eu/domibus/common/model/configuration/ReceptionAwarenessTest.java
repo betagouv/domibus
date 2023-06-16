@@ -4,15 +4,16 @@ import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.pmode.PModeValidationException;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.Test;
+
 
 import static eu.domibus.core.ebms3.sender.retry.RetryStrategy.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author François Gautier
@@ -22,10 +23,7 @@ public class ReceptionAwarenessTest {
 
     private ReceptionAwareness receptionAwareness;
 
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setUp() {
         receptionAwareness = new ReceptionAwareness();
     }
@@ -64,9 +62,9 @@ public class ReceptionAwarenessTest {
         receptionAwareness.retryXml = "2;3;TEST";
         try {
             receptionAwareness.init(null);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusCoreException e) {
-            Assert.assertThat(e.getMessage(), CoreMatchers.containsString(DomibusCoreErrorCode.DOM_003.getErrorCode()));
+            assertThat(e.getMessage(), CoreMatchers.containsString(DomibusCoreErrorCode.DOM_003.getErrorCode()));
         }
 
         assertEquals(SEND_ONCE, receptionAwareness.getStrategy());
@@ -80,9 +78,9 @@ public class ReceptionAwarenessTest {
 
         try {
             receptionAwareness.init(null);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusCoreException e) {
-            Assert.assertThat(e.getMessage(), CoreMatchers.containsString(DomibusCoreErrorCode.DOM_003.getErrorCode()));
+            assertThat(e.getMessage(), CoreMatchers.containsString(DomibusCoreErrorCode.DOM_003.getErrorCode()));
         }
 
         assertEquals(SEND_ONCE, receptionAwareness.getStrategy());
@@ -96,9 +94,9 @@ public class ReceptionAwarenessTest {
 
         try {
             receptionAwareness.init(null);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusCoreException e) {
-            Assert.assertThat(e.getMessage(), CoreMatchers.containsString(DomibusCoreErrorCode.DOM_003.getErrorCode()));
+            assertThat(e.getMessage(), CoreMatchers.containsString(DomibusCoreErrorCode.DOM_003.getErrorCode()));
         }
 
         assertEquals(SEND_ONCE, receptionAwareness.getStrategy());

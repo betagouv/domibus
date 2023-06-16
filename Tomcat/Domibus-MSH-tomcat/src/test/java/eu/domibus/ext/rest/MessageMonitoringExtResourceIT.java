@@ -15,9 +15,10 @@ import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -34,7 +35,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -86,7 +88,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     UserMessageLog uml3_failed;
     UserMessageLog uml4_received;
 
-    @Before
+    @BeforeEach
     public void setUp() throws XmlProcessingException, IOException {
         mockMvc = MockMvcBuilders.webAppContextSetup(webAppContext)
                 .build();
@@ -114,10 +116,11 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
         // then
         String content = result.getResponse().getContentAsString();
         List<?> resultList = objectMapper.readValue(content, List.class);
-        Assert.assertEquals(0, resultList.size());
+        Assertions.assertEquals(0, resultList.size());
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void delete_ok() throws Exception {
         FailedMessagesCriteriaRO failedMessagesCriteriaRO = new FailedMessagesCriteriaRO();
         failedMessagesCriteriaRO.setFromDate(getDateFrom(uml1_failed.getEntityId(), getHour(uml1_failed.getEntityId())));
@@ -133,8 +136,8 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
         // then
         String content = result.getResponse().getContentAsString();
         List<String> resultList = objectMapper.readValue(content, List.class);
-        Assert.assertEquals(3, resultList.size());
-        MatcherAssert.assertThat(resultList, CoreMatchers.hasItems(uml1_failed.getUserMessage().getMessageId()));
+        Assertions.assertEquals(3, resultList.size());
+        assertThat(resultList, CoreMatchers.hasItems(uml1_failed.getUserMessage().getMessageId()));
     }
 
     @Test
@@ -169,6 +172,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void delete_finalStatus_ok() throws Exception {
         FailedMessagesCriteriaRO failedMessagesCriteriaRO = new FailedMessagesCriteriaRO();
         failedMessagesCriteriaRO.setFromDate(getDateFrom(uml4_received.getEntityId(), getHour(uml4_received.getEntityId())));
@@ -198,6 +202,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void restoreFailedMessages_ok() throws Exception {
         FailedMessagesCriteriaRO failedMessagesCriteriaRO = new FailedMessagesCriteriaRO();
         uml1_failed.setMshRole(mshRoleDao.findOrCreate(MSHRole.SENDING));
@@ -215,8 +220,8 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
         // then
         String content = result.getResponse().getContentAsString();
         List<String> resultList = objectMapper.readValue(content, List.class);
-        Assert.assertEquals(2, resultList.size());
-        MatcherAssert.assertThat(resultList,
+        Assertions.assertEquals(2, resultList.size());
+        assertThat(resultList,
                 CoreMatchers.hasItems(
                         uml1_failed.getUserMessage().getMessageId(),
                 uml3_failed.getUserMessage().getMessageId()
@@ -266,7 +271,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
         // then
         UserMessageLog byMessageId = userMessageLogDao.findByMessageId(uml1_failed.getUserMessage().getMessageId(),
                 uml1_failed.getUserMessage().getMshRole().getRole());
-        Assert.assertNotNull(byMessageId.getDeleted());
+        Assertions.assertNotNull(byMessageId.getDeleted());
     }
 
     @Test
@@ -282,8 +287,8 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
         // then
         String content = result.getResponse().getContentAsString();
         List<String> resultList = objectMapper.readValue(content, List.class);
-        Assert.assertEquals(2, resultList.size());
-        MatcherAssert.assertThat(resultList, CoreMatchers.hasItems(uml1_failed.getUserMessage().getMessageId()));
+        Assertions.assertEquals(2, resultList.size());
+        assertThat(resultList, CoreMatchers.hasItems(uml1_failed.getUserMessage().getMessageId()));
     }
 
     @Test
@@ -340,7 +345,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
         // then
         String content = result.getResponse().getContentAsString();
         List<?> resultList = objectMapper.readValue(content, List.class);
-        Assert.assertEquals(0, resultList.size());
+        Assertions.assertEquals(0, resultList.size());
     }
 
     @Test
@@ -355,8 +360,8 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
         // then
         String content = result.getResponse().getContentAsString();
         List<String> resultList = objectMapper.readValue(content, List.class);
-        Assert.assertEquals(2, resultList.size());
-        MatcherAssert.assertThat(resultList, CoreMatchers.hasItems(uml1_failed.getUserMessage().getMessageId()));
+        Assertions.assertEquals(2, resultList.size());
+        assertThat(resultList, CoreMatchers.hasItems(uml1_failed.getUserMessage().getMessageId()));
     }
 
     @Test

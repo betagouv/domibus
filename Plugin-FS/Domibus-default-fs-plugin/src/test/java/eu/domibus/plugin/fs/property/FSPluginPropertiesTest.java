@@ -4,19 +4,19 @@ import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.ext.services.*;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class FSPluginPropertiesTest {
 
     @Injectable
@@ -47,10 +47,10 @@ public class FSPluginPropertiesTest {
         final String propertyName = "fsplugin.messages.location";
 
         final Boolean isKnownProperty = fsPluginPropertiesMetadataManager.hasKnownProperty(propertyName);
-        Assert.assertEquals(true, isKnownProperty);
+        Assertions.assertEquals(true, isKnownProperty);
 
         final Boolean isKnownFSProperty = fsPluginProperties.hasKnownProperty(propertyName);
-        Assert.assertEquals(true, isKnownFSProperty);
+        Assertions.assertEquals(true, isKnownFSProperty);
     }
 
 
@@ -60,10 +60,10 @@ public class FSPluginPropertiesTest {
 
 
         final Boolean isKnownFSProperty = fsPluginProperties.hasKnownProperty(propertyName);
-        Assert.assertEquals(false, isKnownFSProperty);
+        Assertions.assertEquals(false, isKnownFSProperty);
  
         String value = fsPluginProperties.getKnownPropertyValue("default", propertyName);
-        Assert.assertTrue(StringUtils.isBlank(value));
+        Assertions.assertTrue(StringUtils.isBlank(value));
     }
 
 }

@@ -3,17 +3,17 @@ package eu.domibus.core.alerts.service;
 import eu.domibus.core.alerts.dao.AlertDao;
 import eu.domibus.core.alerts.model.common.AlertStatus;
 import eu.domibus.core.alerts.model.service.Alert;
-import eu.domibus.core.alerts.model.service.MailModel;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Thomas Dussart
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class AlertDispatcherServiceImplTest {
 
     @Tested
@@ -45,13 +45,13 @@ public class AlertDispatcherServiceImplTest {
         }};
     }
 
-    @Test(expected = RuntimeException.class)
-    public void dispatchWithError(@Mocked final Alert alert, @Mocked final MailModel mailModelForAlert) {
+    @Test
+    void dispatchWithError(@Mocked final Alert alert) {
         new Expectations() {{
             alertMethodFactory.getAlertMethod().sendAlert(alert);
             result = new RuntimeException("Error sending alert");
         }};
-        alertDispatcherService.dispatch(alert);
+        Assertions.assertThrows(RuntimeException. class,() -> alertDispatcherService.dispatch(alert));
 
         new VerificationsInOrder(){{
             alert.setAlertStatus(AlertStatus.FAILED);

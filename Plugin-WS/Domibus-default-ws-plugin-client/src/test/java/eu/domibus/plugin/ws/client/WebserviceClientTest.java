@@ -8,10 +8,10 @@ import eu.domibus.plugin.ws.generated.StatusFault;
 import eu.domibus.plugin.ws.generated.WebServicePluginInterface;
 import eu.domibus.plugin.ws.generated.body.*;
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
@@ -23,7 +23,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 import static eu.domibus.plugin.ws.client.WebserviceClient.DEFAULT_WEBSERVICE_LOCATION;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by muellers on 7/1/16.
@@ -71,7 +71,7 @@ public class WebserviceClientTest {
         }
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void initialize() {
         DataHandler.setDataContentHandlerFactory(stream -> {
             try {
@@ -83,8 +83,8 @@ public class WebserviceClientTest {
         });
     }
 
-    @After
-    public void cleanUp() throws Exception {
+    @AfterEach
+public void cleanUp() throws Exception {
         ListPendingMessagesResponse listPendingMessagesResponse = webServicePluginInterface.listPendingMessages(new ListPendingMessagesRequest());
 
         sleep(2000);
@@ -100,7 +100,7 @@ public class WebserviceClientTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void prepare() throws Exception {
         sleep(5000);
         LOG.info("Prepare BackendInterface");

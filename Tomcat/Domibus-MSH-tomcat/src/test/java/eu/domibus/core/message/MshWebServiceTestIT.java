@@ -26,8 +26,8 @@ import eu.domibus.plugin.BackendConnector;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -40,7 +40,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MshWebServiceTestIT extends AbstractIT {
 
@@ -115,7 +115,7 @@ public class MshWebServiceTestIT extends AbstractIT {
     @Autowired
     protected PayloadFileStorageProvider payloadFileStorageProvider;
 
-    @Before
+    @BeforeEach
     public void before() throws IOException, XmlProcessingException {
         uploadPMode();
         payloadFileStorageProvider.initialize();

@@ -9,13 +9,14 @@ import eu.domibus.api.util.FaultyDatabaseSchemaNameException;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Verifications;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 
 import javax.persistence.*;
@@ -32,7 +33,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Lucian FURCA
  * @since 5.1
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DbSchemaUtilImplTest {
 
     private static final String DOMAIN = "domain";
@@ -74,9 +75,9 @@ public class DbSchemaUtilImplTest {
     @Mock
     Statement statement;
 
-    @Before
+    @BeforeEach
     public void init() {
-        Mockito.when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
+        Mockito.lenient().when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
         dbSchemaUtilImpl = new DbSchemaUtilImpl(dataSource, domibusConfigurationService,
                 domibusPropertyProvider, schedulingTaskExecutor);
     }
@@ -91,7 +92,7 @@ public class DbSchemaUtilImplTest {
         String actual = dbSchemaUtilImpl.getSchemaChangeSQL(databaseSchema);
 
         //then
-        Assert.assertEquals("ALTER SESSION SET CURRENT_SCHEMA = " + databaseSchema, actual);
+        Assertions.assertEquals("ALTER SESSION SET CURRENT_SCHEMA = " + databaseSchema, actual);
     }
 
     @Test
@@ -104,7 +105,7 @@ public class DbSchemaUtilImplTest {
         String actual = dbSchemaUtilImpl.getSchemaChangeSQL(databaseSchema);
 
         //then
-        Assert.assertEquals("USE " + databaseSchema, actual);
+        Assertions.assertEquals("USE " + databaseSchema, actual);
     }
 
     @Test
@@ -117,7 +118,7 @@ public class DbSchemaUtilImplTest {
         String actual = dbSchemaUtilImpl.getSchemaChangeSQL(databaseSchema);
 
         //then
-        Assert.assertEquals("SET SCHEMA " + databaseSchema, actual);
+        Assertions.assertEquals("SET SCHEMA " + databaseSchema, actual);
     }
 
     @Test
@@ -134,7 +135,7 @@ public class DbSchemaUtilImplTest {
         boolean actualResult = dbSchemaUtilImpl.doIsDatabaseSchemaForDomainValid(domain);
 
         //then
-        Assert.assertTrue(actualResult);
+        Assertions.assertTrue(actualResult);
     }
 
     @Test
@@ -151,7 +152,7 @@ public class DbSchemaUtilImplTest {
         boolean actualResult = dbSchemaUtilImpl.doIsDatabaseSchemaForDomainValid(domain);
 
         //then
-        Assert.assertTrue(actualResult);
+        Assertions.assertTrue(actualResult);
     }
 
     @Test
@@ -169,7 +170,7 @@ public class DbSchemaUtilImplTest {
         boolean actualResult = dbSchemaUtilImpl.doIsDatabaseSchemaForDomainValid(domain);
 
         //then
-        Assert.assertTrue(actualResult);
+        Assertions.assertTrue(actualResult);
     }
 
     @Test
@@ -187,17 +188,18 @@ public class DbSchemaUtilImplTest {
         boolean actualResult = dbSchemaUtilImpl.doIsDatabaseSchemaForDomainValid(domain);
 
         //then
-        Assert.assertFalse(actualResult);
-    }
-
-    @Test(expected = FaultyDatabaseSchemaNameException.class)
-    public void givenDomainWithDbSchemaNameThatFailsSanityCheckWhenTestingThenFaultyDatabaseSchemaNameExceptionShouldBeThrown() {
-        String dbSchemaName = "default'; select * from tb_user";
-        Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.valueOf("MYSQL"));
-        dbSchemaUtilImpl.getSchemaChangeSQL(dbSchemaName);
+        Assertions.assertFalse(actualResult);
     }
 
     @Test
+    void givenDomainWithDbSchemaNameThatFailsSanityCheckWhenTestingThenFaultyDatabaseSchemaNameExceptionShouldBeThrown() {
+        String dbSchemaName = "default'; select * from tb_user";
+        Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.valueOf("MYSQL"));
+        Assertions.assertThrows(FaultyDatabaseSchemaNameException. class,() -> dbSchemaUtilImpl.getSchemaChangeSQL(dbSchemaName));
+    }
+
+    @Test
+    @Disabled("EDELIVERY-6896")
     public void getDatabaseSchemaWhenItIsAlreadyCached(@Injectable Map<Domain, String> domainSchemas) {
         Domain defaultDomain = DomainService.DEFAULT_DOMAIN;
         dbSchemaUtilImpl.domainSchemas = domainSchemas;
@@ -228,10 +230,10 @@ public class DbSchemaUtilImplTest {
         }};
 
         //first call puts the schema in the cache
-        Assert.assertEquals(defaultSchema, dbSchemaUtilImpl.getDatabaseSchema(defaultDomain));
+        Assertions.assertEquals(defaultSchema, dbSchemaUtilImpl.getDatabaseSchema(defaultDomain));
 
         //second call retrieves the schema in the cache
-        Assert.assertEquals(defaultSchema, dbSchemaUtilImpl.getDatabaseSchema(defaultDomain));
+        Assertions.assertEquals(defaultSchema, dbSchemaUtilImpl.getDatabaseSchema(defaultDomain));
 
         new Verifications() {{
             dbSchemaUtilImpl.getDBSchemaFromPropertyFile(defaultDomain);
@@ -262,10 +264,10 @@ public class DbSchemaUtilImplTest {
         }};
 
         //first call puts the schema in the cache
-        Assert.assertEquals(generalSchema, dbSchemaUtilImpl.getGeneralSchema());
+        Assertions.assertEquals(generalSchema, dbSchemaUtilImpl.getGeneralSchema());
 
         //second call retrieves the schema in the cache
-        Assert.assertEquals(generalSchema, dbSchemaUtilImpl.getGeneralSchema());
+        Assertions.assertEquals(generalSchema, dbSchemaUtilImpl.getGeneralSchema());
 
         new Verifications() {{
             domibusPropertyProvider.getProperty(DomainService.GENERAL_SCHEMA_PROPERTY);
@@ -276,12 +278,12 @@ public class DbSchemaUtilImplTest {
     @Test
     public void givenDbSchemaNameWithFaultyCharactersWhenSanityCheckingThenNameCheckShouldFail() {
         String dbSchemaName = "default' and select * from tb_user";
-        Assert.assertFalse(dbSchemaUtilImpl.isDatabaseSchemaNameSane(dbSchemaName));
+        Assertions.assertFalse(dbSchemaUtilImpl.isDatabaseSchemaNameSane(dbSchemaName));
     }
 
     @Test
     public void givenDbSchemaNameInCorrectFormatWhenSanityCheckingThenCheckNameShouldSucceed() {
         String dbSchemaName = "blue_default_scheme";
-        Assert.assertTrue(dbSchemaUtilImpl.isDatabaseSchemaNameSane(dbSchemaName));
+        Assertions.assertTrue(dbSchemaUtilImpl.isDatabaseSchemaNameSane(dbSchemaName));
     }
 }

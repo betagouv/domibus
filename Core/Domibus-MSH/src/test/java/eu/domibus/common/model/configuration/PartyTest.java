@@ -1,18 +1,18 @@
 package eu.domibus.common.model.configuration;
 
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PartyTest {
 
     @Test
     public void testEqualsIsCaseInsensitive() {
         Party party1 = createParty("POP000004");
         Party party2 = createParty("pop000004");
-        Assert.assertEquals(party1, party2);
+        Assertions.assertEquals(party1, party2);
     }
 
     private Party createParty(String partyName) {

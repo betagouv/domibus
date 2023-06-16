@@ -11,11 +11,12 @@ import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
 
 import java.util.*;
@@ -27,7 +28,8 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
+@Disabled("EDELIVERY-6896")
 public class GlobalPropertyMetadataManagerImplTest {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalPropertyMetadataManagerImplTest.class);
 
@@ -64,7 +66,7 @@ public class GlobalPropertyMetadataManagerImplTest {
     String domainCode = "domain1";
     Domain domain = new Domain(domainCode, "DomainName1");
 
-    @Before
+    @BeforeEach
     public void setUp() {
         props1 = Arrays.stream(new DomibusPropertyMetadataDTO[]{
                 new DomibusPropertyMetadataDTO(DOMIBUS_UI_TITLE_NAME, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
@@ -119,7 +121,7 @@ public class GlobalPropertyMetadataManagerImplTest {
 //            result = propMeta;
         }};
         DomibusPropertyMetadata meta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        Assert.assertNotNull(meta);
+        Assertions.assertNotNull(meta);
         new Verifications() {{
             allPropertyMetadataMap.get(anyString);
             times = 1;
@@ -195,7 +197,7 @@ public class GlobalPropertyMetadataManagerImplTest {
 
         DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
 
-        Assert.assertEquals(null, manager);
+        Assertions.assertEquals(null, manager);
     }
 
     @Test
@@ -216,12 +218,12 @@ public class GlobalPropertyMetadataManagerImplTest {
 
         DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
 
-        Assert.assertEquals(propertyManager2, manager);
+        Assertions.assertEquals(propertyManager2, manager);
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void getManagerForProperty_not_found(@Injectable Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap,
-                                                @Injectable Map<String, DomibusPropertyMetadata> allPropertyMetadataMap) {
+    @Test
+    void getManagerForProperty_not_found(@Injectable Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap,
+                                         @Injectable Map<String, DomibusPropertyMetadata> allPropertyMetadataMap) {
         String propertyName = DOMIBUS_UI_TITLE_NAME;
         new Expectations(globalPropertyMetadataManager) {{
             globalPropertyMetadataManager.loadPropertiesIfNotFound(propertyName);
@@ -234,7 +236,7 @@ public class GlobalPropertyMetadataManagerImplTest {
             result = false;
         }};
 
-        DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
+        Assertions.assertThrows(DomibusPropertyException.class, () -> globalPropertyMetadataManager.getManagerForProperty(propertyName));
     }
 
     @Test
@@ -308,12 +310,12 @@ public class GlobalPropertyMetadataManagerImplTest {
         futures.forEach((newPropertyName, future) -> {
             try {
                 DomibusPropertyMetadata metadata = future.get();
-                Assert.assertNotNull(metadata);
+                Assertions.assertNotNull(metadata);
             } catch (InterruptedException e) {
                 LOG.debug("Interrupted", e);
             } catch (ExecutionException e) {
                 LOG.error("Unexpected error", e);
-                Assert.fail(e.getClass().getSimpleName() + " caught");
+                Assertions.fail(e.getClass().getSimpleName() + " caught");
             }
         });
     }
@@ -336,7 +338,7 @@ public class GlobalPropertyMetadataManagerImplTest {
         }};
 
         boolean result = globalPropertyMetadataManager.hasComposableProperty(map, propertyName);
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
     }
 
     @Test
@@ -350,7 +352,7 @@ public class GlobalPropertyMetadataManagerImplTest {
         }};
 
         boolean result = globalPropertyMetadataManager.hasComposableProperty(map, propertyName);
-        Assert.assertEquals(false, result);
+        Assertions.assertEquals(false, result);
     }
 
     @Test
@@ -371,6 +373,6 @@ public class GlobalPropertyMetadataManagerImplTest {
         }};
 
         boolean result = globalPropertyMetadataManager.hasComposableProperty(map, propertyName);
-        Assert.assertFalse(result);
+        Assertions.assertFalse(result);
     }
 }

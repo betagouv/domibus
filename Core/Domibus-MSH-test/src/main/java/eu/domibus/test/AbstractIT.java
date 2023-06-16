@@ -20,16 +20,16 @@ import eu.domibus.test.common.DomibusMTTestDatasourceConfiguration;
 import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.SocketUtils;
 
@@ -44,7 +44,7 @@ import java.util.List;
  * @since 5.0
  */
 @WebAppConfiguration
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(initializers = PropertyOverrideContextInitializer.class,
         classes = {DomibusRootConfiguration.class, DomibusWebConfiguration.class,
                 DomibusMTTestDatasourceConfiguration.class, DomibusTestMocksConfiguration.class})
@@ -86,7 +86,7 @@ public abstract class AbstractIT {
 
     private static boolean springContextInitialized = false;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws IOException {
         final File domibusConfigLocation = new File("target/test-classes");
         String absolutePath = domibusConfigLocation.getAbsolutePath();
@@ -109,7 +109,7 @@ public abstract class AbstractIT {
         LOG.info("activeMQBrokerPort=[{}]", activeMQBrokerPort);
     }
 
-    @Before
+    @BeforeEach
     public void initInstance() {
         SecurityContextHolder.getContext()
                 .setAuthentication(new UsernamePasswordAuthenticationToken(

@@ -9,10 +9,10 @@ import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,7 +22,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @author Catalin Enache
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MetricsConfigurationTest {
 
     @Tested
@@ -78,13 +78,13 @@ public class MetricsConfigurationTest {
         new VerificationsInOrder() {{
             String name;
             metricRegistry.register(name = withCapture(), withAny(new MemoryUsageGaugeSet()));
-            Assert.assertEquals("memory", name);
+            Assertions.assertEquals("memory", name);
 
             metricRegistry.register(name = withCapture(), withAny(new GarbageCollectorMetricSet()));
-            Assert.assertEquals("gc", name);
+            Assertions.assertEquals("gc", name);
 
             metricRegistry.register(name = withCapture(), withAny(new CachedThreadStatesGaugeSet(10, TimeUnit.SECONDS)));
-            Assert.assertEquals("threads", name);
+            Assertions.assertEquals("threads", name);
         }};
     }
 }

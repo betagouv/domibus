@@ -5,22 +5,22 @@ import eu.domibus.plugin.fs.FSFilesManager;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class FSPurgeFailedServiceTest {
 
     @Tested
@@ -43,7 +43,7 @@ public class FSPurgeFailedServiceTest {
     private FileObject oldFile;
     private FileObject recentFile;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         String location = "ram:///FSPurgeFailedServiceTest";
 
@@ -63,8 +63,8 @@ public class FSPurgeFailedServiceTest {
         recentFile.createFile();
     }
 
-    @After
-    public void tearDown() throws FileSystemException {
+    @AfterEach
+public void tearDown() throws FileSystemException {
         rootDir.close();
         failedFolder.close();
     }
@@ -73,7 +73,7 @@ public class FSPurgeFailedServiceTest {
     public void testPurgeMessages() throws FileSystemException, FSSetUpException {
         final String domain = FSSendMessagesService.DEFAULT_DOMAIN;
 
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             fsPluginProperties.getDomainEnabled(domain);
             result = true;
 
@@ -101,14 +101,14 @@ public class FSPurgeFailedServiceTest {
 
         instance.purgeMessages();
 
-        new VerificationsInOrder(1) {{
+        new VerificationsInOrder() {{
             fsFilesManager.deleteFile(oldFile);
         }};
     }
 
     @Test
     public void testPurgeMessages_Domain1_BadConfiguration() throws FileSystemException, FSSetUpException {
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             fsPluginProperties.getDomainEnabled("DOMAIN1");
             result = true;
 

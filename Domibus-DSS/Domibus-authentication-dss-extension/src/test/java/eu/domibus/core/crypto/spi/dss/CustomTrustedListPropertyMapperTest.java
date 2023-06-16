@@ -5,10 +5,10 @@ import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
 import eu.europa.esig.dss.tsl.source.TLSource;
 import mockit.Expectations;
 import mockit.Mocked;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.*;
  * @author Thomas Dussart
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class CustomTrustedListPropertyMapperTest {
 
     @Test
@@ -74,11 +74,11 @@ public class CustomTrustedListPropertyMapperTest {
 
         }};
         List<TLSource> otherTrustedLists = customTrustedListPropertyMapper.map();
-        Assert.assertEquals(2, otherTrustedLists.size());
+        Assertions.assertEquals(2, otherTrustedLists.size());
         TLSource otherTrustedList = otherTrustedLists.get(0);
-        Assert.assertEquals(customList1Url, otherTrustedList.getUrl());
+        Assertions.assertEquals(customList1Url, otherTrustedList.getUrl());
 
         otherTrustedList = otherTrustedLists.get(1);
-        Assert.assertEquals(customList2Url, otherTrustedList.getUrl());
+        Assertions.assertEquals(customList2Url, otherTrustedList.getUrl());
     }
 }

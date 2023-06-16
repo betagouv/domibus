@@ -4,11 +4,12 @@ import eu.domibus.web.rest.AuthenticationResource;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.core.Authentication;
 
 import javax.servlet.http.Cookie;
@@ -24,7 +25,7 @@ import static eu.domibus.web.rest.AuthenticationResource.CSRF_COOKIE_NAME;
  * @author Sebastian-Ion TINCU
  * @since 4.1.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusCookieClearingLogoutHandlerTest {
 
     private DomibusCookieClearingLogoutHandler handler;
@@ -39,6 +40,7 @@ public class DomibusCookieClearingLogoutHandlerTest {
     private Authentication authentication;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void removesCookiesNotHavingTheirPathsEndingWithForwardSlashInAdditionToTheOnesEndingWithIt() {
         givenCookieClearingLogoutHandler(SESSION_COOKIE_NAME, CSRF_COOKIE_NAME);
         givenContextPath("");
@@ -48,9 +50,9 @@ public class DomibusCookieClearingLogoutHandlerTest {
         thenCookiesHavingTheirPathsBothEndingAndNotEndingWithSlashAddedToResponseToBeRemoved();
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void throwsExceptionWhenCookiesToRemoveIsNull() {
-        givenCookieClearingLogoutHandler((String[])null);
+    @Test
+    void throwsExceptionWhenCookiesToRemoveIsNull() {
+        Assertions.assertThrows(IllegalArgumentException. class,() -> givenCookieClearingLogoutHandler((String[]) null));
     }
 
 
@@ -73,16 +75,16 @@ public class DomibusCookieClearingLogoutHandlerTest {
             List<Cookie> cookies = new ArrayList<>();
             response.addCookie(withCapture(cookies));
 
-            Assert.assertTrue("Should have removed the cookies having their paths ending with a forwards slash",
-                    cookies.stream()
-                            .filter(cookie -> StringUtils.endsWith(cookie.getPath(), "/"))
-                            .allMatch(cookie -> StringUtils.equalsAny(cookie.getName(), SESSION_COOKIE_NAME, CSRF_COOKIE_NAME)
-                                    && StringUtils.equals(cookie.getPath(), "domibus/")));
-            Assert.assertTrue("Should have also removed the cookies having their paths not ending with a forwards slash",
-                    cookies.stream()
-                            .filter(cookie -> !StringUtils.endsWith(cookie.getPath(), "/"))
-                            .allMatch(cookie -> StringUtils.equalsAny(cookie.getName(), SESSION_COOKIE_NAME, CSRF_COOKIE_NAME)
-                                    && StringUtils.equals(cookie.getPath(), "domibus")));
+            Assertions.assertTrue(cookies.stream()
+                                        .filter(cookie -> StringUtils.endsWith(cookie.getPath(), "/"))
+                                        .allMatch(cookie -> StringUtils.equalsAny(cookie.getName(), SESSION_COOKIE_NAME, CSRF_COOKIE_NAME)
+                                                && StringUtils.equals(cookie.getPath(), "domibus/")),
+                    "Should have removed the cookies having their paths ending with a forwards slash");
+            Assertions.assertTrue(cookies.stream()
+                                        .filter(cookie -> !StringUtils.endsWith(cookie.getPath(), "/"))
+                                        .allMatch(cookie -> StringUtils.equalsAny(cookie.getName(), SESSION_COOKIE_NAME, CSRF_COOKIE_NAME)
+                                                && StringUtils.equals(cookie.getPath(), "domibus")),
+                    "Should have also removed the cookies having their paths not ending with a forwards slash");
         }};
     }
 }

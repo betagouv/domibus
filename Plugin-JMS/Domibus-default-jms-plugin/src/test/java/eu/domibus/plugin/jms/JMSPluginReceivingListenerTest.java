@@ -5,9 +5,10 @@ import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.logging.DomibusLogger;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -16,7 +17,7 @@ import javax.jms.MapMessage;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class JMSPluginReceivingListenerTest {
 
     @Injectable
@@ -70,23 +71,25 @@ public class JMSPluginReceivingListenerTest {
         }};
     }
 
-    @Test(expected = DefaultJmsPluginException.class)
-    public void authenticateWithMissingUsername(@Injectable MapMessage map, @Mocked DomibusLogger LOG) throws JMSException {
+    @Test
+    void authenticateWithMissingUsername(@Injectable MapMessage map, @Mocked DomibusLogger LOG) throws JMSException {
         new Expectations() {{
             map.getStringProperty(JMSMessageConstants.USERNAME);
             result = null;
+            map.getStringProperty(JMSMessageConstants.PASSWORD);
+            result = "null";
         }};
 
-        JMSPluginReceivingListener.authenticate(map);
+        Assertions.assertThrows(DefaultJmsPluginException.class, () -> JMSPluginReceivingListener.authenticate(map));
 
-        new FullVerifications() {{
+        new Verifications() {{
             authenticationExtService.basicAuthenticate(anyString, anyString);
             times = 0;
         }};
     }
 
-    @Test(expected = DefaultJmsPluginException.class)
-    public void authenticateWithMissingPassword(@Injectable MapMessage map, @Mocked DomibusLogger LOG) throws JMSException {
+    @Test
+    void authenticateWithMissingPassword(@Injectable MapMessage map, @Mocked DomibusLogger LOG) throws JMSException {
         String username = "cosmin";
         String password = null;
         new Expectations() {{
@@ -97,9 +100,9 @@ public class JMSPluginReceivingListenerTest {
             result = password;
         }};
 
-        JMSPluginReceivingListener.authenticate(map);
+        Assertions.assertThrows(DefaultJmsPluginException.class, () -> JMSPluginReceivingListener.authenticate(map));
 
-        new FullVerifications() {{
+        new Verifications() {{
             authenticationExtService.basicAuthenticate(anyString, anyString);
             times = 0;
         }};

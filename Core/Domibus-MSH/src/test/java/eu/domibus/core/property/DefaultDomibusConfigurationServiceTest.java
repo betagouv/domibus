@@ -8,10 +8,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.ext.LoggerWrapper;
 
 import java.io.File;
@@ -23,7 +23,7 @@ import static eu.domibus.ext.services.DomibusPropertyManagerExt.DOMAINS_HOME;
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DefaultDomibusConfigurationServiceTest {
 
     @Injectable
@@ -48,7 +48,7 @@ public class DefaultDomibusConfigurationServiceTest {
             result = true;
         }};
 
-        Assert.assertTrue(defaultDomibusConfigurationService.isPasswordEncryptionActive());
+        Assertions.assertTrue(defaultDomibusConfigurationService.isPasswordEncryptionActive());
 
     }
 
@@ -59,12 +59,12 @@ public class DefaultDomibusConfigurationServiceTest {
             result = true;
         }};
 
-        Assert.assertTrue(defaultDomibusConfigurationService.isPasswordEncryptionActive(domain));
+        Assertions.assertTrue(defaultDomibusConfigurationService.isPasswordEncryptionActive(domain));
     }
 
     @Test
     public void getConfigurationFileName() {
-        Assert.assertEquals(DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE, defaultDomibusConfigurationService.getConfigurationFileName());
+        Assertions.assertEquals(DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE, defaultDomibusConfigurationService.getConfigurationFileName());
     }
 
     @Test
@@ -80,7 +80,7 @@ public class DefaultDomibusConfigurationServiceTest {
         }};
 
         final String configurationFileName = defaultDomibusConfigurationService.getConfigurationFileName(DomainService.DEFAULT_DOMAIN);
-        Assert.assertEquals(domainConfigFile, configurationFileName);
+        Assertions.assertEquals(domainConfigFile, configurationFileName);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class DefaultDomibusConfigurationServiceTest {
         }};
 
         final String configurationFileName = defaultDomibusConfigurationService.getConfigurationFileName(domain);
-        Assert.assertEquals(domainConfigFile, configurationFileName);
+        Assertions.assertEquals(domainConfigFile, configurationFileName);
     }
 
     @Test
@@ -110,6 +110,6 @@ public class DefaultDomibusConfigurationServiceTest {
         }};
 
         final String domainConfigurationFileName = defaultDomibusConfigurationService.getDomainConfigurationFileName(domain);
-        Assert.assertEquals(DOMAINS_HOME + File.separator + "myDomain" + File.separator + "myDomain-" + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE, domainConfigurationFileName);
+        Assertions.assertEquals(DOMAINS_HOME + File.separator + "myDomain" + File.separator + "myDomain-" + DomibusPropertyProvider.DOMIBUS_PROPERTY_FILE, domainConfigurationFileName);
     }
 }

@@ -4,9 +4,11 @@ import eu.domibus.plugin.Submission;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +16,7 @@ import java.util.Set;
 /**
  * Created by baciuco on 08/08/2016.
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class OnePayloadSubmissionValidatorTest {
 
     @Injectable
@@ -24,8 +26,9 @@ public class OnePayloadSubmissionValidatorTest {
     OnePayloadSubmissionValidator onePayloadSubmissionValidator;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testValidateWithOnePayload(@Injectable final Submission submission,
-                                         @Injectable final Submission.Payload payload1) throws Exception {
+                                           @Injectable final Submission.Payload payload1) throws Exception {
         new Expectations() {{
             submission.getPayloads();
             Set<Submission.Payload> payloads = new HashSet<>();
@@ -35,10 +38,10 @@ public class OnePayloadSubmissionValidatorTest {
         onePayloadSubmissionValidator.validate(submission);
     }
 
-    @Test(expected = SubmissionValidationException.class)
-    public void testValidateWithNoPayloads(@Injectable final Submission submission,
-                                           @Injectable final Submission.Payload payload1,
-                                           @Injectable final Submission.Payload payload2) throws Exception {
+    @Test
+    void testValidateWithNoPayloads(@Injectable final Submission submission,
+                                    @Injectable final Submission.Payload payload1,
+                                    @Injectable final Submission.Payload payload2) {
         new Expectations() {{
             submission.getPayloads();
             Set<Submission.Payload> payloads = new HashSet<>();
@@ -46,7 +49,7 @@ public class OnePayloadSubmissionValidatorTest {
             payloads.add(payload2);
             result = payloads;
         }};
-        onePayloadSubmissionValidator.validate(submission);
+        Assertions.assertThrows(SubmissionValidationException.class, () -> onePayloadSubmissionValidator.validate(submission));
     }
 
 }

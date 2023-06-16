@@ -24,14 +24,14 @@ import eu.domibus.core.property.*;
 import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.xml.sax.SAXException;
 
@@ -46,7 +46,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class PModeValidationServiceImplIT {
 
@@ -199,6 +199,6 @@ public class PModeValidationServiceImplIT {
 
         List<ValidationIssue> issues = pModeValidationService.validate(configuration);
 
-        Assert.assertFalse(issues.isEmpty());
+        Assertions.assertFalse(issues.isEmpty());
     }
 }

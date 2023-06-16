@@ -8,7 +8,8 @@ import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.common.i18n.Message;
 import org.apache.cxf.ws.policy.PolicyException;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -20,16 +21,16 @@ import java.util.ResourceBundle;
 import static eu.domibus.common.ErrorCode.EbMS3ErrorCode.*;
 import static eu.domibus.core.ebms3.receiver.FaultInHandler.UNKNOWN_ERROR_OCCURRED;
 import static org.apache.wss4j.common.ext.WSSecurityException.ErrorCode.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FaultInHandlerTest {
 
     public static final String MESSAGE_ID = "123";
     private FaultInHandler faultInHandler = new FaultInHandler();
 
-    @Test(expected = MissingResourceException.class)
-    public void testHandleFaultNullContext(){
-        faultInHandler.handleFault(null);
+    @Test
+    void testHandleFaultNullContext(){
+        Assertions.assertThrows(MissingResourceException. class,() -> faultInHandler.handleFault(null));
     }
 
     @Test
@@ -118,12 +119,12 @@ public class FaultInHandlerTest {
     }
 
     private static void assertExceptionIsCorrect(ExpectedFields expectedFields, EbMS3Exception ebms3Exception) {
-        assertEquals("Incorrect error code", expectedFields.getErrorCode(), ebms3Exception.getErrorCode());
-        assertEquals("Incorrect message", expectedFields.getMessage(), ebms3Exception.getMessage());
-        assertEquals("Incorrect error detail", expectedFields.getMessage(), ebms3Exception.getErrorDetail());
-        assertEquals("Incorrect message id", MESSAGE_ID, ebms3Exception.getRefToMessageId());
-        assertEquals("Incorrect exception cause", expectedFields.getCause(), ebms3Exception.getCause());
-        assertEquals("Incorrect msh role", MSHRole.RECEIVING, ebms3Exception.getMshRole());
+        assertEquals(expectedFields.getErrorCode(), ebms3Exception.getErrorCode(), "Incorrect error code");
+        assertEquals(expectedFields.getMessage(), ebms3Exception.getMessage(), "Incorrect message");
+        assertEquals(expectedFields.getMessage(), ebms3Exception.getErrorDetail(), "Incorrect error detail");
+        assertEquals(MESSAGE_ID, ebms3Exception.getRefToMessageId(), "Incorrect message id");
+        assertEquals(expectedFields.getCause(), ebms3Exception.getCause(), "Incorrect exception cause");
+        assertEquals(MSHRole.RECEIVING, ebms3Exception.getMshRole(), "Incorrect msh role");
     }
 
     private static class ExpectedFields {

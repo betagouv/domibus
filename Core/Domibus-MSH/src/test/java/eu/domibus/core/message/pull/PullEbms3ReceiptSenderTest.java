@@ -11,11 +11,12 @@ import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.neethi.Policy;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.xml.soap.MessageFactory;
@@ -27,7 +28,7 @@ import javax.xml.soap.SOAPMessage;
  * @author idragusa
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PullEbms3ReceiptSenderTest {
 
     @Injectable
@@ -47,7 +48,7 @@ public class PullEbms3ReceiptSenderTest {
 
     static MessageFactory messageFactory = null;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws SOAPException {
         messageFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
     }
@@ -67,10 +68,10 @@ public class PullEbms3ReceiptSenderTest {
         }};
     }
 
-    @Test(expected = EbMS3Exception.class)
-    public void sendReceiptNotSignalTest(@Mocked SOAPMessage soapMessage, @Mocked String endpoint, @Mocked Policy policy, @Mocked LegConfiguration legConfiguration, @Mocked String pModeKey, @Mocked String messsageId,
+    @Test
+    void sendReceiptNotSignalTest(@Mocked SOAPMessage soapMessage, @Mocked String endpoint, @Mocked Policy policy, @Mocked LegConfiguration legConfiguration, @Mocked String pModeKey,
                                          @Mocked String domainCode) throws Exception {
-        messsageId = "123123123123@domibus.eu";
+        final String messsageId = "123123123123@domibus.eu";
         Ebms3SignalMessage signalMessage = new Ebms3SignalMessage();
         Ebms3Error error = new Ebms3Error();
         error.setErrorCode(ErrorCode.EBMS_0001.getErrorCodeName());
@@ -88,7 +89,8 @@ public class PullEbms3ReceiptSenderTest {
             result = messaging;
         }};
 
-        pullReceiptSender.sendReceipt(soapMessage, endpoint, policy, legConfiguration, pModeKey, messsageId, domainCode);
+        Assertions.assertThrows(EbMS3Exception.class,
+                () -> pullReceiptSender.sendReceipt(soapMessage, endpoint, policy, legConfiguration, pModeKey, messsageId, domainCode));
 
         new Verifications() {{
             domainContextProvider.setCurrentDomain(domainCode);

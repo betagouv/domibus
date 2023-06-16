@@ -2,8 +2,8 @@ package eu.domibus.common.model.configuration;
 
 import mockit.Injectable;
 import mockit.Tested;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Soumya Chandran
@@ -23,14 +23,14 @@ public class IdentifierTest {
         Identifier identifier1 = new Identifier();
         identifier1.setPartyId("domibus-BLUE");
 
-        Assert.assertFalse(identifier.equals(null));
-        Assert.assertTrue(identifier.equals(identifier));
+        Assertions.assertFalse(identifier.equals(null));
+        Assertions.assertTrue(identifier.equals(identifier));
 
-        Assert.assertTrue(identifier.equals(identifier1));
-        Assert.assertTrue(identifier1.equals(identifier));
+        Assertions.assertTrue(identifier.equals(identifier1));
+        Assertions.assertTrue(identifier1.equals(identifier));
 
         identifier.setPartyId(null);
-        Assert.assertFalse(identifier.equals(identifier1));
+        Assertions.assertFalse(identifier.equals(identifier1));
     }
 
     @Test
@@ -44,7 +44,7 @@ public class IdentifierTest {
         Identifier identifier1 = new Identifier();
         identifier1.setPartyId("domibus-BLUE");
 
-        Assert.assertFalse(identifier.equals(identifier1));
+        Assertions.assertFalse(identifier.equals(identifier1));
     }
 
 }

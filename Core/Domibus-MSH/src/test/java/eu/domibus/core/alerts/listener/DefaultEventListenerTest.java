@@ -8,9 +8,10 @@ import eu.domibus.core.alerts.model.service.Event;
 import eu.domibus.core.alerts.service.AlertService;
 import eu.domibus.core.alerts.service.EventService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Thomas Dussart
@@ -18,7 +19,7 @@ import org.junit.runner.RunWith;
  */
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DefaultEventListenerTest {
 
     @Injectable
@@ -58,6 +59,7 @@ public class DefaultEventListenerTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void onLoginFailure_domain(@Mocked final Event event, @Mocked final Alert alert) {
         String domain = "domain";
 

@@ -10,8 +10,8 @@ import eu.domibus.api.security.functions.AuthenticatedFunction;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Verifications;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
@@ -56,9 +56,9 @@ public class JMSQueuesCountSetTest {
         //tested method
         final Map<String, Metric> metrics = jmsQueuesCountSet.getMetrics();
 
-        Assert.assertNotNull(metrics);
-        Assert.assertTrue(metrics.size() == 1);
-        Assert.assertTrue(metrics.containsKey(queueName));
+        Assertions.assertNotNull(metrics);
+        Assertions.assertTrue(metrics.size() == 1);
+        Assertions.assertTrue(metrics.containsKey(queueName));
     }
 
     @Test
@@ -84,9 +84,9 @@ public class JMSQueuesCountSetTest {
         //tested method
         final Map<String, Metric> metrics = jmsQueuesCountSet.getMetrics();
 
-        Assert.assertNotNull(metrics);
-        Assert.assertTrue(metrics.size() == 1);
-        Assert.assertTrue(metrics.containsKey(queueName));
+        Assertions.assertNotNull(metrics);
+        Assertions.assertTrue(metrics.size() == 1);
+        Assertions.assertTrue(metrics.containsKey(queueName));
     }
 
     @Test
@@ -112,9 +112,9 @@ public class JMSQueuesCountSetTest {
         //tested method
         List<JMSDestination> result = jmsQueuesCountSet.getQueues();
 
-        Assert.assertNotNull(result);
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals(queueName, result.get(0).getName());
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals(queueName, result.get(0).getName());
     }
 
     @Test
@@ -136,10 +136,10 @@ public class JMSQueuesCountSetTest {
             authUtils.runFunctionWithSecurityContext(function = withCapture(),
                     username = withCapture(), password = withCapture(), role = withCapture());
 
-            Assert.assertNotNull(function);
-            Assert.assertEquals("jms_metrics_user", username);
-            Assert.assertEquals("jms_metrics_password", password);
-            Assert.assertEquals(AuthRole.ROLE_AP_ADMIN, role);
+            Assertions.assertNotNull(function);
+            Assertions.assertEquals("jms_metrics_user", username);
+            Assertions.assertEquals("jms_metrics_password", password);
+            Assertions.assertEquals(AuthRole.ROLE_AP_ADMIN, role);
 
         }};
     }

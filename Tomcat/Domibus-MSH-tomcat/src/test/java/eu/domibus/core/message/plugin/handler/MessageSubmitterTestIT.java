@@ -14,9 +14,9 @@ import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageSubmitter;
 import eu.domibus.test.common.SubmissionUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Transactional
 public class MessageSubmitterTestIT extends AbstractIT {
@@ -60,7 +60,7 @@ public class MessageSubmitterTestIT extends AbstractIT {
     @Autowired
     protected PayloadFileStorageProvider payloadFileStorageProvider;
 
-    @Before
+    @BeforeEach
     public void before() {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class)))
@@ -90,10 +90,10 @@ public class MessageSubmitterTestIT extends AbstractIT {
         uploadPMode();
         try {
             messageSubmitter.submit(submission, "mybackend");
-            Assert.fail("Messaging exception should have been thrown");
+            Assertions.fail("Messaging exception should have been thrown");
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof MessagingProcessingException);
-            Assert.assertTrue(e.getMessage().contains("Mandatory field From PartyId is not provided"));
+            Assertions.assertTrue(e instanceof MessagingProcessingException);
+            Assertions.assertTrue(e.getMessage().contains("Mandatory field From PartyId is not provided"));
         }
     }
 
@@ -105,10 +105,10 @@ public class MessageSubmitterTestIT extends AbstractIT {
         uploadPMode();
         try {
             messageSubmitter.submit(submission, "mybackend");
-            Assert.fail("Messaging exception should have been thrown");
+            Assertions.fail("Messaging exception should have been thrown");
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof MessagingProcessingException);
-            Assert.assertTrue(e.getMessage().contains("ValueInconsistent detail: Mandatory field To PartyId is not provided"));
+            Assertions.assertTrue(e instanceof MessagingProcessingException);
+            Assertions.assertTrue(e.getMessage().contains("ValueInconsistent detail: Mandatory field To PartyId is not provided"));
         }
     }
 

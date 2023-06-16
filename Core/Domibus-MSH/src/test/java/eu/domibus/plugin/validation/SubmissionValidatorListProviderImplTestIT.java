@@ -1,17 +1,17 @@
 package eu.domibus.plugin.validation;
 
 import eu.domibus.core.plugin.validation.SubmissionValidatorListProvider;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Created by baciuco on 08/08/2016.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:spring/submissionValidatorListProviderContext.xml")
 public class SubmissionValidatorListProviderImplTestIT {
 
@@ -21,21 +21,20 @@ public class SubmissionValidatorListProviderImplTestIT {
     @Test
     public void testGetSubmissionValidatorListWithOneMatch() throws Exception {
         SubmissionValidatorList wsSubmissionValidatorList = submissionValidatorListProvider.getSubmissionValidatorList("ws");
-        Assert.assertNotNull(wsSubmissionValidatorList);
+        Assertions.assertNotNull(wsSubmissionValidatorList);
 
     }
 
     @Test
     public void testGetSubmissionValidatorListWithNoMatch() throws Exception {
         SubmissionValidatorList wsSubmissionValidatorList = submissionValidatorListProvider.getSubmissionValidatorList("noExistingPlugin");
-        Assert.assertNull(wsSubmissionValidatorList);
+        Assertions.assertNull(wsSubmissionValidatorList);
 
     }
 
-    @Test(expected = SubmissionValidationException.class)
-    public void testGetSubmissionValidatorListWithMultipleMatches() throws Exception {
-        SubmissionValidatorList wsSubmissionValidatorList = submissionValidatorListProvider.getSubmissionValidatorList("jms");
-        Assert.assertNotNull(wsSubmissionValidatorList);
+    @Test
+    void testGetSubmissionValidatorListWithMultipleMatches() throws Exception {
+        Assertions.assertThrows(SubmissionValidationException.class, () -> submissionValidatorListProvider.getSubmissionValidatorList("jms"));
 
     }
 }

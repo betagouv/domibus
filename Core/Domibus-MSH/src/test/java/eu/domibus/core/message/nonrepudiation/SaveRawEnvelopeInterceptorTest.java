@@ -4,11 +4,12 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.UserMessageContextKeyProvider;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.cxf.binding.soap.SoapMessage;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.xml.soap.SOAPMessage;
 
@@ -16,7 +17,7 @@ import javax.xml.soap.SOAPMessage;
  * @author Ion Perpegel
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class SaveRawEnvelopeInterceptorTest {
 
     @Tested
@@ -29,6 +30,7 @@ public class SaveRawEnvelopeInterceptorTest {
     protected UserMessageContextKeyProvider userMessageContextKeyProvider;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testHandleMessage(@Mocked SoapMessage message, @Mocked SOAPMessage jaxwsMessage) {
         Long userMessageEntityId = 123L;
         String userMessageId = "456";

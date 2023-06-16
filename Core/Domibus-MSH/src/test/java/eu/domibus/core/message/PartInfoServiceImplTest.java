@@ -12,22 +12,22 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.*;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author François Gautier
  * @since 5.0
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PartInfoServiceImplTest {
 
     private static final String STRING_TYPE = "string";
@@ -97,7 +97,7 @@ public class PartInfoServiceImplTest {
         }};
 
         final boolean scheduleSourceMessagePayloads = partInfoService.scheduleSourceMessagePayloads(partInfos);
-        Assert.assertTrue(scheduleSourceMessagePayloads);
+        Assertions.assertTrue(scheduleSourceMessagePayloads);
 
         new FullVerifications() {{
         }};
@@ -108,7 +108,7 @@ public class PartInfoServiceImplTest {
 
 
         final boolean scheduleSourceMessagePayloads = partInfoService.scheduleSourceMessagePayloads(null);
-        Assert.assertFalse(scheduleSourceMessagePayloads);
+        Assertions.assertFalse(scheduleSourceMessagePayloads);
 
         new FullVerifications() {{
         }};
@@ -130,7 +130,7 @@ public class PartInfoServiceImplTest {
             partInfoService.checkPartInfoCharset(userMessage, Collections.singletonList(partInfo));
             fail("EBMS3Exception was expected!!");
         } catch (EbMS3Exception e) {
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
         }
 
         new FullVerifications() {

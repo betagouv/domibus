@@ -4,20 +4,20 @@ import eu.domibus.api.message.acknowledge.MessageAcknowledgement;
 import eu.domibus.api.model.UserMessage;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.sql.Timestamp;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Cosmin Baciu
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MessageAcknowledgeDefaultConverterTest {
 
     @Tested

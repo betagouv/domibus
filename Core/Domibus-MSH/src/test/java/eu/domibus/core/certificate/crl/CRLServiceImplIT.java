@@ -10,16 +10,16 @@ import eu.domibus.core.property.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.*;
  * @author Catalin Enache
  * @since 4.1.2
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class CRLServiceImplIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CRLServiceImplIT.class);
@@ -121,7 +121,7 @@ public class CRLServiceImplIT {
 
     private String crlURLStr;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
 
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
@@ -140,7 +140,7 @@ public class CRLServiceImplIT {
     }
 
     @Test
-    @Ignore("The Spel condition that enables the cache doesn't see property value set for the tests in domibus.properties (EDELIVERY-10977)")
+    @Disabled("The Spel condition that enables the cache doesn't see property value set for the tests in domibus.properties (EDELIVERY-10977)")
     public void test_isCertificateRevoked_withCache() {
 
         X509CRL x509CRLMock = mock(X509CRL.class);

@@ -9,18 +9,18 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.cache.DomibusCacheException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@Ignore//Ignored on purpose for the following reason: @TestPropertySource marks the Spring context as dirty and recreating the context fails due to ActiveMQ
+@Disabled//Ignored on purpose for the following reason: @TestPropertySource marks the Spring context as dirty and recreating the context fails due to ActiveMQ
 @TestPropertySource(properties = {"domibus.deployment.clustered=true"})
 public class DistributedCacheDaoTestIT extends AbstractIT {
 
@@ -35,7 +35,7 @@ public class DistributedCacheDaoTestIT extends AbstractIT {
     @Autowired
     HazelcastInstance hazelcastInstance;
 
-    @Before
+    @BeforeEach
     public void beforeTest() {
         distributedCacheDao.getCacheNames().stream().forEach(mapName -> hazelcastInstance.getMap(mapName).destroy());
     }

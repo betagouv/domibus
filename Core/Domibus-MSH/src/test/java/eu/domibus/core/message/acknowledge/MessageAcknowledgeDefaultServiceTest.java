@@ -9,9 +9,9 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ import java.util.Map;
  * @author Cosmin Baciu
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MessageAcknowledgeDefaultServiceTest {
 
     @Tested

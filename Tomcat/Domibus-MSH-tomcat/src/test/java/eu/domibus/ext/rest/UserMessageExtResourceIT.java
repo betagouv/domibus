@@ -4,9 +4,9 @@ package eu.domibus.ext.rest;
 import eu.domibus.AbstractIT;
 import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.UserMessageDTO;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -31,7 +31,7 @@ public class UserMessageExtResourceIT extends AbstractIT {
     @Autowired
     private WebApplicationContext webAppContext;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webAppContext)
                 .build();
@@ -49,7 +49,7 @@ public class UserMessageExtResourceIT extends AbstractIT {
         String content = result.getResponse().getContentAsString();
         UserMessageDTO response = objectMapper.readValue(content, UserMessageDTO.class);
 
-        Assert.assertNotNull(response);
+        Assertions.assertNotNull(response);
     }
 
     @Test
@@ -75,7 +75,7 @@ public class UserMessageExtResourceIT extends AbstractIT {
                 .andReturn();
         String content = result.getResponse().getContentAsString();
 
-        Assert.assertNotNull(content);
+        Assertions.assertNotNull(content);
     }
 
     @Test
@@ -101,7 +101,7 @@ public class UserMessageExtResourceIT extends AbstractIT {
                 .andReturn();
         String content = result.getResponse().getContentAsString();
 
-        Assert.assertNotNull(content);
+        Assertions.assertNotNull(content);
     }
 
     @Test

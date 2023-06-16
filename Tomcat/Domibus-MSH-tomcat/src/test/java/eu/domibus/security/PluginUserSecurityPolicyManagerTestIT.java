@@ -14,7 +14,8 @@ import eu.domibus.core.user.plugin.AuthenticationDAO;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.user.ui.UserRole;
 import eu.domibus.core.user.ui.UserRoleDao;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,37 +67,41 @@ public class PluginUserSecurityPolicyManagerTestIT extends AbstractIT {
         userSecurityPolicyManager.changePassword(user, "Password-1111111");
     }
 
-    @Test(expected = DomibusCoreException.class)
+    @Test
     @Transactional
     public void testPasswordReusePolicy_shouldFail() {
         AuthenticationEntity user = initTestUser("testUser2");
-        userSecurityPolicyManager.changePassword(user, "Password-1111111");
-        userSecurityPolicyManager.changePassword(user, "Password-2222222");
-        userSecurityPolicyManager.changePassword(user, "Password-3333333");
-        userSecurityPolicyManager.changePassword(user, "Password-4444444");
-        userSecurityPolicyManager.changePassword(user, "Password-5555555");
-        userSecurityPolicyManager.changePassword(user, "Password-1111111");
+        Assertions.assertThrows(DomibusCoreException.class, () -> {
+
+            userSecurityPolicyManager.changePassword(user, "Password-1111111");
+            userSecurityPolicyManager.changePassword(user, "Password-2222222");
+            userSecurityPolicyManager.changePassword(user, "Password-3333333");
+            userSecurityPolicyManager.changePassword(user, "Password-4444444");
+            userSecurityPolicyManager.changePassword(user, "Password-5555555");
+            userSecurityPolicyManager.changePassword(user, "Password-1111111");
+        });
+
     }
 
-    @Test(expected = DomibusCoreException.class)
+    @Test
     @Transactional
     public void testPasswordComplexity_blankPasswordShouldFail() {
         AuthenticationEntity user = initTestUser("testUser3");
-        userSecurityPolicyManager.changePassword(user, "");
+        Assertions.assertThrows(DomibusCoreException.class, () -> userSecurityPolicyManager.changePassword(user, ""));
     }
 
-    @Test(expected = DomibusCoreException.class)
+    @Test
     @Transactional
     public void testPasswordComplexity_shortPasswordShouldFail() {
         AuthenticationEntity user = initTestUser("testUser4");
-        userSecurityPolicyManager.changePassword(user, "Aa-1");
+        Assertions.assertThrows(DomibusCoreException. class,() -> userSecurityPolicyManager.changePassword(user, "Aa-1"));
     }
 
-    @Test(expected = UserManagementException.class)
+    @Test
     @Transactional
     public void test_validateUniqueUser() {
         AuthenticationEntity user = initTestUser("testUser_Unique");
-        userSecurityPolicyManager.validateUniqueUser(user);
+        Assertions.assertThrows(UserManagementException. class,() -> userSecurityPolicyManager.validateUniqueUser(user));
     }
 
     private AuthenticationEntity initTestUser(String userName) {

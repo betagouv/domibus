@@ -8,16 +8,16 @@ import eu.domibus.api.util.DatabaseUtil;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.quartz.JobExecutionContext;
 
 /**
  * @since 5.0
  * @author Catalin Enache
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class ErrorLogCleanerJobTest {
 
     @Tested

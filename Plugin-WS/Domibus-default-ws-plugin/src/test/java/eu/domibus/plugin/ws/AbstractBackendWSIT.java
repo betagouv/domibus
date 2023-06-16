@@ -1,6 +1,6 @@
 package eu.domibus.plugin.ws;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
@@ -26,8 +26,7 @@ import eu.domibus.test.PModeUtil;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.tuple.Pair;
 import org.awaitility.core.ConditionTimeoutException;
-import org.junit.Assert;
-import org.junit.Rule;
+import org.junit.jupiter.api.Assertions;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -58,14 +57,14 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.awaitility.Awaitility.with;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Created by draguio on 18/02/2016.
  */
+@WireMockTest
 public abstract class AbstractBackendWSIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractBackendWSIT.class);
@@ -75,9 +74,6 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
     protected static final int SERVICE_PORT = 8892;
 
     public static final String WS_NOT_QUEUE = "domibus.notification.webservice";
-
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort().dynamicHttpsPort());
 
     // TODO: François Gautier 03-02-21 @deprecated to be removed when deprecated endpoint /backend is removed
     @Autowired
@@ -129,7 +125,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
                 .withHeader("Content-Type", notMatching("application/soap+xml")));
 
         final MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId, MSHRole.SENDING);
-        Assert.assertEquals(MessageStatus.ACKNOWLEDGED, messageStatus);
+        Assertions.assertEquals(MessageStatus.ACKNOWLEDGED, messageStatus);
 
     }
 
@@ -151,7 +147,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
                 .withHeader("Content-Type", notMatching("application/soap+xml")));
 
         final MessageStatus messageStatus = userMessageLogDao.getMessageStatus(messageId, MSHRole.SENDING);
-        Assert.assertEquals(MessageStatus.ACKNOWLEDGED, messageStatus);
+        Assertions.assertEquals(MessageStatus.ACKNOWLEDGED, messageStatus);
 
     }
 
@@ -375,7 +371,7 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
             transformer.transform(new DOMSource(doc), new StreamResult(writer));
             return writer.getBuffer().toString().replaceAll("\n|\r", "");
         } catch (Exception exc) {
-            Assert.fail(exc.getMessage());
+            Assertions.fail(exc.getMessage());
             exc.printStackTrace();
         }
         return null;

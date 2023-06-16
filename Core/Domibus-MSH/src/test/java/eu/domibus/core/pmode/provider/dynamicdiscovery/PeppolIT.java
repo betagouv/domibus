@@ -29,7 +29,7 @@ import java.security.cert.X509Certificate;
  * @since 6/13/18.
  */
 
-//@RunWith(JMockit.class)
+//@ExtendWith(JMockitExtension.class)
 public class PeppolIT {
 
     //The (sub)domain of the SML, e.g. acc.edelivery.tech.ec.europa.eu

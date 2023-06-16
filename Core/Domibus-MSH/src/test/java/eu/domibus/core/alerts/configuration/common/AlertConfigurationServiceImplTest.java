@@ -6,15 +6,15 @@ import eu.domibus.core.alerts.configuration.global.CommonConfigurationManager;
 import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.exception.ConfigurationException;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.ApplicationContext;
 
 import java.util.List;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class AlertConfigurationServiceImplTest {
 
     @Tested
@@ -23,9 +23,6 @@ public class AlertConfigurationServiceImplTest {
 
     @Injectable
     protected DomibusPropertyProvider domibusPropertyProvider;
-
-    @Injectable
-    List<AlertConfigurationManager> alertConfigurationManagers;
 
     @Injectable
     private CommonConfigurationManager commonConfigurationManager;
@@ -63,7 +60,7 @@ public class AlertConfigurationServiceImplTest {
 
         String res = alertConfigurationService.getMailSubject(alertType);
 
-        Assert.assertTrue(res.equals("email subject"));
+        Assertions.assertTrue(res.equals("email subject"));
     }
 
     @Test
@@ -80,7 +77,7 @@ public class AlertConfigurationServiceImplTest {
 
         AlertModuleConfiguration res = alertConfigurationService.getConfiguration(alertType);
 
-        Assert.assertTrue(res == alertModuleConfiguration);
+        Assertions.assertTrue(res == alertModuleConfiguration);
     }
 
 }

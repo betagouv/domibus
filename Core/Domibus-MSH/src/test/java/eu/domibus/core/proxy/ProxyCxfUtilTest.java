@@ -6,9 +6,9 @@ import mockit.*;
 import org.apache.cxf.configuration.security.ProxyAuthorizationPolicy;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -24,7 +24,7 @@ public class ProxyCxfUtilTest {
     protected DomibusProxyService domibusProxyService;
     private DomibusProxy domibusProxy;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         domibusProxy = new DomibusProxy();
         domibusProxy.setEnabled(true);
@@ -61,8 +61,8 @@ public class ProxyCxfUtilTest {
             ProxyAuthorizationPolicy proxyAuthorizationPolicy;
             httpConduit.setProxyAuthorization(proxyAuthorizationPolicy = withCapture());
 
-            Assert.assertEquals(domibusProxy.getHttpProxyPassword(), proxyAuthorizationPolicy.getPassword());
-            Assert.assertEquals(domibusProxy.getHttpProxyUser(), proxyAuthorizationPolicy.getUserName());
+            Assertions.assertEquals(domibusProxy.getHttpProxyPassword(), proxyAuthorizationPolicy.getPassword());
+            Assertions.assertEquals(domibusProxy.getHttpProxyUser(), proxyAuthorizationPolicy.getUserName());
         }};
     }
 

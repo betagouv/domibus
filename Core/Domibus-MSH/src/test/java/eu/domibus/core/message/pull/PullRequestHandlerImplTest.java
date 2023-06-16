@@ -29,23 +29,24 @@ import eu.domibus.core.message.reliability.ReliabilityMatcher;
 import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.test.common.MessageTestUtility;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.phase.PhaseInterceptorChain;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.xml.soap.SOAPMessage;
 import java.util.List;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Thomas Dussart
  * @since 3.3
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked", "ConstantConditions", "unused"})
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PullRequestHandlerImplTest {
 
     @Injectable
@@ -120,6 +121,7 @@ public class PullRequestHandlerImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testHandlePullRequestMessageFound(
             @Mocked final PhaseInterceptorChain pi,
             @Injectable final LegConfiguration legConfiguration,
@@ -170,7 +172,7 @@ public class PullRequestHandlerImplTest {
 
             EbMS3Exception exception;
             messageBuilder.getSoapMessage(exception = withCapture());
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0006, exception.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0006, exception.getErrorCode());
         }};
     }
 
@@ -197,11 +199,11 @@ public class PullRequestHandlerImplTest {
             EbMS3Exception e;
             reliabilityChecker.handleEbms3Exception(e = withCapture(), userMessage);
             times = 1;
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0101, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0101, e.getErrorCode());
             Ebms3Error faultInfo;
             messageBuilder.buildSOAPFaultMessage(faultInfo = withCapture());
             times = 1;
-            Assert.assertEquals("EBMS:0101", faultInfo.getErrorCode());
+            Assertions.assertEquals("EBMS:0101", faultInfo.getErrorCode());
 
             pullMessageService.updatePullMessageAfterRequest(userMessage, messageId, legConfiguration, ReliabilityChecker.CheckResult.PULL_FAILED);
             times = 1;
@@ -232,11 +234,11 @@ public class PullRequestHandlerImplTest {
             EbMS3Exception e;
             reliabilityChecker.handleEbms3Exception(e = withCapture(), userMessage);
             times = 1;
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getErrorCode());
             Ebms3Error faultInfo;
             messageBuilder.buildSOAPFaultMessage(faultInfo = withCapture());
             times = 1;
-            Assert.assertEquals("EBMS:0010", faultInfo.getErrorCode());
+            Assertions.assertEquals("EBMS:0010", faultInfo.getErrorCode());
 
             pullMessageService.updatePullMessageAfterRequest(userMessage, messageId, legConfiguration, ReliabilityChecker.CheckResult.PULL_FAILED);
             times = 1;

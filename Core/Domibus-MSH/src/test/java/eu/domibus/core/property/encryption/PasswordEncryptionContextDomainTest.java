@@ -10,16 +10,16 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PasswordEncryptionContextDomainTest {
 
     @Injectable
@@ -47,7 +47,7 @@ public class PasswordEncryptionContextDomainTest {
             result = true;
         }};
 
-        Assert.assertTrue(passwordEncryptionContextDomain.isPasswordEncryptionActive());
+        Assertions.assertTrue(passwordEncryptionContextDomain.isPasswordEncryptionActive());
     }
 
     @Test
@@ -69,6 +69,6 @@ public class PasswordEncryptionContextDomainTest {
             result = myConfFile;
         }};
 
-        Assert.assertEquals(myConfFile, passwordEncryptionContextDomain.getConfigurationFileName());
+        Assertions.assertEquals(myConfFile, passwordEncryptionContextDomain.getConfigurationFileName());
     }
 }

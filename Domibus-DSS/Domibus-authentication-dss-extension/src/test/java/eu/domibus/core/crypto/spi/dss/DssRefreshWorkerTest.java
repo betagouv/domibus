@@ -5,9 +5,9 @@ import eu.domibus.ext.services.CommandExtService;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomainExtService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
@@ -17,7 +17,7 @@ import java.util.HashMap;
  * @author Thomas Dussart
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DssRefreshWorkerTest {
 
     @Injectable

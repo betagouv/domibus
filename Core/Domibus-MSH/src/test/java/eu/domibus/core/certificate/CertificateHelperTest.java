@@ -1,21 +1,23 @@
 package eu.domibus.core.certificate;
 
 import eu.domibus.api.pki.DomibusCertificateException;
-import junit.framework.TestCase;
+
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static eu.domibus.core.certificate.CertificateHelper.JKS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Ion Perpegel
  * @since 5.0
  */
-@RunWith(JMockit.class)
-public class CertificateHelperTest extends TestCase {
+@ExtendWith(JMockitExtension.class)
+public class CertificateHelperTest {
 
     @Tested
     CertificateHelper certificateHelper;
@@ -44,9 +46,9 @@ public class CertificateHelperTest extends TestCase {
     public void checkTruststoreTypeValidationNegative1() {
         try {
             certificateHelper.validateStoreType(JKS, "test_filename_wrong_extension.p12");
-            Assert.fail("Expected exception was not raised!");
+            Assertions.fail("Expected exception was not raised!");
         } catch (DomibusCertificateException e) {
-            assertEquals(true, e.getMessage().contains(JKS));
+            assertTrue(e.getMessage().contains(JKS));
         }
     }
 
@@ -54,9 +56,9 @@ public class CertificateHelperTest extends TestCase {
     public void checkTruststoreTypeValidationNegative2() {
         try {
             certificateHelper.validateStoreType(JKS, "test_filename_no_extension");
-            Assert.fail("Expected exception was not raised!");
+            Assertions.fail("Expected exception was not raised!");
         } catch (DomibusCertificateException e) {
-            assertEquals(true, e.getMessage().contains(JKS));
+            assertTrue(e.getMessage().contains(JKS));
         }
     }
 
@@ -64,9 +66,9 @@ public class CertificateHelperTest extends TestCase {
     public void checkTruststoreTypeValidationNegative3() {
         try {
             certificateHelper.validateStoreType("pkcs12", "test_filename_unknown_extension.txt");
-            Assert.fail("Expected exception was not raised!");
+            Assertions.fail("Expected exception was not raised!");
         } catch (DomibusCertificateException e) {
-            assertEquals(true, e.getMessage().contains("pkcs12"));
+            assertTrue(e.getMessage().contains("pkcs12"));
         }
     }
 
@@ -74,9 +76,9 @@ public class CertificateHelperTest extends TestCase {
     public void testValidateStoreFileNameNegative() {
         try {
             certificateHelper.validateStoreFileName("test_filename_unknown_extension.txt");
-            Assert.fail("Expected exception was not raised!");
+            Assertions.fail("Expected exception was not raised!");
         } catch (DomibusCertificateException e) {
-            assertEquals(true, e.getMessage().contains("txt"));
+            assertTrue(e.getMessage().contains("txt"));
         }
     }
 
@@ -87,7 +89,7 @@ public class CertificateHelperTest extends TestCase {
             certificateHelper.validateStoreFileName("test_filename.jks");
             certificateHelper.validateStoreFileName("test_filename.pfx");
         } catch (DomibusCertificateException e) {
-            Assert.fail("Unexpected exception was raised!");
+            Assertions.fail("Unexpected exception was raised!");
         }
     }
 }

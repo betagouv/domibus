@@ -2,12 +2,12 @@ package eu.domibus.core.message.dictionary;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.ServiceEntity;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Cosmin Baciu
@@ -29,13 +29,13 @@ public class ServiceDaoIT extends AbstractIT {
         final ServiceEntity foundProperty = serviceDao.findOrCreateService(value, type);
         assertNotNull(foundProperty);
 
-        Assert.assertEquals(property.getEntityId(), foundProperty.getEntityId());
-        Assert.assertEquals(value, foundProperty.getValue());
-        Assert.assertEquals(type, foundProperty.getType());
+        Assertions.assertEquals(property.getEntityId(), foundProperty.getEntityId());
+        Assertions.assertEquals(value, foundProperty.getValue());
+        Assertions.assertEquals(type, foundProperty.getType());
 
         final ServiceEntity foundProperty1 = serviceDao.findOrCreateService(value, type);
 
-        Assert.assertEquals(foundProperty.getEntityId(), foundProperty1.getEntityId());
+        Assertions.assertEquals(foundProperty.getEntityId(), foundProperty1.getEntityId());
     }
 
     @Test
@@ -47,13 +47,13 @@ public class ServiceDaoIT extends AbstractIT {
         final ServiceEntity foundProperty = serviceDao.findOrCreateService(value, type);
         assertNotNull(foundProperty);
 
-        Assert.assertEquals(property.getEntityId(), foundProperty.getEntityId());
-        Assert.assertEquals(value, foundProperty.getValue());
-        Assert.assertEquals(type, foundProperty.getType());
+        Assertions.assertEquals(property.getEntityId(), foundProperty.getEntityId());
+        Assertions.assertEquals(value, foundProperty.getValue());
+        Assertions.assertEquals(type, foundProperty.getType());
 
         final ServiceEntity foundProperty1 = serviceDao.findOrCreateService(value, type);
 
-        Assert.assertEquals(foundProperty.getEntityId(), foundProperty1.getEntityId());
+        Assertions.assertEquals(foundProperty.getEntityId(), foundProperty1.getEntityId());
     }
 
     @Test
@@ -72,9 +72,9 @@ public class ServiceDaoIT extends AbstractIT {
         final ServiceEntity foundEntity4 = serviceDao.findOrCreateService(value, "type1");
         assertNotNull(foundEntity4);
 
-        Assert.assertEquals(foundEntity1.getEntityId(), foundEntity2.getEntityId());
-        Assert.assertEquals(foundEntity1.getEntityId(), foundEntity3.getEntityId());
-        Assert.assertNotEquals(foundEntity1.getEntityId(), foundEntity4.getEntityId());
+        Assertions.assertEquals(foundEntity1.getEntityId(), foundEntity2.getEntityId());
+        Assertions.assertEquals(foundEntity1.getEntityId(), foundEntity3.getEntityId());
+        Assertions.assertNotEquals(foundEntity1.getEntityId(), foundEntity4.getEntityId());
     }
 
 }

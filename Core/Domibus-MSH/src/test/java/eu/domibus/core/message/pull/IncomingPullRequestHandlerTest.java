@@ -31,10 +31,10 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.MessageTestUtility;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.phase.PhaseInterceptorChain;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.soap.MessageFactory;
@@ -46,7 +46,7 @@ import javax.xml.transform.TransformerFactory;
  * @since 4.1
  */
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class IncomingPullRequestHandlerTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(IncomingPullRequestHandlerTest.class);

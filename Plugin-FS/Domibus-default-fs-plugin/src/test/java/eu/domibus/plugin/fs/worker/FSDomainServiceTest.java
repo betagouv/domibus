@@ -9,10 +9,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 
@@ -20,7 +20,7 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class FSDomainServiceTest {
 
     @Injectable
@@ -47,7 +47,7 @@ public class FSDomainServiceTest {
         }};
 
         final String fsPluginDomain = fsDomainService.getFSPluginDomain();
-        Assert.assertEquals(FSSendMessagesService.DEFAULT_DOMAIN, fsPluginDomain);
+        Assertions.assertEquals(FSSendMessagesService.DEFAULT_DOMAIN, fsPluginDomain);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class FSDomainServiceTest {
         }};
 
         final String fsPluginDomain = fsDomainService.getFSPluginDomain();
-        Assert.assertEquals(mydomain, fsPluginDomain);
+        Assertions.assertEquals(mydomain, fsPluginDomain);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class FSDomainServiceTest {
         }};
 
         final DomainDTO domainDTO = fsDomainService.fsDomainToDomibusDomain(fsPluginDomain);
-        Assert.assertEquals(FSSendMessagesService.DEFAULT_DOMAIN, domainDTO.getCode());
+        Assertions.assertEquals(FSSendMessagesService.DEFAULT_DOMAIN, domainDTO.getCode());
 
         new Verifications() {{
             domainExtService.getDomain(fsPluginDomain);
@@ -97,7 +97,7 @@ public class FSDomainServiceTest {
         }};
 
         final DomainDTO domainDTO = fsDomainService.fsDomainToDomibusDomain(fsPluginDomain);
-        Assert.assertEquals(fsPluginDomain, domainDTO.getCode());
+        Assertions.assertEquals(fsPluginDomain, domainDTO.getCode());
 
         new Verifications() {{
             domainExtService.getDomain("default");

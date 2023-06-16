@@ -4,12 +4,12 @@ import eu.domibus.plugin.convert.StringToTemporalAccessorConverter;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,7 +18,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * @author Sebastian-Ion TINCU
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DateAdapterTest {
 
     @Injectable
@@ -27,7 +27,7 @@ public class DateAdapterTest {
     @Tested(availableDuringSetup = true)
     private DateAdapter dateAdapter;
 
-    @Before
+    @BeforeEach
     public void setup() throws IllegalAccessException {
         FieldUtils.writeField(dateAdapter, "converter", converter, true);
     }
@@ -44,7 +44,7 @@ public class DateAdapterTest {
         LocalDate result = dateAdapter.unmarshal(input);
 
         // THEN
-        Assert.assertNull("Should have returned null when unmarshalling a null input string", result);
+        Assertions.assertNull(result, "Should have returned null when unmarshalling a null input string");
     }
 
     @Test
@@ -59,7 +59,7 @@ public class DateAdapterTest {
         LocalDate result = dateAdapter.unmarshal(input);
 
         // THEN
-        Assert.assertSame("Should have returned the parsed date when unmarshalling a non-null input string", parsedDate, result);
+        Assertions.assertSame(parsedDate, result, "Should have returned the parsed date when unmarshalling a non-null input string");
     }
 
     @Test
@@ -71,7 +71,7 @@ public class DateAdapterTest {
         String result = dateAdapter.marshal(input);
 
         // THEN
-        Assert.assertNull("Should have returned null when marshalling a null input date", result);
+        Assertions.assertNull("Should have returned null when marshalling a null input date", result);
     }
 
 
@@ -87,6 +87,6 @@ public class DateAdapterTest {
         String result = dateAdapter.marshal(inputDate);
 
         // THEN
-        Assert.assertEquals("Should have returned the formatted date when marshalling a non-null input date", formattedDate, result);
+        Assertions.assertEquals("Should have returned the formatted date when marshalling a non-null input date", formattedDate, result);
     }
 }

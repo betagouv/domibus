@@ -5,12 +5,12 @@ import eu.domibus.api.ebms3.model.Ebms3UserMessage;
 import eu.domibus.core.message.pull.PullRequestLegConfigurationFactory;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.message.MessageImpl;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.verify;
  * @since 3.3
  */
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ServerInMessageLegConfigurationFactoryTest {
 
     @Mock

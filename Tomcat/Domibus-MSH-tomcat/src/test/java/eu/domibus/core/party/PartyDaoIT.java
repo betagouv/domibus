@@ -6,9 +6,9 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.ProcessDaoImpl;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +18,8 @@ import javax.persistence.PersistenceContext;
 import java.sql.SQLException;
 import java.util.List;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * PartyDaoConfig is commented out because it was causing issues when running the tests locally.
@@ -44,7 +44,7 @@ public class PartyDaoIT extends AbstractIT {
     ConfigurationDAO configurationDAO;
 
     @Transactional
-    @Before
+    @BeforeEach
     public void initParty() {
         partyDao = new PartyDao();
         ReflectionTestUtils.setField(partyDao, null, em, EntityManager.class);
@@ -107,7 +107,7 @@ public class PartyDaoIT extends AbstractIT {
         Party findById = partyDao.findById("P1 party id");
 
         // Then
-        Assert.assertNotNull(findById);
+        assertNotNull(findById);
         assertNotNull(findById.getCreationTime());
         assertNotNull(findById.getModificationTime());
         assertNotNull(findById.getCreatedBy());

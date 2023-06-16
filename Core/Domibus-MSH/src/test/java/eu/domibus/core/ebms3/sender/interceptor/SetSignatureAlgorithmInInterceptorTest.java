@@ -5,13 +5,13 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.api.spring.SpringContextProvider;
 import mockit.Mocked;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.wss4j.policy.SPConstants;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
 
 import javax.xml.bind.JAXBException;
@@ -27,7 +27,7 @@ import java.security.cert.CertificateException;
  * @author idragusa
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class SetSignatureAlgorithmInInterceptorTest extends SoapInterceptorTest {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SetSignatureAlgorithmInInterceptorTest.class);
 
@@ -39,7 +39,7 @@ public class SetSignatureAlgorithmInInterceptorTest extends SoapInterceptorTest 
         Document doc = readDocument("dataset/as4/SoapRequestBinaryToken.xml");
         SoapMessage soapMessage = getSoapMessageForDom(doc);
         setSignatureAlgorithmInInterceptor.handleMessage(soapMessage);
-        Assert.assertEquals(soapMessage.get(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM), SPConstants.SHA256);
+        Assertions.assertEquals(soapMessage.get(SecurityConstants.ASYMMETRIC_SIGNATURE_ALGORITHM), SPConstants.SHA256);
     }
 
 }

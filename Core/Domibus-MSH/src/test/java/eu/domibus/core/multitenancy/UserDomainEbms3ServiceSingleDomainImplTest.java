@@ -1,12 +1,12 @@
 package eu.domibus.core.multitenancy;
 
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserDomainEbms3ServiceSingleDomainImplTest {
 
     @Tested
@@ -15,13 +15,13 @@ public class UserDomainEbms3ServiceSingleDomainImplTest {
     @Test
     public void getDomainForUser() {
         String domainCode = userDomainServiceSingleDomainImpl.getDomainForUser("user1");
-        Assert.assertEquals("default", domainCode);
+        Assertions.assertEquals("default", domainCode);
     }
 
     @Test
     public void getPreferredDomainForUser() {
         String domainCode = userDomainServiceSingleDomainImpl.getPreferredDomainForUser("user1");
-        Assert.assertEquals("default", domainCode);
+        Assertions.assertEquals("default", domainCode);
     }
 
 }

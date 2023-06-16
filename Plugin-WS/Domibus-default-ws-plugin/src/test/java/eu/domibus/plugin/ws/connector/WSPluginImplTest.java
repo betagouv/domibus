@@ -12,15 +12,15 @@ import eu.domibus.plugin.ws.message.WSMessageLogEntity;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.webservice.StubDtoTransformer;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static eu.domibus.plugin.ws.backend.WSBackendMessageType.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.domibus.plugin.ws.backend.reliability.queue.*;
 
@@ -29,7 +29,7 @@ import eu.domibus.plugin.ws.backend.reliability.queue.*;
  * @since 5.0
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class WSPluginImplTest {
 
     public static final String MESSAGE_ID = "messageId";

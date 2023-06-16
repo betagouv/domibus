@@ -13,17 +13,17 @@ import eu.domibus.web.rest.ro.TestServiceMessageInfoRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.ResponseEntity;
 
 /**
  * @author Tiago Miguel
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MessageLogResourceTest {
 
     @Tested
@@ -65,11 +65,11 @@ public class MessageLogResourceTest {
                 }});
         // Then
         TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestSent.getBody();
-        Assert.assertEquals(testServiceMessageInfoResult.getPartyId(), testServiceMessageInfoRO.getPartyId());
+        Assertions.assertEquals(testServiceMessageInfoResult.getPartyId(), testServiceMessageInfoRO.getPartyId());
     }
 
-    @Test(expected = TestServiceException.class)
-    public void testGetLastTestSent_NotFound() throws TestServiceException {
+    @Test
+    void testGetLastTestSent_NotFound() throws TestServiceException {
         // Given
         String partyId = "partyId";
         String senderPartyId = "senderPartyId";
@@ -79,11 +79,11 @@ public class MessageLogResourceTest {
         }};
 
         // When
-        messageLogResource.getLastTestSent(
+        Assertions.assertThrows(TestServiceException. class,() -> messageLogResource.getLastTestSent(
                 new LatestOutgoingMessageRequestRO() {{
                     setPartyId(partyId);
                     setSenderPartyId(senderPartyId);
-                }});
+                }}));
     }
 
     @Test
@@ -106,12 +106,12 @@ public class MessageLogResourceTest {
                 }});
         // Then
         TestServiceMessageInfoRO testServiceMessageInfoRO = lastTestReceived.getBody();
-        Assert.assertEquals(testServiceMessageInfoRO.getPartyId(), testServiceMessageInfoResult.getPartyId());
-        Assert.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
+        Assertions.assertEquals(testServiceMessageInfoRO.getPartyId(), testServiceMessageInfoResult.getPartyId());
+        Assertions.assertEquals(testServiceMessageInfoRO.getAccessPoint(), party.getEndpoint());
     }
 
-    @Test(expected = TestServiceException.class)
-    public void testGetLastTestReceived_NotFound() throws TestServiceException {
+    @Test
+    void testGetLastTestReceived_NotFound() throws TestServiceException {
         // Given
         String partyId = "partyId";
         String senderPartyId = "senderPartyId";
@@ -121,11 +121,11 @@ public class MessageLogResourceTest {
             result = new TestServiceException("Error Details in error log");
         }};
 
-        messageLogResource.getLastTestReceived(
+        Assertions.assertThrows(TestServiceException. class,() -> messageLogResource.getLastTestReceived(
                 new LatestIncomingMessageRequestRO() {{
                     setPartyId(partyId);
                     setSenderPartyId(senderPartyId);
                     setUserMessageId(userMessageId);
-                }});
+                }}));
     }
 }

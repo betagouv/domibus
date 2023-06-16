@@ -5,10 +5,10 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.property.validators.DomibusPropertyValidator;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_VALIDATION_ENABLED;
 
@@ -16,7 +16,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Ion Perpegel
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusPropertyValueValidatorTest {
 
     @Tested
@@ -82,7 +82,7 @@ public class DomibusPropertyValueValidatorTest {
         propertyMetadata.setType("UNKNOWN_TYPE");
 
         DomibusPropertyValidator validator = domibusPropertyValueValidator.getValidator(propertyMetadata);
-        Assert.assertNull(validator);
+        Assertions.assertNull(validator);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class DomibusPropertyValueValidatorTest {
         propertyMetadata.setType(String.valueOf(DomibusPropertyMetadata.Type.CONCURRENCY));
 
         DomibusPropertyValidator validator = domibusPropertyValueValidator.getValidator(propertyMetadata);
-        Assert.assertNotNull(validator);
+        Assertions.assertNotNull(validator);
     }
 
 }

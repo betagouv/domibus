@@ -2,15 +2,15 @@ package eu.domibus.plugin.ws.logging;
 
 import eu.domibus.plugin.ws.webservice.WebServiceOperation;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.ext.logging.AbstractLoggingInterceptor;
 import org.apache.cxf.ext.logging.event.EventType;
 import org.apache.cxf.ext.logging.event.LogEvent;
 import org.apache.cxf.helpers.IOUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class WSPluginLoggingEventHelperImplTest {
     private static final Logger LOG = LoggerFactory.getLogger(WSPluginLoggingEventHelperImplTest.class);
 
@@ -55,8 +55,8 @@ public class WSPluginLoggingEventHelperImplTest {
         new Verifications() {{
             final String actualPayload;
             logEvent.setPayload(actualPayload = withCapture());
-            Assert.assertNotNull(actualPayload);
-            Assert.assertTrue(actualPayload.contains(AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
+            Assertions.assertNotNull(actualPayload);
+            Assertions.assertTrue(actualPayload.contains(AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
         }};
     }
 
@@ -88,8 +88,8 @@ public class WSPluginLoggingEventHelperImplTest {
         new FullVerifications() {{
             final String actualPayload;
             logEvent.setPayload(actualPayload = withCapture());
-            Assert.assertNotNull(actualPayload);
-            Assert.assertEquals(3, StringUtils.countMatches(actualPayload, AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
+            Assertions.assertNotNull(actualPayload);
+            Assertions.assertEquals(3, StringUtils.countMatches(actualPayload, AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
         }};
     }
 
@@ -124,8 +124,8 @@ public class WSPluginLoggingEventHelperImplTest {
         new FullVerifications() {{
             final String actualPayload;
             logEvent.setPayload(actualPayload = withCapture());
-            Assert.assertNotNull(actualPayload);
-            Assert.assertEquals(3, StringUtils.countMatches(actualPayload, AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
+            Assertions.assertNotNull(actualPayload);
+            Assertions.assertEquals(3, StringUtils.countMatches(actualPayload, AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
         }};
     }
 
@@ -154,8 +154,8 @@ public class WSPluginLoggingEventHelperImplTest {
         new Verifications() {{
             final String actualPayload;
             logEvent.setPayload(actualPayload = withCapture());
-            Assert.assertNotNull(actualPayload);
-            Assert.assertTrue(actualPayload.contains(AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
+            Assertions.assertNotNull(actualPayload);
+            Assertions.assertTrue(actualPayload.contains(AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
         }};
     }
 
@@ -187,8 +187,8 @@ public class WSPluginLoggingEventHelperImplTest {
         new Verifications() {{
             final String actualPayload;
             logEvent.setPayload(actualPayload = withCapture());
-            Assert.assertNotNull(actualPayload);
-            Assert.assertTrue(actualPayload.contains(AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
+            Assertions.assertNotNull(actualPayload);
+            Assertions.assertTrue(actualPayload.contains(AbstractLoggingInterceptor.CONTENT_SUPPRESSED));
         }};
     }
 
@@ -221,7 +221,7 @@ public class WSPluginLoggingEventHelperImplTest {
         new Verifications() {{
             String actualPayload;
             logEvent.setPayload(actualPayload = withCapture());
-            Assert.assertEquals(payload, actualPayload);
+            Assertions.assertEquals(payload, actualPayload);
             times = 1;
         }};
     }
@@ -236,7 +236,7 @@ public class WSPluginLoggingEventHelperImplTest {
             result = EventType.REQ_IN;
         }};
 
-        Assert.assertEquals(WSPluginLoggingEventHelperImpl.SUBMIT_REQUEST,
+        Assertions.assertEquals(WSPluginLoggingEventHelperImpl.SUBMIT_REQUEST,
                 wsPluginLoggingEventHelper.checkIfOperationIsAllowed(logEvent));;
     }
 
@@ -250,7 +250,7 @@ public class WSPluginLoggingEventHelperImplTest {
             result = EventType.RESP_OUT;
         }};
 
-        Assert.assertEquals(WSPluginLoggingEventHelperImpl.RETRIEVE_MESSAGE_RESPONSE,
+        Assertions.assertEquals(WSPluginLoggingEventHelperImpl.RETRIEVE_MESSAGE_RESPONSE,
                 wsPluginLoggingEventHelper.checkIfOperationIsAllowed(logEvent));
     }
 
@@ -270,10 +270,10 @@ public class WSPluginLoggingEventHelperImplTest {
 
         //tested method
         wsPluginLoggingEventHelper.stripHeaders(event);
-        Assert.assertNotNull(event.getHeaders());
-        Assert.assertNull(event.getHeaders().get(WSPluginLoggingEventHelperImpl.HEADERS_AUTHORIZATION));
-        Assert.assertNotNull(event.getHeaders().get(HOST_KEY));
-        Assert.assertNotNull(event.getHeaders().get(CONTENT_TYPE_KEY));
+        Assertions.assertNotNull(event.getHeaders());
+        Assertions.assertNull(event.getHeaders().get(WSPluginLoggingEventHelperImpl.HEADERS_AUTHORIZATION));
+        Assertions.assertNotNull(event.getHeaders().get(HOST_KEY));
+        Assertions.assertNotNull(event.getHeaders().get(CONTENT_TYPE_KEY));
     }
 
     private String readPayload(final String payloadName) throws Exception {

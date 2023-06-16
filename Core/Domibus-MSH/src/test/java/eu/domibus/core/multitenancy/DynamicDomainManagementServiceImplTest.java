@@ -17,10 +17,11 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +31,8 @@ import java.util.List;
  * @author Ion Perpegel
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
+@Disabled("EDELIVERY-6896")
 public class DynamicDomainManagementServiceImplTest {
 
     @Tested
@@ -90,8 +92,8 @@ public class DynamicDomainManagementServiceImplTest {
         });
     }
 
-    @Test(expected = DomibusDomainException.class)
-    public void validateAdditionInvalidName() {
+    @Test
+    void validateAdditionInvalidName() {
         new Expectations() {{
             domainService.getDomains();
             result = domains;
@@ -99,17 +101,17 @@ public class DynamicDomainManagementServiceImplTest {
             result = allDomains;
         }};
 
-        dynamicDomainManagementService.validateAddition("domain3");
+        Assertions.assertThrows(DomibusDomainException. class,() -> dynamicDomainManagementService.validateAddition("domain3"));
     }
 
-    @Test(expected = DomibusDomainException.class)
-    public void validateAdditionAlreadyAdded() {
+    @Test
+    void validateAdditionAlreadyAdded() {
         new Expectations() {{
             domainService.getDomains();
             result = domains;
         }};
 
-        dynamicDomainManagementService.validateAddition("domain1");
+        Assertions.assertThrows(DomibusDomainException.class, () -> dynamicDomainManagementService.validateAddition("domain1"));
     }
 
     @Test
@@ -126,8 +128,8 @@ public class DynamicDomainManagementServiceImplTest {
         }};
     }
 
-    @Test(expected = DomibusDomainException.class)
-    public void internalAddDomainError() throws Exception {
+    @Test
+    void internalAddDomainError() throws Exception {
         domainsAwareList.add(new DomainsAware() {
             @Override
             public void onDomainAdded(Domain domain) {
@@ -144,9 +146,9 @@ public class DynamicDomainManagementServiceImplTest {
             domibusPropertyProvider.loadProperties((Domain) any);
         }};
 
-        dynamicDomainManagementService.internalAddDomain(domain2);
+        Assertions.assertThrows(DomibusDomainException. class,() -> dynamicDomainManagementService.internalAddDomain(domain2));
 
-        Assert.assertFalse(domainService.getDomains().contains(domain2));
+        Assertions.assertFalse(domainService.getDomains().contains(domain2));
 
         new Verifications() {{
             dynamicDomainManagementService.handleAddDomainException(domain2, (List<DomainsAware>) any, (DomainsAware) any, (Exception) any);

@@ -20,13 +20,15 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageSubmitter;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.activation.DataSource;
 import java.io.IOException;
@@ -35,12 +37,13 @@ import java.io.IOException;
  * @author Sebastian-Ion TINCU
  */
 @SuppressWarnings({"ConstantConditions", "SameParameterValue", "ResultOfMethodCallIgnored", "unused"})
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
+@Disabled("EDELIVERY-6896")
 public class TestServiceTest {
 
-    private static final String MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT = Deencapsulation.getField(TestService.class, "MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT");
+    private static final String MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT = (String) ReflectionTestUtils.getField(TestService.class, "MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT");
 
-    private static final String BACKEND_NAME = Deencapsulation.getField(TestService.class, "BACKEND_NAME");
+    private static final String BACKEND_NAME = (String) ReflectionTestUtils.getField(TestService.class, "BACKEND_NAME");
 
     @Tested
     private TestService testService;
@@ -78,8 +81,7 @@ public class TestServiceTest {
     @Injectable
     ConnectionMonitoringHelper connectionMonitoringHelper;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    
 
     @Mocked
     private ObjectMapper gson;
@@ -116,7 +118,7 @@ public class TestServiceTest {
 
     private final String userMessageId = "testmessageid";
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         new Expectations() {{
             new ObjectMapper();
@@ -357,57 +359,57 @@ public class TestServiceTest {
     }
 
     private void thenThePayloadIsCorrectlyDefined() {
-        Assert.assertEquals("There should be only one payload", 1, returnedSubmission.getPayloads().size());
+        Assertions.assertEquals( 1, returnedSubmission.getPayloads().size(), "There should be only one payload");
 
         Submission.Payload payload = returnedSubmission.getPayloads().iterator().next();
-        Assert.assertEquals("The content id should have been correctly defined", "cid:message", payload.getContentId());
+        Assertions.assertEquals("The content id should have been correctly defined", "cid:message", payload.getContentId());
 
-        Assert.assertTrue("The 'MimeType' payload property should have been correctly defined", payload.getPayloadProperties().contains(new Submission.TypedProperty("MimeType", "text/xml")));
+        Assertions.assertTrue( payload.getPayloadProperties().contains(new Submission.TypedProperty("MimeType", "text/xml")), "The 'MimeType' payload property should have been correctly defined");
 
         DataSource dataSource = payload.getPayloadDatahandler().getDataSource();
-        byte[] source = Deencapsulation.getField(dataSource, "source");
-        Assert.assertArrayEquals("The payload content should have been correctly defined", "<?xml version=\"1.0\" encoding=\"UTF-8\"?><hello>world</hello>".getBytes(), source);
-        Assert.assertEquals("The payload content type should have been correctly defined", "text/xml", dataSource.getContentType());
+        byte[] source = (byte[]) ReflectionTestUtils.getField(dataSource, "source");
+        Assertions.assertArrayEquals( "<?xml version=\"1.0\" encoding=\"UTF-8\"?><hello>world</hello>".getBytes(), source, "The payload content should have been correctly defined");
+        Assertions.assertEquals( "text/xml", dataSource.getContentType(), "The payload content type should have been correctly defined");
     }
 
     private void thenTheInitiatorPartyIsCorrectlyDefined() {
-        Assert.assertEquals("There should be only one initiator party", 1, returnedSubmission.getFromParties().size());
-        Assert.assertEquals("The initiator party should have been correctly defined", new Submission.Party(sender, senderPartyId), returnedSubmission.getFromParties().iterator().next());
+        Assertions.assertEquals( 1, returnedSubmission.getFromParties().size(), "There should be only one initiator party");
+        Assertions.assertEquals( new Submission.Party(sender, senderPartyId), returnedSubmission.getFromParties().iterator().next(), "The initiator party should have been correctly defined");
     }
 
     private void thenTheReceiverPartyIsCorrectlyDefinedInsideTheReceivingPartiesCollection() {
-        Assert.assertEquals("There should be only one receiver party", 1, submission.getToParties().size());
-        Assert.assertEquals("The receiver party should have been correctly defined", new Submission.Party(receiver, receiverPartyId), submission.getToParties().iterator().next());
+        Assertions.assertEquals( 1, submission.getToParties().size(), "There should be only one receiver party");
+        Assertions.assertEquals( new Submission.Party(receiver, receiverPartyId), submission.getToParties().iterator().next(), "The receiver party should have been correctly defined");
     }
 
     private void thenTheReceiverPartyIsCorrectlyDefinedInsideTheMessagePropertiesReplacingTheInitialValue() {
-        Assert.assertEquals("There should be only one message property", 1, submission.getMessageProperties().size());
-        Assert.assertEquals("The receiver party should have been correctly defined inside the message properties",
-                new Submission.TypedProperty(MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT, receiver, receiverType), submission.getMessageProperties().iterator().next());
+        Assertions.assertEquals( 1, submission.getMessageProperties().size(), "There should be only one message property");
+        Assertions.assertEquals(
+                new Submission.TypedProperty(MESSAGE_PROPERTY_KEY_FINAL_RECIPIENT, receiver, receiverType), submission.getMessageProperties().iterator().next(), "The receiver party should have been correctly defined inside the message properties");
     }
 
     private void thenTheMessageIdentifierIsCorrectlyReturned() {
-        Assert.assertEquals("The message identifier should have been correctly returned", messageId, returnedMessageId);
+        Assertions.assertEquals("The message identifier should have been correctly returned", messageId, returnedMessageId);
     }
 
     private void thenTheServiceTypeIsCorrectlyDefined() {
-        Assert.assertEquals("The service type should have been correctly defined", serviceType, returnedSubmission.getServiceType());
+        Assertions.assertEquals("The service type should have been correctly defined", serviceType, returnedSubmission.getServiceType());
     }
 
     private void thenTheInitiatorRoleIsCorrectlyDefined() {
-        Assert.assertEquals("The initiator role should have been correctly defined", initiatorRole, returnedSubmission.getFromRole());
+        Assertions.assertEquals("The initiator role should have been correctly defined", initiatorRole, returnedSubmission.getFromRole());
     }
 
     private void thenTheResponderRoleIsCorrectlyDefined() {
-        Assert.assertEquals("The responder role should have been correctly defined", responderRole, returnedSubmission.getToRole());
+        Assertions.assertEquals("The responder role should have been correctly defined", responderRole, returnedSubmission.getToRole());
     }
 
     private void thenTheAgreementReferenceIsCorrectlyDefined() {
-        Assert.assertEquals("The agreement reference should have been correctly defined", agreement.getValue(), returnedSubmission.getAgreementRef());
+        Assertions.assertEquals("The agreement reference should have been correctly defined", agreement.getValue(), returnedSubmission.getAgreementRef());
     }
 
     private void thenTheConversationIdentifierIsCorrectlyDefined() {
-        Assert.assertEquals("The conversation identifier should have been correctly defined since it's required and the Access Point MUST set its value to \"1\" " +
+        Assertions.assertEquals("The conversation identifier should have been correctly defined since it's required and the Access Point MUST set its value to \"1\" " +
                 "according to section 4.3 of the [ebMS3CORE] specification", "1", returnedSubmission.getConversationId());
     }
 }

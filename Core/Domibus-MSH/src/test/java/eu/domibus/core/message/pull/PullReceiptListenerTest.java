@@ -17,10 +17,10 @@ import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.neethi.Policy;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -31,7 +31,7 @@ import javax.xml.soap.SOAPMessage;
  * @since 4.1
  */
 @SuppressWarnings("ConstantConditions")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PullReceiptListenerTest {
 
     @Tested

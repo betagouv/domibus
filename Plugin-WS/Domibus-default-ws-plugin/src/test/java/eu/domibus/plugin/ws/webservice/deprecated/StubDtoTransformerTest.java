@@ -8,8 +8,8 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.webService.generated.PayloadType;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
@@ -72,22 +72,22 @@ public class StubDtoTransformerTest {
         StubDtoTransformer testObj = new StubDtoTransformer();
         objUserMessage = testObj.transformFromSubmission(submissionObj, objUserMessage);
 
-        Assert.assertEquals("1234", objUserMessage.getMessageInfo().getMessageId());
-        Assert.assertEquals("123456", objUserMessage.getMessageInfo().getRefToMessageId());
-        Assert.assertEquals(DOMIBUS_BLUE, objUserMessage.getPartyInfo().getFrom().getPartyId().getValue());
-        Assert.assertEquals(UNREGISTERED_PARTY_TYPE, objUserMessage.getPartyInfo().getFrom().getPartyId().getType());
-        Assert.assertEquals(INITIATOR_ROLE, objUserMessage.getPartyInfo().getFrom().getRole());
-        Assert.assertEquals(DOMIBUS_RED, objUserMessage.getPartyInfo().getTo().getPartyId().getValue());
-        Assert.assertEquals(UNREGISTERED_PARTY_TYPE, objUserMessage.getPartyInfo().getTo().getPartyId().getType());
-        Assert.assertEquals(RESPONDER_ROLE, objUserMessage.getPartyInfo().getTo().getRole());
-        Assert.assertEquals("12345", objUserMessage.getCollaborationInfo().getAgreementRef().getValue());
-        Assert.assertEquals(ACTION_TC1LEG1, objUserMessage.getCollaborationInfo().getAction());
-        Assert.assertEquals(SERVICE_NOPROCESS, objUserMessage.getCollaborationInfo().getService().getValue());
-        Assert.assertEquals(SERVICE_TYPE_TC1, objUserMessage.getCollaborationInfo().getService().getType());
-        Assert.assertEquals(MessageConstants.ORIGINAL_SENDER, objUserMessage.getMessageProperties().getProperty().get(0).getName());
-        Assert.assertEquals(ORIGINAL_SENDER, objUserMessage.getMessageProperties().getProperty().get(0).getValue());
-        Assert.assertEquals(MessageConstants.FINAL_RECIPIENT, objUserMessage.getMessageProperties().getProperty().get(2).getName());
-        Assert.assertEquals(FINAL_RECIPIENT, objUserMessage.getMessageProperties().getProperty().get(2).getValue());
+        Assertions.assertEquals("1234", objUserMessage.getMessageInfo().getMessageId());
+        Assertions.assertEquals("123456", objUserMessage.getMessageInfo().getRefToMessageId());
+        Assertions.assertEquals(DOMIBUS_BLUE, objUserMessage.getPartyInfo().getFrom().getPartyId().getValue());
+        Assertions.assertEquals(UNREGISTERED_PARTY_TYPE, objUserMessage.getPartyInfo().getFrom().getPartyId().getType());
+        Assertions.assertEquals(INITIATOR_ROLE, objUserMessage.getPartyInfo().getFrom().getRole());
+        Assertions.assertEquals(DOMIBUS_RED, objUserMessage.getPartyInfo().getTo().getPartyId().getValue());
+        Assertions.assertEquals(UNREGISTERED_PARTY_TYPE, objUserMessage.getPartyInfo().getTo().getPartyId().getType());
+        Assertions.assertEquals(RESPONDER_ROLE, objUserMessage.getPartyInfo().getTo().getRole());
+        Assertions.assertEquals("12345", objUserMessage.getCollaborationInfo().getAgreementRef().getValue());
+        Assertions.assertEquals(ACTION_TC1LEG1, objUserMessage.getCollaborationInfo().getAction());
+        Assertions.assertEquals(SERVICE_NOPROCESS, objUserMessage.getCollaborationInfo().getService().getValue());
+        Assertions.assertEquals(SERVICE_TYPE_TC1, objUserMessage.getCollaborationInfo().getService().getType());
+        Assertions.assertEquals(MessageConstants.ORIGINAL_SENDER, objUserMessage.getMessageProperties().getProperty().get(0).getName());
+        Assertions.assertEquals(ORIGINAL_SENDER, objUserMessage.getMessageProperties().getProperty().get(0).getValue());
+        Assertions.assertEquals(MessageConstants.FINAL_RECIPIENT, objUserMessage.getMessageProperties().getProperty().get(2).getName());
+        Assertions.assertEquals(FINAL_RECIPIENT, objUserMessage.getMessageProperties().getProperty().get(2).getValue());
 
 
     }
@@ -106,9 +106,9 @@ public class StubDtoTransformerTest {
         MessageInfo messageInfoObj = new MessageInfo();
         messageInfoObj.setTimestamp(LocalDateTime.now());
         userMessageObj.setMessageInfo(messageInfoObj);
-    /*UserMessage.MessageInfo population end*/
+        /*UserMessage.MessageInfo population end*/
 
-	/*UserMessage.PartyInfo population start*/
+        /*UserMessage.PartyInfo population start*/
         PartyInfo objPartyInfo = new PartyInfo();
 
         PartyId fromPartyIdObj = new PartyId();
@@ -130,9 +130,9 @@ public class StubDtoTransformerTest {
         objPartyInfo.setFrom(fromObj);
         objPartyInfo.setTo(toObj);
         userMessageObj.setPartyInfo(objPartyInfo);
-    /*UserMessage.PartyInfo population end*/
+        /*UserMessage.PartyInfo population end*/
 
-	/*UserMessage.CollaborationInfo population start*/
+        /*UserMessage.CollaborationInfo population start*/
         CollaborationInfo objCollaborationInfo = new CollaborationInfo();
 
         Service serviceObj = new Service();
@@ -142,9 +142,9 @@ public class StubDtoTransformerTest {
         objCollaborationInfo.setService(serviceObj);
         objCollaborationInfo.setAction(ACTION_TC1LEG1);
         userMessageObj.setCollaborationInfo(objCollaborationInfo);
-    /*UserMessage.CollaborationInfo population end*/
+        /*UserMessage.CollaborationInfo population end*/
 
-	/*UserMessage.PayLoadInfo population start*/
+        /*UserMessage.PayLoadInfo population start*/
         Property objProperty = new Property();
         objProperty.setName(MIME_TYPE);
         objProperty.setValue(DEFAULT_MT);
@@ -168,7 +168,7 @@ public class StubDtoTransformerTest {
         PayloadInfo objPayloadInfo = new PayloadInfo();
         objPayloadInfo.getPartInfo().add(objExtendedPartInfo);
         userMessageObj.setPayloadInfo(objPayloadInfo);
-    /*UserMessage.PayLoadInfo population end*/
+        /*UserMessage.PayLoadInfo population end*/
 
         Messaging ebmsHeaderInfo = new Messaging();
         ebmsHeaderInfo.setUserMessage(userMessageObj);
@@ -176,27 +176,27 @@ public class StubDtoTransformerTest {
         StubDtoTransformer testObj = new StubDtoTransformer();
         Submission objSubmission = testObj.transformToSubmission(ebmsHeaderInfo);
 
-        Assert.assertNotNull("Submission object in the response should not be null:", objSubmission);
+        Assertions.assertNotNull(objSubmission, "Submission object in the response should not be null:");
         for (Submission.Party fromParty : objSubmission.getFromParties()) {
-            Assert.assertEquals(DOMIBUS_BLUE, fromParty.getPartyId());
-            Assert.assertEquals(UNREGISTERED_PARTY_TYPE, fromParty.getPartyIdType());
+            Assertions.assertEquals(DOMIBUS_BLUE, fromParty.getPartyId());
+            Assertions.assertEquals(UNREGISTERED_PARTY_TYPE, fromParty.getPartyIdType());
         }
-        Assert.assertEquals(INITIATOR_ROLE, objSubmission.getFromRole());
+        Assertions.assertEquals(INITIATOR_ROLE, objSubmission.getFromRole());
 
         for (Submission.Party toParty : objSubmission.getToParties()) {
-            Assert.assertEquals(DOMIBUS_RED, toParty.getPartyId());
-            Assert.assertEquals(UNREGISTERED_PARTY_TYPE, toParty.getPartyIdType());
+            Assertions.assertEquals(DOMIBUS_RED, toParty.getPartyId());
+            Assertions.assertEquals(UNREGISTERED_PARTY_TYPE, toParty.getPartyIdType());
         }
-        Assert.assertEquals(RESPONDER_ROLE, objSubmission.getToRole());
+        Assertions.assertEquals(RESPONDER_ROLE, objSubmission.getToRole());
 
-        Assert.assertEquals(SERVICE_NOPROCESS, objSubmission.getService());
-        Assert.assertEquals(SERVICE_TYPE_TC1, objSubmission.getServiceType());
-        Assert.assertEquals(ACTION_TC1LEG1, objSubmission.getAction());
+        Assertions.assertEquals(SERVICE_NOPROCESS, objSubmission.getService());
+        Assertions.assertEquals(SERVICE_TYPE_TC1, objSubmission.getServiceType());
+        Assertions.assertEquals(ACTION_TC1LEG1, objSubmission.getAction());
 
         for (Submission.Payload objPayloadSet : objSubmission.getPayloads()) {
             for (Submission.TypedProperty objTypedProperty : objPayloadSet.getPayloadProperties()) {
-                Assert.assertEquals(MIME_TYPE, objTypedProperty.getKey());
-                Assert.assertEquals(DEFAULT_MT, objTypedProperty.getValue());
+                Assertions.assertEquals(MIME_TYPE, objTypedProperty.getKey());
+                Assertions.assertEquals(DEFAULT_MT, objTypedProperty.getValue());
             }
         }
         LOG.info("Completed with test case: testTransformFromMessaging_HappyFlow");
@@ -219,9 +219,9 @@ public class StubDtoTransformerTest {
         MessageInfo messageInfoObj = new MessageInfo();
         messageInfoObj.setTimestamp(LocalDateTime.now());
         userMessageObj.setMessageInfo(messageInfoObj);
-    /*UserMessage.MessageInfo population end*/
+        /*UserMessage.MessageInfo population end*/
 
-	/*UserMessage.PartyInfo population start*/
+        /*UserMessage.PartyInfo population start*/
         PartyInfo objPartyInfo = new PartyInfo();
 
         PartyId fromPartyIdObj = new PartyId();
@@ -243,9 +243,9 @@ public class StubDtoTransformerTest {
         objPartyInfo.setFrom(fromObj);
         objPartyInfo.setTo(toObj);
         userMessageObj.setPartyInfo(objPartyInfo);
-    /*UserMessage.PartyInfo population end*/
+        /*UserMessage.PartyInfo population end*/
 
-	/*UserMessage.CollaborationInfo population start*/
+        /*UserMessage.CollaborationInfo population start*/
         CollaborationInfo objCollaborationInfo = new CollaborationInfo();
 
         Service serviceObj = new Service();
@@ -255,9 +255,9 @@ public class StubDtoTransformerTest {
         objCollaborationInfo.setService(serviceObj);
         objCollaborationInfo.setAction("\t" + ACTION_TC1LEG1 + "  ");
         userMessageObj.setCollaborationInfo(objCollaborationInfo);
-    /*UserMessage.CollaborationInfo population end*/
+        /*UserMessage.CollaborationInfo population end*/
 
-	/*UserMessage.PayLoadInfo population start*/
+        /*UserMessage.PayLoadInfo population start*/
         Property objProperty = new Property();
         objProperty.setName(MIME_TYPE);
         objProperty.setValue(DEFAULT_MT);
@@ -281,32 +281,32 @@ public class StubDtoTransformerTest {
         PayloadInfo objPayloadInfo = new PayloadInfo();
         objPayloadInfo.getPartInfo().add(objExtendedPartInfo);
         userMessageObj.setPayloadInfo(objPayloadInfo);
-    /*UserMessage.PayLoadInfo population end*/
+        /*UserMessage.PayLoadInfo population end*/
 
         StubDtoTransformer testObj = new StubDtoTransformer();
         ReflectionTestUtils.setField(testObj, "fileUtilExtService", new FileUtilServiceDelegate(new FileServiceUtilImpl()));
         Submission objSubmission = testObj.transformFromMessaging(userMessageObj);
 
-        Assert.assertNotNull("Submission object in the response should not be null:", objSubmission);
+        Assertions.assertNotNull(objSubmission, "Submission object in the response should not be null:");
         for (Submission.Party fromPartyObj : objSubmission.getFromParties()) {
-            Assert.assertEquals(DOMIBUS_BLUE, fromPartyObj.getPartyId());
-            Assert.assertEquals(UNREGISTERED_PARTY_TYPE, fromPartyObj.getPartyIdType());
+            Assertions.assertEquals(DOMIBUS_BLUE, fromPartyObj.getPartyId());
+            Assertions.assertEquals(UNREGISTERED_PARTY_TYPE, fromPartyObj.getPartyIdType());
         }
-        Assert.assertEquals(INITIATOR_ROLE, objSubmission.getFromRole());
+        Assertions.assertEquals(INITIATOR_ROLE, objSubmission.getFromRole());
 
         for (Submission.Party toPartyObj : objSubmission.getToParties()) {
-            Assert.assertEquals(DOMIBUS_RED, toPartyObj.getPartyId());
-            Assert.assertEquals(UNREGISTERED_PARTY_TYPE, toPartyObj.getPartyIdType());
+            Assertions.assertEquals(DOMIBUS_RED, toPartyObj.getPartyId());
+            Assertions.assertEquals(UNREGISTERED_PARTY_TYPE, toPartyObj.getPartyIdType());
         }
-        Assert.assertEquals(RESPONDER_ROLE, objSubmission.getToRole());
+        Assertions.assertEquals(RESPONDER_ROLE, objSubmission.getToRole());
 
-        Assert.assertEquals(SERVICE_NOPROCESS, objSubmission.getService());
-        Assert.assertEquals(SERVICE_TYPE_TC1, objSubmission.getServiceType());
-        Assert.assertEquals(ACTION_TC1LEG1, objSubmission.getAction());
+        Assertions.assertEquals(SERVICE_NOPROCESS, objSubmission.getService());
+        Assertions.assertEquals(SERVICE_TYPE_TC1, objSubmission.getServiceType());
+        Assertions.assertEquals(ACTION_TC1LEG1, objSubmission.getAction());
 
         for (Submission.TypedProperty prop : objSubmission.getMessageProperties()) {
-            Assert.assertEquals(MIME_TYPE, prop.getKey());
-            Assert.assertEquals(DEFAULT_MT, prop.getValue());
+            Assertions.assertEquals(MIME_TYPE, prop.getKey());
+            Assertions.assertEquals(DEFAULT_MT, prop.getValue());
         }
         LOG.info("Completed with test case: testTransformFromMessaging_TrimWhiteSpace");
     }

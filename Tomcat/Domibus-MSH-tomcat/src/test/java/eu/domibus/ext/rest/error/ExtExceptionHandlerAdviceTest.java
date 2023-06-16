@@ -5,15 +5,15 @@ import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Catalin Enache
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class ExtExceptionHandlerAdviceTest {
 
     @Tested
@@ -24,32 +24,35 @@ public class ExtExceptionHandlerAdviceTest {
 
 
     @Test
-    public void test_handleException(final @Mocked Exception exception) {
+    public void test_handleException() {
         //tested method
-        extExceptionHandlerAdvice.handleException(exception);
+        Exception e = new Exception();
+        extExceptionHandlerAdvice.handleException(e);
 
         new FullVerifications() {{
-            extExceptionHelper.createResponse(exception);
+            extExceptionHelper.createResponse(e);
         }};
     }
 
     @Test
-    public void test_handleDomibusServiceExtException(final @Mocked DomibusServiceExtException domibusServiceExtException) {
+    public void test_handleDomibusServiceExtException() {
 
-        extExceptionHandlerAdvice.handleDomibusServiceExtException(domibusServiceExtException);
+        DomibusServiceExtException e = new DomibusServiceExtException(null, null);
+        extExceptionHandlerAdvice.handleDomibusServiceExtException(e);
 
         new FullVerifications() {{
-            extExceptionHelper.handleExtException(domibusServiceExtException);
+            extExceptionHelper.handleExtException(e);
         }};
     }
 
     @Test
-    public void test_handleException_Generic(final @Mocked Exception exception) {
+    public void test_handleException_Generic() {
 
-        extExceptionHandlerAdvice.handleException(exception);
+        Exception e = new Exception();
+        extExceptionHandlerAdvice.handleException(e);
 
         new FullVerifications() {{
-            extExceptionHelper.createResponse(exception);
+            extExceptionHelper.createResponse(e);
         }};
     }
 }

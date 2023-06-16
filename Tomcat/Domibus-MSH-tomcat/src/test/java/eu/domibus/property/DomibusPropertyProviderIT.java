@@ -12,10 +12,10 @@ import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import eu.domibus.core.property.PropertyChangeManager;
 import eu.domibus.core.property.PropertyProviderDispatcher;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
@@ -62,7 +62,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     File propertyFile;
     List<String> originalContent;
 
-    @Before
+    @BeforeEach
     public void prepare() {
         cacheManager.getCache(DomibusLocalCacheService.DOMIBUS_PROPERTY_CACHE).clear();
         domainContextProvider.setCurrentDomain(defaultDomain);
@@ -71,16 +71,16 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         try {
             originalContent = Files.readAllLines(propertyFile.toPath());
         } catch (IOException e) {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
-    @After
-    public void clean() {
+    @AfterEach
+public void clean() {
         try {
             Files.write(propertyFile.toPath(), originalContent);
         } catch (IOException e) {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -93,11 +93,11 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         String cachedValue = getCachedValue(defaultDomain, propertyName);
         //add to cache
         String actualValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
-        Assert.assertNotEquals(actualValue, cachedValue);
+        Assertions.assertNotEquals(actualValue, cachedValue);
 
         //gets the cached value now
         cachedValue = getCachedValue(defaultDomain, propertyName);
-        Assert.assertEquals(actualValue, cachedValue);
+        Assertions.assertEquals(actualValue, cachedValue);
     }
 
     @Test
@@ -111,11 +111,11 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         String cachedValue = getCachedValue(propertyName);
         //add to cache
         String actualValue = domibusPropertyProvider.getProperty(propertyName);
-        Assert.assertNotEquals(actualValue, cachedValue);
+        Assertions.assertNotEquals(actualValue, cachedValue);
 
         //gets the cached value now
         cachedValue = getCachedValue(propertyName);
-        Assert.assertEquals(actualValue, cachedValue);
+        Assertions.assertEquals(actualValue, cachedValue);
     }
 
     @Test
@@ -123,26 +123,26 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         String propertyName = DOMIBUS_UI_SUPPORT_TEAM_NAME;
 
         String cachedValue = getCachedValue(defaultDomain, propertyName);
-        Assert.assertNull(cachedValue);
+        Assertions.assertNull(cachedValue);
         //add to cache
         String actualValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
         //gets the cached value now
         cachedValue = getCachedValue(defaultDomain, propertyName);
-        Assert.assertNotNull(cachedValue);
-        Assert.assertEquals(cachedValue, actualValue);
+        Assertions.assertNotNull(cachedValue);
+        Assertions.assertEquals(cachedValue, actualValue);
 
         String newValue = actualValue + "MODIFIED";
         //evicts from cache
         domibusPropertyProvider.setProperty(defaultDomain, propertyName, newValue);
         //so not in cache
         cachedValue = getCachedValue(defaultDomain, propertyName);
-        Assert.assertNull(cachedValue);
+        Assertions.assertNull(cachedValue);
 
         //add to cache again
         actualValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
         //finds it there
         cachedValue = getCachedValue(defaultDomain, propertyName);
-        Assert.assertEquals(newValue, actualValue);
+        Assertions.assertEquals(newValue, actualValue);
     }
 
     @Test
@@ -150,27 +150,27 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         String propertyName = DOMIBUS_UI_TITLE_NAME;
 
         String cachedValue = getCachedValue(propertyName);
-        Assert.assertNull(cachedValue);
+        Assertions.assertNull(cachedValue);
         //add to cache
         String originalValue = domibusPropertyProvider.getProperty(propertyName);
         String actualValue = originalValue;
         //gets the cached value now
         cachedValue = getCachedValue(propertyName);
-        Assert.assertNotNull(cachedValue);
-        Assert.assertEquals(cachedValue, actualValue);
+        Assertions.assertNotNull(cachedValue);
+        Assertions.assertEquals(cachedValue, actualValue);
 
         String newValue = actualValue + "MODIFIED";
         //evicts from cache
         domibusPropertyProvider.setProperty(propertyName, newValue);
         //so not in cache
         cachedValue = getCachedValue(propertyName);
-        Assert.assertNull(cachedValue);
+        Assertions.assertNull(cachedValue);
 
         //add to cache again
         actualValue = domibusPropertyProvider.getProperty(propertyName);
         //finds it there
         cachedValue = getCachedValue(propertyName);
-        Assert.assertEquals(newValue, actualValue);
+        Assertions.assertEquals(newValue, actualValue);
 
         domibusPropertyProvider.setProperty(propertyName, originalValue);
     }
@@ -179,7 +179,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
     public void getPropertyValue_non_existing() {
         String propName = EXTERNAL_NOT_EXISTENT;
         DomibusPropertyMetadata result = globalPropertyMetadataManager.getPropertyMetadata(propName);
-        Assert.assertEquals(DomibusPropertyMetadata.Usage.ANY.getValue(), result.getUsage());
+        Assertions.assertEquals(DomibusPropertyMetadata.Usage.ANY.getValue(), result.getUsage());
     }
 
     @Test
@@ -189,11 +189,11 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         String propValue = "true";
 
         String result = domibusPropertyProvider.getProperty(currentDomain, propName);
-        Assert.assertEquals(null, result);
+        Assertions.assertEquals(null, result);
 
         domibusPropertyProvider.setProperty(currentDomain, propName, propValue);
         String result2 = domibusPropertyProvider.getProperty(currentDomain, propName);
-        Assert.assertEquals(null, result2);
+        Assertions.assertEquals(null, result2);
     }
 
     @Test
@@ -203,12 +203,12 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         String propValue = propName + ".value";
 
         String result = domibusPropertyProvider.getProperty(currentDomain, propName);
-        Assert.assertEquals(propValue, result);
+        Assertions.assertEquals(propValue, result);
 
         String newValue = "newValue";
         domibusPropertyProvider.setProperty(currentDomain, propName, newValue);
         String result2 = domibusPropertyProvider.getProperty(currentDomain, propName);
-        Assert.assertEquals(newValue, result2);
+        Assertions.assertEquals(newValue, result2);
     }
 
     @Test
@@ -218,12 +218,12 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         String propValue = null;
 
         String result = domibusPropertyProvider.getProperty(currentDomain, propName);
-        Assert.assertEquals(propValue, result);
+        Assertions.assertEquals(propValue, result);
 
         String newValue = "newValue";
         domibusPropertyProvider.setProperty(currentDomain, propName, newValue);
         String result2 = domibusPropertyProvider.getProperty(currentDomain, propName);
-        Assert.assertEquals(newValue, result2);
+        Assertions.assertEquals(newValue, result2);
     }
 
     @Test
@@ -237,14 +237,14 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         String mailSubject = properties.getProperty(DOMIBUS_ALERT_MSG_COMMUNICATION_FAILURE_MAIL_SUBJECT);
 
         //Default encoding for properties file reading is ISO-8859-1. So we get different value.
-        Assert.assertNotEquals(mailSubject, utf8String);
+        Assertions.assertNotEquals(mailSubject, utf8String);
 
         Domain currentDomain = domainContextProvider.getCurrentDomain();
         domibusPropertyProvider.setProperty(currentDomain, mailSubject, utf8String);
         String uft8MailSubject = domibusPropertyProvider.getProperty(currentDomain, mailSubject);
 
         //Domibus property configuration set the encoding to UTF8-8 . So we get same string with utf8 characters.
-        Assert.assertEquals(uft8MailSubject, utf8String);
+        Assertions.assertEquals(uft8MailSubject, utf8String);
         input.close();
     }
 
@@ -268,17 +268,18 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         File propertyFile = getPropertyFile();
         List<String> lines = Files.readAllLines(propertyFile.toPath());
         String lastLine = lines.get(lines.size() - 1);
-        Assert.assertEquals("default." + DOMIBUS_UI_SUPPORT_TEAM_NAME + "=" + propertyValue, lastLine);
+        Assertions.assertEquals("default." + DOMIBUS_UI_SUPPORT_TEAM_NAME + "=" + propertyValue, lastLine);
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void testCallInvalidTypeMethod() {
-        domibusPropertyProvider.getBooleanProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE);
+    @Test
+    void testCallInvalidTypeMethod() {
+        Assertions.assertThrows(DomibusPropertyException. class,
+        () -> domibusPropertyProvider.getBooleanProperty(DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE));
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void testCallInvalidTypeMethod2() {
-        domibusPropertyProvider.getIntegerProperty(DOMIBUS_UI_SUPPORT_TEAM_NAME);
+    @Test
+    void testCallInvalidTypeMethod2() {
+        Assertions.assertThrows(DomibusPropertyException. class,() -> domibusPropertyProvider.getIntegerProperty(DOMIBUS_UI_SUPPORT_TEAM_NAME));
     }
 
     private void testSetPropertyWithName(String propertyName) throws IOException {
@@ -288,7 +289,7 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         String actualValue = originalValue;
 
         String persistedPropValue = findPropertyInFile(propertyName, propertyFile);
-        Assert.assertEquals(actualValue, persistedPropValue);
+        Assertions.assertEquals(actualValue, persistedPropValue);
 
         String newValue = actualValue + "MODIFIED";
         domibusPropertyProvider.setProperty(defaultDomain, propertyName, newValue);
@@ -296,9 +297,9 @@ public class DomibusPropertyProviderIT extends AbstractIT {
         actualValue = domibusPropertyProvider.getProperty(defaultDomain, propertyName);
 
         persistedPropValue = findPropertyInFile(propertyName, propertyFile);
-        Assert.assertEquals(actualValue, persistedPropValue);
+        Assertions.assertEquals(actualValue, persistedPropValue);
 
-        Assert.assertEquals(newValue, persistedPropValue);
+        Assertions.assertEquals(newValue, persistedPropValue);
 
         domibusPropertyProvider.setProperty(defaultDomain, propertyName, originalValue);
     }

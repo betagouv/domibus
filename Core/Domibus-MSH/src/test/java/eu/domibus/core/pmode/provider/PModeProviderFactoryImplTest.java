@@ -5,12 +5,12 @@ import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryPModeProv
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PModeProviderFactoryImplTest {
 
     @Injectable

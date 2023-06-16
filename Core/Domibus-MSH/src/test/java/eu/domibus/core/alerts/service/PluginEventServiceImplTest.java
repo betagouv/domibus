@@ -10,11 +10,11 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.Queue;
 import java.util.HashMap;
@@ -27,7 +27,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @since 5.0
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PluginEventServiceImplTest {
 
 
@@ -63,7 +63,7 @@ public class PluginEventServiceImplTest {
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.PLUGIN.getQueueSelector());
             times = 1;
-            Assert.assertEquals(EventType.PLUGIN, event.getType());
+            Assertions.assertEquals(EventType.PLUGIN, event.getType());
         }};
     }
 
@@ -97,13 +97,13 @@ public class PluginEventServiceImplTest {
             Event event;
             jmsManager.convertAndSendToQueue(event = withCapture(), alertMessageQueue, EventType.PLUGIN.getQueueSelector());
             times = 1;
-            Assert.assertEquals(EventType.PLUGIN, event.getType());
-            Assert.assertEquals(AlertLevel.MEDIUM.name(), event.getProperties().get(AlertServiceImpl.ALERT_LEVEL).toString());
-            Assert.assertEquals(ALERT_NAME, event.getProperties().get(AlertServiceImpl.ALERT_NAME).toString());
-            Assert.assertEquals(Boolean.TRUE.toString(), event.getProperties().get(AlertServiceImpl.ALERT_ACTIVE).toString());
-            Assert.assertEquals(EMAIL_SUBJECT, event.getProperties().get(AlertServiceImpl.ALERT_SUBJECT).toString());
-            Assert.assertEquals(StringUtils.substring(EMAIL_BODY_300_LONG, 0, 255), event.getProperties().get(AlertServiceImpl.ALERT_DESCRIPTION).toString());
-            Assert.assertEquals(StringUtils.substring(EMAIL_BODY_300_LONG, 255), event.getProperties().get(AlertServiceImpl.ALERT_DESCRIPTION + "_1").toString());
+            Assertions.assertEquals(EventType.PLUGIN, event.getType());
+            Assertions.assertEquals(AlertLevel.MEDIUM.name(), event.getProperties().get(AlertServiceImpl.ALERT_LEVEL).toString());
+            Assertions.assertEquals(ALERT_NAME, event.getProperties().get(AlertServiceImpl.ALERT_NAME).toString());
+            Assertions.assertEquals(Boolean.TRUE.toString(), event.getProperties().get(AlertServiceImpl.ALERT_ACTIVE).toString());
+            Assertions.assertEquals(EMAIL_SUBJECT, event.getProperties().get(AlertServiceImpl.ALERT_SUBJECT).toString());
+            Assertions.assertEquals(StringUtils.substring(EMAIL_BODY_300_LONG, 0, 255), event.getProperties().get(AlertServiceImpl.ALERT_DESCRIPTION).toString());
+            Assertions.assertEquals(StringUtils.substring(EMAIL_BODY_300_LONG, 255), event.getProperties().get(AlertServiceImpl.ALERT_DESCRIPTION + "_1").toString());
         }};
     }
 }

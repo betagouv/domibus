@@ -15,10 +15,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +30,7 @@ import java.util.UUID;
  * @author Tiago Miguel
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MessageResourceTest {
 
     @Tested
@@ -80,14 +80,14 @@ public class MessageResourceTest {
             responseEntity = messageResource.downloadUserMessage("messageId", MSHRole.SENDING);
         } catch (IOException | MessageNotFoundException e) {
             // NOT Then :)
-            Assert.fail("Exception in zipFiles method");
+            Assertions.fail("Exception in zipFiles method");
         }
 
         // Then
-        Assert.assertNotNull(responseEntity);
-        Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assert.assertEquals("application/zip", responseEntity.getHeaders().get("Content-Type").get(0));
-        Assert.assertEquals("attachment; filename=messageId.zip", responseEntity.getHeaders().get("content-disposition").get(0));
+        Assertions.assertNotNull(responseEntity);
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertEquals("application/zip", responseEntity.getHeaders().get("Content-Type").get(0));
+        Assertions.assertEquals("attachment; filename=messageId.zip", responseEntity.getHeaders().get("content-disposition").get(0));
     }
 
     @Test
@@ -99,7 +99,7 @@ public class MessageResourceTest {
             final String messageIdActual1;
             userMessageDefaultRestoreService.resendFailedOrSendEnqueuedMessage(messageIdActual = withCapture());
             times = 1;
-            Assert.assertEquals(messageId, messageIdActual);
+            Assertions.assertEquals(messageId, messageIdActual);
         }};
     }
 
@@ -112,7 +112,7 @@ public class MessageResourceTest {
         }};
 
         ResponseEntity<ByteArrayResource> result = messageResource.getByteArrayResourceResponseEntity(messageId, MSHRole.SENDING);
-        Assert.assertEquals(HttpStatus.NO_CONTENT, result.getStatusCode());
+        Assertions.assertEquals(HttpStatus.NO_CONTENT, result.getStatusCode());
     }
 
     @Test
@@ -125,9 +125,9 @@ public class MessageResourceTest {
         }};
 
         ResponseEntity<ByteArrayResource> result = messageResource.getByteArrayResourceResponseEntity(messageId, MSHRole.SENDING);
-        Assert.assertEquals(HttpStatus.OK, result.getStatusCode());
-        Assert.assertEquals(content, result.getBody().getByteArray());
-        Assert.assertEquals("application/zip", result.getHeaders().get("Content-Type").get(0));
+        Assertions.assertEquals(HttpStatus.OK, result.getStatusCode());
+        Assertions.assertEquals(content, result.getBody().getByteArray());
+        Assertions.assertEquals("application/zip", result.getHeaders().get("Content-Type").get(0));
     }
 
 }

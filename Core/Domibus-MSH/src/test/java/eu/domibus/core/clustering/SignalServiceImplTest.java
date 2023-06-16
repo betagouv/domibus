@@ -10,19 +10,20 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.Topic;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author Catalin Enache
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class SignalServiceImplTest {
 
     @Injectable
@@ -53,9 +54,9 @@ public class SignalServiceImplTest {
         new Verifications() {{
             Map<String, String> commandPropertiesActual;
             signalService.sendMessage(commandPropertiesActual = withCapture());
-            Assert.assertNotNull(commandPropertiesActual);
-            Assert.assertEquals(Command.RELOAD_TRUSTSTORE, commandPropertiesActual.get(Command.COMMAND));
-            Assert.assertEquals(domain.getCode(), commandPropertiesActual.get(MessageConstants.DOMAIN));
+            Assertions.assertNotNull(commandPropertiesActual);
+            Assertions.assertEquals(Command.RELOAD_TRUSTSTORE, commandPropertiesActual.get(Command.COMMAND));
+            Assertions.assertEquals(domain.getCode(), commandPropertiesActual.get(MessageConstants.DOMAIN));
 
         }};
     }
@@ -72,9 +73,9 @@ public class SignalServiceImplTest {
         new Verifications() {{
             Map<String, String> commandPropertiesActual;
             signalService.sendMessage(commandPropertiesActual = withCapture());
-            Assert.assertNotNull(commandPropertiesActual);
-            Assert.assertEquals(Command.RELOAD_PMODE, commandPropertiesActual.get(Command.COMMAND));
-            Assert.assertEquals(domainContextProvider.getCurrentDomain().getCode(), commandPropertiesActual.get(MessageConstants.DOMAIN));
+            Assertions.assertNotNull(commandPropertiesActual);
+            Assertions.assertEquals(Command.RELOAD_PMODE, commandPropertiesActual.get(Command.COMMAND));
+            Assertions.assertEquals(domainContextProvider.getCurrentDomain().getCode(), commandPropertiesActual.get(MessageConstants.DOMAIN));
 
         }};
     }
@@ -94,10 +95,10 @@ public class SignalServiceImplTest {
         new Verifications() {{
             Map<String, String> commandPropertiesActual;
             signalService.sendMessage(commandPropertiesActual = withCapture());
-            Assert.assertNotNull(commandPropertiesActual);
-            Assert.assertEquals(Command.LOGGING_SET_LEVEL, commandPropertiesActual.get(Command.COMMAND));
-            Assert.assertEquals(level, commandPropertiesActual.get(CommandProperty.LOG_LEVEL));
-            Assert.assertEquals(name, commandPropertiesActual.get(CommandProperty.LOG_NAME));
+            Assertions.assertNotNull(commandPropertiesActual);
+            Assertions.assertEquals(Command.LOGGING_SET_LEVEL, commandPropertiesActual.get(Command.COMMAND));
+            Assertions.assertEquals(level, commandPropertiesActual.get(CommandProperty.LOG_LEVEL));
+            Assertions.assertEquals(name, commandPropertiesActual.get(CommandProperty.LOG_NAME));
 
         }};
     }
@@ -114,15 +115,16 @@ public class SignalServiceImplTest {
         new Verifications() {{
             Map<String, String> commandPropertiesActual;
             signalService.sendMessage(commandPropertiesActual = withCapture());
-            Assert.assertNotNull(commandPropertiesActual);
-            Assert.assertEquals(Command.LOGGING_RESET, commandPropertiesActual.get(Command.COMMAND));
+            Assertions.assertNotNull(commandPropertiesActual);
+            Assertions.assertEquals(Command.LOGGING_RESET, commandPropertiesActual.get(Command.COMMAND));
         }};
     }
 
 
     @Test
-    public void testSendMessage_NoException_MessageSent(final @Mocked JMSMessageBuilder jmsMessageBuilder, final @Mocked JmsMessage jmsMessage, final @Mocked Map<String, String> commandProperties) {
+    public void testSendMessage_NoException_MessageSent(final @Mocked JMSMessageBuilder jmsMessageBuilder, final @Mocked JmsMessage jmsMessage) {
 
+        Map<String, String> commandProperties = new HashMap<>();
         new Expectations(signalService) {{
             domibusConfigurationService.isClusterDeployment();
             result = true;
@@ -157,8 +159,8 @@ public class SignalServiceImplTest {
         new Verifications() {{
             Map<String, String> commandPropertiesActual;
             signalService.sendMessage(commandPropertiesActual = withCapture());
-            Assert.assertNotNull(commandPropertiesActual);
-            Assert.assertEquals(Command.MESSAGE_FILTER_UPDATE, commandPropertiesActual.get(Command.COMMAND));
+            Assertions.assertNotNull(commandPropertiesActual);
+            Assertions.assertEquals(Command.MESSAGE_FILTER_UPDATE, commandPropertiesActual.get(Command.COMMAND));
         }};
     }
 
@@ -174,8 +176,8 @@ public class SignalServiceImplTest {
         new Verifications() {{
             Map<String, String> commandPropertiesActual;
             signalService.sendMessage(commandPropertiesActual = withCapture());
-            Assert.assertNotNull(commandPropertiesActual);
-            Assert.assertEquals(Command.EVICT_CACHES, commandPropertiesActual.get(Command.COMMAND));
+            Assertions.assertNotNull(commandPropertiesActual);
+            Assertions.assertEquals(Command.EVICT_CACHES, commandPropertiesActual.get(Command.COMMAND));
         }};
     }
 }

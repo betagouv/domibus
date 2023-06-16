@@ -5,10 +5,10 @@ import ch.qos.logback.core.spi.FilterReply;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +19,7 @@ import java.util.Map;
  * @author Catalin Enache
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusLoggerDomainFilterTest {
 
     @Tested
@@ -43,7 +43,7 @@ public class DomibusLoggerDomainFilterTest {
         };
 
         //tested method
-        Assert.assertEquals(FilterReply.NEUTRAL, domibusLoggerDomainFilter.decide(iLoggingEvent));
+        Assertions.assertEquals(FilterReply.NEUTRAL, domibusLoggerDomainFilter.decide(iLoggingEvent));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class DomibusLoggerDomainFilterTest {
         };
 
         //tested method
-        Assert.assertEquals(FilterReply.NEUTRAL, domibusLoggerDomainFilter.decide(iLoggingEvent));
+        Assertions.assertEquals(FilterReply.NEUTRAL, domibusLoggerDomainFilter.decide(iLoggingEvent));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class DomibusLoggerDomainFilterTest {
         };
 
         //tested method
-        Assert.assertEquals(FilterReply.ACCEPT, domibusLoggerDomainFilter.decide(iLoggingEvent));
+        Assertions.assertEquals(FilterReply.ACCEPT, domibusLoggerDomainFilter.decide(iLoggingEvent));
     }
 
 }

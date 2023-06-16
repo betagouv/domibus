@@ -3,8 +3,8 @@ package eu.domibus.property;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC;
@@ -24,7 +24,7 @@ public class GlobalPropertyMetadataManagerIT extends AbstractIT {
         String propertyName = "non-existent-property";
 
         boolean res = globalPropertyMetadataManager.hasKnownProperty(propertyName);
-        Assert.assertFalse(res);
+        Assertions.assertFalse(res);
     }
 
     @Test
@@ -32,7 +32,7 @@ public class GlobalPropertyMetadataManagerIT extends AbstractIT {
         String propertyName = DOMIBUS_UI_TITLE_NAME;
 
         boolean res = globalPropertyMetadataManager.hasKnownProperty(propertyName);
-        Assert.assertTrue(res);
+        Assertions.assertTrue(res);
     }
 
     @Test
@@ -40,9 +40,9 @@ public class GlobalPropertyMetadataManagerIT extends AbstractIT {
         String propertyName = "non-existent-property";
 
         DomibusPropertyMetadata res = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        Assert.assertNotNull(res);
-        Assert.assertEquals(propertyName, res.getName());
-        Assert.assertEquals(DomibusPropertyMetadata.Usage.ANY.getValue(), res.getUsage());
+        Assertions.assertNotNull(res);
+        Assertions.assertEquals(propertyName, res.getName());
+        Assertions.assertEquals(DomibusPropertyMetadata.Usage.ANY.getValue(), res.getUsage());
     }
 
     @Test
@@ -50,8 +50,8 @@ public class GlobalPropertyMetadataManagerIT extends AbstractIT {
         String propertyName = DOMIBUS_UI_TITLE_NAME;
 
         DomibusPropertyMetadata res = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        Assert.assertNotNull(res);
-        Assert.assertEquals(propertyName, res.getName());
+        Assertions.assertNotNull(res);
+        Assertions.assertEquals(propertyName, res.getName());
     }
 
     @Test
@@ -64,9 +64,9 @@ public class GlobalPropertyMetadataManagerIT extends AbstractIT {
 
         DomibusPropertyMetadata res = globalPropertyMetadataManager.getPropertyMetadata(nestedPropertyName);
 
-        Assert.assertNotNull(res);
-        Assert.assertEquals(nestedPropertyName, res.getName());
-        Assert.assertEquals(false, res.isComposable());
+        Assertions.assertNotNull(res);
+        Assertions.assertEquals(nestedPropertyName, res.getName());
+        Assertions.assertEquals(false, res.isComposable());
     }
 
     @Test
@@ -79,9 +79,9 @@ public class GlobalPropertyMetadataManagerIT extends AbstractIT {
 
         DomibusPropertyMetadata res = globalPropertyMetadataManager.getComposableProperty(nestedPropertyName);
 
-        Assert.assertNotNull(res);
-        Assert.assertEquals(composablePropertyName, res.getName());
-        Assert.assertEquals(true, res.isComposable());
+        Assertions.assertNotNull(res);
+        Assertions.assertEquals(composablePropertyName, res.getName());
+        Assertions.assertEquals(true, res.isComposable());
     }
 
     @Test
@@ -89,6 +89,6 @@ public class GlobalPropertyMetadataManagerIT extends AbstractIT {
         String propertyName = DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC + ".MPC_NAME";
 
         boolean res = globalPropertyMetadataManager.hasKnownProperty(propertyName);
-        Assert.assertTrue(res);
+        Assertions.assertTrue(res);
     }
 }

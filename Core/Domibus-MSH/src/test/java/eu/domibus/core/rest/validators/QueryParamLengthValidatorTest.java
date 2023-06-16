@@ -1,8 +1,8 @@
 package eu.domibus.core.rest.validators;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.validation.ValidationException;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ public class QueryParamLengthValidatorTest {
     private QueryParamLengthValidator queryParamLengthValidator;
     private HashMap<String, String[]> queryParams;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         queryParamLengthValidator = new QueryParamLengthValidator();
         queryParams = new HashMap<>();
@@ -43,7 +43,7 @@ public class QueryParamLengthValidatorTest {
 
         try {
             queryParamLengthValidator.validate(queryParams);
-            Assert.fail();
+            Assertions.fail();
         } catch (ValidationException e) {
             //ok
         }

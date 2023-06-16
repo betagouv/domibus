@@ -10,18 +10,17 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Cosmin Baciu
  * @since 4.2
  */
-@RunWith(JMockit.class)
-public class SubmissionValidatorEbms3ServiceTest {
+@ExtendWith(JMockitExtension.class)
+class SubmissionValidatorEbms3ServiceTest {
 
     @Tested
     SubmissionValidatorService submissionValidatorService;
@@ -32,15 +31,12 @@ public class SubmissionValidatorEbms3ServiceTest {
     @Injectable
     SubmissionAS4Transformer submissionAS4Transformer;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Test
-    public void testValidateSubmissionWhenFirstValidatorThrowsException(@Injectable final Submission submission,
-                                                                        @Injectable final UserMessage userMessage,
-                                                                        @Injectable final SubmissionValidatorList submissionValidatorList,
-                                                                        @Injectable final SubmissionValidator validator1,
-                                                                        @Injectable final SubmissionValidator validator2) {
+    void testValidateSubmissionWhenFirstValidatorThrowsException(@Injectable final Submission submission,
+                                                                 @Injectable final UserMessage userMessage,
+                                                                 @Injectable final SubmissionValidatorList submissionValidatorList,
+                                                                 @Injectable final SubmissionValidator validator1,
+                                                                 @Injectable final SubmissionValidator validator2) {
         final String backendName = "customPlugin";
         new Expectations() {{
             submissionAS4Transformer.transformFromMessaging(userMessage, null);
@@ -53,8 +49,8 @@ public class SubmissionValidatorEbms3ServiceTest {
             result = new SubmissionValidationException("Exception in the validator1");
         }};
 
-        thrown.expect(SubmissionValidationException.class);
-        submissionValidatorService.validateSubmission(userMessage, null, backendName);
+        Assertions.assertThrows(SubmissionValidationException.class,
+                () -> submissionValidatorService.validateSubmission(userMessage, null, backendName));
 
         new FullVerifications() {
         };
@@ -87,18 +83,18 @@ public class SubmissionValidatorEbms3ServiceTest {
     }
 
     @Test
-    public void testValidateSubmission_noValidator(@Injectable final Submission submission,
-                                                   @Injectable final UserMessage userMessage,
-                                                   @Injectable final SubmissionValidatorList submissionValidatorList,
-                                                   @Injectable final SubmissionValidator validator1,
-                                                   @Injectable final SubmissionValidator validator2) {
+    void testValidateSubmission_noValidator(@Injectable final Submission submission,
+                                            @Injectable final UserMessage userMessage,
+                                            @Injectable final SubmissionValidatorList submissionValidatorList,
+                                            @Injectable final SubmissionValidator validator1,
+                                            @Injectable final SubmissionValidator validator2) {
         final String backendName = "customPlugin";
         new Expectations() {{
             submissionValidatorListProvider.getSubmissionValidatorList(backendName);
             result = null;
         }};
 
-        submissionValidatorService.validateSubmission(userMessage,null, backendName);
+        submissionValidatorService.validateSubmission(userMessage, null, backendName);
 
         new FullVerifications() {
         };

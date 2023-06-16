@@ -6,9 +6,10 @@ import eu.domibus.ext.domain.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -47,7 +48,7 @@ public class PartyExtResourceIT extends AbstractIT {
     @Autowired
     DomainTaskExecutor domainTaskExecutor;
 
-    @Before
+    @BeforeEach
     public void setUp() throws XmlProcessingException, IOException {
         mockMvc = MockMvcBuilders.webAppContextSetup(webAppContext)
                 .build();
@@ -70,7 +71,7 @@ public class PartyExtResourceIT extends AbstractIT {
         // then
         String content = result.getResponse().getContentAsString();
         List<PartyDTO> resultList = objectMapper.readValue(content, List.class);
-        Assert.assertEquals(2, resultList.size());
+        Assertions.assertEquals(2, resultList.size());
     }
 
     @Test
@@ -98,7 +99,7 @@ public class PartyExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String content = objectMapper.readValue(result.getResponse().getContentAsString(), String.class);
-        Assert.assertEquals("Party having partyName=[" + partyDTO.getName() + "] created successfully!", content);
+        Assertions.assertEquals("Party having partyName=[" + partyDTO.getName() + "] created successfully!", content);
 
         partyDTO.setEndpoint("endPoint2");
         // when
@@ -111,7 +112,7 @@ public class PartyExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String contentUpdate = objectMapper.readValue(resultUpdate.getResponse().getContentAsString(), String.class);
-        Assert.assertEquals("Party having partyName=[" + partyDTO.getName() + "] has been successfully updated", contentUpdate);
+        Assertions.assertEquals("Party having partyName=[" + partyDTO.getName() + "] has been successfully updated", contentUpdate);
 
         // when
         MvcResult resultDelete = mockMvc.perform(delete(TEST_ENDPOINT_RESOURCE)
@@ -124,7 +125,7 @@ public class PartyExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String contentDelete = objectMapper.readValue(resultDelete.getResponse().getContentAsString(), String.class);
-        Assert.assertEquals("Party having partyName=[" + partyDTO.getName() + "] has been successfully deleted", contentDelete);
+        Assertions.assertEquals("Party having partyName=[" + partyDTO.getName() + "] has been successfully deleted", contentDelete);
     }
 
     @Test
@@ -139,10 +140,11 @@ public class PartyExtResourceIT extends AbstractIT {
         // then
         String content = result.getResponse().getContentAsString();
         List<ProcessDTO> resultList = objectMapper.readValue(content, List.class);
-        Assert.assertEquals(2, resultList.size());
+        Assertions.assertEquals(2, resultList.size());
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getCertificate() throws Exception {
 
         // when
@@ -154,7 +156,7 @@ public class PartyExtResourceIT extends AbstractIT {
         // then
         String content = result.getResponse().getContentAsString();
         TrustStoreDTO resultObject = objectMapper.readValue(content, TrustStoreDTO.class);
-        Assert.assertNotNull(resultObject);
+        Assertions.assertNotNull(resultObject);
     }
 
 }

@@ -19,9 +19,9 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.plugin.transformer.SubmissionAS4Transformer;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ import static eu.domibus.core.message.MessagingServiceImpl.MIME_TYPE_APPLICATION
  */
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MessagingServiceImplTest {
 
     @Tested

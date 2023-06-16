@@ -7,11 +7,11 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.activemq.command.ActiveMQMapMessage;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.activation.DataHandler;
@@ -29,13 +29,13 @@ import java.util.Set;
 import static eu.domibus.plugin.jms.JMSMessageConstants.*;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Created by Arun Raj on 18/10/2016.
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class JMSMessageTransformerTest {
 
     private static final String MIME_TYPE = "MimeType";
@@ -200,7 +200,7 @@ public class JMSMessageTransformerTest {
         messageMap.setBytes(MessageFormat.format(PAYLOAD_NAME_FORMAT, 2), PAY_LOAD.getBytes());
 
         Submission objSubmission = testObj.transformToSubmission(messageMap);
-        Assert.assertNotNull(objSubmission);
+        Assertions.assertNotNull(objSubmission);
         assertEquals(SERVICE_NOPROCESS, objSubmission.getService());
         assertEquals(SERVICE_TYPE_TC1, objSubmission.getServiceType());
         assertEquals(ACTION_TC1LEG1, objSubmission.getAction());
@@ -307,7 +307,7 @@ public class JMSMessageTransformerTest {
         messageMap.setBytes(MessageFormat.format(PAYLOAD_NAME_FORMAT, 1), PAY_LOAD.getBytes());
 
         Submission objSubmission = testObj.transformToSubmission(messageMap);
-        Assert.assertNotNull("Submission object in the response should not be null:", objSubmission);
+        Assertions.assertNotNull(objSubmission, "Submission object in the response should not be null:");
         Set<Submission.Party> fromParties = objSubmission.getFromParties();
         assertEquals(INITIATOR_ROLE, objSubmission.getFromRole());
 
@@ -328,7 +328,7 @@ public class JMSMessageTransformerTest {
     @Test
     public void transformToSubmission_FallbackToDefaults() throws Exception {
 
-        new NonStrictExpectations(testObj) {{
+        new Expectations(testObj) {{
             testObj.getProperty(JMSMessageConstants.SERVICE);
             result = SERVICE_NOPROCESS;
 
@@ -376,7 +376,7 @@ public class JMSMessageTransformerTest {
         messageMap.setBytes(MessageFormat.format(PAYLOAD_NAME_FORMAT, 1), PAY_LOAD.getBytes());
 
         Submission objSubmission = testObj.transformToSubmission(messageMap);
-        Assert.assertNotNull("Submission object in the response should not be null:", objSubmission);
+        Assertions.assertNotNull(objSubmission, "Submission object in the response should not be null:");
         Set<Submission.Party> fromParties = objSubmission.getFromParties();
         assertEquals(1, fromParties.size());
         Submission.Party fromParty = fromParties.iterator().next();

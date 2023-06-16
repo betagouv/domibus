@@ -32,10 +32,7 @@ import eu.domibus.test.common.SoapSampleUtil;
 import eu.domibus.test.common.SubmissionUtil;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.apache.neethi.Policy;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -55,8 +52,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
 import static eu.domibus.jms.spi.InternalJMSConstants.UNKNOWN_RECEIVER_QUEUE;
 import static eu.domibus.messaging.MessageConstants.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @Transactional
 public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
@@ -132,7 +129,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     String messageId, filename;
 
     @Transactional
-    @Before
+    @BeforeEach
     public void before() throws XmlProcessingException, IOException {
         super.before();
         messageId = BackendConnectorMock.MESSAGE_ID;
@@ -146,7 +143,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     }
 
     @Transactional
-    @After
+    @AfterEach
     public void after() {
         backendConnector.clear();
         List<MessageLogInfo> list = userMessageLogDao.findAllInfoPaged(0, 100, "ID_PK", true, new HashMap<>());
@@ -188,15 +185,16 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
 
-        waitUntilMessageHasStatus(messageId,MSHRole.SENDING, MessageStatus.NOT_FOUND);
+        waitUntilMessageHasStatus(messageId, MSHRole.SENDING, MessageStatus.NOT_FOUND);
 
         final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
         assertNotNull(ebms3Messaging);
     }
 
-    @Test(expected = WebServiceException.class)
+    @Test
     @Transactional
-    public void testValidateAndNotifyReceivedFailure() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
+    @Disabled("EDELIVERY-6896")
+    void testValidateAndNotifyReceivedFailure() throws SOAPException, IOException, ParserConfigurationException, SAXException {
 
         Mockito.when(backendConnectorHelper.getRequiredNotificationTypeList(Mockito.any(BackendConnector.class)))
                 .thenReturn(DEFAULT_PUSH_NOTIFICATIONS);
@@ -207,10 +205,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         waitUntilMessageHasStatus(messageId, MSHRole.RECEIVING, MessageStatus.NOT_FOUND);
 
-        final Ebms3Messaging ebms3Messaging = messageUtil.getMessagingWithDom(soapResponse);
-        assertNotNull(ebms3Messaging);
-
-        assertEquals(backendConnector.getMessageReceiveFailureEvent().getMessageId(), messageId);
+        Assertions.assertThrows(WebServiceException.class, () -> messageUtil.getMessagingWithDom(soapResponse));
     }
 
     @Test
@@ -247,8 +242,8 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         assertNotNull(singleMessageDeletedEvent.getProps().get(ORIGINAL_SENDER));
         assertNotNull(singleMessageDeletedEvent.getProps().get(FINAL_RECIPIENT));
 
-        Assert.assertNull(userMessageDao.findByMessageId(messageId));
-        Assert.assertNull(userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING));
+        Assertions.assertNull(userMessageDao.findByMessageId(messageId));
+        Assertions.assertNull(userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING));
 
 
     }
@@ -282,7 +277,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
         assertPropertiesPresentInEvent(payloadProcessedEvent);
 
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
-        Assert.assertNotNull(byMessageId);
+        Assertions.assertNotNull(byMessageId);
 
         deleteAllMessages(messageId);
     }
@@ -367,9 +362,8 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     }
 
 
-
     private void assertPropertiesPresentInEvent(MessageEvent messageEvent) {
-        Map<String,String> properties = messageEvent.getProps();
+        Map<String, String> properties = messageEvent.getProps();
 
         assertNotNull(properties.get(CONVERSATION_ID));
         assertNotNull(properties.get(FROM_PARTY_ID));

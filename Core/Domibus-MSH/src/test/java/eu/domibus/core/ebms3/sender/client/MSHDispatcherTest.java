@@ -19,15 +19,15 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.neethi.Policy;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBException;
@@ -42,7 +42,7 @@ import java.lang.reflect.InvocationTargetException;
  * @author Arun Raj
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MSHDispatcherTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHDispatcherTest.class);
@@ -202,10 +202,10 @@ public class MSHDispatcherTest {
 
         try {
             mshDispatcher.dispatch(requestSoapMessage, endPoint, policy, legConfiguration, pModeKey);
-            Assert.fail("Webservice Exception was expected");
+            Assertions.fail("Webservice Exception was expected");
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof EbMS3Exception);
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0005, ((EbMS3Exception) e).getErrorCode());
+            Assertions.assertTrue(e instanceof EbMS3Exception);
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0005, ((EbMS3Exception) e).getErrorCode());
         }
 
     }

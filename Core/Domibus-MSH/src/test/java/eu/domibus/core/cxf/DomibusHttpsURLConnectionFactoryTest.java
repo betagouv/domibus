@@ -2,12 +2,12 @@ package eu.domibus.core.cxf;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.transport.https.HttpsURLConnectionFactory;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -16,7 +16,7 @@ import java.net.URL;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CONNECTION_CXF_SSL_OFFLOAD_ENABLE;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusHttpsURLConnectionFactoryTest {
 
     @Injectable
@@ -55,7 +55,7 @@ public class DomibusHttpsURLConnectionFactoryTest {
 
         new FullVerifications() {{
             url.openConnection(proxy); times = 0;
-            Assert.assertSame("Should have returned the correct HTTP URL connection", httpURLConnection, connection);
+            Assertions.assertSame(httpURLConnection, connection, "Should have returned the correct HTTP URL connection");
         }};
     }
 
@@ -65,7 +65,7 @@ public class DomibusHttpsURLConnectionFactoryTest {
             @Mock
             public HttpURLConnection createConnection(TLSClientParameters tlsClientParameters,
                                                       Proxy proxy, URL url) throws IOException {
-                Assert.fail("Should have not called the super create connection when SSL offloading");
+                Assertions.fail("Should have not called the super create connection when SSL offloading");
                 return null;
             }
         };
@@ -77,6 +77,6 @@ public class DomibusHttpsURLConnectionFactoryTest {
 
         HttpURLConnection connection = domibusHttpsURLConnectionFactory.createConnection(tlsClientParameters, proxy, url);
 
-        Assert.assertSame("Should have returned the correct HTTP URL connection", httpURLConnection, connection);
+        Assertions.assertSame(httpURLConnection, connection, "Should have returned the correct HTTP URL connection");
     }
 }

@@ -4,8 +4,8 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.model.AgreementRefEntity;
 import eu.domibus.api.model.PartProperty;
 import eu.domibus.api.multitenancy.DomainService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,13 +44,13 @@ public class AbstractDictionaryServiceIT extends AbstractIT {
             List<Future<AgreementRefEntity>> results = executor.invokeAll(tasksList);
 
             AgreementRefEntity entity0 = results.get(0).get();
-            Assert.assertNotNull(entity0);
+            Assertions.assertNotNull(entity0);
 
             for (Future<AgreementRefEntity> result : results) {
-                Assert.assertTrue(result.isDone());
+                Assertions.assertTrue(result.isDone());
 
                 AgreementRefEntity entity = result.get();
-                Assert.assertEquals(entity0, entity);
+                Assertions.assertEquals(entity0, entity);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -80,10 +80,10 @@ public class AbstractDictionaryServiceIT extends AbstractIT {
 
             PartProperty entity0 = results.get(0).get();
             for (Future<PartProperty> result : results) {
-                Assert.assertTrue(result.isDone());
+                Assertions.assertTrue(result.isDone());
 
                 PartProperty entity = result.get();
-                Assert.assertEquals(entity0, entity);
+                Assertions.assertEquals(entity0, entity);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

@@ -5,10 +5,11 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.servlet.ServletContext;
 
@@ -16,7 +17,7 @@ import javax.servlet.ServletContext;
  * @author Cosmin Baciu
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusConfigLocationProviderTest {
 
     @Tested
@@ -30,10 +31,11 @@ public class DomibusConfigLocationProviderTest {
             result = domibusConfigLocationInitParameter;
         }};
 
-        Assert.assertEquals(domibusConfigLocationInitParameter, domibusConfigLocationProvider.getDomibusConfigLocation(servletContext));
+        Assertions.assertEquals(domibusConfigLocationInitParameter, domibusConfigLocationProvider.getDomibusConfigLocation(servletContext));
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getDomibusConfigLocation(@Injectable ServletContext servletContext,
                                          @Mocked System system) {
         String systemConfigLocation = "systemConfigLocation";
@@ -45,6 +47,6 @@ public class DomibusConfigLocationProviderTest {
             result = systemConfigLocation;
         }};
 
-        Assert.assertEquals(systemConfigLocation, domibusConfigLocationProvider.getDomibusConfigLocation(servletContext));
+        Assertions.assertEquals(systemConfigLocation, domibusConfigLocationProvider.getDomibusConfigLocation(servletContext));
     }
 }

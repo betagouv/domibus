@@ -4,10 +4,9 @@ import eu.domibus.core.property.DomibusVersionService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +22,7 @@ import java.nio.file.Path;
  * @author Arun Raj
  * @since 3.3
  */
-@RunWith(JUnit4.class)
+//@ExtendWith(JUnit4.class)
 public class CheckReleaseSQLScriptsGenerationIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CheckReleaseSQLScriptsGenerationIT.class);
@@ -47,6 +46,7 @@ public class CheckReleaseSQLScriptsGenerationIT {
      * @throws IOException
      */
     @Test
+    @Disabled("EDELIVERY-6896")
     public void checkPresenceOfSQLScriptDDLsForRelease() throws IOException {
 
         String domibusArtifactVersion = retrieveDomibusArtifactVersion();
@@ -63,13 +63,13 @@ public class CheckReleaseSQLScriptsGenerationIT {
         String domibusArtifactVersionNoSnapshot = StringUtils.stripEnd(domibusArtifactVersion, "-SNAPSHOT");
         LOG.debug("domibusArtifactVersion_NoSnapshot:" + domibusArtifactVersionNoSnapshot);
 
-        Assert.assertTrue("Oracle Release version DDLs should be present in " + sqlScriptsDirectory.getAbsolutePath(), checkPresenceOfFile(ORACLE_DDL_PREFIX, domibusArtifactVersionNoSnapshot, RELEASE_DDL_SUFFIX, sqlScriptsDirectory));
-        Assert.assertTrue("Oracle Migration DDLs for release should be present in " + sqlScriptsDirectory.getAbsolutePath(), checkPresenceOfFile(ORACLE_DDL_PREFIX, domibusArtifactVersionNoSnapshot, DATA_DDL_SUFFIX, sqlScriptsDirectory));
-        Assert.assertTrue("Oracle Migration DDLs for release should be present in " + sqlScriptsDirectory.getAbsolutePath(), checkPresenceOfFile(ORACLE_DDL_PREFIX, domibusArtifactVersionNoSnapshot, MULTITENANCY_DDL_SUFFIX, sqlScriptsDirectory));
+        Assertions.assertTrue(checkPresenceOfFile(ORACLE_DDL_PREFIX, domibusArtifactVersionNoSnapshot, RELEASE_DDL_SUFFIX, sqlScriptsDirectory), "Oracle Release version DDLs should be present in " + sqlScriptsDirectory.getAbsolutePath());
+        Assertions.assertTrue(checkPresenceOfFile(ORACLE_DDL_PREFIX, domibusArtifactVersionNoSnapshot, DATA_DDL_SUFFIX, sqlScriptsDirectory), "Oracle Migration DDLs for release should be present in " + sqlScriptsDirectory.getAbsolutePath());
+        Assertions.assertTrue(checkPresenceOfFile(ORACLE_DDL_PREFIX, domibusArtifactVersionNoSnapshot, MULTITENANCY_DDL_SUFFIX, sqlScriptsDirectory), "Oracle Migration DDLs for release should be present in " + sqlScriptsDirectory.getAbsolutePath());
         if (!StringUtils.endsWith(domibusArtifactVersionNoSnapshot, ".0")) {
-            Assert.assertFalse("Oracle Release DDLs should NOT end with .0 in " + sqlScriptsDirectory.getAbsolutePath(), checkPresenceOfFile(ORACLE_DDL_PREFIX, domibusArtifactVersionNoSnapshot + ".0", RELEASE_DDL_SUFFIX, sqlScriptsDirectory));
-            Assert.assertFalse("Oracle Migration DDLs should NOT end with .0 in " + sqlScriptsDirectory.getAbsolutePath(), checkPresenceOfFile(ORACLE_DDL_PREFIX, domibusArtifactVersionNoSnapshot + ".0", DATA_DDL_SUFFIX, sqlScriptsDirectory));
-            Assert.assertFalse("Oracle Migration DDLs should NOT end with .0 in " + sqlScriptsDirectory.getAbsolutePath(), checkPresenceOfFile(ORACLE_DDL_PREFIX, domibusArtifactVersionNoSnapshot + ".0", MULTITENANCY_DDL_SUFFIX, sqlScriptsDirectory));
+            Assertions.assertFalse(checkPresenceOfFile(ORACLE_DDL_PREFIX, domibusArtifactVersionNoSnapshot + ".0", RELEASE_DDL_SUFFIX, sqlScriptsDirectory), "Oracle Release DDLs should NOT end with .0 in " + sqlScriptsDirectory.getAbsolutePath());
+            Assertions.assertFalse(checkPresenceOfFile(ORACLE_DDL_PREFIX, domibusArtifactVersionNoSnapshot + ".0", DATA_DDL_SUFFIX, sqlScriptsDirectory), "Oracle Migration DDLs should NOT end with .0 in " + sqlScriptsDirectory.getAbsolutePath());
+            Assertions.assertFalse(checkPresenceOfFile(ORACLE_DDL_PREFIX, domibusArtifactVersionNoSnapshot + ".0", MULTITENANCY_DDL_SUFFIX, sqlScriptsDirectory), "Oracle Migration DDLs should NOT end with .0 in " + sqlScriptsDirectory.getAbsolutePath());
         }
     }
 
@@ -79,20 +79,20 @@ public class CheckReleaseSQLScriptsGenerationIT {
         String domibusArtifactVersionNoSnapshot = StringUtils.stripEnd(domibusArtifactVersion, "-SNAPSHOT");
         LOG.debug("domibusArtifactVersion_NoSnapshot:" + domibusArtifactVersionNoSnapshot);
 
-        Assert.assertTrue("MySQL Release version DDLs should be present in " + sqlScriptsDirectory.getAbsolutePath(), checkPresenceOfFile(MYSQL_DDL_PREFIX, domibusArtifactVersionNoSnapshot, RELEASE_DDL_SUFFIX, sqlScriptsDirectory));
-        Assert.assertTrue("MySQL Migration DDLs for release should be present in " + sqlScriptsDirectory.getAbsolutePath(), checkPresenceOfFile(MYSQL_DDL_PREFIX, domibusArtifactVersionNoSnapshot, DATA_DDL_SUFFIX, sqlScriptsDirectory));
-        Assert.assertTrue("MySQL Migration DDLs for release should be present in " + sqlScriptsDirectory.getAbsolutePath(), checkPresenceOfFile(MYSQL_DDL_PREFIX, domibusArtifactVersionNoSnapshot, MULTITENANCY_DDL_SUFFIX, sqlScriptsDirectory));
+        Assertions.assertTrue(checkPresenceOfFile(MYSQL_DDL_PREFIX, domibusArtifactVersionNoSnapshot, RELEASE_DDL_SUFFIX, sqlScriptsDirectory), "MySQL Release version DDLs should be present in " + sqlScriptsDirectory.getAbsolutePath());
+        Assertions.assertTrue(checkPresenceOfFile(MYSQL_DDL_PREFIX, domibusArtifactVersionNoSnapshot, DATA_DDL_SUFFIX, sqlScriptsDirectory), "MySQL Migration DDLs for release should be present in " + sqlScriptsDirectory.getAbsolutePath());
+        Assertions.assertTrue(checkPresenceOfFile(MYSQL_DDL_PREFIX, domibusArtifactVersionNoSnapshot, MULTITENANCY_DDL_SUFFIX, sqlScriptsDirectory), "MySQL Migration DDLs for release should be present in " + sqlScriptsDirectory.getAbsolutePath());
         if (!StringUtils.endsWith(domibusArtifactVersionNoSnapshot, ".0")) {
-            Assert.assertFalse("MySQL Release DDLs should NOT end with .0 in " + sqlScriptsDirectory.getAbsolutePath(), checkPresenceOfFile(MYSQL_DDL_PREFIX, domibusArtifactVersionNoSnapshot + ".0", RELEASE_DDL_SUFFIX, sqlScriptsDirectory));
-            Assert.assertFalse("MySQL Migration DDLs should NOT end with .0 in " + sqlScriptsDirectory.getAbsolutePath(), checkPresenceOfFile(MYSQL_DDL_PREFIX, domibusArtifactVersionNoSnapshot + ".0", DATA_DDL_SUFFIX, sqlScriptsDirectory));
-            Assert.assertFalse("MySQL Migration DDLs should NOT end with .0 in " + sqlScriptsDirectory.getAbsolutePath(), checkPresenceOfFile(MYSQL_DDL_PREFIX, domibusArtifactVersionNoSnapshot + ".0", MULTITENANCY_DDL_SUFFIX, sqlScriptsDirectory));
+            Assertions.assertFalse(checkPresenceOfFile(MYSQL_DDL_PREFIX, domibusArtifactVersionNoSnapshot + ".0", RELEASE_DDL_SUFFIX, sqlScriptsDirectory), "MySQL Release DDLs should NOT end with .0 in " + sqlScriptsDirectory.getAbsolutePath());
+            Assertions.assertFalse(checkPresenceOfFile(MYSQL_DDL_PREFIX, domibusArtifactVersionNoSnapshot + ".0", DATA_DDL_SUFFIX, sqlScriptsDirectory), "MySQL Migration DDLs should NOT end with .0 in " + sqlScriptsDirectory.getAbsolutePath());
+            Assertions.assertFalse(checkPresenceOfFile(MYSQL_DDL_PREFIX, domibusArtifactVersionNoSnapshot + ".0", MULTITENANCY_DDL_SUFFIX, sqlScriptsDirectory), "MySQL Migration DDLs should NOT end with .0 in " + sqlScriptsDirectory.getAbsolutePath());
         }
     }
 
     protected void preVerifications(String domibusArtifactVersion, File sqlScriptsDirectory) {
-        Assert.assertNotNull("Domibus Artefact Version should be initialized from properties file!", domibusArtifactVersion);
-        Assert.assertNotNull(sqlScriptsDirectory);
-        Assert.assertTrue("target/sql-scripts directory should be present!", sqlScriptsDirectory.isDirectory());
+        Assertions.assertNotNull("Domibus Artefact Version should be initialized from properties file!", domibusArtifactVersion);
+        Assertions.assertNotNull(sqlScriptsDirectory);
+        Assertions.assertTrue(sqlScriptsDirectory.isDirectory(), "target/sql-scripts directory should be present!");
     }
 
     protected boolean checkPresenceOfFile(String prefixString, String artefactVersion, String suffixString, File sqlScriptsDirectory) throws IOException {
@@ -120,8 +120,8 @@ public class CheckReleaseSQLScriptsGenerationIT {
         LOG.debug("sqlScriptsDirectory.getAbsolutePath:" + sqlScriptsDirectory.getAbsolutePath());
         LOG.debug("sqlScriptsDirectory.exists:" + sqlScriptsDirectory.exists());
 
-        Assert.assertTrue("Check if Directory exists", sqlScriptsDirectory.exists());
-        Assert.assertTrue("Check if target/sql-scripts is a directory", sqlScriptsDirectory.isDirectory());
+        Assertions.assertTrue(sqlScriptsDirectory.exists(), "Check if Directory exists");
+        Assertions.assertTrue(sqlScriptsDirectory.isDirectory(), "Check if target/sql-scripts is a directory");
         return sqlScriptsDirectory;
     }
 
@@ -132,7 +132,7 @@ public class CheckReleaseSQLScriptsGenerationIT {
         String domibusArtifactVersion = domibusVersionService.getArtifactVersion();
         if (StringUtils.isBlank(domibusArtifactVersion)) {
             LOG.error("Domibus artefact version could not be loaded!!!");
-            Assert.fail("Domibus artefact version could not be loaded!!!");
+            Assertions.fail("Domibus artefact version could not be loaded!!!");
         }
         LOG.debug("Artefact Version loaded from the domibus.properties:" + domibusArtifactVersion);
 

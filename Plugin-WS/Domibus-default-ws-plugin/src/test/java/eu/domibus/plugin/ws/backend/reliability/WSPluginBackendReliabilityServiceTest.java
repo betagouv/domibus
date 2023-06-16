@@ -16,10 +16,10 @@ import eu.domibus.plugin.ws.backend.rules.WSPluginDispatchRule;
 import eu.domibus.plugin.ws.exception.WSPluginException;
 import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -34,7 +34,7 @@ import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.*;
  * @since 5.0
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class WSPluginBackendReliabilityServiceTest {
 
     public static final Date ONE_MINUTE_AGO = Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusMinutes(1)
@@ -130,8 +130,8 @@ public class WSPluginBackendReliabilityServiceTest {
         }};
     }
 
-    @Test(expected = WSPluginException.class)
-    public void updateNextAttempt_noStrategy(
+    @Test
+    void updateNextAttempt_noStrategy(
             @Injectable WSBackendMessageLogEntity backendMessage,
             @Injectable WSPluginDispatchRule rule,
             @Injectable WSPluginRetryStrategy retryStrategy) {
@@ -149,9 +149,9 @@ public class WSPluginBackendReliabilityServiceTest {
             times = 1;
         }};
 
-        reliabilityService.setWaitingForRetry(backendMessage, rule);
+        Assertions.assertThrows(WSPluginException.class, () -> reliabilityService.setWaitingForRetry(backendMessage, rule));
 
-        new FullVerifications() {
+        new Verifications() {
         };
     }
 
@@ -165,7 +165,7 @@ public class WSPluginBackendReliabilityServiceTest {
             backendMessage.getCreationTime();
             result = ONE_MINUTE_AGO;
         }};
-        Assert.assertTrue(reliabilityService.hasAttemptsLeft(backendMessage, RETRY_TIMOUT));
+        Assertions.assertTrue(reliabilityService.hasAttemptsLeft(backendMessage, RETRY_TIMOUT));
     }
 
     @Test
@@ -178,7 +178,7 @@ public class WSPluginBackendReliabilityServiceTest {
             backendMessage.getCreationTime();
             result = YESTERDAY;
         }};
-        Assert.assertFalse(reliabilityService.hasAttemptsLeft(backendMessage, RETRY_TIMOUT));
+        Assertions.assertFalse(reliabilityService.hasAttemptsLeft(backendMessage, RETRY_TIMOUT));
     }
 
     @Test
@@ -191,7 +191,7 @@ public class WSPluginBackendReliabilityServiceTest {
             backendMessage.getCreationTime();
             result = ONE_MINUTE_AGO;
         }};
-        Assert.assertFalse(reliabilityService.hasAttemptsLeft(backendMessage, RETRY_TIMOUT));
+        Assertions.assertFalse(reliabilityService.hasAttemptsLeft(backendMessage, RETRY_TIMOUT));
     }
 
     @Test
@@ -202,8 +202,8 @@ public class WSPluginBackendReliabilityServiceTest {
 
         new FullVerifications() {
         };
-        Assert.assertNotNull(backendMessageLogEntity.getFailed());
-        Assert.assertEquals(WSBackendMessageStatus.SEND_FAILURE, backendMessageLogEntity.getBackendMessageStatus());
+        Assertions.assertNotNull(backendMessageLogEntity.getFailed());
+        Assertions.assertEquals(WSBackendMessageStatus.SEND_FAILURE, backendMessageLogEntity.getBackendMessageStatus());
     }
 
     @Test
@@ -313,9 +313,9 @@ public class WSPluginBackendReliabilityServiceTest {
             AlertEventDTO alertEventDTO;
             pluginEventExtService.enqueueMessageEvent(alertEventDTO = withCapture());
 
-            Assert.assertEquals(AlertLevelDTO.LOW, alertEventDTO.getAlertLevelDTO());
-            Assert.assertEquals(BODY, alertEventDTO.getEmailBody());
-            Assert.assertEquals(SUBJECT, alertEventDTO.getEmailSubject());
+            Assertions.assertEquals(AlertLevelDTO.LOW, alertEventDTO.getAlertLevelDTO());
+            Assertions.assertEquals(BODY, alertEventDTO.getEmailBody());
+            Assertions.assertEquals(SUBJECT, alertEventDTO.getEmailSubject());
         }};
     }
 
@@ -355,7 +355,7 @@ public class WSPluginBackendReliabilityServiceTest {
 
         String result = reliabilityService.getEmailBody(backendMessage, rule, unformattedBody);
 
-        Assert.assertEquals("ruleName - finalRecipient - endpoint - retry - [SEND_FAILURE, SUBMIT_MESSAGE] - messageId - originalSender - ACKNOWLEDGED - DELETED", result);
+        Assertions.assertEquals("ruleName - finalRecipient - endpoint - retry - [SEND_FAILURE, SUBMIT_MESSAGE] - messageId - originalSender - ACKNOWLEDGED - DELETED", result);
 
         new FullVerifications() {
         };

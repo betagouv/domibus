@@ -18,10 +18,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 @SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MessageRetrieverImplTest {
     private static final String MESS_ID = UUID.randomUUID().toString();
 
@@ -123,7 +123,7 @@ public class MessageRetrieverImplTest {
         new Verifications() {{
             errorLogService.convert(errorLogEntry);
             times = 1;
-            Assert.assertNotNull(results);
+            Assertions.assertNotNull(results);
         }};
 
     }

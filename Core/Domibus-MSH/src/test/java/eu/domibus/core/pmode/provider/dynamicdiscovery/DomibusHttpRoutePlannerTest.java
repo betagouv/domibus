@@ -2,17 +2,17 @@ package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
 import eu.domibus.core.ssl.offload.SslOffloadService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.impl.conn.DefaultRoutePlanner;
 import org.apache.http.protocol.HttpContext;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.net.InetAddress;
 import java.net.URL;
@@ -21,7 +21,7 @@ import java.net.URL;
  * @author Sebastian-Ion TINCU
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusHttpRoutePlannerTest {
 
     @Mocked
@@ -42,7 +42,7 @@ public class DomibusHttpRoutePlannerTest {
     @Tested
     private DomibusHttpRoutePlanner domibusHttpRoutePlanner;
 
-    @Before
+    @BeforeEach
     public void stubSuperCallToDetermineRoute() {
         new MockUp<DefaultRoutePlanner>() {
             @Mock public HttpRoute determineRoute(final HttpHost host, final HttpRequest request, final HttpContext context) throws HttpException {
@@ -64,7 +64,7 @@ public class DomibusHttpRoutePlannerTest {
         HttpRoute result = domibusHttpRoutePlanner.determineRoute(host, request, context);
 
         // THEN
-        Assert.assertSame("Should have not replaced the initial route when SSL offloading is disabled", route, result);
+        Assertions.assertSame(route, result, "Should have not replaced the initial route when SSL offloading is disabled");
     }
 
     @Test
@@ -79,7 +79,7 @@ public class DomibusHttpRoutePlannerTest {
         HttpRoute result = domibusHttpRoutePlanner.determineRoute(host, request, context);
 
         // THEN
-        Assert.assertSame("Should have not replaced the initial route when SSL offloading is disabled because the target URI is malformed", route, result);
+        Assertions.assertSame(route, result, "Should have not replaced the initial route when SSL offloading is disabled because the target URI is malformed");
     }
 
 
@@ -96,7 +96,7 @@ public class DomibusHttpRoutePlannerTest {
         HttpRoute result = domibusHttpRoutePlanner.determineRoute(host, request, context);
 
         // THEN
-        Assert.assertNotSame("Should have replaced the initial route when SSL offloading is enabled", route, result);
+        Assertions.assertNotSame(route, result, "Should have replaced the initial route when SSL offloading is enabled");
     }
 
     @Test

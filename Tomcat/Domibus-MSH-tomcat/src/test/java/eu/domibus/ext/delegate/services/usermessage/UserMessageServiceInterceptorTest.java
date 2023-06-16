@@ -9,13 +9,13 @@ import eu.domibus.ext.exceptions.UserMessageExtException;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserMessageServiceInterceptorTest {
 
     @Tested
@@ -41,7 +41,7 @@ public class UserMessageServiceInterceptorTest {
         final Object interceptedResult = userMessageServiceInterceptor.intercept(joinPoint);
 
         // Then
-        Assert.assertEquals(userMessageDTO, interceptedResult);
+        Assertions.assertEquals(userMessageDTO, interceptedResult);
     }
 
     @Test
@@ -59,10 +59,10 @@ public class UserMessageServiceInterceptorTest {
             userMessageServiceInterceptor.intercept(joinPoint);
         } catch(UserMessageExtException e) {
             // Then
-            Assert.assertTrue(userMessageExtException == e);
+            Assertions.assertTrue(userMessageExtException == e);
             return;
         }
-        Assert.fail();
+        Assertions.fail();
     }
 
     @Test
@@ -79,9 +79,9 @@ public class UserMessageServiceInterceptorTest {
         try {
             userMessageServiceInterceptor.intercept(joinPoint);
         } catch (UserMessageExtException e) {
-            Assert.assertTrue(e.getCause() == userMessageException);
+            Assertions.assertTrue(e.getCause() == userMessageException);
             return;
         }
-        Assert.fail();
+        Assertions.fail();
     }
 }

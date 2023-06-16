@@ -3,21 +3,21 @@ package eu.domibus.core.ebms3.receiver.leg;
 import eu.domibus.api.ebms3.model.*;
 import eu.domibus.core.message.pull.PullRequestLegConfigurationExtractor;
 import eu.domibus.core.message.pull.PullRequestLegConfigurationFactory;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.message.MessageImpl;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Dussart
  * @since 3.3
  */
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserMessageLegConfigurationFactoryTest {
 
     @Test

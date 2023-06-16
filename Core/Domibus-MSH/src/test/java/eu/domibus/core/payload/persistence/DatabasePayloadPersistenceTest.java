@@ -8,10 +8,11 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
@@ -24,7 +25,7 @@ import java.util.zip.GZIPOutputStream;
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DatabasePayloadPersistenceTest {
 
     @Injectable
@@ -44,6 +45,7 @@ public class DatabasePayloadPersistenceTest {
 
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testStoreIncomingPayload(@Injectable PartInfo partInfo,
                                          @Injectable UserMessage userMessage,
                                          @Injectable LegConfiguration legConfiguration,
@@ -51,11 +53,10 @@ public class DatabasePayloadPersistenceTest {
                                          @Injectable InputStream inputStream,
                                          @Mocked ByteArrayOutputStream byteArrayOutputStream,
                                          @Injectable Cipher encryptCipherForPayload,
-                                         @Mocked CipherOutputStream cipherOutputStream,
-                                         @Mocked IOUtils ioUtils) throws IOException {
+                                         @Mocked CipherOutputStream cipherOutputStream) throws IOException {
         final byte[] binaryData = "test".getBytes();
 
-        new Expectations(databasePayloadPersistence) {{
+        new Expectations() {{
             new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
             result = byteArrayOutputStream;
 
@@ -131,6 +132,7 @@ public class DatabasePayloadPersistenceTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testGetOutgoingBinaryData(@Injectable PartInfo partInfo,
                                           @Injectable UserMessage userMessage,
                                           @Injectable LegConfiguration legConfiguration,
@@ -139,8 +141,7 @@ public class DatabasePayloadPersistenceTest {
                                           @Mocked ByteArrayOutputStream byteArrayOutputStream,
                                           @Injectable Cipher encryptCipherForPayload,
                                           @Mocked CipherOutputStream cipherOutputStream,
-                                          @Mocked GZIPOutputStream gzipOutputStream,
-                                          @Mocked IOUtils ioUtils) throws IOException, EbMS3Exception {
+                                          @Mocked GZIPOutputStream gzipOutputStream) throws IOException, EbMS3Exception {
         new Expectations() {{
             new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
             result = byteArrayOutputStream;

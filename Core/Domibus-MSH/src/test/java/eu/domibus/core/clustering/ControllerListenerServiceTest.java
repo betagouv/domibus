@@ -6,10 +6,10 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -18,7 +18,7 @@ import javax.jms.Message;
  * @author Ion Perpegel
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class ControllerListenerServiceTest {
 
     @Tested
@@ -36,7 +36,7 @@ public class ControllerListenerServiceTest {
     @Test
     public void testHandleMessageDomainWhenNoDomainWasProvided(@Mocked Message message) {
         boolean handled = controllerListenerService.handleMessageDomain(message);
-        Assert.assertTrue(handled);
+        Assertions.assertTrue(handled);
         new Verifications() {{
             domainContextProvider.clearCurrentDomain();
         }};
@@ -53,7 +53,7 @@ public class ControllerListenerServiceTest {
             result = domain;
         }};
         boolean handled = controllerListenerService.handleMessageDomain(message);
-        Assert.assertTrue(handled);
+        Assertions.assertTrue(handled);
         new Verifications() {{
             domainContextProvider.setCurrentDomainWithValidation(domainCode);
         }};
@@ -69,7 +69,7 @@ public class ControllerListenerServiceTest {
             result = null;
         }};
         boolean handled = controllerListenerService.handleMessageDomain(message);
-        Assert.assertFalse(handled);
+        Assertions.assertFalse(handled);
         new Verifications() {{
             domainContextProvider.setCurrentDomain(domainCode); times=0;
         }};

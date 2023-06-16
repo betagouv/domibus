@@ -11,12 +11,12 @@ import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJmsMessage;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.jms.core.JmsOperations;
 
 import javax.management.MBeanServerConnection;
@@ -32,12 +32,12 @@ import java.util.List;
 import java.util.Map;
 
 import static eu.domibus.jms.spi.InternalJMSConstants.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by Cosmin Baciu on 30-Sep-16.
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class JMSManagerWeblogicTest {
 
     @Tested
@@ -82,10 +82,10 @@ public class JMSManagerWeblogicTest {
     @Test
     public void testGetQueueName() throws Exception {
         String queueName = jmsManagerWeblogic.getShortDestName("JmsModule!DomibusNotifyBackendEtrustexQueue");
-        Assert.assertEquals(queueName, "DomibusNotifyBackendEtrustexQueue");
+        Assertions.assertEquals(queueName, "DomibusNotifyBackendEtrustexQueue");
 
         queueName = jmsManagerWeblogic.getShortDestName("DomibusNotifyBackendEtrustexQueue");
-        Assert.assertEquals(queueName, "DomibusNotifyBackendEtrustexQueue");
+        Assertions.assertEquals(queueName, "DomibusNotifyBackendEtrustexQueue");
     }
 
 

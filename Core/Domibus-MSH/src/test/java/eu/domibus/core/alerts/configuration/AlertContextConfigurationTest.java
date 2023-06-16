@@ -6,10 +6,10 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.common.AlertContextConfiguration;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
@@ -23,7 +23,7 @@ import java.util.Optional;
  * @author Cosmin Baciu
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class AlertContextConfigurationTest {
 
 
@@ -58,21 +58,21 @@ public class AlertContextConfigurationTest {
         new Verifications() {{
             MessageConverter messageConverter = null;
             defaultJmsListenerContainerFactory.setMessageConverter(messageConverter = withCapture());
-            Assert.assertEquals(messageConverter, jackson2MessageConverter);
+            Assertions.assertEquals(messageConverter, jackson2MessageConverter);
 
             ConnectionFactory cf = null;
             defaultJmsListenerContainerFactory.setConnectionFactory(cf = withCapture());
-            Assert.assertEquals(connectionFactory, cf);
+            Assertions.assertEquals(connectionFactory, cf);
 
             String factoryConcurrency = null;
             defaultJmsListenerContainerFactory.setConcurrency(factoryConcurrency = withCapture());
-            Assert.assertEquals(factoryConcurrency, concurrency);
+            Assertions.assertEquals(factoryConcurrency, concurrency);
 
             defaultJmsListenerContainerFactory.setSessionTransacted(true);
 
             Integer sessionAckMode = null;
             defaultJmsListenerContainerFactory.setSessionAcknowledgeMode(sessionAckMode = withCapture());
-            Assert.assertEquals(Session.SESSION_TRANSACTED, sessionAckMode.intValue());
+            Assertions.assertEquals(Session.SESSION_TRANSACTED, sessionAckMode.intValue());
         }};
     }
 }

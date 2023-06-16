@@ -6,20 +6,20 @@ import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.util.JsonFormatterConfiguration;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(
         classes = {EArchiveBatchMapperImpl.class, JsonFormatterConfiguration.class}
 )
@@ -50,17 +50,17 @@ public class EArchiveBatchMapperTest extends AbstractMapperTest {
         //when
         EArchiveBatchRequestDTO result = testInstance.eArchiveBatchRequestEntityToDto(testEntity);
         // then
-        Assert.assertNotNull(result);
-        Assert.assertEquals(testEntity.getBatchId(), result.getBatchId());
-        Assert.assertEquals(testEntity.getDateRequested(), result.getTimestamp());
-        Assert.assertEquals(testEntity.getEArchiveBatchStatus().name(), result.getStatus());
-        Assert.assertEquals(testEntity.getDomibusCode(), result.getDomibusCode());
-        Assert.assertEquals(testEntity.getMessage(), result.getMessage());
-        Assert.assertEquals(testEntity.getFirstPkUserMessage(), result.getMessageStartId());
-        Assert.assertEquals(testEntity.getLastPkUserMessage(), result.getMessageEndId());
-        Assert.assertEquals(testEntity.getManifestChecksum(), result.getManifestChecksum());
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(testEntity.getBatchId(), result.getBatchId());
+        Assertions.assertEquals(testEntity.getDateRequested(), result.getTimestamp());
+        Assertions.assertEquals(testEntity.getEArchiveBatchStatus().name(), result.getStatus());
+        Assertions.assertEquals(testEntity.getDomibusCode(), result.getDomibusCode());
+        Assertions.assertEquals(testEntity.getMessage(), result.getMessage());
+        Assertions.assertEquals(testEntity.getFirstPkUserMessage(), result.getMessageStartId());
+        Assertions.assertEquals(testEntity.getLastPkUserMessage(), result.getMessageEndId());
+        Assertions.assertEquals(testEntity.getManifestChecksum(), result.getManifestChecksum());
 
-        Assert.assertTrue(result.getMessages().isEmpty());
+        Assertions.assertTrue(result.getMessages().isEmpty());
     }
 
     @Test
@@ -85,18 +85,18 @@ public class EArchiveBatchMapperTest extends AbstractMapperTest {
         // when
         EArchiveBatchRequestDTO result = testInstance.eArchiveBatchRequestEntityToDto(testEntity);
         // then
-        Assert.assertNotNull(result);
-        Assert.assertEquals(testEntity.getBatchId(), result.getBatchId());
-        Assert.assertEquals(testEntity.getDateRequested(), result.getTimestamp());
-        Assert.assertEquals(testEntity.getEArchiveBatchStatus().name(), result.getStatus());
-        Assert.assertEquals(testEntity.getDomibusCode(), result.getDomibusCode());
-        Assert.assertEquals(testEntity.getMessage(), result.getMessage());
-        Assert.assertEquals(testEntity.getFirstPkUserMessage(), result.getMessageStartId());
-        Assert.assertEquals(testEntity.getLastPkUserMessage(), result.getMessageEndId());
-        Assert.assertEquals(testEntity.getManifestChecksum(), result.getManifestChecksum());
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(testEntity.getBatchId(), result.getBatchId());
+        Assertions.assertEquals(testEntity.getDateRequested(), result.getTimestamp());
+        Assertions.assertEquals(testEntity.getEArchiveBatchStatus().name(), result.getStatus());
+        Assertions.assertEquals(testEntity.getDomibusCode(), result.getDomibusCode());
+        Assertions.assertEquals(testEntity.getMessage(), result.getMessage());
+        Assertions.assertEquals(testEntity.getFirstPkUserMessage(), result.getMessageStartId());
+        Assertions.assertEquals(testEntity.getLastPkUserMessage(), result.getMessageEndId());
+        Assertions.assertEquals(testEntity.getManifestChecksum(), result.getManifestChecksum());
         // test list messages
-        Assert.assertEquals(batchUserMessages.size(), result.getMessages().size());
-        Assert.assertArrayEquals(
+        Assertions.assertEquals(batchUserMessages.size(), result.getMessages().size());
+        Assertions.assertArrayEquals(
                 batchUserMessages.stream().map(EArchiveBatchUserMessage::getMessageId).collect(Collectors.toList()).toArray(new String[]{}),
                 result.getMessages().toArray(new String[]{}));
 

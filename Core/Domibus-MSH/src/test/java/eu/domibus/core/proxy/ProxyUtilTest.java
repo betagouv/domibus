@@ -9,9 +9,9 @@ import mockit.Tested;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.client.CredentialsProvider;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
 /**
@@ -28,7 +28,7 @@ public class ProxyUtilTest {
 
     private DomibusProxy domibusProxy;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         domibusProxy = new DomibusProxy();
         domibusProxy.setEnabled(true);
@@ -53,7 +53,7 @@ public class ProxyUtilTest {
         }};
 
         CredentialsProvider credentialsProvider = proxyUtil.getConfiguredCredentialsProvider();
-        Assert.assertEquals("someuser",credentialsProvider.getCredentials(AuthScope.ANY).getUserPrincipal().getName());
+        Assertions.assertEquals("someuser",credentialsProvider.getCredentials(AuthScope.ANY).getUserPrincipal().getName());
 
         new FullVerifications() {};
     }
@@ -66,7 +66,7 @@ public class ProxyUtilTest {
         }};
 
         CredentialsProvider credentialsProvider = proxyUtil.getConfiguredCredentialsProvider();
-        Assert.assertNull(credentialsProvider);
+        Assertions.assertNull(credentialsProvider);
 
         new FullVerifications() {};
     }
@@ -82,7 +82,7 @@ public class ProxyUtilTest {
         }};
 
         CredentialsProvider credentialsProvider = proxyUtil.getConfiguredCredentialsProvider();
-        Assert.assertNull(credentialsProvider);
+        Assertions.assertNull(credentialsProvider);
 
         new FullVerifications() {};
     }
@@ -98,8 +98,8 @@ public class ProxyUtilTest {
         }};
 
         HttpHost httpHost = proxyUtil.getConfiguredProxy();
-        Assert.assertEquals(8280, httpHost.getPort());
-        Assert.assertEquals("somehost", httpHost.getHostName());
+        Assertions.assertEquals(8280, httpHost.getPort());
+        Assertions.assertEquals("somehost", httpHost.getHostName());
 
         new FullVerifications() {};
     }
@@ -112,7 +112,7 @@ public class ProxyUtilTest {
         }};
 
         HttpHost httpHost = proxyUtil.getConfiguredProxy();
-        Assert.assertNull(httpHost);
+        Assertions.assertNull(httpHost);
 
         new FullVerifications() {};
     }

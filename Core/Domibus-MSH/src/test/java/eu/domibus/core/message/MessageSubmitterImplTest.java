@@ -48,10 +48,10 @@ import eu.domibus.messaging.PModeMismatchException;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.ApplicationEventPublisher;
 
 import javax.jms.Queue;
@@ -60,11 +60,11 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import static eu.domibus.test.common.UserMessageSampleUtil.createUserMessage;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MessageSubmitterImplTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageSubmitterImplTest.class);
@@ -235,7 +235,7 @@ public class MessageSubmitterImplTest {
 
         try {
             messageSubmitterImpl.submit(messageData, BACKEND);
-            Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
+            Assertions.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (PModeMismatchException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
             assertEquals(ErrorCode.EBMS_0010, mpEx.getEbms3ErrorCode());
@@ -269,7 +269,7 @@ public class MessageSubmitterImplTest {
 
         try {
             messageSubmitterImpl.submit(submission, BACKEND);
-            Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
+            Assertions.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
             assertEquals(ErrorCode.EBMS_0008, mpEx.getEbms3ErrorCode());
@@ -329,7 +329,7 @@ public class MessageSubmitterImplTest {
 
         try {
             messageSubmitterImpl.submit(messageData, BACKEND);
-            Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
+            Assertions.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
             assertEquals(ErrorCode.EBMS_0303, mpEx.getEbms3ErrorCode());
@@ -396,7 +396,7 @@ public class MessageSubmitterImplTest {
 
         try {
             messageSubmitterImpl.submit(submission, BACKEND);
-            Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
+            Assertions.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
             assertEquals(ErrorCode.EBMS_0010, mpEx.getEbms3ErrorCode());
@@ -435,7 +435,7 @@ public class MessageSubmitterImplTest {
 
         try {
             messageSubmitterImpl.submit(messageData, BACKEND);
-            Assert.fail("It should throw AuthenticationException");
+            Assertions.fail("It should throw AuthenticationException");
         } catch (AuthenticationException ex) {
             LOG.debug("AuthenticationException cought: " + ex.getMessage());
             assertTrue(ex.getMessage().contains("You are not allowed to handle this message. You are authorized as [mycorner]"));
@@ -585,7 +585,7 @@ public class MessageSubmitterImplTest {
 
         try {
             messageSubmitterImpl.submit(submission, BACKEND);
-            Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
+            Assertions.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
             assertEquals(ErrorCode.EBMS_0010, mpEx.getEbms3ErrorCode());
@@ -626,7 +626,7 @@ public class MessageSubmitterImplTest {
 
         try {
             messageSubmitterImpl.submit(submission, BACKEND);
-            Assert.fail("It should throw " + DuplicateMessageException.class.getCanonicalName());
+            Assertions.fail("It should throw " + DuplicateMessageException.class.getCanonicalName());
         } catch (DuplicateMessageException ex) {
             LOG.debug("DuplicateMessageException catched: " + ex.getMessage());
             assertTrue(ex.getMessage().contains("already exists. Message identifiers must be unique"));
@@ -667,7 +667,7 @@ public class MessageSubmitterImplTest {
 
         try {
             messageSubmitterImpl.submit(submission, BACKEND);
-            Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
+            Assertions.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
             assertEquals(ErrorCode.EBMS_0010, mpEx.getEbms3ErrorCode());
@@ -771,7 +771,7 @@ public class MessageSubmitterImplTest {
 
         try {
             messageSubmitterImpl.submit(submission, BACKEND);
-            Assert.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
+            Assertions.fail("It should throw " + MessagingProcessingException.class.getCanonicalName());
         } catch (MessagingProcessingException mpEx) {
             LOG.debug("MessagingProcessingException catched: " + mpEx.getMessage());
             assertEquals(ErrorCode.EBMS_0008, mpEx.getEbms3ErrorCode());

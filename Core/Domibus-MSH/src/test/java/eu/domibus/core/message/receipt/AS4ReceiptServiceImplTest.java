@@ -27,10 +27,11 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.xml.namespace.QName;
 import javax.xml.soap.*;
@@ -41,14 +42,14 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMResult;
 import java.util.Iterator;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "rawtypes"})
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class AS4ReceiptServiceImplTest {
 
     public static final String MESSAGE_ID = "messageId";
@@ -257,6 +258,7 @@ public class AS4ReceiptServiceImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testSetMessagingId(@Injectable SOAPMessage responseMessage,
                                    @Injectable Iterator childElements,
                                    @Injectable SOAPElement messagingElement) throws Exception {

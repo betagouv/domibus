@@ -8,11 +8,11 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.security.DomibusUserDetails;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,13 +22,13 @@ import java.security.Principal;
 import java.util.*;
 
 import static eu.domibus.api.multitenancy.DomainService.DEFAULT_DOMAIN;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Catalin Enache
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class ECASUserDetailsServiceTest {
 
     @Tested
@@ -50,7 +50,7 @@ public class ECASUserDetailsServiceTest {
 
     private final Map<String, String> domainMappings = new HashMap<>();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         userRoleMappings.put("DIGIT_DOMRADM", AuthRole.ROLE_ADMIN);
         domainMappings.put("DIGIT_DOMDDOMN1", "domain1");
@@ -69,7 +69,7 @@ public class ECASUserDetailsServiceTest {
 
         // WHEN
         final UserDetails userDetails = ecasUserDetailsService.loadUserDetails(token);
-        Assert.assertNotNull(userDetails);
+        Assertions.assertNotNull(userDetails);
     }
 
     @Test

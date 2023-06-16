@@ -1,8 +1,8 @@
 package eu.domibus.core.util;
 
 import mockit.Tested;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class RegexUtilImplTest {
 
@@ -16,7 +16,7 @@ public class RegexUtilImplTest {
 
         boolean internal = regexUtil.matches(INTERNALQUEUE_EXPRESSION, queueName);
         ;
-        Assert.assertTrue(internal);
+        Assertions.assertTrue(internal);
     }
 
     @Test
@@ -25,7 +25,7 @@ public class RegexUtilImplTest {
         final String INTERNALQUEUE_EXPRESSION = ".*jms.queue.(Domibus[a-zA-Z]|DLQ|ExpiryQueue|internal|backend.jms|notification.jms|notification.webservice|notification.kerkovi|notification.filesystem).*";
 
         boolean internal = regexUtil.matches(INTERNALQUEUE_EXPRESSION, queueName);
-        Assert.assertFalse(internal);
+        Assertions.assertFalse(internal);
     }
 
     @Test
@@ -34,7 +34,7 @@ public class RegexUtilImplTest {
         final String INTERNALQUEUE_EXPRESSION = ".*domibus.(internal|DLQ|backend|.jms|notification|.jms|notification|.webservice|notification|.kerkovi|notification|.filesystem).*";
 
         boolean internal = regexUtil.matches(INTERNALQUEUE_EXPRESSION, queueName);
-        Assert.assertTrue(internal);
+        Assertions.assertTrue(internal);
     }
 
     @Test
@@ -43,7 +43,7 @@ public class RegexUtilImplTest {
         final String INTERNALQUEUE_EXPRESSION = ".*domibus.(internal|DLQ|backend|.jms|notification|.jms|notification|.webservice|notification|.kerkovi|notification|.filesystem).*";
 
         boolean internal = regexUtil.matches(INTERNALQUEUE_EXPRESSION, queueName);
-        Assert.assertFalse(internal);
+        Assertions.assertFalse(internal);
     }
 
     @Test
@@ -52,7 +52,7 @@ public class RegexUtilImplTest {
         final String INTERNALQUEUE_EXPRESSION = ".*domibus.(internal|DLQ|backend|.jms|notification|.jms|notification|.webservice|notification|.kerkovi|notification|.filesystem).*";
 
         boolean internal = regexUtil.matches(INTERNALQUEUE_EXPRESSION, queueName);
-        Assert.assertTrue(internal);
+        Assertions.assertTrue(internal);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class RegexUtilImplTest {
         final String INTERNALQUEUE_EXPRESSION = ".*domibus.(internal|DLQ|backend|.jms|notification|.jms|notification|.webservice|notification|.kerkovi|notification|.filesystem).*";
 
         boolean internal = regexUtil.matches(INTERNALQUEUE_EXPRESSION, queueName);
-        Assert.assertFalse(internal);
+        Assertions.assertFalse(internal);
     }
 
 }

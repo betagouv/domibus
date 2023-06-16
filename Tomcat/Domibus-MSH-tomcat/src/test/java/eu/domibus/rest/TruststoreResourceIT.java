@@ -17,9 +17,9 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.TruststoreResource;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,7 +57,7 @@ public class TruststoreResourceIT extends AbstractIT {
     @Autowired
     CertificateHelper certificateHelper;
 
-    @Before
+    @BeforeEach
     public void before() {
         resetInitialTruststore();
     }
@@ -66,14 +66,14 @@ public class TruststoreResourceIT extends AbstractIT {
     public void testTruststoreEntries_ok() {
         List<TrustStoreRO> trustStoreROS = truststoreResource.trustStoreEntries();
         for (TrustStoreRO trustStoreRO : trustStoreROS) {
-            Assert.assertNotNull("Certificate name should be populated in TrustStoreRO:", trustStoreRO.getName());
-            Assert.assertNotNull("Certificate subject should be populated in TrustStoreRO:", trustStoreRO.getSubject());
-            Assert.assertNotNull("Certificate issuer should be populated in TrustStoreRO:", trustStoreRO.getIssuer());
-            Assert.assertNotNull("Certificate validity from should be populated in TrustStoreRO:", trustStoreRO.getValidFrom());
-            Assert.assertNotNull("Certificate validity until should be populated in TrustStoreRO:", trustStoreRO.getValidUntil());
-            Assert.assertNotNull("Certificate fingerprints should be populated in TrustStoreRO:", trustStoreRO.getFingerprints());
-            Assert.assertNotNull("Certificate imminent expiry alert days should be populated in TrustStoreRO:", trustStoreRO.getCertificateExpiryAlertDays());
-            Assert.assertEquals("Certificate imminent expiry alert days should be populated in TrustStoreRO:", 60, trustStoreRO.getCertificateExpiryAlertDays());
+            Assertions.assertNotNull(trustStoreRO.getName(), "Certificate name should be populated in TrustStoreRO:");
+            Assertions.assertNotNull(trustStoreRO.getSubject(), "Certificate subject should be populated in TrustStoreRO:");
+            Assertions.assertNotNull(trustStoreRO.getIssuer(), "Certificate issuer should be populated in TrustStoreRO:");
+            Assertions.assertNotNull(trustStoreRO.getValidFrom(), "Certificate validity from should be populated in TrustStoreRO:");
+            Assertions.assertNotNull(trustStoreRO.getValidUntil(), "Certificate validity until should be populated in TrustStoreRO:");
+            Assertions.assertNotNull(trustStoreRO.getFingerprints(), "Certificate fingerprints should be populated in TrustStoreRO:");
+            Assertions.assertNotNull(trustStoreRO.getCertificateExpiryAlertDays(), "Certificate imminent expiry alert days should be populated in TrustStoreRO:");
+            Assertions.assertEquals(60, trustStoreRO.getCertificateExpiryAlertDays(), "Certificate imminent expiry alert days should be populated in TrustStoreRO:");
         }
     }
 
@@ -89,7 +89,7 @@ public class TruststoreResourceIT extends AbstractIT {
 
             List<TrustStoreRO> newEntries = truststoreResource.trustStoreEntries();
 
-            Assert.assertNotEquals(entries.size(), newEntries.size());
+            Assertions.assertNotEquals(entries.size(), newEntries.size());
         }
     }
 
@@ -104,7 +104,7 @@ public class TruststoreResourceIT extends AbstractIT {
 
         List<TrustStoreRO> newEntries = truststoreResource.trustStoreEntries();
 
-        Assert.assertEquals(1, newEntries.size());
+        Assertions.assertEquals(1, newEntries.size());
         // add asserts
     }
 
@@ -118,12 +118,12 @@ public class TruststoreResourceIT extends AbstractIT {
         truststoreResource.uploadTruststoreFile(multiPartFile, "test123");
 
         List<TrustStoreRO> newEntries = truststoreResource.trustStoreEntries();
-        Assert.assertEquals(9, newEntries.size());
+        Assertions.assertEquals(9, newEntries.size());
 
         try {
             truststoreResource.uploadTruststoreFile(multiPartFile, "test123");
         } catch (SameResourceCryptoException ex) {
-            Assert.assertTrue(ex.getMessage().contains("[DOM_001]:Current store [domibus.truststore] was not replaced with the content of the file [gateway_truststore2.jks] because they are identical."));
+            Assertions.assertTrue(ex.getMessage().contains("[DOM_001]:Current store [domibus.truststore] was not replaced with the content of the file [gateway_truststore2.jks] because they are identical."));
         }
     }
 
@@ -131,7 +131,7 @@ public class TruststoreResourceIT extends AbstractIT {
     public void isChangedOnDisk() throws IOException {
 
         boolean changedOnDisk = truststoreResource.isChangedOnDisk();
-        Assert.assertFalse(changedOnDisk);
+        Assertions.assertFalse(changedOnDisk);
 
         String location = domibusPropertyProvider.getProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
         String back = location.replace("gateway_truststore.jks", "gateway_truststore_back.jks");
@@ -141,11 +141,11 @@ public class TruststoreResourceIT extends AbstractIT {
         Files.setLastModifiedTime(Paths.get(location), FileTime.from(new Date().toInstant()));
 
         changedOnDisk = truststoreResource.isChangedOnDisk();
-        Assert.assertTrue(changedOnDisk);
+        Assertions.assertTrue(changedOnDisk);
 
         Files.copy(Paths.get(back), Paths.get(location), REPLACE_EXISTING);
         changedOnDisk = truststoreResource.isChangedOnDisk();
-        Assert.assertFalse(changedOnDisk);
+        Assertions.assertFalse(changedOnDisk);
 
         Files.delete(Paths.get(back));
     }
@@ -170,8 +170,8 @@ public class TruststoreResourceIT extends AbstractIT {
 
     public void addSameCertificate(boolean areSecurityProfilesUsed) throws IOException {
         List<TrustStoreRO> initialStoreEntries = truststoreResource.trustStoreEntries();
-        Assert.assertEquals(2, initialStoreEntries.size());
-        String alias = areSecurityProfilesUsed ?  "green_gw_rsa_encrypt" : "green_gw";
+        Assertions.assertEquals(2, initialStoreEntries.size());
+        String alias = areSecurityProfilesUsed ? "green_gw_rsa_encrypt" : "green_gw";
 
         MultipartFile multiPartFile = getMultipartFile();
         if (areSecurityProfilesUsed) {
@@ -181,8 +181,8 @@ public class TruststoreResourceIT extends AbstractIT {
         }
 
         List<TrustStoreRO> trustStoreEntries = truststoreResource.trustStoreEntries();
-        Assert.assertEquals(3, trustStoreEntries.size());
-        Assert.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(alias)));
+        Assertions.assertEquals(3, trustStoreEntries.size());
+        Assertions.assertTrue(trustStoreEntries.stream().anyMatch(entry -> entry.getName().equals(alias)));
 
         try {
             if (areSecurityProfilesUsed) {
@@ -191,9 +191,9 @@ public class TruststoreResourceIT extends AbstractIT {
                 truststoreResource.addDomibusCertificate(multiPartFile, alias);
             }
         } catch (DomibusCertificateException ex) {
-            Assert.assertTrue(ex.getMessage().contains("Certificate [" + alias + "] was not added to the [domibus.truststore] most probably because it already contains the same certificate."));
+            Assertions.assertTrue(ex.getMessage().contains("Certificate [" + alias + "] was not added to the [domibus.truststore] most probably because it already contains the same certificate."));
             trustStoreEntries = truststoreResource.trustStoreEntries();
-            Assert.assertEquals(3, trustStoreEntries.size());
+            Assertions.assertEquals(3, trustStoreEntries.size());
         }
     }
 
@@ -209,9 +209,9 @@ public class TruststoreResourceIT extends AbstractIT {
 
     public void removeSameCertificate(boolean areSecurityProfilesUsed) throws IOException {
         List<TrustStoreRO> trustStoreEntries = truststoreResource.trustStoreEntries();
-        Assert.assertEquals(2, trustStoreEntries.size());
+        Assertions.assertEquals(2, trustStoreEntries.size());
 
-        String alias = areSecurityProfilesUsed? "red_gw_rsa_encrypt" : "red_gw";
+        String alias = areSecurityProfilesUsed ? "red_gw_rsa_encrypt" : "red_gw";
 
         if (areSecurityProfilesUsed) {
             MultipartFile multiPartFile = getMultipartFile();
@@ -220,18 +220,18 @@ public class TruststoreResourceIT extends AbstractIT {
 
         String res = truststoreResource.removeDomibusCertificate(alias);
 
-        Assert.assertTrue(res.contains("Certificate [" + alias + "] has been successfully removed from the [domibus.truststore]."));
+        Assertions.assertTrue(res.contains("Certificate [" + alias + "] has been successfully removed from the [domibus.truststore]."));
         trustStoreEntries = truststoreResource.trustStoreEntries();
         int expectedCertificatesNumber = areSecurityProfilesUsed ? 2 : 1;
-        Assert.assertEquals(expectedCertificatesNumber, trustStoreEntries.size());
-        Assert.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(alias)));
+        Assertions.assertEquals(expectedCertificatesNumber, trustStoreEntries.size());
+        Assertions.assertTrue(trustStoreEntries.stream().noneMatch(entry -> entry.getName().equals(alias)));
 
         try {
             truststoreResource.removeDomibusCertificate(alias);
         } catch (DomibusCertificateException ex) {
-            Assert.assertTrue(ex.getMessage().contains("Certificate [" + alias + "] was not removed from the [domibus.truststore] because it does not exist."));
+            Assertions.assertTrue(ex.getMessage().contains("Certificate [" + alias + "] was not removed from the [domibus.truststore] because it does not exist."));
             trustStoreEntries = truststoreResource.trustStoreEntries();
-            Assert.assertEquals(expectedCertificatesNumber, trustStoreEntries.size());
+            Assertions.assertEquals(expectedCertificatesNumber, trustStoreEntries.size());
         }
     }
 

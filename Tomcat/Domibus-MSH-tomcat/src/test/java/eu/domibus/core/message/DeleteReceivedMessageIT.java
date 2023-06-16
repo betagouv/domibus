@@ -5,8 +5,8 @@ import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import org.apache.commons.collections.CollectionUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,11 +42,11 @@ public class DeleteReceivedMessageIT extends DeleteMessageAbstractIT {
 
         Map<String, Integer> finalMap = messageDBUtil.getTableCounts(tablesToExclude);
 
-        Assert.assertTrue(initialMap.size() > 0);
-        Assert.assertTrue(beforeDeletionMap.size() > 0);
+        Assertions.assertTrue(initialMap.size() > 0);
+        Assertions.assertTrue(beforeDeletionMap.size() > 0);
         System.out.println("####before" + initialMap.entrySet());
         System.out.println("####after" + finalMap.entrySet());
-        Assert.assertTrue(CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()));
-        Assert.assertFalse(CollectionUtils.isEqualCollection(initialMap.entrySet(), beforeDeletionMap.entrySet()));
+        Assertions.assertTrue(CollectionUtils.isEqualCollection(initialMap.entrySet(), finalMap.entrySet()));
+        Assertions.assertFalse(CollectionUtils.isEqualCollection(initialMap.entrySet(), beforeDeletionMap.entrySet()));
     }
 }

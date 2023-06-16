@@ -7,20 +7,20 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.plugin.handler.MessageSubmitterImpl;
 import eu.domibus.messaging.MessagingProcessingException;
-import junit.framework.TestCase;
+
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(JMockit.class)
-public class SplitAndJoinHelperTest extends TestCase {
+@ExtendWith(JMockitExtension.class)
+public class SplitAndJoinHelperTest {
 
     @Injectable
     protected UserMessageLogDao userMessageLogDao;

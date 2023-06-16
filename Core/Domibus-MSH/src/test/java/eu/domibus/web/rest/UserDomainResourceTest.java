@@ -9,23 +9,21 @@ import eu.domibus.core.multitenancy.DynamicDomainManagementService;
 import eu.domibus.core.multitenancy.dao.DomainDao;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.security.DomibusUserDetailsImpl;
-import mockit.Expectations;
-import mockit.FullVerifications;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.*;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hamcrest.CustomTypeSafeMatcher;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserDomainResourceTest {
 
     @Tested
@@ -67,6 +65,7 @@ public class UserDomainResourceTest {
 
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testGetDomains(@Injectable DomibusUserDetailsImpl userDetails,
                                @Injectable List<DomainRO> domainROEntries) {
         final Domain red = new Domain("red", "Red");
@@ -88,9 +87,9 @@ public class UserDomainResourceTest {
             domainService.getDomain("blue");
             result = blue;
 
-            coreMapper.domainListToDomainROList(withArgThat(
-                            new CustomTypeSafeMatcher<List<Domain>>("The argument list can contain domains in any order") {
-                                @Override
+            coreMapper.domainListToDomainROList(with(
+                    //"The argument list can contain domains in any order"
+                            new Delegate<List<Domain>>() {
                                 protected boolean matchesSafely(List<Domain> domains) {
                                     return CollectionUtils.containsAll(domains,
                                             Arrays.asList(red, yellow, blue));

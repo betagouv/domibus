@@ -5,7 +5,7 @@ import eu.domibus.api.model.*;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.attempt.MessageAttemptEntity;
 import eu.domibus.web.rest.ro.MessageLogRO;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 

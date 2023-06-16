@@ -5,14 +5,14 @@ import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.test.common.PojoInstaciatorUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Thomas Dussart
@@ -61,10 +61,10 @@ public class PojoInstaciatorUtilTest {
     @Test
     public void testInstanciateProcess() {
         Process process = PojoInstaciatorUtil.instanciate(Process.class, " [name:test]", "mep[name:oneway,value:test]", "mepBinding[name:push]", "responderParties{[name:oneway,userName:http];[name:cool,userName:test]}");
-        Assert.assertEquals("test", process.getName());
-        Assert.assertEquals("oneway", process.getMep().getName());
-        Assert.assertEquals("test", process.getMep().getValue());
-        Assert.assertEquals("push", process.getMepBinding().getName());
+        Assertions.assertEquals("test", process.getName());
+        Assertions.assertEquals("oneway", process.getMep().getName());
+        Assertions.assertEquals("test", process.getMep().getValue());
+        Assertions.assertEquals("push", process.getMepBinding().getName());
         Set<Party> responderParties = process.getResponderParties();
         assertEquals(2, responderParties.size());
         boolean onePartyFound = false;

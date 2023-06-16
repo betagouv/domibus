@@ -5,8 +5,8 @@ import eu.domibus.api.validators.CustomWhiteListed;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import javax.validation.ValidationException;
 import java.lang.annotation.Annotation;
@@ -36,9 +36,9 @@ public class FieldBlacklistValidatorTest {
         boolean actualInvalid = fieldBlacklistValidator.isValid(invalidValue);
         boolean emptyIsValid = fieldBlacklistValidator.isValid(emptyValue);
 
-        Assert.assertEquals(true, actualValid);
-        Assert.assertEquals(false, actualInvalid);
-        Assert.assertEquals(true, emptyIsValid);
+        Assertions.assertEquals(true, actualValid);
+        Assertions.assertEquals(false, actualInvalid);
+        Assertions.assertEquals(true, emptyIsValid);
     }
 
     @Test
@@ -53,7 +53,7 @@ public class FieldBlacklistValidatorTest {
         String invalidValue = "abc%";
         boolean result = fieldBlacklistValidator.isValid(invalidValue, (CustomWhiteListed) null);
 
-        Assert.assertEquals(true, result);
+        Assertions.assertEquals(true, result);
     }
 
     @Test
@@ -71,11 +71,11 @@ public class FieldBlacklistValidatorTest {
         try {
             fieldBlacklistValidator.validate(validValue);
         } catch (IllegalArgumentException ex) {
-            Assert.fail("Should not throw for valid values");
+            Assertions.fail("Should not throw for valid values");
         }
         try {
             fieldBlacklistValidator.validate(invalidValue);
-            Assert.fail("Should throw for invalid values");
+            Assertions.fail("Should throw for invalid values");
         } catch (ValidationException ex) {
         }
     }
@@ -109,8 +109,8 @@ public class FieldBlacklistValidatorTest {
         boolean actualInvalid = fieldBlacklistValidator.isWhiteListValid(invalidValue, customChars);
         boolean emptyIsValid = fieldBlacklistValidator.isWhiteListValid(emptyValue, null);
 
-        Assert.assertEquals(true, actualValid);
-        Assert.assertEquals(true, actualInvalid);
-        Assert.assertEquals(true, emptyIsValid);
+        Assertions.assertEquals(true, actualValid);
+        Assertions.assertEquals(true, actualInvalid);
+        Assertions.assertEquals(true, emptyIsValid);
     }
 }

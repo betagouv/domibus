@@ -11,9 +11,9 @@ import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.plugin.ws.generated.GetMessageErrorsFault;
 import eu.domibus.plugin.ws.generated.body.ErrorResultImplArray;
 import eu.domibus.plugin.ws.generated.body.GetErrorsRequest;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,7 +56,7 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
 
         GetErrorsRequest errorsRequest = createMessageErrorsRequest(messageId);
         ErrorResultImplArray response = webServicePluginInterface.getMessageErrors(errorsRequest);
-        Assert.assertFalse(response.getItem().isEmpty());
+        Assertions.assertFalse(response.getItem().isEmpty());
     }
 
     /**
@@ -70,7 +70,7 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
         ErrorResultImplArray response = null;
         try {
             response = webServicePluginInterface.getMessageErrors(errorsRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (GetMessageErrorsFault e) {
             //OK
         }
