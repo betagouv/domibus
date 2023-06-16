@@ -1,6 +1,9 @@
 package eu.domibus.core.ebms3.sender.interceptor;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
+import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
 import org.apache.cxf.message.Message;
@@ -17,6 +20,11 @@ import java.util.Map;
  * @since 4.2
  */
 public class HttpHeaderOutInterceptorTest {
+
+    @Injectable
+    private DomibusPropertyProvider domibusPropertyProvider;
+    @Injectable
+    private ObjectMapper domibusJsonMapper;
 
     @Tested
     HttpHeaderInInterceptor httpHeaderInInterceptor;
