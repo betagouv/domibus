@@ -76,7 +76,7 @@ public class SignalMessageSoapEnvelopeSpiDelegateImpl implements SignalMessageSo
                 Map<String, List<String>> headers = objectMapper.readValue(httpProtocolHeaders, Map.class);
                 httpMetadata.setHeaders(headers);
             } catch (JsonProcessingException e) {
-                LOG.error("Could not extract protocol headers from json [{}]", httpProtocolHeaders, e);
+                LOG.error("Could not extract protocol headers from JSON [{}]", httpProtocolHeaders, e);
             }
         }
 
