@@ -9,15 +9,11 @@ import mockit.Tested;
 import org.apache.cxf.message.Message;
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static eu.domibus.api.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
 
 /**
  * @author Catalin Enache
