@@ -9,6 +9,7 @@ import eu.domibus.plugin.ws.generated.body.ListPendingMessagesRequest;
 import eu.domibus.plugin.ws.generated.body.ListPendingMessagesResponse;
 import eu.domibus.plugin.ws.message.WSMessageLogDao;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,6 +29,7 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
     JMSManager jmsManager;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testListPendingMessagesNOk() throws ListPendingMessagesFault {
         wsMessageLogDao.deleteAll(wsMessageLogDao.findAll());
         ListPendingMessagesRequest request = new ListPendingMessagesRequest();

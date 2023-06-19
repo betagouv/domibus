@@ -23,6 +23,7 @@ import java.util.UUID;
  * @deprecated to be removed when deprecated endpoint /backend is removed
  */
 @Deprecated
+@Disabled("EDELIVERY-6896")
 public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
 
 

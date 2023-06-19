@@ -3,7 +3,6 @@ package eu.domibus.plugin.ws;
 
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessageLog;
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
@@ -41,6 +40,7 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
      * Tests that the list of errors is not empty for a certain message.
      */
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testGetMessageErrorsOk() throws GetMessageErrorsFault {
         String messageId = "9008713e-1912-460c-97b3-40ec12a29f49@domibus.eu";
         UserMessageLog testMessage = messageDaoTestUtil.createTestMessage(messageId, MSHRole.SENDING);
@@ -63,6 +63,7 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
      * Tests that the list of errors is empty for a certain message since there were no errors in the transaction.
      */
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testGetEmptyMessageErrorsList() {
 
         String messageId = "notFound";

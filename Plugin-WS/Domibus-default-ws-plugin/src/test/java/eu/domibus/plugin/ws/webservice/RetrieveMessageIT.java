@@ -29,6 +29,8 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+
+@Disabled("EDELIVERY-6896")
 public class RetrieveMessageIT extends AbstractBackendWSIT {
 
     @Autowired

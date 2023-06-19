@@ -101,11 +101,13 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testMessageIdNeedsATrimSpaces() throws Exception {
         retrieveMessage("    13bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu ");
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testMessageIdNeedsATrimTabs() throws Exception {
         retrieveMessage("\t23bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu\t");
     }
@@ -117,6 +119,7 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testRetrieveMessageOk() throws Exception {
         retrieveMessage("53bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu");
     }

@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * Created by draguio on 17/02/2016.
  */
+
 public class SubmitMessageIT extends AbstractBackendWSIT {
 
     @Autowired
@@ -39,8 +40,8 @@ public class SubmitMessageIT extends AbstractBackendWSIT {
     /**
      * Test for the backend sendMessage service with payload profile enabled
      */
-    @Disabled("will be fixed by EDELIVERY-11139") //TODO
     @Test
+    @Disabled("will be fixed by EDELIVERY-11139") //TODO
     public void testSubmitMessageValid() throws SubmitMessageFault {
         String payloadHref = "cid:message";
         SubmitRequest submitRequest = createSubmitRequestWs(payloadHref);

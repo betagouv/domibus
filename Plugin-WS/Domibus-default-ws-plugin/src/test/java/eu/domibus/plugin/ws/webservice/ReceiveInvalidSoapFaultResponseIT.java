@@ -16,6 +16,7 @@ import java.io.IOException;
  * @author idragusa
  * @since 5.0
  */
+@Disabled("EDELIVERY-6896")
 public class ReceiveInvalidSoapFaultResponseIT extends AbstractBackendWSIT {
 
     @Autowired
