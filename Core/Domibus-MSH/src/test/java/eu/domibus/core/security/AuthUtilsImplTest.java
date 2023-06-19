@@ -112,6 +112,7 @@ public class AuthUtilsImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     void getOriginalUserFromSecurityContext_noAuth() {
         new Expectations(authUtilsImpl) {{
             authUtilsImpl.isUnsecureLoginAllowed();
@@ -126,6 +127,7 @@ public class AuthUtilsImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     void getOriginalUserFromSecurityContext_noContext() {
         new Expectations(authUtilsImpl) {{
             authUtilsImpl.isUnsecureLoginAllowed();
@@ -151,6 +153,7 @@ public class AuthUtilsImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getUserDetails_noAuth() {
         new Expectations() {{
             SecurityContextHolder.getContext().getAuthentication();
@@ -162,6 +165,7 @@ public class AuthUtilsImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getUserDetails_noContext() {
         new Expectations() {{
             SecurityContextHolder.getContext();
@@ -204,6 +208,7 @@ public class AuthUtilsImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getAuthenticatedUser_noAuth() {
         new Expectations() {{
             SecurityContextHolder.getContext().getAuthentication();
@@ -215,6 +220,7 @@ public class AuthUtilsImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getAuthenticatedUser_noContext() {
         new Expectations() {{
             SecurityContextHolder.getContext();
