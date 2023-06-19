@@ -86,6 +86,6 @@ public class DateTimeAdapterTest {
         String result = dateTimeAdapter.marshal(inputDate);
 
         // THEN
-        Assertions.assertEquals("Should have returned the formatted date time when marshalling a non-null input date time", formattedDateTime, result);
+        Assertions.assertEquals(formattedDateTime, result, "Should have returned the formatted date time when marshalling a non-null input date time");
     }
 }

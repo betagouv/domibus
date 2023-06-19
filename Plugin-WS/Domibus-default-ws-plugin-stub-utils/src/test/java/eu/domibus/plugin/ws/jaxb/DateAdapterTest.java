@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -71,7 +70,7 @@ public class DateAdapterTest {
         String result = dateAdapter.marshal(input);
 
         // THEN
-        Assertions.assertNull("Should have returned null when marshalling a null input date", result);
+        Assertions.assertNull(result, "Should have returned null when marshalling a null input date");
     }
 
 
@@ -87,6 +86,6 @@ public class DateAdapterTest {
         String result = dateAdapter.marshal(inputDate);
 
         // THEN
-        Assertions.assertEquals("Should have returned the formatted date when marshalling a non-null input date", formattedDate, result);
+        Assertions.assertEquals(formattedDate, result, "Should have returned the formatted date when marshalling a non-null input date");
     }
 }

@@ -36,7 +36,8 @@ public class TimeAdapterTest {
         // GIVEN
         String input = null;
         new Expectations() {{
-            converter.convert(input); result = null;
+            converter.convert(input);
+            result = null;
         }};
 
         // WHEN
@@ -51,7 +52,8 @@ public class TimeAdapterTest {
         // GIVEN
         String input = "09:34:36";
         new Expectations() {{
-            converter.convert(input); result = parsedTime;
+            converter.convert(input);
+            result = parsedTime;
         }};
 
         // WHEN
@@ -70,7 +72,7 @@ public class TimeAdapterTest {
         String result = timeAdapter.marshal(input);
 
         // THEN
-        Assertions.assertNull("Should have returned null when marshalling a null input time", result);
+        Assertions.assertNull(result, "Should have returned null when marshalling a null input time");
     }
 
 
@@ -79,13 +81,14 @@ public class TimeAdapterTest {
         // GIVEN
         String formattedTime = "09:34:36";
         new Expectations() {{
-            input.format(DateTimeFormatter.ISO_TIME); result = formattedTime;
+            input.format(DateTimeFormatter.ISO_TIME);
+            result = formattedTime;
         }};
 
         // WHEN
         String result = timeAdapter.marshal(input);
 
         // THEN
-        Assertions.assertEquals("Should have returned the formatted time when marshalling a non-null input time", formattedTime, result);
+        Assertions.assertEquals(formattedTime, result, "Should have returned the formatted time when marshalling a non-null input time");
     }
 }
