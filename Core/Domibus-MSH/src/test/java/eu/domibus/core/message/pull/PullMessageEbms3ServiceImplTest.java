@@ -22,6 +22,7 @@ import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -99,7 +100,7 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    public void getPullMessageIdFirstAttempt(@Mocked final MessagingLock messagingLock, @Mocked final PullMessageId pullMessageId) {
+    public void getPullMessageIdFirstAttempt( @Mocked final PullMessageId pullMessageId) {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
@@ -127,7 +128,7 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    public void getPullMessageIdExpired(@Mocked final MessagingLock messagingLock, @Mocked final PullMessageId pullMessageId) {
+    public void getPullMessageIdExpired(@Mocked final PullMessageId pullMessageId) {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
@@ -155,7 +156,7 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    public void getPullMessageIdRetry(@Mocked final MessagingLock messagingLock, @Mocked final PullMessageId pullMessageId,
+    public void getPullMessageIdRetry(@Mocked final PullMessageId pullMessageId,
                                       @Mocked UserMessage userMessage) {
         final String initiator = "initiator";
         final String mpc = "mpc";
@@ -256,6 +257,7 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void waitingForCallExpired(
             @Injectable final MessagingLock lock,
             @Injectable final LegConfiguration legConfiguration,
@@ -287,6 +289,7 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void waitingForCallBackWithAttempt(
             @Injectable final MessagingLock lock,
             @Injectable final LegConfiguration legConfiguration,

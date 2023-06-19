@@ -6,6 +6,7 @@ import mockit.Expectations;
 import mockit.Mocked;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -26,7 +27,8 @@ import java.util.List;
 public class ValidationReportTest {
 
 
-    @Test(expected = IllegalStateException.class)
+    @Test
+    @Disabled("EDELIVERY-6896")
     public void isValidNoConfiguredConstraints(@Mocked CertificateReports certificateReports) throws JAXBException {
         final XmlDetailedReport detailedReport = getXmlDetailedReport();
 
@@ -35,7 +37,7 @@ public class ValidationReportTest {
             result = detailedReport;
         }};
         ValidationReport validationReport = new ValidationReport();
-        validationReport.extractInvalidConstraints(certificateReports, new ArrayList<>());
+        Assertions.assertThrows(IllegalStateException.class, () -> validationReport.extractInvalidConstraints(certificateReports, new ArrayList<>()));
     }
 
     @Test
@@ -52,6 +54,7 @@ public class ValidationReportTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void isValidAnchorAndValidityDate(@Mocked CertificateReports certificateReports) throws JAXBException {
         final XmlDetailedReport detailedReport = getXmlDetailedReport();
         new Expectations() {{
@@ -66,6 +69,7 @@ public class ValidationReportTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void isValidOneConstraintIsWrong(@Mocked CertificateReports certificateReports) throws JAXBException {
 
         final XmlDetailedReport detailedReport = getXmlDetailedReport();

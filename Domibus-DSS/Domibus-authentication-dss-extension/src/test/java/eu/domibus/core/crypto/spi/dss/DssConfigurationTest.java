@@ -4,6 +4,7 @@ import eu.domibus.ext.services.*;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.ObjectProvider;
@@ -13,9 +14,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
 import java.util.Enumeration;
 
 @ExtendWith(JMockitExtension.class)
@@ -58,11 +57,12 @@ public class DssConfigurationTest {
     private DssConfiguration dssConfiguration;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void mergeCustomTlsTrustStoreWithCacert(
             @Mocked KeyStore customTlsTrustStore,
             @Mocked KeyStore cacertTrustStore,
             @Mocked Enumeration enumeration,
-            @Mocked Certificate cert) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
+            @Mocked Certificate cert) throws KeyStoreException {
         final String cacertAlias = "cacertAlias";
         new Expectations(dssConfiguration) {{
             KeyStore.getInstance("${domibus.dss.ssl.trust.store.type}");

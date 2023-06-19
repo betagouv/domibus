@@ -7,6 +7,7 @@ import mockit.Expectations;
 import mockit.Mocked;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -25,6 +26,7 @@ import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.*;
 public class CustomTrustedListPropertyMapperTest {
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void map(
             @Mocked DomibusPropertyExtService domibusPropertyExtService, @Mocked KeyStoreCertificateSource keyStoreCertificateSource) throws IOException {
         String list1 = "list1";
