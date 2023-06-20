@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  * @deprecated to be removed when deprecated endpoint /backend is removed
  */
 @Deprecated
-@Disabled("EDELIVERY-6896")
 public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
 
     @Autowired

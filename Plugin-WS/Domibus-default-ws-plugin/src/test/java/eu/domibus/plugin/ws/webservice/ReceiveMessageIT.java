@@ -11,7 +11,6 @@ import eu.domibus.plugin.ws.backend.dispatch.WSPluginDispatchClientProvider;
 import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -73,7 +72,6 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
      *                        ref: Receive Message-01
      */
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testReceiveMessage() throws SOAPException, IOException, ParserConfigurationException, SAXException, InterruptedException {
         String filename = "SOAPMessage2.xml";
         String messageId = UUID.randomUUID() + "@domibus.eu";
@@ -85,7 +83,6 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testDeleteBatch() throws SOAPException, IOException, ParserConfigurationException, SAXException, InterruptedException {
         String filename = "SOAPMessage2.xml";
         String messageId = UUID.randomUUID() + "@domibus.eu";
@@ -106,7 +103,6 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testReceiveTestMessage() throws Exception {
         String filename = "SOAPTestMessage.xml";
         String messageId = "ping123@domibus.eu";

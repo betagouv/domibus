@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
  * @deprecated to be removed when deprecated endpoint /backend is removed
  */
 @Deprecated
-@Disabled("EDELIVERY-6896")
 public class PendingMessagesListIT extends AbstractBackendWSIT {
 
     @Autowired

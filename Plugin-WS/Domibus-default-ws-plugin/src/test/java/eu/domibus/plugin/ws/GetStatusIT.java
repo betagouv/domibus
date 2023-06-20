@@ -17,7 +17,6 @@ import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -68,7 +67,6 @@ public class GetStatusIT extends AbstractBackendWSIT {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testGetStatusReceived() throws StatusFault, IOException, SOAPException, SAXException, ParserConfigurationException {
         String filename = "SOAPMessage2.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
@@ -81,7 +79,6 @@ public class GetStatusIT extends AbstractBackendWSIT {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testGetStatusInvalidId() throws StatusFault {
         String invalidMessageId = "invalid";
         StatusRequestWithAccessPointRole messageStatusRequest = createMessageStatusRequest(invalidMessageId, MshRole.RECEIVING);
@@ -90,7 +87,6 @@ public class GetStatusIT extends AbstractBackendWSIT {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testGetStatusEmptyMessageId() {
         String emptyMessageId = "";
         StatusRequestWithAccessPointRole messageStatusRequest = createMessageStatusRequest(emptyMessageId, MshRole.RECEIVING);
