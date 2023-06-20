@@ -1,18 +1,28 @@
 package eu.domibus.ext.delegate.services.message;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.message.SignalMessageSoapEnvelopeSpiDelegate;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
+import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.spi.soapenvelope.HttpMetadata;
 import eu.domibus.core.spi.soapenvelope.SignalMessageSoapEnvelopeSpi;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.messaging.MessageConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.xml.soap.SOAPMessage;
+import java.util.List;
+import java.util.Map;
+
+import static eu.domibus.api.property.DomibusGeneralConstants.JSON_MAPPER_BEAN;
 
 /**
  * @author Cosmin Baciu
  * @since 5.0.2
- *
  */
 @Service
 public class SignalMessageSoapEnvelopeSpiDelegateImpl implements SignalMessageSoapEnvelopeSpiDelegate {
@@ -20,9 +30,16 @@ public class SignalMessageSoapEnvelopeSpiDelegateImpl implements SignalMessageSo
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalMessageSoapEnvelopeSpiDelegateImpl.class);
 
     protected SignalMessageSoapEnvelopeSpi soapEnvelopeSpi;
+    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected ObjectMapper objectMapper;
 
-    public SignalMessageSoapEnvelopeSpiDelegateImpl(@Autowired(required = false) SignalMessageSoapEnvelopeSpi soapEnvelopeSpi) {
+    public SignalMessageSoapEnvelopeSpiDelegateImpl(@Autowired(required = false) SignalMessageSoapEnvelopeSpi soapEnvelopeSpi,
+                                                    @Qualifier(JSON_MAPPER_BEAN)
+                                                    ObjectMapper objectMapper,
+                                                    DomibusPropertyProvider domibusPropertyProvider) {
         this.soapEnvelopeSpi = soapEnvelopeSpi;
+        this.domibusPropertyProvider = domibusPropertyProvider;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -46,9 +63,26 @@ public class SignalMessageSoapEnvelopeSpiDelegateImpl implements SignalMessageSo
             return responseMessage;
         }
 
-        LOG.debug("Executing afterReceiving hook");
-        final SOAPMessage resultSoapMessage = soapEnvelopeSpi.afterReceiving(responseMessage);
-        LOG.debug("Finished executing afterReceiving hook");
+        final Boolean httpHeaderMetadataActive = domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DISPATCHER_HTTP_HEADER_METADATA_ACTIVE);
+        HttpMetadata httpMetadata = new HttpMetadata();
+        if (httpHeaderMetadataActive) {
+            final String contentType = LOG.getMDC(MessageConstants.HTTP_CONTENT_TYPE);
+            LOG.debug("Content-Type value is [{}]", contentType);
+            httpMetadata.setContentType(contentType);
+            final String httpProtocolHeaders = LOG.getMDC(MessageConstants.HTTP_PROTOCOL_HEADERS);
+            LOG.debug("HTTP Headers value is [{}]", httpProtocolHeaders);
+
+            try {
+                Map<String, List<String>> headers = objectMapper.readValue(httpProtocolHeaders, Map.class);
+                httpMetadata.setHeaders(headers);
+            } catch (JsonProcessingException e) {
+                LOG.error("Could not extract protocol headers from JSON [{}]", httpProtocolHeaders, e);
+            }
+        }
+
+        LOG.debug("Executing afterReceiving with http metadata hook");
+        final SOAPMessage resultSoapMessage = soapEnvelopeSpi.afterReceiving(responseMessage, httpMetadata);
+        LOG.debug("Finished executing afterReceiving http metadata hook");
 
         return resultSoapMessage;
     }
