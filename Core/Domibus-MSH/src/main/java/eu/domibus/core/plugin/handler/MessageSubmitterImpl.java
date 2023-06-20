@@ -148,7 +148,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
     @Counter(clazz = MessageSubmitterImpl.class, value = "submit")
     public String submit(final Submission submission, final String backendName) throws MessagingProcessingException {
         if (!backendConnectorService.isBackendConnectorEnabled(backendName)) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, String.format("Backend connector %s is not enabled; Cancelling submit", backendName));
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, String.format("Backend connector [%s] is not enabled; Cancelling submit", backendName));
         }
 
         if (StringUtils.isNotEmpty(submission.getMessageId())) {

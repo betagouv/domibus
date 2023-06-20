@@ -1,6 +1,8 @@
 package eu.domibus.backendConnector;
 
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
+import eu.domibus.plugin.Submission;
+import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

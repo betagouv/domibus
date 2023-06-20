@@ -2,6 +2,8 @@ package eu.domibus.backendConnector;
 
 import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.*;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -14,6 +16,7 @@ import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.property.DomibusPropertiesPropertySource;
 import eu.domibus.core.util.MessageUtil;
+import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.backendConnector.TestFSPluginMock;
@@ -201,6 +204,21 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
         } catch (DomibusPropertyException ex) {
             Assert.assertTrue(domibusPropertyProvider.getBooleanProperty(TEST_FSPLUGIN_DOMAIN_ENABLED));
             Assert.assertTrue(ex.getCause().getMessage().contains("Cannot disable the plugin [fsPlugin] on domain [default] because there won't remain any enabled plugins"));
+        }
+    }
+
+    @Test
+    @Transactional
+    public void testTrySubmitWithDisabledPlugin() {
+        domibusPropertyProvider.setProperty(TEST_FSPLUGIN_DOMAIN_ENABLED, "false");
+        Assert.assertFalse(domibusPropertyProvider.getBooleanProperty(TEST_FSPLUGIN_DOMAIN_ENABLED));
+        try {
+            testFSPluginMock.submit(new Object());
+            Assert.fail();
+        } catch (DomibusCoreException ex) {
+            Assert.assertTrue(ex.getMessage().contains("Backend connector [fsPlugin] is not enabled; Cancelling submit"));
+        } catch (MessagingProcessingException e) {
+            Assert.fail();
         }
     }
 

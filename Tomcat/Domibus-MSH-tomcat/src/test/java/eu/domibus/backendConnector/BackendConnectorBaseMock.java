@@ -2,6 +2,7 @@ package eu.domibus.backendConnector;
 
 import eu.domibus.common.*;
 import eu.domibus.plugin.AbstractBackendConnector;
+import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 
@@ -57,8 +58,15 @@ public class BackendConnectorBaseMock extends AbstractBackendConnector {
 
     @Override
     public MessageSubmissionTransformer getMessageSubmissionTransformer() {
-        return null;
+        return new MessageSubmissionTransformer() {
+            @Override
+            public Submission transformToSubmission(Object messageData) {
+                Submission submission = new Submission();
+                return submission;
+            }
+        };
     }
+
 
     @Override
     public MessageRetrievalTransformer getMessageRetrievalTransformer() {
@@ -122,4 +130,5 @@ public class BackendConnectorBaseMock extends AbstractBackendConnector {
     public MessageResponseSentEvent getMessageReceiveReplySentEvent() {
         return messageResponseSentEvent;
     }
+
 }
