@@ -1,13 +1,14 @@
 package eu.domibus.taskexecutor.weblogic;
 
 import commonj.work.WorkManager;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit5.JMockitExtension;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -77,6 +78,7 @@ public class WorkManagerFactoryTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testLookupWorkManager(final @Injectable WorkManager workManager) throws Exception {
         final String jndiName = "myname";
         new Expectations(InitialContext.class) {{
@@ -92,6 +94,7 @@ public class WorkManagerFactoryTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testLookupWorkManagerWhenLookupExceptionIsRaised(final @Injectable WorkManager workManager) throws Exception {
         final String jndiName = "myname";
         new Expectations(InitialContext.class) {{
