@@ -133,7 +133,7 @@ public class FileSystemEArchivePersistence implements EArchivePersistence {
 
         for (Map.Entry<String, ArchivingFileDTO> file : archivingFile.entrySet()) {
             LOG.trace("Process file [{}]", file.getKey());
-            String messageFolder = fileServiceUtil.URLEncode(eArchiveBatchUserMessage.getMessageId());
+            String messageFolder = fileServiceUtil.urlEncode(eArchiveBatchUserMessage.getMessageId());
 
             String relativePathToMessageFolder = IPConstants.DATA_FOLDER + messageFolder + IPConstants.ZIP_PATH_SEPARATOR + file.getKey();
 

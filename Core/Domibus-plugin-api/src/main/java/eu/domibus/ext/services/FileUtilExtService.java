@@ -21,5 +21,5 @@ public interface FileUtilExtService {
      * @param s String to be translated
      * @return the translated String.
      */
-    String URLEncode(String s);
+    String urlEncode(String s);
 }

@@ -30,7 +30,7 @@ public class FileUtilServiceDelegate implements FileUtilExtService {
      * {@inheritDoc}
      */
     @Override
-    public String URLEncode(String s) {
-        return fileServiceUtil.URLEncode(s);
+    public String urlEncode(String s) {
+        return fileServiceUtil.urlEncode(s);
     }
 }

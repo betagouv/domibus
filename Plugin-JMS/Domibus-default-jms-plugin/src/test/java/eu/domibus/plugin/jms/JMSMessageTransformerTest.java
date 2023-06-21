@@ -170,7 +170,7 @@ public class JMSMessageTransformerTest {
             }
 
             @Override
-            public String URLEncode(String s) {
+            public String urlEncode(String s) {
                 return s;
             }
         });

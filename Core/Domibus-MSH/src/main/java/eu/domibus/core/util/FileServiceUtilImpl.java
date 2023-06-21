@@ -37,7 +37,7 @@ public class FileServiceUtilImpl implements FileServiceUtil {
         if (fileName == null) {
             return fileName;
         }
-        final String sanitizedFileName = URLEncode(FilenameUtils.getName(fileName));
+        final String sanitizedFileName = urlEncode(FilenameUtils.getName(fileName));
         if (StringUtils.isBlank(sanitizedFileName)) {
             LOG.warn("Unable to sanitize file name which has the value [{}]", fileName);
             return null;
@@ -70,7 +70,7 @@ public class FileServiceUtilImpl implements FileServiceUtil {
     }
 
     @Override
-    public String URLEncode(String s) {
+    public String urlEncode(String s) {
         try {
             return URLEncoder.encode(s, StandardCharsets.UTF_8.toString());
         } catch (UnsupportedEncodingException e) {
