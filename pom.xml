@@ -67,7 +67,8 @@
         <h2.version>2.1.214</h2.version>
         <liquibase.version>4.17.0</liquibase.version>
         <mysql.connector.java.version>8.0.32</mysql.connector.java.version>
-        <wiremock.version>3.0.0-beta-9</wiremock.version>
+        <!-- wiremock 3.x is needed for junit5 to be updated in final version asap        -->
+        <wiremock.version>3.0.0-beta-10</wiremock.version>
         <handlebars.version>4.3.1</handlebars.version>
         <dropwizard.metrics.version>4.2.17</dropwizard.metrics.version>
         <owasp.dependency.check.version>7.4.4</owasp.dependency.check.version>
