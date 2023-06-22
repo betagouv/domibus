@@ -140,10 +140,10 @@ public class FileSystemEArchivePersistenceIT {
             eArchivingFileService.getBatchFileJson(batchEArchiveDTO);
             result = new ByteArrayInputStream("batch.json content".getBytes(StandardCharsets.UTF_8));
 
-            fileServiceUtil.URLEncode(userMessageEntityIds.get(0).getMessageId());
+            fileServiceUtil.urlEncode(userMessageEntityIds.get(0).getMessageId());
             result = userMessageEntityIds.get(0).getMessageId();
 
-            fileServiceUtil.URLEncode(userMessageEntityIds.get(1).getMessageId());
+            fileServiceUtil.urlEncode(userMessageEntityIds.get(1).getMessageId());
             result = userMessageEntityIds.get(1).getMessageId();
 
             eArchivingFileService.getArchivingFiles(entityId1);

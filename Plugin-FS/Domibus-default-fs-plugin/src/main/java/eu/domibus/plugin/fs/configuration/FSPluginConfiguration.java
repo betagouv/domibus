@@ -3,6 +3,7 @@ package eu.domibus.plugin.fs.configuration;
 import eu.domibus.common.MessageStatus;
 import eu.domibus.ext.services.DomainTaskExtExecutor;
 import eu.domibus.ext.services.DomibusPropertyExtService;
+import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.environment.DomibusEnvironmentUtil;
@@ -46,9 +47,9 @@ public class FSPluginConfiguration {
                                        FSSendMessagesService fsSendMessagesService, FSProcessFileService fsProcessFileService,
                                        DomainTaskExtExecutor domainTaskExtExecutor, FSDomainService fsDomainService, FSXMLHelper fsxmlHelper,
                                        FSMimeTypeHelper fsMimeTypeHelper, FSFileNameHelper fsFileNameHelper,
-                                       FSSendMessageListenerContainer fsSendMessageListenerContainer, DomibusPropertyExtService domibusPropertyExtService) {
+                                       FSSendMessageListenerContainer fsSendMessageListenerContainer, DomibusPropertyExtService domibusPropertyExtService, FileUtilExtService fileUtilExtService) {
         FSPluginImpl fsPlugin = new FSPluginImpl(defaultTransformer, fsFilesManager, fsPluginProperties, fsSendMessagesService, fsProcessFileService, domainTaskExtExecutor,
-                fsDomainService, fsxmlHelper, fsMimeTypeHelper, fsFileNameHelper, fsSendMessageListenerContainer, domibusPropertyExtService);
+                fsDomainService, fsxmlHelper, fsMimeTypeHelper, fsFileNameHelper, fsSendMessageListenerContainer, domibusPropertyExtService, fileUtilExtService);
         return fsPlugin;
     }
 

@@ -14,4 +14,12 @@ public interface FileUtilExtService {
      * @return sanitized value of the file name, null if sanitization fails
      */
     String sanitizeFileName(String fileName);
+
+    /**
+     * Translates a string into application/x-www-form-urlencoded format using a specific encoding scheme.
+     *
+     * @param s String to be translated
+     * @return the translated String.
+     */
+    String urlEncode(String s);
 }

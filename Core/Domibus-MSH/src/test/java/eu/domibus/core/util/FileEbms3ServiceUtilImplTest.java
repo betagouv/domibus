@@ -13,24 +13,38 @@ import org.junit.runner.RunWith;
 @RunWith(JMockit.class)
 public class FileEbms3ServiceUtilImplTest {
 
+    public static final String BASE_FILE_NAME = "content.xml";
     @Tested
     FileServiceUtilImpl fileServiceUtil;
 
     @Test
     public void test_sanitizeFileName() {
 
-        String baseFileName = "content.xml";
-        String fileName = baseFileName;
+        String sanitizedFileName = fileServiceUtil.sanitizeFileName(BASE_FILE_NAME);
+        Assert.assertEquals(BASE_FILE_NAME, sanitizedFileName);
 
-        String sanitizedFileName = fileServiceUtil.sanitizeFileName(fileName);
-        Assert.assertEquals(baseFileName, sanitizedFileName);
+    }
 
-        fileName = "./../../../" + baseFileName;
-        sanitizedFileName = fileServiceUtil.sanitizeFileName(fileName);
-        Assert.assertEquals(baseFileName, sanitizedFileName);
+    @Test
+    public void test_sanitizeFileName_blank() {
 
-        fileName = "./../../../../..\\..\\" + baseFileName;
-        sanitizedFileName = fileServiceUtil.sanitizeFileName(fileName);
-        Assert.assertEquals(baseFileName, sanitizedFileName);
+        String sanitizedFileName = fileServiceUtil.sanitizeFileName("");
+        Assert.assertNull(sanitizedFileName);
+
+    }
+
+    @Test
+    public void test_sanitizeFileName_path() {
+
+        String sanitizedFileName = fileServiceUtil.sanitizeFileName("./../../../" + BASE_FILE_NAME);
+        Assert.assertEquals(BASE_FILE_NAME, sanitizedFileName);
+
+    }
+
+    @Test
+    public void test_sanitizeFileName_path2() {
+
+        String sanitizedFileName = fileServiceUtil.sanitizeFileName("./../../../../..\\..\\" + BASE_FILE_NAME);
+        Assert.assertEquals(BASE_FILE_NAME, sanitizedFileName);
     }
 }
