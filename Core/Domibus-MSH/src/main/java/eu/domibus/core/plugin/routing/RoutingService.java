@@ -206,6 +206,9 @@ public class RoutingService {
 
     private void setActivationStatus(BackendFilter backendFilter) {
         BackendConnector<?, ?> backendConnector = backendConnectorProvider.getBackendConnector(backendFilter.getBackendName());
+        if (backendConnector == null) {
+            throw new ConfigurationException("Could not find the backend connector with the name:" + backendFilter.getBackendName());
+        }
         backendFilter.setActive(isEnabled(backendConnector));
         backendFilter.setEnabledPropertyName(getEnabledPropertyName(backendConnector));
     }

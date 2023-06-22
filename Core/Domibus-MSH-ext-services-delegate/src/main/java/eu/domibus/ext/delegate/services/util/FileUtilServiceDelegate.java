@@ -25,4 +25,12 @@ public class FileUtilServiceDelegate implements FileUtilExtService {
     public String sanitizeFileName(String fileName) {
         return fileServiceUtil.sanitizeFileName(fileName);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String urlEncode(String s) {
+        return fileServiceUtil.urlEncode(s);
+    }
 }

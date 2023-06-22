@@ -71,8 +71,6 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
 
     public static final String STRING_TYPE = "string";
 
-    protected static final int SERVICE_PORT = 8892;
-
     public static final String WS_NOT_QUEUE = "domibus.notification.webservice";
 
     // TODO: François Gautier 03-02-21 @deprecated to be removed when deprecated endpoint /backend is removed

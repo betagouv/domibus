@@ -13,24 +13,38 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(JMockitExtension.class)
 public class FileEbms3ServiceUtilImplTest {
 
+    public static final String BASE_FILE_NAME = "content.xml";
     @Tested
     FileServiceUtilImpl fileServiceUtil;
 
     @Test
     public void test_sanitizeFileName() {
 
-        String baseFileName = "content.xml";
-        String fileName = baseFileName;
+        String sanitizedFileName = fileServiceUtil.sanitizeFileName(BASE_FILE_NAME);
+        Assertions.assertEquals(BASE_FILE_NAME, sanitizedFileName);
 
-        String sanitizedFileName = fileServiceUtil.sanitizeFileName(fileName);
-        Assertions.assertEquals(baseFileName, sanitizedFileName);
+    }
 
-        fileName = "./../../../" + baseFileName;
-        sanitizedFileName = fileServiceUtil.sanitizeFileName(fileName);
-        Assertions.assertEquals(baseFileName, sanitizedFileName);
+    @Test
+    public void test_sanitizeFileName_blank() {
 
-        fileName = "./../../../../..\\..\\" + baseFileName;
-        sanitizedFileName = fileServiceUtil.sanitizeFileName(fileName);
-        Assertions.assertEquals(baseFileName, sanitizedFileName);
+        String sanitizedFileName = fileServiceUtil.sanitizeFileName("");
+        Assertions.assertNull(sanitizedFileName);
+
+    }
+
+    @Test
+    public void test_sanitizeFileName_path() {
+
+        String sanitizedFileName = fileServiceUtil.sanitizeFileName("./../../../" + BASE_FILE_NAME);
+        Assertions.assertEquals(BASE_FILE_NAME, sanitizedFileName);
+
+    }
+
+    @Test
+    public void test_sanitizeFileName_path2() {
+
+        String sanitizedFileName = fileServiceUtil.sanitizeFileName("./../../../../..\\..\\" + BASE_FILE_NAME);
+        Assertions.assertEquals(BASE_FILE_NAME, sanitizedFileName);
     }
 }

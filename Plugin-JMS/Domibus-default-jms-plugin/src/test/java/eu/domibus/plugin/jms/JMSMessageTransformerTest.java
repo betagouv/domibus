@@ -163,7 +163,17 @@ public class JMSMessageTransformerTest {
      */
     @Test
     public void transformToSubmission_HappyFlow() throws Exception {
-        ReflectionTestUtils.setField(testObj, "fileUtilExtService", (FileUtilExtService) fileName -> fileName);
+        ReflectionTestUtils.setField(testObj, "fileUtilExtService", new FileUtilExtService() {
+            @Override
+            public String sanitizeFileName(String fileName) {
+                return fileName;
+            }
+
+            @Override
+            public String urlEncode(String s) {
+                return s;
+            }
+        });
 
         MapMessage messageMap = new ActiveMQMapMessage();
         messageMap.setStringProperty(JMS_BACKEND_MESSAGE_TYPE_PROPERTY_KEY, "submitMessage");

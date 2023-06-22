@@ -8,6 +8,7 @@ import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.model.splitandjoin.MessageHeaderEntity;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.BackendFilter;
 import eu.domibus.api.util.xml.XMLUtil;
@@ -310,14 +311,21 @@ public class UserMessageHandlerServiceImpl implements UserMessageHandlerService 
             return;
         }
 
-
         final BackendFilter matchingBackendFilter = routingService.getMatchingBackendFilter(userMessage);
-        String backendName = (matchingBackendFilter != null ? matchingBackendFilter.getBackendName() : null);
+        if (matchingBackendFilter == null) {
+            LOG.businessError(DomibusMessageCode.BUS_MESSAGE_VALIDATION_FAILED, messageId);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                    .message("Could not find matching backend filter for the message.")
+                    .refToMessageId(messageId)
+                    .build();
+        }
 
         // we add this objects for use in out Interceptor to notify when reply is sent; these values must be set before throwing any exception so that they can be available in the interceptor
         userMessageContextKeyProvider.setObjectOnTheCurrentMessage(BACKEND_FILTER, matchingBackendFilter);
         userMessageContextKeyProvider.setObjectOnTheCurrentMessage(USER_MESSAGE, userMessage);
 
+        String backendName = matchingBackendFilter.getBackendName();
         try {
             submissionValidatorService.validateSubmission(userMessage, partInfoList, backendName);
         } catch (SubmissionValidationException e) {

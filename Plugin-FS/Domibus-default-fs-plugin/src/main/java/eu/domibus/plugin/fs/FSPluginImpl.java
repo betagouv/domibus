@@ -6,6 +6,7 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainTaskExtExecutor;
 import eu.domibus.ext.services.DomibusPropertyExtService;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
+import eu.domibus.ext.services.FileUtilExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -86,6 +87,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     protected final FSMessageTransformer defaultTransformer;
 
     protected final FSFilesManager fsFilesManager;
+    protected final FileUtilExtService fileUtilExtService;
 
     protected final FSPluginProperties fsPluginProperties;
 
@@ -105,11 +107,19 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
     protected final FSSendMessageListenerContainer fsSendMessageListenerContainer;
 
-    public FSPluginImpl(FSMessageTransformer defaultTransformer, FSFilesManager fsFilesManager, FSPluginProperties fsPluginProperties,
-                        FSSendMessagesService fsSendMessagesService, FSProcessFileService fsProcessFileService,
-                        DomainTaskExtExecutor domainTaskExtExecutor, FSDomainService fsDomainService, FSXMLHelper fsxmlHelper,
-                        FSMimeTypeHelper fsMimeTypeHelper, FSFileNameHelper fsFileNameHelper, FSSendMessageListenerContainer fsSendMessageListenerContainer,
-                        DomibusPropertyExtService domibusPropertyExtService) {
+    public FSPluginImpl(FSMessageTransformer defaultTransformer,
+                        FSFilesManager fsFilesManager,
+                        FSPluginProperties fsPluginProperties,
+                        FSSendMessagesService fsSendMessagesService,
+                        FSProcessFileService fsProcessFileService,
+                        DomainTaskExtExecutor domainTaskExtExecutor,
+                        FSDomainService fsDomainService,
+                        FSXMLHelper fsxmlHelper,
+                        FSMimeTypeHelper fsMimeTypeHelper,
+                        FSFileNameHelper fsFileNameHelper,
+                        FSSendMessageListenerContainer fsSendMessageListenerContainer,
+                        DomibusPropertyExtService domibusPropertyExtService,
+                        FileUtilExtService fileUtilExtService) {
         super(PLUGIN_NAME);
         this.defaultTransformer = defaultTransformer;
         this.fsFilesManager = fsFilesManager;
@@ -122,6 +132,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         this.fsMimeTypeHelper = fsMimeTypeHelper;
         this.fsFileNameHelper = fsFileNameHelper;
         this.fsSendMessageListenerContainer = fsSendMessageListenerContainer;
+        this.fileUtilExtService = fileUtilExtService;
         this.domibusPropertyExtService = domibusPropertyExtService;
 
         setRequiredNotifications();
@@ -182,7 +193,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
             throw new FSPluginException("Unable to extract finalRecipient from message " + messageId);
         }
         final String finalRecipientFolder = sanitizeFileName(finalRecipient);
-        final String messageIdFolder = sanitizeFileName(messageId);
+        final String messageIdFolder = fileUtilExtService.urlEncode(messageId);
 
 
         // Persist message
