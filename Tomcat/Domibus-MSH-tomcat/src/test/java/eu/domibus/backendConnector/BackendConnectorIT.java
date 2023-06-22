@@ -48,6 +48,11 @@ import static eu.domibus.backendConnector.TestWSPluginPropertyManager.TEST_WSPLU
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
 import static org.junit.Assert.*;
 
+/**
+ * @author Ion perpegel
+ * @since 5.2
+ */
+
 @Transactional
 public class BackendConnectorIT extends DeleteMessageAbstractIT {
 
@@ -86,7 +91,6 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
 
     String messageId, filename;
 
-    @Transactional
     @Before
     public void before() throws XmlProcessingException, IOException {
         super.before();
@@ -123,7 +127,6 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
         return UUID.randomUUID() + "@domibus.eu";
     }
 
-    @Transactional
     @After
     public void after() {
         List<MessageLogInfo> list = userMessageLogDao.findAllInfoPaged(0, 100, "ID_PK", true, new HashMap<>());
@@ -134,7 +137,6 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     }
 
     @Test
-    @Transactional
     public void testNotifyFirstEnabledPlugin() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
@@ -149,8 +151,7 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     }
 
     @Test
-    @Transactional
-    public void testNotifySinleEnabledPlugin() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
+    public void testNotifySingleEnabledPlugin() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
         // ws plugin not ebabled so the FS will receive the message
         domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
 
@@ -178,7 +179,6 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     }
 
     @Test
-    @Transactional
     public void testNotifyDisabledPlugin() throws SOAPException, IOException, ParserConfigurationException, SAXException {
         // set like this to void property change listeners to fire and validate that at least one active plugin exists per domain
         setValueInDomibusPropertySource("default." + TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
@@ -194,7 +194,6 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     }
 
     @Test
-    @Transactional
     public void testTryDisableAllPlugins() {
         domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
         Assert.assertFalse(domibusPropertyProvider.getBooleanProperty(TEST_WSPLUGIN_DOMAIN_ENABLED));
@@ -208,7 +207,6 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     }
 
     @Test
-    @Transactional
     public void testTrySubmitWithDisabledPlugin() {
         domibusPropertyProvider.setProperty(TEST_FSPLUGIN_DOMAIN_ENABLED, "false");
         Assert.assertFalse(domibusPropertyProvider.getBooleanProperty(TEST_FSPLUGIN_DOMAIN_ENABLED));

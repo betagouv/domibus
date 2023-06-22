@@ -9,7 +9,7 @@ import static eu.domibus.backendConnector.TestFSPluginPropertyManager.TEST_FSPLU
 
 /**
  * @author Ion Perpegel
- * @since 5.1
+ * @since 5.2
  * <p>
  * Handles enabling/disabling of ws-plugin for the current domain.
  */

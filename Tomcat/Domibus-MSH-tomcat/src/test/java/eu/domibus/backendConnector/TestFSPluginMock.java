@@ -10,7 +10,7 @@ import static eu.domibus.backendConnector.TestFSPluginPropertyManager.TEST_FSPLU
 
 /**
  * @author Ion perpegel
- * @since 5.0
+ * @since 5.2
  */
 @Service
 public class TestFSPluginMock extends BackendConnectorBaseMock {

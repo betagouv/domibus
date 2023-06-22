@@ -8,7 +8,7 @@ import static eu.domibus.backendConnector.TestWSPluginPropertyManager.TEST_WSPLU
 
 /**
  * @author Ion perpegel
- * @since 5.0
+ * @since 5.2
  */
 @Service
 public class TestWSPluginMock extends BackendConnectorBaseMock {

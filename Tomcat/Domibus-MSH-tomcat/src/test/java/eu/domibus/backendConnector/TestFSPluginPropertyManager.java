@@ -20,7 +20,7 @@ import static eu.domibus.backendConnector.TestFSPluginMock.TEST_FS_PLUGIN;
  * Property manager for integration test; handles locally some properties
  *
  * @author Ion Perpegel
- * @since 5.0
+ * @since 5.2
  */
 @Component
 public class TestFSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAbstract

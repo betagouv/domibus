@@ -17,7 +17,7 @@ import static eu.domibus.backendConnector.TestWSPluginMock.TEST_WS_PLUGIN;
  * Property manager for integration test; handles locally some properties
  *
  * @author Ion Perpegel
- * @since 5.0
+ * @since 5.2
  */
 @Component
 public class TestWSPluginPropertyManager extends DomibusPropertyExtServiceDelegateAbstract

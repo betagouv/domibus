@@ -8,7 +8,7 @@ import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 
 /**
  * @author Ion perpegel
- * @since 5.0
+ * @since 5.2
  */
 public class BackendConnectorBaseMock extends AbstractBackendConnector {
 
