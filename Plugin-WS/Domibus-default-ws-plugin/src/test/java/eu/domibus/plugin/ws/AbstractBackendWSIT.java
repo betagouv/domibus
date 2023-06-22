@@ -72,8 +72,6 @@ public abstract class AbstractBackendWSIT extends AbstractIT {
 
     public static final String STRING_TYPE = "string";
 
-    protected static final int SERVICE_PORT = 8892;
-
     public static final String WS_NOT_QUEUE = "domibus.notification.webservice";
 
     @Rule

@@ -25,7 +25,9 @@ public abstract class DefaultEnabledChangeListener implements PluginPropertyChan
 
     @Override
     public boolean handlesProperty(String propertyName) {
-        return StringUtils.equals(getEnabledPropertyName(), propertyName);
+        String enabledPropertyName = getEnabledPropertyName();
+        boolean handles = StringUtils.equals(enabledPropertyName, propertyName);
+        return handles;
     }
 
     @Override
