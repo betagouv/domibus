@@ -371,8 +371,7 @@ public class UserPersistenceServiceImplTest {
             result = userEntity;
         }};
 
-        Assertions.assertThrows(UserManagementException. class,() -> Assertions.assertThrows(UserManagementException.class,
-                () -> userPersistenceService.changePassword(userName, currentPassword, newPassword)));
+        Assertions.assertThrows(UserManagementException.class,() -> userPersistenceService.changePassword(userName, currentPassword, newPassword));
 
         new Verifications() {{
             userDao.update(userEntity);

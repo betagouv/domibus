@@ -12,7 +12,7 @@
     </parent>
     <artifactId>domibus-msh-taskexecutor-weblogic</artifactId>
     <packaging>jar</packaging>
-	<name>Domibus MSH TaskExecutor for WebLogic</name>
+    <name>Domibus MSH TaskExecutor for WebLogic</name>
 
     <build>
         <plugins>
@@ -65,7 +65,7 @@
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-api</artifactId>
+            <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

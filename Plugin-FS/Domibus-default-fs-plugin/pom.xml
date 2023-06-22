@@ -16,7 +16,8 @@
 
     <properties>
         <test.config.location>${project.build.directory}/test-classes</test.config.location>
-        <test.resources.location>${project.basedir}/../../Core/Domibus-MSH-test/src/main/resources</test.resources.location>
+        <test.resources.location>${project.basedir}/../../Core/Domibus-MSH-test/src/main/resources
+        </test.resources.location>
     </properties>
 
     <dependencies>
@@ -142,7 +143,7 @@
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-api</artifactId>
+            <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -204,7 +205,7 @@
                         <artifactId>jaxb2-commons-lang</artifactId>
                         <version>2.3</version>
                     </dependency>
-               </dependencies>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -235,7 +236,8 @@
                                 </filter>
                             </filters>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>org/apache/commons/vfs2/Resources.properties</resource>
                                 </transformer>
                             </transformers>

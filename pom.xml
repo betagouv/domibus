@@ -34,8 +34,7 @@
         <hibernate.version>5.6.15.Final</hibernate.version>
         <activemq.version>5.16.5</activemq.version>
         <aspectj.version>1.9.9.1</aspectj.version>
-        <slf4j.version>1.7.36
-        </slf4j.version> <!-- upgrading from 1.7.36 to 2.0.3 causing DomibusLoggerTest crash with a npe on domibusLogger.getCopyOfContextMap().containsKey -->
+        <slf4j.version>1.7.36</slf4j.version> <!-- upgrading from 1.7.36 to 2.0.3 causing DomibusLoggerTest crash with a npe on domibusLogger.getCopyOfContextMap().containsKey -->
         <logback.version>1.2.11</logback.version>
         <httpclient.version>4.5.14</httpclient.version>
         <commons-configuration.version>1.10</commons-configuration.version>
@@ -181,11 +180,11 @@
         <project.scm.id>edelivery-scm</project.scm.id>
         <maven-release-plugin.version>3.0.0-M7</maven-release-plugin.version>
         <junit.version>5.9.3</junit.version>
+        <mockito.version>5.3.1</mockito.version>
     </properties>
 
     <scm>
-        <developerConnection>scm:git:https://ec.europa.eu/digital-building-blocks/code/scm/edelivery/domibus.git
-        </developerConnection>
+        <developerConnection>scm:git:https://ec.europa.eu/digital-building-blocks/code/scm/edelivery/domibus.git</developerConnection>
     </scm>
 
     <!-- Where to deploy the binaries -->
@@ -1211,13 +1210,13 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>5.3.1</version>
+                <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
-                <version>5.3.1</version>
+                <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -1577,6 +1576,7 @@
                                     <goal>run</goal>
                                 </goals>
                                 <configuration>
+<!--                                    See Read me #unit-tests / Intellij-->
                                     <target>
                                         <echo message="Creating junit directory"/>
                                         <mkdir dir="${project.basedir}/../.junit"/>
