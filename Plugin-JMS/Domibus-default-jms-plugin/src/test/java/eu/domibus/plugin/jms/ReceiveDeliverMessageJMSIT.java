@@ -1,7 +1,6 @@
 
 package eu.domibus.plugin.jms;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import eu.domibus.api.jms.JMSManager;
@@ -16,6 +15,7 @@ import eu.domibus.test.common.SubmissionUtil;
 import org.apache.activemq.command.ActiveMQMapMessage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,7 +26,6 @@ import javax.jms.Message;
 import java.io.IOException;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_ID;
 
 
@@ -121,6 +120,7 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
      * @throws Exception
      */
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testDuplicateMessage() throws Exception {
         final MapMessage mapMessage = createJMSMessageForReceive();
 

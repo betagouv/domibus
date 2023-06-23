@@ -8,10 +8,10 @@ import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
+import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
 import eu.domibus.plugin.fs.worker.FSDomainService;
 import eu.domibus.plugin.fs.worker.FSProcessFileService;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
-import eu.domibus.plugin.fs.queue.FSSendMessageListenerContainer;
 import eu.domibus.plugin.handler.MessagePuller;
 import eu.domibus.plugin.handler.MessageRetriever;
 import eu.domibus.plugin.handler.MessageSubmitter;
@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.activation.DataHandler;
 import javax.mail.util.ByteArrayDataSource;
@@ -101,6 +102,9 @@ public class FSPluginImplTest {
 
     @Injectable
     protected FSFileNameHelper fsFileNameHelper;
+
+    @Injectable
+    protected FileUtilExtService fileUtilExtService;
 
     @Injectable
     BackendConnectorProviderExtService backendConnectorProviderExtService;
@@ -181,7 +185,17 @@ public class FSPluginImplTest {
     @Test
     public void testDeliverMessage_NormalFlow(@Injectable final FSMessage fsMessage)
             throws MessageNotFoundException, JAXBException, IOException, FSSetUpException {
+        ReflectionTestUtils.setField(backendFS, "fileUtilExtService", new FileUtilExtService() {
+            @Override
+            public String sanitizeFileName(String fileName) {
+                return fileName;
+            }
 
+            @Override
+            public String urlEncode(String s) {
+                return s;
+            }
+        });
         final String payloadFileName = "message_test.xml";
         final String payloadContent = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
         final DataHandler dataHandler = new DataHandler(new ByteArrayDataSource(payloadContent.getBytes(), TEXT_XML));
@@ -258,7 +272,17 @@ public class FSPluginImplTest {
     @Test
     public void testDeliverMessage_MultiplePayloads(@Injectable final FSMessage fsMessage)
             throws MessageNotFoundException, JAXBException, IOException, FSSetUpException {
+        ReflectionTestUtils.setField(backendFS, "fileUtilExtService", new FileUtilExtService() {
+            @Override
+            public String sanitizeFileName(String fileName) {
+                return fileName;
+            }
 
+            @Override
+            public String urlEncode(String s) {
+                return s;
+            }
+        });
         final UserMessage userMessage = FSTestHelper.getUserMessage(FSPluginImplTest.class, "testDeliverMessageNormalFlow_metadata.xml");
         final String messageContent = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGludm9pY2U+aGVsbG88L2ludm9pY2U+";
         final String invoiceContent = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
@@ -312,7 +336,17 @@ public class FSPluginImplTest {
     @Test
     public void testDeliverMessage_MultiplePayloads_WrongPayloadNames(@Injectable final FSMessage fsMessage)
             throws MessageNotFoundException, JAXBException, IOException, FSSetUpException {
+        ReflectionTestUtils.setField(backendFS, "fileUtilExtService", new FileUtilExtService() {
+            @Override
+            public String sanitizeFileName(String fileName) {
+                return fileName;
+            }
 
+            @Override
+            public String urlEncode(String s) {
+                return s;
+            }
+        });
         final UserMessage userMessage = FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml");
         final String messageContent = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGludm9pY2U+aGVsbG88L2ludm9pY2U+";
         final String invoiceContent = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
