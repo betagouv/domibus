@@ -5,10 +5,10 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.File;
@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * @author Flavio Santos
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class StorageTest {
 
     @Tested
@@ -36,7 +36,7 @@ public class StorageTest {
     public void testMissingPayloadFolder(@Injectable Domain domain) throws IOException {
         String folderName = String.valueOf(System.currentTimeMillis());
         Path tempPath = Paths.get("src", "test", "resources", folderName).toAbsolutePath();
-        Assert.assertTrue(Files.notExists(tempPath));
+        Assertions.assertTrue(Files.notExists(tempPath));
 
         new Expectations(storage) {{
             domibusPropertyProvider.getProperty((Domain) any,  PayloadFileStorage.ATTACHMENT_STORAGE_LOCATION);
@@ -45,9 +45,9 @@ public class StorageTest {
 
         storage.init();
 
-        Assert.assertTrue(Files.exists(tempPath));
+        Assertions.assertTrue(Files.exists(tempPath));
         File storageDirectory = (File) ReflectionTestUtils.getField(storage, "storageDirectory");
-        Assert.assertEquals(tempPath.toAbsolutePath().toString(), storageDirectory.toString());
+        Assertions.assertEquals(tempPath.toAbsolutePath().toString(), storageDirectory.toString());
         Files.delete(tempPath);
     }
 
@@ -62,7 +62,7 @@ public class StorageTest {
         storage.init();
 
         File storageDirectory = (File) ReflectionTestUtils.getField(storage, "storageDirectory");
-        Assert.assertEquals(Paths.get(System.getProperty("java.io.tmpdir")).toString(), storageDirectory.toString());
+        Assertions.assertEquals(Paths.get(System.getProperty("java.io.tmpdir")).toString(), storageDirectory.toString());
     }
 
     private boolean isWindowsOS() {

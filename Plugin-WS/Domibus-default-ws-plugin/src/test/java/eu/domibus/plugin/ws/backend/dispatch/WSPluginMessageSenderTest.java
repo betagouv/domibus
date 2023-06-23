@@ -15,9 +15,10 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
@@ -30,7 +31,7 @@ import static eu.domibus.plugin.ws.property.WSPluginPropertyManager.PUSH_MARK_AS
  * @since 5.0
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "JUnitMalformedDeclaration"})
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class WSPluginMessageSenderTest {
 
     public static final String RULE_NAME = "ruleName";
@@ -61,8 +62,8 @@ public class WSPluginMessageSenderTest {
     @Injectable
     private DomibusPropertyExtService domibusPropertyExtService;
 
-    @Test(expected = WSPluginException.class)
-    public void sendSubmitMessage_noRule(@Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity) {
+    @Test
+    void sendSubmitMessage_noRule(@Injectable WSBackendMessageLogEntity wsBackendMessageLogEntity) {
         new Expectations() {{
 
             wsBackendMessageLogEntity.getRuleName();
@@ -78,7 +79,7 @@ public class WSPluginMessageSenderTest {
             result = null;
         }};
 
-        wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity);
+        Assertions.assertThrows(WSPluginException. class,() -> wsPluginMessageSender.sendNotification(wsBackendMessageLogEntity));
 
         new FullVerifications() {{
         }};

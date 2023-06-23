@@ -1,8 +1,8 @@
 package eu.domibus.plugin.ws.webservice.deprecated.mapper;
 
 import eu.domibus.plugin.ws.generated.header.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -31,7 +31,7 @@ public class WSPluginMessagingMapperTest {
 
         Messaging messaging = new WSPluginMessagingMapperImpl().messagingToEntity(messagingFromFile);
 
-        Assert.assertNotNull(messaging.getUserMessage());
+        Assertions.assertNotNull(messaging.getUserMessage());
 
     }
 

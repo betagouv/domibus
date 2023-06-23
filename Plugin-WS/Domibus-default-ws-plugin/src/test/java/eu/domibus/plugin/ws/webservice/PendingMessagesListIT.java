@@ -8,8 +8,8 @@ import eu.domibus.plugin.ws.generated.ListPendingMessagesFault;
 import eu.domibus.plugin.ws.generated.body.ListPendingMessagesRequest;
 import eu.domibus.plugin.ws.generated.body.ListPendingMessagesResponse;
 import eu.domibus.plugin.ws.message.WSMessageLogDao;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -34,11 +34,11 @@ public class PendingMessagesListIT extends AbstractBackendWSIT {
         ListPendingMessagesResponse response = webServicePluginInterface.listPendingMessages(request);
 
         // Verifies the response
-        Assert.assertNotNull(response);
+        Assertions.assertNotNull(response);
         if(response.getMessageID() != null) {
             LOG.info("~~~~~~~~~~~~~~~~got messageId ...[{}]...", response.getMessageID());
         }
-        Assert.assertTrue(response.getMessageID().isEmpty());
+        Assertions.assertTrue(response.getMessageID().isEmpty());
     }
 
 }

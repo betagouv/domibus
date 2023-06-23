@@ -3,9 +3,9 @@ package eu.domibus.plugin.fs.vfs.smb;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  *
@@ -15,7 +15,7 @@ public class SmbFileNameTest {
     
     private SmbFileName fileName;
     
-    @Before
+    @BeforeEach
     public void setUp() throws FileSystemException {
         // smb://domain\\user:password@example.org:12345/sharename/file1
         fileName = new SmbFileName("smb", "example.org", 12345, "user", "password", "domain", "sharename", "/file1", FileType.FILE);
@@ -25,21 +25,21 @@ public class SmbFileNameTest {
     public void testGetShare() throws FileSystemException {
         String result = fileName.getShare();
         
-        Assert.assertEquals("sharename", result);
+        Assertions.assertEquals("sharename", result);
     }
     
     @Test
     public void testGetDomain() throws FileSystemException {
         String result = fileName.getDomain();
         
-        Assert.assertEquals("domain", result);
+        Assertions.assertEquals("domain", result);
     }
 
     @Test
     public void testCreateName() {
         FileName result = fileName.createName("/file2", FileType.FILE);
         
-        Assert.assertEquals("smb://domain\\user:password@example.org:12345/sharename/file2", result.getURI());
+        Assertions.assertEquals("smb://domain\\user:password@example.org:12345/sharename/file2", result.getURI());
     }
 
     @Test
@@ -48,9 +48,9 @@ public class SmbFileNameTest {
         String result1 = fileName.getUriWithoutAuth();
         String result2 = fileName.getUriWithoutAuth();
         
-        Assert.assertEquals("smb://example.org:12345/sharename/file1", result1);
-        Assert.assertEquals("smb://example.org:12345/sharename/file1", result2);
-        Assert.assertSame(result1, result2);
+        Assertions.assertEquals("smb://example.org:12345/sharename/file1", result1);
+        Assertions.assertEquals("smb://example.org:12345/sharename/file1", result2);
+        Assertions.assertSame(result1, result2);
     }
 
     @Test
@@ -60,8 +60,8 @@ public class SmbFileNameTest {
         boolean result1 = fileName.equals(fileName2);
         boolean result2 = fileName2.equals(fileName);
         
-        Assert.assertTrue(result1);
-        Assert.assertTrue(result2);
+        Assertions.assertTrue(result1);
+        Assertions.assertTrue(result2);
     }
     
     @Test
@@ -71,8 +71,8 @@ public class SmbFileNameTest {
         boolean result1 = fileName.equals(fileName2);
         boolean result2 = fileName2.equals(fileName);
         
-        Assert.assertFalse(result1);
-        Assert.assertFalse(result2);
+        Assertions.assertFalse(result1);
+        Assertions.assertFalse(result2);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class SmbFileNameTest {
         int result1 = fileName.hashCode();
         int result2 = fileName2.hashCode();
         
-        Assert.assertEquals(result1, result2);
+        Assertions.assertEquals(result1, result2);
     }
     
 }

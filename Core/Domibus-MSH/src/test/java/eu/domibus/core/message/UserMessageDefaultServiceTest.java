@@ -37,13 +37,13 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.Session;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -54,15 +54,15 @@ import java.util.*;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
 import static eu.domibus.core.message.UserMessageDefaultService.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Cosmin Baciu, Soumya
  * @since 3.3
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked", "ConstantConditions"})
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserMessageDefaultServiceTest {
 
     public static final String MESSAGE_ID = "1000";
@@ -235,7 +235,7 @@ public class UserMessageDefaultServiceTest {
             result = null;
         }};
 
-        Assert.assertNull(userMessageDefaultService.getFinalRecipient(messageId, MSHRole.SENDING));
+        Assertions.assertNull(userMessageDefaultService.getFinalRecipient(messageId, MSHRole.SENDING));
     }
 
     @Test
@@ -266,8 +266,8 @@ public class UserMessageDefaultServiceTest {
         assertNotNull(failedMessageElapsedTime);
     }
 
-    @Test(expected = UserMessageException.class)
-    public void testGetFailedMessageElapsedTimeWhenFailedDateIsNull(@Injectable final UserMessageLog userMessageLog) {
+    @Test
+    void testGetFailedMessageElapsedTimeWhenFailedDateIsNull(@Injectable final UserMessageLog userMessageLog) {
         final String messageId = "1";
 
         new Expectations(userMessageDefaultService) {{
@@ -277,8 +277,8 @@ public class UserMessageDefaultServiceTest {
             userMessageLog.getFailed();
             result = null;
         }};
-
-        userMessageDefaultService.getFailedMessageElapsedTime(messageId);
+        Assertions.assertThrows(UserMessageException.class,
+                () -> userMessageDefaultService.getFailedMessageElapsedTime(messageId));
     }
 
     @Test
@@ -343,8 +343,8 @@ public class UserMessageDefaultServiceTest {
         }
     }
 
-    @Test(expected = UserMessageException.class)
-    public void testFailedMessageWhenStatusIsNotFailed(@Injectable final UserMessageLog userMessageLog) {
+    @Test
+    void testFailedMessageWhenStatusIsNotFailed(@Injectable final UserMessageLog userMessageLog) {
         final String messageId = "1";
 
         new Expectations() {{
@@ -355,7 +355,8 @@ public class UserMessageDefaultServiceTest {
             result = MessageStatus.RECEIVED;
         }};
 
-        userMessageDefaultService.getFailedMessage(messageId);
+        Assertions.assertThrows(UserMessageException.class,
+                () -> userMessageDefaultService.getFailedMessage(messageId));
     }
 
     @Test
@@ -371,7 +372,7 @@ public class UserMessageDefaultServiceTest {
         }};
 
         final UserMessageLog failedMessage = userMessageDefaultService.getFailedMessage(messageId);
-        Assert.assertNotNull(failedMessage);
+        Assertions.assertNotNull(failedMessage);
     }
 
     @Test
@@ -592,7 +593,7 @@ public class UserMessageDefaultServiceTest {
 
         userMessageDefaultService.deleteFailedMessage(messageId);
 
-        new FullVerificationsInOrder(userMessageDefaultService) {{
+        new VerificationsInOrder() {{
             userMessageDefaultService.getFailedMessage(messageId);
             userMessageDefaultService.deleteMessage(messageId, MSHRole.SENDING);
         }};
@@ -789,8 +790,8 @@ public class UserMessageDefaultServiceTest {
             result = new HashSet<>(Arrays.asList(mimeTypeProperty, compressionProperty));
         }};
 
-        Assert.assertEquals(originalExtension, userMessageDefaultService.getPayloadExtension(partInfoNotCompressed));
-        Assert.assertEquals(originalExtension, userMessageDefaultService.getPayloadExtension(partInfoCompressed));
+        Assertions.assertEquals(originalExtension, userMessageDefaultService.getPayloadExtension(partInfoNotCompressed));
+        Assertions.assertEquals(originalExtension, userMessageDefaultService.getPayloadExtension(partInfoCompressed));
     }
 
     @Test
@@ -817,9 +818,9 @@ public class UserMessageDefaultServiceTest {
 
         }};
 
-        Assert.assertEquals("bodyload.xml", userMessageDefaultService.getPayloadName(partInfoWithBodyload));
-        Assert.assertEquals("1234Payload.xml", userMessageDefaultService.getPayloadName(partInfoWithPayload));
-        Assert.assertEquals("test.txt", userMessageDefaultService.getPayloadName(partInfoWithPartProperties));
+        Assertions.assertEquals("bodyload.xml", userMessageDefaultService.getPayloadName(partInfoWithBodyload));
+        Assertions.assertEquals("1234Payload.xml", userMessageDefaultService.getPayloadName(partInfoWithPayload));
+        Assertions.assertEquals("test.txt", userMessageDefaultService.getPayloadName(partInfoWithPartProperties));
     }
 
     @Test
@@ -832,11 +833,11 @@ public class UserMessageDefaultServiceTest {
 
         UserMessage result = userMessageDefaultService.getUserMessageById(messageId, MSHRole.RECEIVING);
 
-        Assert.assertEquals(userMessage, result);
+        Assertions.assertEquals(userMessage, result);
     }
 
-    @Test(expected = MessageNotFoundException.class)
-    public void getUserMessageById_notFound() {
+    @Test
+    void getUserMessageById_notFound() {
         final String messageId = UUID.randomUUID().toString();
 
         new Expectations() {{
@@ -844,7 +845,8 @@ public class UserMessageDefaultServiceTest {
             result = null;
         }};
 
-        userMessageDefaultService.getUserMessageById(messageId, MSHRole.RECEIVING);
+        Assertions.assertThrows(MessageNotFoundException.class,
+                () ->  userMessageDefaultService.getUserMessageById(messageId, MSHRole.RECEIVING));
 
         new Verifications() {{
             auditService.addMessageDownloadedAudit(messageId, MSHRole.RECEIVING);
@@ -862,9 +864,9 @@ public class UserMessageDefaultServiceTest {
         }};
         try {
             userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
-            Assert.fail();
+            Assertions.fail();
         } catch (MessageNotFoundException ex) {
-            Assert.assertTrue(ex.getMessage().contains("Message [1] does not exist"));
+            Assertions.assertTrue(ex.getMessage().contains("Message [1] does not exist"));
         }
 
     }
@@ -882,7 +884,7 @@ public class UserMessageDefaultServiceTest {
         }};
 
         final UserMessageLog message = userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
-        Assert.assertNotNull(message);
+        Assertions.assertNotNull(message);
     }
 
     @Test
@@ -901,7 +903,7 @@ public class UserMessageDefaultServiceTest {
             userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
             fail();
         } catch (UserMessageException ex) {
-            Assert.assertTrue(ex.getMessage().contains("Message [1] is in final state [" + MessageStatus.ACKNOWLEDGED.name() + "]"));
+            Assertions.assertTrue(ex.getMessage().contains("Message [1] is in final state [" + MessageStatus.ACKNOWLEDGED.name() + "]"));
         }
     }
 
@@ -920,7 +922,7 @@ public class UserMessageDefaultServiceTest {
 
         userMessageDefaultService.deleteMessageNotInFinalStatus(messageId, MSHRole.SENDING);
 
-        new FullVerificationsInOrder(userMessageDefaultService) {{
+        new VerificationsInOrder() {{
             userMessageDefaultService.getMessageNotInFinalStatus(messageId, MSHRole.SENDING);
             userMessageDefaultService.deleteMessage(messageId, mes.getMshRole().getRole());
         }};
@@ -956,7 +958,7 @@ public class UserMessageDefaultServiceTest {
         String messageId = "messageId";
 
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageId(anyString, (MSHRole)any);
+            userMessageLogDao.findByMessageId(anyString, (MSHRole) any);
             result = existingMessage;
             existingMessage.getDeleted();
             result = null;
@@ -968,16 +970,16 @@ public class UserMessageDefaultServiceTest {
 
         try {
             userMessageDefaultService.checkCanGetMessageContent(messageId, MSHRole.RECEIVING);
-            Assert.fail();
+            Assertions.fail();
         } catch (MessagingException ex) {
-            Assert.assertEquals(ex.getMessage(), "[DOM_001]:The message size exceeds maximum download size limit: 1");
+            Assertions.assertEquals(ex.getMessage(), "[DOM_001]:The message size exceeds maximum download size limit: 1");
         }
     }
 
     @Test
     public void test_checkCanDownloadWithDeletedMessage(@Injectable UserMessageLog deletedMessage) {
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageId(anyString, (MSHRole)any);
+            userMessageLogDao.findByMessageId(anyString, (MSHRole) any);
             result = deletedMessage;
             deletedMessage.getDeleted();
             result = new Date();
@@ -985,16 +987,16 @@ public class UserMessageDefaultServiceTest {
         }};
         try {
             userMessageDefaultService.checkCanGetMessageContent("messageId", MSHRole.RECEIVING);
-            Assert.fail();
+            Assertions.fail();
         } catch (MessagingException ex) {
-            Assert.assertTrue(ex.getMessage().contains("[DOM_001]:Message content is no longer available for message id:"));
+            Assertions.assertTrue(ex.getMessage().contains("[DOM_001]:Message content is no longer available for message id:"));
         }
     }
 
     @Test
     public void test_checkCanDownloadWithExistingMessage(@Injectable UserMessageLog existingMessage) {
         new Expectations(userMessageDefaultService) {{
-            userMessageLogDao.findByMessageId(anyString, (MSHRole)any);
+            userMessageLogDao.findByMessageId(anyString, (MSHRole) any);
             result = existingMessage;
             existingMessage.getDeleted();
             result = null;
@@ -1006,15 +1008,15 @@ public class UserMessageDefaultServiceTest {
     @Test
     public void test_checkCanDownloadWhenNoMessage() {
         new Expectations() {{
-            userMessageLogDao.findByMessageId(anyString, (MSHRole)any);
+            userMessageLogDao.findByMessageId(anyString, (MSHRole) any);
             result = null;
         }};
 
         try {
             userMessageDefaultService.checkCanGetMessageContent("messageId", MSHRole.RECEIVING);
-            Assert.fail();
+            Assertions.fail();
         } catch (MessagingException ex) {
-            Assert.assertEquals(ex.getMessage(), "[DOM_001]:No message found for message id: messageId");
+            Assertions.assertEquals(ex.getMessage(), "[DOM_001]:No message found for message id: messageId");
         }
     }
 }

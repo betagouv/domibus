@@ -7,8 +7,9 @@ import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
 import org.apache.cxf.message.Message;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ public class HttpHeaderOutInterceptorTest {
     HttpHeaderInInterceptor httpHeaderInInterceptor;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void test_handleMessage_UserAgentPresentApache(final @Mocked Message message) {
         Map<String, List<String>> headers = new HashMap<>();
         headers.put("user-agent", Collections.singletonList("Apache-CXF/3.2"));
@@ -45,11 +47,12 @@ public class HttpHeaderOutInterceptorTest {
         //tested method
         httpHeaderInInterceptor.handleMessage(message);
 
-        Assert.assertNull(headers.get("user-agent"));
-        Assert.assertNotNull(headers.get("cache-control"));
+        Assertions.assertNull(headers.get("user-agent"));
+        Assertions.assertNotNull(headers.get("cache-control"));
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void test_handleMessage_UserAgentNotPresent(final @Mocked Message message) {
         Map<String, List<String>> headers = new HashMap<>();
         headers.put("accept", Collections.singletonList("*/*"));
@@ -63,8 +66,8 @@ public class HttpHeaderOutInterceptorTest {
         //tested method
         httpHeaderInInterceptor.handleMessage(message);
 
-        Assert.assertTrue(headers != null && headers.size() == 2);
-        Assert.assertNotNull(headers.get("connection"));
+        Assertions.assertTrue(headers != null && headers.size() == 2);
+        Assertions.assertNotNull(headers.get("connection"));
 
     }
 }

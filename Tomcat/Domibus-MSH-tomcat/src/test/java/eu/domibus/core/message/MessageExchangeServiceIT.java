@@ -7,8 +7,8 @@ import eu.domibus.api.model.RawEnvelopeDto;
 import eu.domibus.api.model.UserMessageRaw;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,10 +46,10 @@ public class MessageExchangeServiceIT extends AbstractIT {
         messageExchangeService.saveRawXml(testXMLEnvelope, messageId, MSHRole.RECEIVING);
         RawEnvelopeDto rawXmlByMessageId = userMessageRawEnvelopeDao.findRawXmlByMessageIdAndRole(messageId, MSHRole.RECEIVING);
         String rawXmlMessage = rawXmlByMessageId.getRawXmlMessage();
-        Assert.assertEquals(testXMLEnvelope, rawXmlMessage);
+        Assertions.assertEquals(testXMLEnvelope, rawXmlMessage);
 
         UserMessageRaw byReference = userMessageRawEnvelopeDao.findByReference(rawXmlByMessageId.getId());
-        Assert.assertTrue(Arrays.equals(byReference.getRawXML(), testXMLEnvelope.getBytes(StandardCharsets.UTF_8)));
+        Assertions.assertTrue(Arrays.equals(byReference.getRawXML(), testXMLEnvelope.getBytes(StandardCharsets.UTF_8)));
     }
 
 }

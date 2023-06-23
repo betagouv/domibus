@@ -7,8 +7,8 @@ import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +36,7 @@ public class MessagesLogServiceImplTestIT extends AbstractIT {
     protected RoutingService routingService;
 
 
-    @Before
+    @BeforeEach
     public void before() throws IOException, XmlProcessingException {
         uploadPMode();
     }

@@ -17,7 +17,8 @@
 
     <properties>
         <test.config.location>${project.build.directory}/test-classes</test.config.location>
-        <test.resources.location>${project.basedir}/../../Core/Domibus-MSH-test/src/main/resources</test.resources.location>
+        <test.resources.location>${project.basedir}/../../Core/Domibus-MSH-test/src/main/resources
+        </test.resources.location>
     </properties>
 
     <dependencies>
@@ -89,8 +90,8 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>

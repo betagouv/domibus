@@ -3,7 +3,7 @@ package eu.domibus.core.converter;
 import eu.domibus.api.cluster.Command;
 import eu.domibus.core.clustering.CommandEntity;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

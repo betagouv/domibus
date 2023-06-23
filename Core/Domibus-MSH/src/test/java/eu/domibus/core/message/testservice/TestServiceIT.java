@@ -16,17 +16,17 @@ import eu.domibus.plugin.handler.MessageSubmitter;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 
 /**
  * @author Sebastian-Ion TINCU
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class TestServiceIT {
 
     @Tested
@@ -79,16 +79,16 @@ public class TestServiceIT {
         Submission submission = testService.createSubmission("sender");
 
         // THEN
-        Assert.assertTrue("Should have correctly read the submission data from the test service Json file",
-                submission != null
-                        && "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test".equals(submission.getAction())
-                        && "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service".equals(submission.getService())
-                        && "1".equals(submission.getConversationId())
-                        && "initiator".equals(submission.getFromRole())
-                        && "responder".equals(submission.getToRole())
-                        && submission.getFromParties().size() == 1 && submission.getFromParties().stream().allMatch(party -> "sender".equals(party.getPartyId()))
-                        && submission.getToParties().size() == 1 && submission.getToParties().stream().allMatch(party -> "_RECEIVER_".equals(party.getPartyId()))
-                        && submission.getPayloads().size() == 1 && submission.getPayloads().stream().allMatch(payload -> "cid:message".equals(payload.getContentId()))
-        );
+        Assertions.assertTrue(submission != null
+                                && "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/test".equals(submission.getAction())
+                                && "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/service".equals(submission.getService())
+                                && "1".equals(submission.getConversationId())
+                                && "initiator".equals(submission.getFromRole())
+                                && "responder".equals(submission.getToRole())
+                                && submission.getFromParties().size() == 1 && submission.getFromParties().stream().allMatch(party -> "sender".equals(party.getPartyId()))
+                                && submission.getToParties().size() == 1 && submission.getToParties().stream().allMatch(party -> "_RECEIVER_".equals(party.getPartyId()))
+                                && submission.getPayloads().size() == 1 && submission.getPayloads().stream().allMatch(payload -> "cid:message".equals(payload.getContentId())),
+                "Should have correctly read the submission data from the test service Json file"
+                );
     }
 }

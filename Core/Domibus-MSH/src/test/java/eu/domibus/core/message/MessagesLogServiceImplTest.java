@@ -11,16 +11,16 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MessagesLogServiceImplTest {
 
     @Tested
@@ -69,7 +69,7 @@ public class MessagesLogServiceImplTest {
             times = 1;
         }};
 
-        Assert.assertEquals(numberOfUserMessageLogs, res.size());
+        Assertions.assertEquals(numberOfUserMessageLogs, res.size());
     }
 
     @Test
@@ -94,7 +94,7 @@ public class MessagesLogServiceImplTest {
             times = 1;
         }};
 
-        Assert.assertEquals(resultList.size(), res.getMessageLogEntries().size());
+        Assertions.assertEquals(resultList.size(), res.getMessageLogEntries().size());
     }
 
 }

@@ -22,10 +22,7 @@ import eu.europa.ec.dynamicdiscovery.model.ParticipantIdentifier;
 import eu.europa.ec.dynamicdiscovery.model.ServiceMetadata;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.Ignore;
+import org.junit.jupiter.api.*;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.EndpointType;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ServiceGroupType;
 import org.oasis_open.docs.bdxr.ns.smp._2016._05.ServiceMetadataType;
@@ -118,7 +115,7 @@ public class DynamicDiscoveryServiceOASISIT extends AbstractIT {
     @Autowired
     private DynamicDiscoveryServiceOASIS dynamicDiscoveryServiceOASIS;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
         serviceMetadata = buildServiceMetadata();
         expired_serviceMetadata = buildServiceMetadata();
@@ -145,25 +142,25 @@ public class DynamicDiscoveryServiceOASISIT extends AbstractIT {
         return start;
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         uploadPMode(SERVICE_PORT);
         createStore(DOMIBUS_TRUSTSTORE_NAME, "keystores/gateway_truststore.jks");
         createStore(DOMIBUS_KEYSTORE_NAME, "keystores/gateway_keystore.jks");
     }
 
-    @Test(expected = AuthenticationException.class)
-    public void lookupInformation_expired() throws EbMS3Exception {
-        dynamicDiscoveryServiceOASIS.lookupInformation("domain",
+    @Test
+    void lookupInformation_expired() {
+        Assertions.assertThrows(AuthenticationException. class,() -> dynamicDiscoveryServiceOASIS.lookupInformation("domain",
                 "participantId_expired",
                 "participantIdScheme",
                 "scheme::value",
                 "urn:epsosPatientService::List",
-                "ehealth-procid-qns");
+                "ehealth-procid-qns"));
     }
 
     @Test
-    @Ignore("EDELIVERY-10865") //TODO
+    @Disabled("EDELIVERY-10865") //TODO
     public void lookupInformation() throws EbMS3Exception {
         dynamicDiscoveryServiceOASIS.lookupInformation("domain",
                 "participantId",

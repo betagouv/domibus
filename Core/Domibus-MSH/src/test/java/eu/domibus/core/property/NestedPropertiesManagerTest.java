@@ -4,10 +4,10 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadata;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.util.HashSet;
@@ -16,14 +16,14 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import static eu.domibus.api.property.DomibusPropertyMetadata.NAME_SEPARATOR;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Ion Perpegel
  * @since 5.0
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class NestedPropertiesManagerTest {
 
     @Tested
@@ -53,8 +53,8 @@ public class NestedPropertiesManagerTest {
         }};
 
         List<String> nestedProperties = nestedPropertiesManager.getNestedProperties(prop);
-        Assert.assertEquals(3, nestedProperties.size());
-        Assert.assertTrue(nestedProperties.contains("rule1"));
+        Assertions.assertEquals(3, nestedProperties.size());
+        Assertions.assertTrue(nestedProperties.contains("rule1"));
     }
 
     @Test
@@ -111,7 +111,7 @@ public class NestedPropertiesManagerTest {
 
         String value = nestedPropertiesManager.computePropertyPrefix(DomainService.DEFAULT_DOMAIN, prop);
 
-        Assert.assertEquals(DomainService.DEFAULT_DOMAIN.getCode() + NAME_SEPARATOR + propPrefix, value);
+        Assertions.assertEquals(DomainService.DEFAULT_DOMAIN.getCode() + NAME_SEPARATOR + propPrefix, value);
     }
 
     @Test
@@ -138,6 +138,6 @@ public class NestedPropertiesManagerTest {
 
         String value = nestedPropertiesManager.computePropertyPrefix(domain, prop);
 
-        Assert.assertEquals(domainCode + NAME_SEPARATOR + propPrefix, value);
+        Assertions.assertEquals(domainCode + NAME_SEPARATOR + propPrefix, value);
     }
 }

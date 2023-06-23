@@ -21,10 +21,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.neethi.Policy;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,9 +32,9 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 
 import static eu.domibus.logging.DomibusLogger.MDC_PROPERTY_PREFIX;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PullMessageSenderTest {
     @Tested
     private PullMessageSender pullMessageSender;

@@ -6,9 +6,9 @@ import eu.domibus.core.clustering.CommandDao;
 import eu.domibus.core.clustering.CommandEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +18,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Cosmin Baciu
@@ -35,7 +35,7 @@ public class CommandDaoIT extends AbstractIT {
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
-    @Before
+    @BeforeEach
     public void setup() {
         LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
     }
@@ -77,14 +77,14 @@ public class CommandDaoIT extends AbstractIT {
         em.flush();
 
         // Check the TB_COMMAND_PROPERTY rows were properly generated
-        Assert.assertEquals(2, em.createNativeQuery("SELECT * FROM TB_COMMAND_PROPERTY").getResultList().size());
+        assertEquals(2, em.createNativeQuery("SELECT * FROM TB_COMMAND_PROPERTY").getResultList().size());
         List<CommandEntity> ms1 = commandDao.findCommandsByServerName("ms1");
 
         //Delete of TB_COMMAND should delete TB_COMMAND_PROPERTY related
         commandDao.delete(ms1.get(0));
 
         em.flush();
-        Assert.assertEquals(0, em.createNativeQuery("SELECT * FROM TB_COMMAND_PROPERTY").getResultList().size());
-        Assert.assertEquals(0, commandDao.findCommandsByServerName("ms1").size());
+        assertEquals(0, em.createNativeQuery("SELECT * FROM TB_COMMAND_PROPERTY").getResultList().size());
+        assertEquals(0, commandDao.findCommandsByServerName("ms1").size());
     }
 }

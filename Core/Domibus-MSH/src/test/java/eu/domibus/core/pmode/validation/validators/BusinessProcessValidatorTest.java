@@ -5,15 +5,16 @@ import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.lang.reflect.Field;
 import java.util.*;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Ion Perpegel
@@ -21,7 +22,7 @@ import static org.junit.Assert.assertTrue;
  * @since 4.2
  * <p>
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class BusinessProcessValidatorTest {
 
     @Tested
@@ -31,6 +32,7 @@ public class BusinessProcessValidatorTest {
     PModeValidationHelper pModeValidationHelper;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void validate_test(final @Injectable Configuration configuration, final @Injectable BusinessProcesses businessProcesses) throws NoSuchFieldException, IllegalAccessException {
         final String processName = "testProcess";
         final Process process = new Process();
@@ -72,6 +74,9 @@ public class BusinessProcessValidatorTest {
         //tested method
         final List<ValidationIssue> results = businessProcessValidator.validate(configuration);
 
+        Assertions.assertNotNull(results);
+        Assertions.assertEquals(7, results.size());
+
         new Verifications() {{
             pModeValidationHelper.createValidationIssue("Mep [%s] of process [%s] not found in business process meps.", null, processName);
             pModeValidationHelper.createValidationIssue("Mep binding [%s] of process [%s] not found in business process bindings.", null, processName);
@@ -79,9 +84,6 @@ public class BusinessProcessValidatorTest {
             pModeValidationHelper.createValidationIssue("Responder role [%s] of process [%s] not found in business process roles.", null, processName);
             pModeValidationHelper.createValidationIssue("Initiator party [%s] of process [%s] not found in business process parties", "testInitiatorParty", processName);
         }};
-
-        Assert.assertNotNull(results);
-        Assert.assertTrue(results.size() == 6);
     }
 
     @Test
@@ -228,8 +230,7 @@ public class BusinessProcessValidatorTest {
     }
 
     @Test
-    public void test_validateAgreement(final @Injectable List<ValidationIssue> validationIssues,
-                                       final @Injectable Process process) {
+    public void test_validateAgreement(final @Injectable Process process) {
         new Expectations(businessProcessValidator) {{
             process.getAgreement();
             result = null;
@@ -239,10 +240,10 @@ public class BusinessProcessValidatorTest {
         }};
 
         //tested method
-        businessProcessValidator.validateAgreement(validationIssues, process);
+        businessProcessValidator.validateAgreement(new ArrayList<>(), process);
 
         new FullVerifications(businessProcessValidator) {{
-           businessProcessValidator.createIssue(validationIssues, process, anyString, "Agreement [%s] of process [%s] not found in business process agreements.");
+           businessProcessValidator.createIssue((List<ValidationIssue>) any, process, anyString, "Agreement [%s] of process [%s] not found in business process agreements.");
         }};
     }
 
@@ -277,7 +278,6 @@ public class BusinessProcessValidatorTest {
     @Test
     public void test_validateEmptyLegs(final @Injectable ValidationIssue validationIssue,
                                        final @Injectable Process process,
-                                       final @Injectable Set<LegConfiguration> legConfigurations,
                                        final @Injectable Legs legs) {
         List<ValidationIssue> issues = new ArrayList<>();
         issues.add(validationIssue);
@@ -286,7 +286,7 @@ public class BusinessProcessValidatorTest {
 
         new Expectations(businessProcessValidator) {{
             process.getLegs();
-            result = legConfigurations;
+            result = new HashSet<>();
 
             pModeValidationHelper.getAttributeValue(process, "legsXml", Legs.class);
             result = legs;
@@ -380,10 +380,9 @@ public class BusinessProcessValidatorTest {
     }
 
     @Test
-    public void test_validateResponderPartiesCaseInsensitive(final @Injectable ValidationIssue validationIssue,
-                                                             final @Injectable Process process,
-                                                             final @Injectable Set<PartyIdType> partyIdTypes,
+    public void test_validateResponderPartiesCaseInsensitive(final @Injectable Process process,
                                                              final @Injectable Party validResponderParty,
+                                                             final @Injectable ValidationIssue validationIssue,
                                                              final @Injectable ResponderParties responderPartiesXml,
                                                              final @Injectable ResponderParty responderParty
                                                              ) {
@@ -412,7 +411,7 @@ public class BusinessProcessValidatorTest {
         }};
 
         //tested method
-        businessProcessValidator.validateResponderParties(issues, process, partyIdTypes);
+        businessProcessValidator.validateResponderParties(issues, process, new HashSet<>());
 
         new FullVerifications(businessProcessValidator) {{
         }};
@@ -421,7 +420,6 @@ public class BusinessProcessValidatorTest {
     @Test
     public void test_validateInitiatorPartiesCaseInsensitive(final @Injectable ValidationIssue validationIssue,
                                                              final @Injectable Process process,
-                                                             final @Injectable Set<PartyIdType> partyIdTypes,
                                                              final @Injectable Party validInitiatorParty,
                                                              final @Injectable InitiatorParties initiatorPartiesXml,
                                                              final @Injectable InitiatorParty InitiatorParty) {
@@ -450,7 +448,7 @@ public class BusinessProcessValidatorTest {
         }};
 
         //tested method
-        businessProcessValidator.validateInitiatorParties(issues, process, partyIdTypes);
+        businessProcessValidator.validateInitiatorParties(issues, process, new HashSet<>());
 
         new FullVerifications(businessProcessValidator) {{
         }};

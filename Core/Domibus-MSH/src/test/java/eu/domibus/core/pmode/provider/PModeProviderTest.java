@@ -17,11 +17,11 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.persistence.EntityManager;
 import javax.xml.bind.JAXBContext;
@@ -35,7 +35,7 @@ import java.lang.reflect.Method;
  * @author François Gautier
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PModeProviderTest {
     private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
     private static final String RED = "red_gw";
@@ -98,7 +98,7 @@ public class PModeProviderTest {
 
         //tested method
         boolean selfSendingFlag = pModeProvider.checkSelfSending(pmodeKey);
-        Assert.assertFalse("expected result should be false", selfSendingFlag);
+        Assertions.assertFalse(selfSendingFlag, "expected result should be false");
 
         new FullVerifications() {
         };
@@ -125,7 +125,7 @@ public class PModeProviderTest {
 
         //tested method
         boolean selfSendingFlag = pModeProvider.checkSelfSending(pmodeKey);
-        Assert.assertTrue("expected result should be true", selfSendingFlag);
+        Assertions.assertTrue(selfSendingFlag, "expected result should be true");
 
         new FullVerifications() {
         };
@@ -153,7 +153,7 @@ public class PModeProviderTest {
 
         //tested method
         boolean selfSendingFlag = pModeProvider.checkSelfSending(pmodeKey);
-        Assert.assertTrue("expected result should be true", selfSendingFlag);
+        Assertions.assertTrue(selfSendingFlag, "expected result should be true");
 
         new FullVerifications() {
         };

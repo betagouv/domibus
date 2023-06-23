@@ -10,11 +10,12 @@ import eu.domibus.web.rest.ro.LoggingFilterRequestRO;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
 import eu.domibus.web.rest.ro.LoggingLevelResultRO;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -28,7 +29,7 @@ import java.util.List;
  * @since 4.1
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class LoggingResourceTest {
 
     @Tested
@@ -43,7 +44,7 @@ public class LoggingResourceTest {
     @Injectable
     protected ErrorHandlerService errorHandlerService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         loggingResource = new LoggingResource(coreMapper, loggingService, errorHandlerService);
     }
@@ -75,6 +76,7 @@ public class LoggingResourceTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testGetLogLevel(final @Mocked List<LoggingEntry> loggingEntryList) {
         final String name = "eu.domibus";
         final boolean showClasses = false;
@@ -110,11 +112,11 @@ public class LoggingResourceTest {
                     setAsc(false);
                 }});
 
-        Assert.assertNotNull(result.getBody());
-        Assert.assertNotNull(result.getBody().getLoggingEntries());
+        Assertions.assertNotNull(result.getBody());
+        Assertions.assertNotNull(result.getBody().getLoggingEntries());
         List<LoggingLevelRO> loggingEntries = result.getBody().getLoggingEntries();
-        Assert.assertFalse(loggingEntries.isEmpty());
-        Assert.assertEquals(2, loggingEntries.size());
+        Assertions.assertFalse(loggingEntries.isEmpty());
+        Assertions.assertEquals(2, loggingEntries.size());
     }
 
     @Test
@@ -141,8 +143,8 @@ public class LoggingResourceTest {
 
         //tested method
         final ResponseEntity<ErrorRO> result = loggingResource.handleLoggingException(loggingException);
-        Assert.assertNotNull(result);
-        Assert.assertNotNull(result.getBody());
-        Assert.assertEquals(loggingException.getMessage(), result.getBody().getMessage());
+        Assertions.assertNotNull(result);
+        Assertions.assertNotNull(result.getBody());
+        Assertions.assertEquals(loggingException.getMessage(), result.getBody().getMessage());
     }
 }

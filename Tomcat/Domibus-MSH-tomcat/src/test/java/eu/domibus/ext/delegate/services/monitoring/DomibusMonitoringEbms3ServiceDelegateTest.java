@@ -12,10 +12,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ import java.util.List;
  * @author Soumya Chandran
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusMonitoringEbms3ServiceDelegateTest {
 
     @Tested
@@ -78,10 +78,10 @@ public class DomibusMonitoringEbms3ServiceDelegateTest {
         // When
         try {
             domibusMonitoringServiceDelegate.getMonitoringDetails(filter);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusMonitoringExtException e) {
             // Then
-            Assert.assertSame(domibusMonitoringExtException, e);
+            Assertions.assertSame(domibusMonitoringExtException, e);
         }
     }
 }

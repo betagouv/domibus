@@ -6,10 +6,10 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Mocked;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Collections;
 import java.util.UUID;
@@ -18,7 +18,7 @@ import java.util.UUID;
  * @author Catalin Enache
  * @since 4.1.5
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MessagePropertyValidatorTest {
 
     @Tested
@@ -73,9 +73,9 @@ public class MessagePropertyValidatorTest {
 
         try {
             messagePropertyValidator.validate(userMessage, MSHRole.SENDING);
-            Assert.fail("exception expected");
+            Assertions.fail("exception expected");
         } catch (EbMS3Exception e) {
-            Assert.assertTrue(e.getMessage().contains("property has a value which exceeds 1024 characters size."));
+            Assertions.assertTrue(e.getMessage().contains("property has a value which exceeds 1024 characters size."));
         }
     }
 

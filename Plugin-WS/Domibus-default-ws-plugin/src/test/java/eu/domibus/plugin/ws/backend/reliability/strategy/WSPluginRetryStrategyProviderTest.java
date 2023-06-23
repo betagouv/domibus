@@ -1,12 +1,12 @@
 package eu.domibus.plugin.ws.backend.reliability.strategy;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author François Gautier
@@ -16,7 +16,7 @@ public class WSPluginRetryStrategyProviderTest {
 
     private WSPluginRetryStrategyProvider strategyProvider;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         strategyProvider = new WSPluginRetryStrategyProvider(Arrays.asList(
                 new WSPluginRetryStrategyConstant(),

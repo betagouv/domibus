@@ -2,13 +2,14 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
-import junit.framework.TestCase;
-import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
+import mockit.*;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.util.HashMap;
 import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_MESSAGE_LOGS_COUNT_LIMIT;
@@ -17,8 +18,8 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Ion Perpegel
  * @since 4.2.1
  */
-@RunWith(JMockit.class)
-public class MessagesLogServiceHelperImplTest extends TestCase {
+@ExtendWith(JMockitExtension.class)
+public class MessagesLogServiceHelperImplTest {
 
     @Tested
     MessagesLogServiceHelperImpl messagesLogServiceHelper;
@@ -27,9 +28,10 @@ public class MessagesLogServiceHelperImplTest extends TestCase {
     DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
-    public void calculateNumberOfMessages_NotEstimated(@Injectable MessageLogDaoBase dao, @Mocked Map<String, Object> filters) {
+    public void calculateNumberOfMessages_NotEstimated(@Injectable MessageLogDaoBase dao) {
         long count = 100;
         MessageLogResultRO resultRO = new MessageLogResultRO();
+        HashMap<String, Object> filters = new HashMap<>();
 
         new Expectations() {{
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_UI_MESSAGE_LOGS_COUNT_LIMIT);
@@ -45,16 +47,17 @@ public class MessagesLogServiceHelperImplTest extends TestCase {
             times = 0;
         }};
 
-        Assert.assertEquals(count, result);
-        Assert.assertEquals(count, (long) resultRO.getCount());
-        Assert.assertEquals(false, resultRO.isEstimatedCount());
+        Assertions.assertEquals(count, result);
+        Assertions.assertEquals(count, (long) resultRO.getCount());
+        Assertions.assertEquals(false, resultRO.isEstimatedCount());
     }
 
     @Test
-    public void calculateNumberOfMessages_Estimated(@Injectable MessageLogDaoBase dao, @Mocked Map<String, Object> filters) {
+    public void calculateNumberOfMessages_Estimated(@Injectable MessageLogDaoBase dao) {
         long count = 1000;
         int limit = 100;
         MessageLogResultRO resultRO = new MessageLogResultRO();
+        HashMap<String, Object> filters = new HashMap<>();
 
         new Expectations() {{
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_UI_MESSAGE_LOGS_COUNT_LIMIT);
@@ -70,8 +73,8 @@ public class MessagesLogServiceHelperImplTest extends TestCase {
             times = 0;
         }};
 
-        Assert.assertEquals(limit, result);
-        Assert.assertEquals(limit, (long) resultRO.getCount());
-        Assert.assertEquals(true, resultRO.isEstimatedCount());
+        Assertions.assertEquals(limit, result);
+        Assertions.assertEquals(limit, (long) resultRO.getCount());
+        Assertions.assertEquals(true, resultRO.isEstimatedCount());
     }
 }

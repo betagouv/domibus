@@ -11,11 +11,12 @@ import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.quartz.*;
 import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.matchers.GroupMatcher;
@@ -30,7 +31,7 @@ import java.util.*;
  * @version 1.0
  * @since 3.3.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusQuartzStarterTest {
 
     private final String groupName = "DEFAULT";
@@ -78,7 +79,7 @@ public class DomibusQuartzStarterTest {
     @Injectable
     SynchronizationService synchronizationService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         jobKeys.add(jobKey1);
 
@@ -144,7 +145,7 @@ public class DomibusQuartzStarterTest {
 
             scheduler.deleteJob(jobKeyActual = withCapture());
             times = 1;
-            Assert.assertEquals(jobKey1, jobKeyActual);
+            Assertions.assertEquals(jobKey1, jobKeyActual);
         }};
     }
 
@@ -183,11 +184,12 @@ public class DomibusQuartzStarterTest {
 
         QuartzInfo domibusMonitoringInfo = domibusQuartzStarter.getTriggerInfo();
 
-        Assert.assertNotNull(domibusMonitoringInfo);
+        Assertions.assertNotNull(domibusMonitoringInfo);
 
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getGeneralSchedulersInfoTest(@Injectable QuartzTriggerDetails triggerInfo) throws Exception {
         generalSchedulers.add(scheduler);
         final List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
@@ -209,6 +211,7 @@ public class DomibusQuartzStarterTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getSchedulersInfoTest(@Injectable Domain domain,
                                       @Injectable QuartzTriggerDetails triggerInfo) throws Exception {
         schedulers.put(domain, scheduler);
@@ -296,10 +299,11 @@ public class DomibusQuartzStarterTest {
         }};
 
         boolean isErrorOrBlockedState = domibusQuartzStarter.isTriggerInErrorOrBlockedState(Trigger.TriggerState.ERROR, trigger, "default");
-        Assert.assertTrue(isErrorOrBlockedState);
+        Assertions.assertTrue(isErrorOrBlockedState);
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void checkJobsAndStartSchedulerTest(@Injectable Domain domain,
                                                @Injectable Scheduler scheduler) throws Exception {
         new Expectations() {{

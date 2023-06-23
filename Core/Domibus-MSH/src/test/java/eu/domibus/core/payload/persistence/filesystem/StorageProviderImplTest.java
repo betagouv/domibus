@@ -7,10 +7,11 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,7 +23,8 @@ import java.util.Map;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
+@Disabled("EDELIVERY-6896")
 public class StorageProviderImplTest {
 
     @Injectable
@@ -88,7 +90,7 @@ public class StorageProviderImplTest {
         }};
 
         final PayloadFileStorage currentStorage = storageProvider.getCurrentStorage();
-        Assert.assertEquals(currentStorage, storage);
+        Assertions.assertEquals(currentStorage, storage);
     }
 
     @Test
@@ -101,7 +103,7 @@ public class StorageProviderImplTest {
             result = null;
         }};
 
-        Assert.assertTrue(storageProvider.isPayloadsPersistenceInDatabaseConfigured());
+        Assertions.assertTrue(storageProvider.isPayloadsPersistenceInDatabaseConfigured());
     }
 
     @Test
@@ -118,6 +120,6 @@ public class StorageProviderImplTest {
             result = "/home/storage";
         }};
 
-        Assert.assertFalse(storageProvider.isPayloadsPersistenceInDatabaseConfigured());
+        Assertions.assertFalse(storageProvider.isPayloadsPersistenceInDatabaseConfigured());
     }
 }

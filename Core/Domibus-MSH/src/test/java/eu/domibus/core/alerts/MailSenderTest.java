@@ -9,11 +9,11 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -35,7 +35,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @since 4.0
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MailSenderTest {
 
     @Tested
@@ -163,41 +163,43 @@ public class MailSenderTest {
         }};
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void sendMailIllegalAddresses_to(@Injectable MailModel<Map<String, String>> model) {
 
-        mailSender.sendMail(model, "", "   ");
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> mailSender.sendMail(model, "", "   "));
 
         new FullVerifications() {
         };
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void sendMailIllegalAddresses_from(@Injectable MailModel<Map<String, String>> model) {
 
-        mailSender.sendMail(model, "", "test");
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> mailSender.sendMail(model, "", "test"));
 
         new FullVerifications() {
         };
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void sendMail_DomibusPropertyException(@Injectable MailModel<Map<String, String>> model) {
+    @Test
+    void sendMail_DomibusPropertyException(@Injectable MailModel<Map<String, String>> model) {
 
         new Expectations(mailSender) {{
             mailSender.initMailSender();
             times = 1;
             result = new Exception("TEST");
         }};
-
-        mailSender.sendMail(model, "from", "to");
+        Assertions.assertThrows(DomibusPropertyException.class,
+                () -> mailSender.sendMail(model, "from", "to"));
 
         new FullVerifications() {
         };
     }
 
-    @Test(expected = AlertDispatchException.class)
-    public void sendMail_AlertDispatchException(
+    @Test
+    void sendMail_AlertDispatchException(
             @Injectable MailModel<Map<String, String>> model,
             @Injectable MimeMessage mimeMessage) throws MessagingException {
 
@@ -212,13 +214,14 @@ public class MailSenderTest {
             result = new IOException("TEST");
         }};
 
-        mailSender.sendMail(model, "from", "to");
+        Assertions.assertThrows(AlertDispatchException.class,
+                () -> mailSender.sendMail(model, "from", "to"));
 
         new FullVerifications() {
         };
     }
 
-    @Ignore
+    @Disabled
     @SuppressWarnings("AccessStaticViaInstance")
     @Test
     public void sendMail_oneRecipient(@Injectable final Properties javaMailProperties,
@@ -266,7 +269,7 @@ public class MailSenderTest {
         };
     }
 
-    @Ignore
+    @Disabled
     @SuppressWarnings("AccessStaticViaInstance")
     @Test
     public void sendMail_multipleRecipients(@Injectable final Properties javaMailProperties,
@@ -323,25 +326,28 @@ public class MailSenderTest {
         mailSender.getMandatoryUrl();
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void validateMandatoryProperties_nok_url() {
+    @Test
+    void validateMandatoryProperties_nok_url() {
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_URL);
             result = "";
         }};
-        mailSender.getMandatoryUrl();
+
+        Assertions.assertThrows(IllegalStateException.class,
+                () -> mailSender.getMandatoryUrl());
 
         new FullVerifications() {
         };
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void validateMandatoryProperties_nok_url2() {
+    @Test
+    void validateMandatoryProperties_nok_url2() {
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_ALERT_SENDER_SMTP_URL);
             result = null;
         }};
-        mailSender.getMandatoryUrl();
+        Assertions.assertThrows(IllegalStateException.class,
+                () -> mailSender.getMandatoryUrl());
         new FullVerifications() {
         };
     }
@@ -350,10 +356,10 @@ public class MailSenderTest {
     public void reset() {
 
         ReflectionTestUtils.setField(mailSender, "mailSenderInitiated", true);
-        Assert.assertTrue((Boolean) ReflectionTestUtils.getField(mailSender, "mailSenderInitiated"));
+        Assertions.assertTrue((Boolean) ReflectionTestUtils.getField(mailSender, "mailSenderInitiated"));
 
         mailSender.reset();
 
-        Assert.assertFalse((Boolean) ReflectionTestUtils.getField(mailSender, "mailSenderInitiated"));
+        Assertions.assertFalse((Boolean) ReflectionTestUtils.getField(mailSender, "mailSenderInitiated"));
     }
 }

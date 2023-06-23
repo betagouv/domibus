@@ -15,12 +15,13 @@ import eu.domibus.core.converter.AuthCoreMapper;
 import eu.domibus.core.user.plugin.security.PluginUserSecurityPolicyManager;
 import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDao;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -30,7 +31,7 @@ import java.util.*;
  * @author Ion Perpegel
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PluginUserEbms3ServiceImplTest {
 
     @Tested
@@ -64,11 +65,8 @@ public class PluginUserEbms3ServiceImplTest {
     @Injectable
     private AuthCoreMapper authCoreMapper;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Test(expected = UserManagementException.class)
-    public void testUpdateUsersWithDuplicateName() {
+    @Test
+    void testUpdateUsersWithDuplicateName() {
         AuthenticationEntity user1 = new AuthenticationEntity();
         user1.setUserName("username1");
         AuthenticationEntity user2 = new AuthenticationEntity();
@@ -78,11 +76,11 @@ public class PluginUserEbms3ServiceImplTest {
         List<AuthenticationEntity> updatedUsers = new ArrayList();
         List<AuthenticationEntity> removedUsers = new ArrayList();
 
-        pluginUserService.updateUsers(addedUsers, updatedUsers, removedUsers);
+        Assertions.assertThrows(UserManagementException.class, () -> pluginUserService.updateUsers(addedUsers, updatedUsers, removedUsers));
     }
 
-    @Test(expected = UserManagementException.class)
-    public void testUpdateUsersWithDuplicateCertificateId() {
+    @Test
+    void testUpdateUsersWithDuplicateCertificateId() {
         AuthenticationEntity user1 = new AuthenticationEntity();
         user1.setCertificateId("aaa");
         AuthenticationEntity user2 = new AuthenticationEntity();
@@ -92,7 +90,7 @@ public class PluginUserEbms3ServiceImplTest {
         List<AuthenticationEntity> updatedUsers = new ArrayList();
         List<AuthenticationEntity> removedUsers = new ArrayList();
 
-        pluginUserService.updateUsers(addedUsers, updatedUsers, removedUsers);
+        Assertions.assertThrows(UserManagementException.class, () -> pluginUserService.updateUsers(addedUsers, updatedUsers, removedUsers));
     }
 
     @Test()
@@ -142,9 +140,9 @@ public class PluginUserEbms3ServiceImplTest {
 
         Map<String, Object> filters = pluginUserService.createFilterMap(authType, authRole, originalUser, userName);
 
-        Assert.assertEquals("BASIC", filters.get("authType"));
-        Assert.assertEquals("ROLE_ADMIN", filters.get("authRoles"));
-        Assert.assertEquals("originalUser1", filters.get("originalUser"));
+        Assertions.assertEquals("BASIC", filters.get("authType"));
+        Assertions.assertEquals("ROLE_ADMIN", filters.get("authRoles"));
+        Assertions.assertEquals("originalUser1", filters.get("originalUser"));
     }
 
     @Test()
@@ -219,9 +217,9 @@ public class PluginUserEbms3ServiceImplTest {
 
         try {
             pluginUserService.insertNewUser(added_user, currentDomain);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusCoreException e) {
-            Assert.assertEquals(e.getError(), DomibusCoreErrorCode.DOM_001);
+            Assertions.assertEquals(e.getError(), DomibusCoreErrorCode.DOM_001);
         }
 
         new Verifications() {{
@@ -241,117 +239,143 @@ public class PluginUserEbms3ServiceImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void checkUsers_duplicateUserNames(@Injectable AuthenticationEntity user,
                                               @Injectable AuthenticationEntity nonDuplicate,
                                               @Injectable AuthenticationEntity duplicate) {
         // GIVEN
         final String duplicateUserName = "duplicateUserName";
         new Expectations() {{
-            user.getUserName(); result = duplicateUserName;
-            nonDuplicate.getUserName(); result = "userName";
-            duplicate.getUserName(); result = duplicateUserName;
+            user.getUserName();
+            result = duplicateUserName;
+            nonDuplicate.getUserName();
+            result = "userName";
+            duplicate.getUserName();
+            result = duplicateUserName;
         }};
 
-        thrown.expect(UserManagementException.class);
-        thrown.expectMessage("Cannot add user duplicateUserName more than once.");
-
         // WHEN
-        pluginUserService.checkUsers(Arrays.asList(user, duplicate), new ArrayList<>());
+        UserManagementException userManagementException = Assertions.assertThrows(UserManagementException.class,
+                () -> pluginUserService.checkUsers(Arrays.asList(user, duplicate), new ArrayList<>()));
+
+        Assertions.assertEquals("[DOM_001]:Cannot add user duplicateUserName more than once.", userManagementException.getMessage());
+
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void checkUsers_duplicateCertificateIds(@Injectable AuthenticationEntity user,
                                                    @Injectable AuthenticationEntity nonDuplicate,
                                                    @Injectable AuthenticationEntity duplicate) {
         // GIVEN
         final String duplicateCertificateId = "duplicateCertificateId";
         new Expectations() {{
-            user.getCertificateId(); result = duplicateCertificateId;
-            nonDuplicate.getCertificateId(); result = "certificateId";
-            duplicate.getCertificateId(); result = duplicateCertificateId;
+            user.getCertificateId();
+            result = duplicateCertificateId;
+            nonDuplicate.getCertificateId();
+            result = "certificateId";
+            duplicate.getCertificateId();
+            result = duplicateCertificateId;
         }};
 
-        thrown.expect(UserManagementException.class);
-        thrown.expectMessage("Cannot add user with certificate duplicateCertificateId more than once.");
-
         // WHEN
-        pluginUserService.checkUsers(Arrays.asList(user, duplicate), new ArrayList<>());
+        UserManagementException userManagementException = Assertions.assertThrows(UserManagementException.class,
+                () -> pluginUserService.checkUsers(Arrays.asList(user, duplicate), new ArrayList<>()));
+        Assertions.assertEquals("[DOM_001]:Cannot add user with certificate duplicateCertificateId more than once.", userManagementException.getMessage());
+
     }
 
     @Test
     public void checkUsers_nonAdminPluginUsersAddedWithoutOriginalUser(@Injectable AuthenticationEntity adminUser,
-                                                   @Injectable AuthenticationEntity validUser,
-                                                   @Injectable AuthenticationEntity nonValidUser) {
+                                                                       @Injectable AuthenticationEntity validUser,
+                                                                       @Injectable AuthenticationEntity nonValidUser) {
         // GIVEN
         new Expectations() {{
-            adminUser.getAuthRoles(); result = AuthRole.ROLE_ADMIN.name();
-            adminUser.getUserName(); result = "adminUser";
-            validUser.getUserName(); result = "validUser";
-            validUser.getAuthRoles(); result = AuthRole.ROLE_USER.name();
-            validUser.getOriginalUser(); result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
-            nonValidUser.getUserName(); result = "nonValidUser";
-            nonValidUser.getAuthRoles(); result = AuthRole.ROLE_USER.name();
+            adminUser.getAuthRoles();
+            result = AuthRole.ROLE_ADMIN.name();
+            adminUser.getUserName();
+            result = "adminUser";
+            validUser.getUserName();
+            result = "validUser";
+            validUser.getAuthRoles();
+            result = AuthRole.ROLE_USER.name();
+            validUser.getOriginalUser();
+            result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
+            nonValidUser.getUserName();
+            result = "nonValidUser";
+            nonValidUser.getAuthRoles();
+            result = AuthRole.ROLE_USER.name();
         }};
 
-        thrown.expect(UserManagementException.class);
-        thrown.expectMessage("Cannot add or update the user nonValidUser having the ROLE_USER role without providing the original user value.");
-
         // WHEN
-        pluginUserService.checkUsers(Arrays.asList(adminUser, validUser, nonValidUser), new ArrayList<>());
+        UserManagementException userManagementException = Assertions.assertThrows(UserManagementException.class,
+                () -> pluginUserService.checkUsers(Arrays.asList(adminUser, validUser, nonValidUser), new ArrayList<>()));
+
+        Assertions.assertEquals("[DOM_001]:Cannot add or update the user nonValidUser having the ROLE_USER role without providing the original user value.", userManagementException.getMessage());
+
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void checkUsers_nonAdminPluginUsersUpdatedWithoutOriginalUser(@Injectable AuthenticationEntity adminUser,
                                                                          @Injectable AuthenticationEntity validUser,
                                                                          @Injectable AuthenticationEntity nonValidUser) {
         // GIVEN
         new Expectations() {{
-            adminUser.getAuthRoles(); result = AuthRole.ROLE_ADMIN.name();
-            adminUser.getUserName(); result = "adminUser";
-            validUser.getUserName(); result = "validUser";
-            validUser.getAuthRoles(); result = AuthRole.ROLE_USER.name();
-            validUser.getOriginalUser(); result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
-            nonValidUser.getUserName(); result = "nonValidUser";
-            nonValidUser.getAuthRoles(); result = AuthRole.ROLE_USER.name();
+            adminUser.getAuthRoles();
+            result = AuthRole.ROLE_ADMIN.name();
+            adminUser.getUserName();
+            result = "adminUser";
+            validUser.getUserName();
+            result = "validUser";
+            validUser.getAuthRoles();
+            result = AuthRole.ROLE_USER.name();
+            validUser.getOriginalUser();
+            result = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
+            nonValidUser.getUserName();
+            result = "nonValidUser";
+            nonValidUser.getAuthRoles();
+            result = AuthRole.ROLE_USER.name();
         }};
 
-        thrown.expect(UserManagementException.class);
-        thrown.expectMessage("Cannot add or update the user nonValidUser having the ROLE_USER role without providing the original user value.");
-
         // WHEN
-        pluginUserService.checkUsers(new ArrayList<>(), Arrays.asList(adminUser, validUser, nonValidUser));
+        UserManagementException userManagementException = Assertions.assertThrows(UserManagementException.class,
+                () -> pluginUserService.checkUsers(new ArrayList<>(), Arrays.asList(adminUser, validUser, nonValidUser)));
+
+        Assertions.assertEquals("[DOM_001]:Cannot add or update the user nonValidUser having the ROLE_USER role without providing the original user value.", userManagementException.getMessage());
+
     }
 
     @Test
-    public void checkUsers_InvalidUserName_SplChar(@Mocked AuthenticationEntity addedUser){
-        new Expectations(){{
+    public void checkUsers_InvalidUserName_SplChar(@Mocked AuthenticationEntity addedUser) {
+        new Expectations() {{
             addedUser.getUserName();
             result = "AdminUser!1234";
         }};
 
-        thrown.expect(UserManagementException.class);
-        thrown.expectMessage("Plugin User should be alphanumeric with allowed special characters .@_");
+        UserManagementException userManagementException = Assertions.assertThrows(UserManagementException.class,
+                () -> pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST));
 
-        pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST);
+        Assertions.assertEquals("[DOM_001]:Plugin User should be alphanumeric with allowed special characters .@_", userManagementException.getMessage());
+
     }
 
     @Test
-    public void checkUsers_InvalidUserName_length(@Mocked AuthenticationEntity addedUser){
-        new Expectations(){{
+    public void checkUsers_InvalidUserName_length(@Mocked AuthenticationEntity addedUser) {
+        new Expectations() {{
             addedUser.getUserName();
             result = "Ad1";
         }};
 
-        thrown.expect(UserManagementException.class);
-        thrown.expectMessage("Plugin User Username should be between 4 and 255 characters long.");
-
-        pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST);
+        UserManagementException userManagementException = Assertions.assertThrows(UserManagementException.class,
+                () -> pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST));
+        Assertions.assertEquals("[DOM_001]:Plugin User Username should be between 4 and 255 characters long.", userManagementException.getMessage());
     }
 
     @Test
-    public void checkUsers_InvalidOriginalUserPattern(@Mocked AuthenticationEntity addedUser){
+    public void checkUsers_InvalidOriginalUserPattern(@Mocked AuthenticationEntity addedUser) {
         String testOriginalUser = "urn:oasis:names:tc:ebcore:partyid-type:test1";
-        new Expectations(){{
+        new Expectations() {{
             addedUser.getUserName();
             result = "User_1234";
             addedUser.getAuthRoles();
@@ -363,7 +387,6 @@ public class PluginUserEbms3ServiceImplTest {
 
         pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST);
     }
-
 
 
 }

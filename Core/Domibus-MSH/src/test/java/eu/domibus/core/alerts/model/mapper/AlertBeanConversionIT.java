@@ -3,12 +3,12 @@ package eu.domibus.core.alerts.model.mapper;
 import eu.domibus.core.alerts.model.common.AccountEventKey;
 import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.service.Event;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.text.ParseException;
@@ -21,7 +21,7 @@ import java.util.Date;
  */
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public class AlertBeanConversionIT {
 
@@ -51,12 +51,12 @@ public class AlertBeanConversionIT {
         EventMapperImpl eventMapper = new EventMapperImpl();
         eventMapper.setDelegate(new EventMapperImpl_());
         final eu.domibus.core.alerts.model.persist.Event persistEvent = eventMapper.eventServiceToEventPersist(event);
-        Assert.assertEquals(1, persistEvent.getEntityId());
-        Assert.assertEquals(EventType.USER_LOGIN_FAILURE, persistEvent.getType());
-        Assert.assertEquals(reportingTime, persistEvent.getReportingTime());
+        Assertions.assertEquals(1, persistEvent.getEntityId());
+        Assertions.assertEquals(EventType.USER_LOGIN_FAILURE, persistEvent.getType());
+        Assertions.assertEquals(reportingTime, persistEvent.getReportingTime());
 
-        Assert.assertEquals(loginTime, persistEvent.getProperties().get(AccountEventKey.LOGIN_TIME.name()).getValue());
-        Assert.assertEquals(user, persistEvent.getProperties().get(AccountEventKey.USER.name()).getValue());
-        Assert.assertEquals(accountDisabled, persistEvent.getProperties().get(AccountEventKey.ACCOUNT_DISABLED.name()).getValue());
+        Assertions.assertEquals(loginTime, persistEvent.getProperties().get(AccountEventKey.LOGIN_TIME.name()).getValue());
+        Assertions.assertEquals(user, persistEvent.getProperties().get(AccountEventKey.USER.name()).getValue());
+        Assertions.assertEquals(accountDisabled, persistEvent.getProperties().get(AccountEventKey.ACCOUNT_DISABLED.name()).getValue());
     }
 }

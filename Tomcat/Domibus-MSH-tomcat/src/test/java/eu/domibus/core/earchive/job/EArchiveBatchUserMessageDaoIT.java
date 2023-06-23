@@ -11,9 +11,9 @@ import eu.domibus.core.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +53,7 @@ public class EArchiveBatchUserMessageDaoIT extends AbstractIT {
     private UserMessageLog msg3;
     private EArchiveBatchEntity eArchiveBatch;
 
-    @Before
+    @BeforeEach
     public void setup() {
         eArchiveBatch = new EArchiveBatchEntity();
         eArchiveBatch.setBatchId(UUID.randomUUID().toString());
@@ -79,6 +79,6 @@ public class EArchiveBatchUserMessageDaoIT extends AbstractIT {
 
         List<EArchiveBatchUserMessage> all = em.createQuery("SELECT eaum FROM EArchiveBatchUserMessage eaum", EArchiveBatchUserMessage.class)
                 .getResultList();
-        Assert.assertEquals(3, all.size());
+        Assertions.assertEquals(3, all.size());
     }
 }

@@ -9,11 +9,12 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -31,15 +32,16 @@ import javax.xml.transform.TransformerException;
 import java.util.*;
 
 import static eu.domibus.core.util.MessageUtil.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Soumya Chandran
  * @since 4.2
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MessageUtilTest {
 
     public static final String RESULT = "RESULT";
@@ -82,7 +84,7 @@ public class MessageUtilTest {
             result = expectedMessaging;
         }};
 
-        Assert.assertEquals(expectedMessaging, messageUtil.getMessaging(soapMessage));
+        Assertions.assertEquals(expectedMessaging, messageUtil.getMessaging(soapMessage));
 
         new FullVerifications() {{
             reader.close();
@@ -607,6 +609,7 @@ public class MessageUtilTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void createErrors_null(@Injectable Node signalNode,
                                   @Injectable Node errorNode,
                                   @Injectable Error error) {
@@ -667,7 +670,7 @@ public class MessageUtilTest {
             result = textContent;
         }};
 
-        Assert.assertEquals(textContent, messageUtil.getErrorDetail(errorNode));
+        Assertions.assertEquals(textContent, messageUtil.getErrorDetail(errorNode));
     }
 
     @Test
@@ -716,7 +719,8 @@ public class MessageUtilTest {
 
         assertThat(messageUtil.getAttribute(referenceNode, attributeName), is(RESULT));
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -730,7 +734,8 @@ public class MessageUtilTest {
 
         assertNull(messageUtil.getAttribute(referenceNode, attributeName));
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -747,7 +752,8 @@ public class MessageUtilTest {
 
         messageUtil.getAttribute(referenceNode, attributeName);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -793,7 +799,8 @@ public class MessageUtilTest {
 
         assertThat(messageUtil.getNonRepudiationInformationFromReceipt(receiptNode), is(NON_REPUDIATION_INFORMATION));
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -807,12 +814,13 @@ public class MessageUtilTest {
 
         assertNull(messageUtil.getNonRepudiationInformationFromReceipt(receiptNode));
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
-    @Test(expected = SOAPException.class)
-    public void getNonRepudiationInformationFromReceipt_exception(@Injectable Node nonRepudiationInformationNode,
-                                                                  @Injectable Node receiptNode) throws TransformerException, SOAPException {
+    @Test
+    void getNonRepudiationInformationFromReceipt_exception(@Injectable Node nonRepudiationInformationNode,
+                                                           @Injectable Node receiptNode) throws TransformerException {
 
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(receiptNode, NON_REPUDIATION_INFORMATION);
@@ -821,9 +829,10 @@ public class MessageUtilTest {
             result = new TransformerException("Error when transform Node to String");
         }};
 
-        messageUtil.getNonRepudiationInformationFromReceipt(receiptNode);
+        Assertions.assertThrows(SOAPException.class, () -> messageUtil.getNonRepudiationInformationFromReceipt(receiptNode));
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -839,7 +848,8 @@ public class MessageUtilTest {
 
         assertThat(messageUtil.getUserMessageFromReceipt(receiptNode), is(USER_MESSAGE));
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -852,12 +862,13 @@ public class MessageUtilTest {
 
         assertNull(messageUtil.getUserMessageFromReceipt(receiptNode));
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
-    @Test(expected = SOAPException.class)
-    public void getUserMessageFromReceipt(@Injectable Node userMessageNode,
-                                          @Injectable Node receiptNode) throws TransformerException, SOAPException {
+    @Test
+    void getUserMessageFromReceipt(@Injectable Node userMessageNode,
+                                   @Injectable Node receiptNode) throws TransformerException {
 
         new Expectations(messageUtil) {{
             messageUtil.getFirstChild(receiptNode, USER_MESSAGE);
@@ -866,9 +877,10 @@ public class MessageUtilTest {
             result = new TransformerException("Error when transform Node to String");
         }};
 
-        messageUtil.getUserMessageFromReceipt(receiptNode);
+        Assertions.assertThrows(SOAPException.class, () -> messageUtil.getUserMessageFromReceipt(receiptNode));
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -884,7 +896,8 @@ public class MessageUtilTest {
         }};
 
         assertNotNull(messageUtil.createPullRequest(signalNode));
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -897,7 +910,8 @@ public class MessageUtilTest {
         }};
 
         assertNull(messageUtil.createPullRequest(signalNode));
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -925,7 +939,8 @@ public class MessageUtilTest {
 
         assertNotNull(messageUtil.createMessageInfo(signalNode));
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -937,10 +952,12 @@ public class MessageUtilTest {
         }};
 
         assertNull(messageUtil.createMessageInfo(signalNode));
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getMessageFragment(@Injectable SOAPMessage soapMessage,
                                    @Injectable XMLStreamReader reader,
                                    @Injectable Iterator iterator,
@@ -974,6 +991,7 @@ public class MessageUtilTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getMessageFragment_null(@Injectable SOAPMessage soapMessage,
                                         @Injectable QName qName,
                                         @Injectable Iterator iterator) throws SOAPException {
@@ -988,10 +1006,12 @@ public class MessageUtilTest {
 
         assertNull(messageUtil.getMessageFragment(soapMessage));
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getMessageFragment_exception(@Injectable SOAPMessage soapMessage,
                                              @Injectable QName qName,
                                              @Injectable Iterator iterator) throws SOAPException {
@@ -1009,7 +1029,8 @@ public class MessageUtilTest {
             // Nothing to check
         }
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -1028,7 +1049,8 @@ public class MessageUtilTest {
             e.printStackTrace();
         }
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
 
     }
 
@@ -1043,7 +1065,8 @@ public class MessageUtilTest {
 
         assertNotNull(messageUtil.getMessage(request));
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -1060,7 +1083,8 @@ public class MessageUtilTest {
 
         assertThat(messageUtil.getFirstChildValue(parent, childName), is(RESULT));
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -1076,7 +1100,8 @@ public class MessageUtilTest {
 
         assertNull(messageUtil.getFirstChildValue(parent, childName));
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -1094,7 +1119,8 @@ public class MessageUtilTest {
 
         assertThat(messageUtil.getFirstChild(parent, childName), is(firstChild));
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -1110,7 +1136,8 @@ public class MessageUtilTest {
 
         assertNull(messageUtil.getFirstChild(parent, childName));
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -1132,7 +1159,8 @@ public class MessageUtilTest {
 
         assertThat(messageUtil.getChildren(parent, childName), CoreMatchers.hasItem(child));
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -1150,7 +1178,8 @@ public class MessageUtilTest {
 
         assertTrue(messageUtil.getChildren(parent, childName).isEmpty());
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test

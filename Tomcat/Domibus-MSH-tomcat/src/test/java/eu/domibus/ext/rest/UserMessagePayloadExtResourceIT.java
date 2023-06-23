@@ -10,9 +10,9 @@ import eu.domibus.api.usermessage.UserMessageService;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.payload.persistence.DatabasePayloadPersistence;
 import eu.domibus.core.spi.validation.UserMessageValidatorSpi;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -60,7 +60,7 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
     @Autowired
     PartInfoService partInfoService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webAppContext)
                 .build();
@@ -109,7 +109,7 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String resultContent = result.getResponse().getContentAsString();
-        Assert.assertEquals(content, resultContent);
+        Assertions.assertEquals(content, resultContent);
     }
 
     @Test
@@ -150,7 +150,7 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String resultContent = result.getResponse().getContentAsString();
-        Assert.assertEquals(content, resultContent);
+        Assertions.assertEquals(content, resultContent);
     }
 
     @Test
@@ -192,7 +192,7 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
         // then
         String contentResult = result.getResponse().getContentAsString();
         Exception resultList = objectMapper.readValue(contentResult, Exception.class);
-        Assert.assertTrue(resultList.getMessage()
+        Assertions.assertTrue(resultList.getMessage()
                 .contains("You are not allowed to handle this message [myMessage]. You are authorized as [urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1]"));
     }
 }

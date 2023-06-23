@@ -17,13 +17,14 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.configuration.security.KeyStoreType;
 import org.apache.cxf.configuration.security.TLSClientParametersType;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +32,7 @@ import java.util.Optional;
  * @author Ion Perpegel
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class TLSCertificateManagerImplTest {
 
     @Tested
@@ -74,7 +75,9 @@ public class TLSCertificateManagerImplTest {
     }
 
     @Test
-    public void getTrustStoreEntries(@Injectable List<TrustStoreEntry> entries, @Injectable KeystorePersistenceInfo persistenceInfo) {
+    public void getTrustStoreEntries(@Injectable KeystorePersistenceInfo persistenceInfo) {
+        List<Object> entries = new ArrayList<>();
+
         new Expectations(tlsCertificateManager) {{
             tlsCertificateManager.getPersistenceInfo();
             result = persistenceInfo;
@@ -84,14 +87,14 @@ public class TLSCertificateManagerImplTest {
 
         List<TrustStoreEntry> result = tlsCertificateManager.getTrustStoreEntries();
 
-        Assert.assertEquals(entries, result);
+        Assertions.assertEquals(entries, result);
         new Verifications() {{
             certificateService.getStoreEntries(persistenceInfo);
         }};
     }
 
-    @Test(expected = ConfigurationException.class)
-    public void getTrustStoreEntries_throwsExceptionForMissingTrustStore(@Injectable KeystorePersistenceInfo persistenceInfo) {
+    @Test
+    void getTrustStoreEntries_throwsExceptionForMissingTrustStore(@Injectable KeystorePersistenceInfo persistenceInfo) {
         new Expectations(tlsCertificateManager) {{
             tlsCertificateManager.getPersistenceInfo();
             result = persistenceInfo;
@@ -100,7 +103,7 @@ public class TLSCertificateManagerImplTest {
             result = new NoKeyStoreContentInformationException("");
         }};
 
-        tlsCertificateManager.getTrustStoreEntries();
+        Assertions.assertThrows(ConfigurationException.class, () -> tlsCertificateManager.getTrustStoreEntries());
     }
 
     @Test
@@ -116,7 +119,7 @@ public class TLSCertificateManagerImplTest {
 
         boolean result = tlsCertificateManager.addCertificate(certificateData, alias);
 
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
         new Verifications() {{
             certificateService.addCertificate(persistenceInfo, certificateData, alias, true);
             tlsCertificateManager.resetTLSTruststore();
@@ -136,7 +139,7 @@ public class TLSCertificateManagerImplTest {
 
         boolean result = tlsCertificateManager.removeCertificate(alias);
 
-        Assert.assertTrue(result);
+        Assertions.assertTrue(result);
         new Verifications() {{
             certificateService.removeCertificate(persistenceInfo, alias);
             tlsCertificateManager.resetTLSTruststore();
@@ -158,7 +161,7 @@ public class TLSCertificateManagerImplTest {
 
         Optional<KeyStoreType> result = tlsCertificateManager.getTruststoreParams();
 
-        Assert.assertEquals(trustStore, result.get());
+        Assertions.assertEquals(trustStore, result.get());
     }
 
     @Test

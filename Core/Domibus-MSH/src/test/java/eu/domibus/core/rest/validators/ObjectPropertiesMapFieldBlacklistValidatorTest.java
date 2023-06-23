@@ -6,8 +6,8 @@ import eu.domibus.web.rest.ro.JmsFilterRequestRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +39,7 @@ public class ObjectPropertiesMapFieldBlacklistValidatorTest {
         ObjectPropertiesMapBlacklistValidator.Parameter payload = new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, null, null);
         boolean actualValid = blacklistValidator.isValid(payload, (CustomWhiteListed) null);
 
-        Assert.assertTrue(actualValid);
+        Assertions.assertTrue(actualValid);
     }
 
     @Test
@@ -60,7 +60,7 @@ public class ObjectPropertiesMapFieldBlacklistValidatorTest {
                 new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, JmsFilterRequestRO.class, null);
         boolean actualValid = blacklistValidator.isValid(payload, (CustomWhiteListed) null);
 
-        Assert.assertTrue(actualValid);
+        Assertions.assertTrue(actualValid);
     }
 
     @Test
@@ -81,6 +81,6 @@ public class ObjectPropertiesMapFieldBlacklistValidatorTest {
                 new ObjectPropertiesMapBlacklistValidator.Parameter(queryParams, JmsFilterRequestRO.class, null);
         boolean actualValid = blacklistValidator.isValid(payload, (CustomWhiteListed) null);
 
-        Assert.assertFalse(actualValid);
+        Assertions.assertFalse(actualValid);
     }
 }

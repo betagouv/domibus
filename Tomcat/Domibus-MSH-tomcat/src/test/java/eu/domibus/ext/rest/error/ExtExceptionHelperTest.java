@@ -7,18 +7,17 @@ import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
-import eu.domibus.ext.exceptions.PModeExtException;
 import mockit.Expectations;
 import mockit.FullVerifications;
-import mockit.Mocked;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,7 +25,7 @@ import java.util.List;
  * @since 4.2
  * @author Catalin Enache
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class ExtExceptionHelperTest {
 
     @Tested
@@ -46,17 +45,18 @@ public class ExtExceptionHelperTest {
         new FullVerifications(extExceptionHelper) {{
             HttpStatus httpStatusActual;
             extExceptionHelper.createResponseFromCoreException((Throwable) any, httpStatusActual = withCapture());
-            Assert.assertEquals(HttpStatus.BAD_REQUEST, httpStatusActual);
+            Assertions.assertEquals(HttpStatus.BAD_REQUEST, httpStatusActual);
         }};
     }
 
     @Test
-    public void test_createResponse(final @Mocked Throwable throwable) {
+    public void test_createResponse() {
 
         //tested method
+        Throwable throwable = new Throwable();
         ResponseEntity<ErrorDTO> result = extExceptionHelper.createResponse(throwable);
-        Assert.assertNotNull(result.getBody());
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+        Assertions.assertNotNull(result.getBody());
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
 
         new FullVerifications(extExceptionHelper) {{
             boolean showErrorDetailsActual;
@@ -65,41 +65,38 @@ public class ExtExceptionHelperTest {
     }
 
     @Test
-    public void test_getPModeValidationMessage(final @Mocked PModeValidationException pModeValidationException) {
+    public void test_getPModeValidationMessage() {
         ValidationIssue validationIssue = new ValidationIssue("test 123");
         List<ValidationIssue> validationIssueList = Collections.singletonList(validationIssue);
-        final PModeExtException pModeExtException = new PModeExtException("PMode Exception");
-        new Expectations() {{
-            pModeValidationException.getIssues();
-            result = validationIssueList;
-        }};
+        PModeValidationException e = new PModeValidationException(validationIssueList);
 
         //tested method
-        String errorMessage = extExceptionHelper.getPModeValidationMessage(pModeValidationException);
-        Assert.assertTrue(errorMessage.contains("test 123"));
+        String errorMessage = extExceptionHelper.getPModeValidationMessage(e);
+        Assertions.assertTrue(errorMessage.contains("test 123"));
     }
 
     @Test
-    public void test_createResponseFromPModeValidationException(final @Mocked PModeValidationException pModeValidationException) {
+    public void test_createResponseFromPModeValidationException() {
         final String errorMessage = "[DOM_003]:PMode validation failed. Validation issues: Initiator party [blue_gw2] of process [tc1Process] not found in business process parties";
+        PModeValidationException e = new PModeValidationException(new ArrayList<>());
 
         new Expectations(extExceptionHelper) {{
-            extExceptionHelper.getPModeValidationMessage(pModeValidationException);
+            extExceptionHelper.getPModeValidationMessage(e);
             result =  errorMessage;
         }};
 
-        extExceptionHelper.createResponseFromPModeValidationException(pModeValidationException);
+        extExceptionHelper.createResponseFromPModeValidationException(e);
 
         new FullVerifications() {{
             String errorMessageActual;
             extExceptionHelper.createResponse(errorMessageActual = withCapture(), ExtExceptionHelper.HTTP_STATUS_INVALID_REQUEST);
-            Assert.assertEquals(errorMessage, errorMessageActual);
+            Assertions.assertEquals(errorMessage, errorMessageActual);
         }};
     }
 
     @Test
     public void identifyExtErrorCodeFromCoreErrorCode() {
-        Assert.assertEquals(DomibusErrorCode.DOM_009, extExceptionHelper.identifyExtErrorCodeFromCoreErrorCode(DomibusCoreErrorCode.DOM_009));
-        Assert.assertEquals(DomibusErrorCode.DOM_002, extExceptionHelper.identifyExtErrorCodeFromCoreErrorCode(DomibusCoreErrorCode.DOM_002));
+        Assertions.assertEquals(DomibusErrorCode.DOM_009, extExceptionHelper.identifyExtErrorCodeFromCoreErrorCode(DomibusCoreErrorCode.DOM_009));
+        Assertions.assertEquals(DomibusErrorCode.DOM_002, extExceptionHelper.identifyExtErrorCodeFromCoreErrorCode(DomibusCoreErrorCode.DOM_002));
     }
 }

@@ -6,20 +6,20 @@ import eu.domibus.core.earchive.EArchiveBatchUtils;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import mockit.Injectable;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 /**
  * @author François Gautier
  * @since 5.0
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
 public abstract class AbstractMapperTest {
     @Configuration

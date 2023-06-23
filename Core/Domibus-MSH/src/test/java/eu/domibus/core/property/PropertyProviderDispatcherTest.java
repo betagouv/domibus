@@ -7,19 +7,20 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.util.ClassUtil;
 import eu.domibus.ext.services.DomibusPropertyManagerExt;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PROPERTY_LENGTH_MAX;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_UI_TITLE_NAME;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Ion Perpegel
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PropertyProviderDispatcherTest {
     @Tested
     PropertyProviderDispatcher propertyProviderDispatcher;
@@ -94,8 +95,8 @@ public class PropertyProviderDispatcherTest {
         }};
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void getInternalOrExternalProperty_external_error(@Mocked DomibusPropertyManagerExt manager) {
+    @Test
+    void getInternalOrExternalProperty_external_error(@Mocked DomibusPropertyManagerExt manager) {
         new Expectations(propertyProviderDispatcher) {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
             result = propMeta;
@@ -105,7 +106,8 @@ public class PropertyProviderDispatcherTest {
             result = null;
         }};
 
-        String result = propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain);
+        Assertions.assertThrows(DomibusPropertyException. class,
+        () -> propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, domain));
 
         new Verifications() {{
             propertyProviderDispatcher.getExternalPropertyValue(propertyName, domain, manager);
@@ -155,8 +157,8 @@ public class PropertyProviderDispatcherTest {
         }};
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void setInternalOrExternalProperty_external_error(@Mocked DomibusPropertyManagerExt manager) {
+    @Test
+    void setInternalOrExternalProperty_external_error() {
 
         new Expectations(propertyProviderDispatcher) {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
@@ -167,7 +169,8 @@ public class PropertyProviderDispatcherTest {
             result = null;
         }};
 
-        propertyProviderDispatcher.setInternalOrExternalProperty(domain, propertyName, propertyValue, true);
+        Assertions.assertThrows(DomibusPropertyException. class,
+        () -> propertyProviderDispatcher.setInternalOrExternalProperty(domain, propertyName, propertyValue, true));
 
         new Verifications() {{
             propertyProviderDispatcher.setExternalPropertyValue(domain, propertyName, propertyValue, true, (DomibusPropertyManagerExt) any);

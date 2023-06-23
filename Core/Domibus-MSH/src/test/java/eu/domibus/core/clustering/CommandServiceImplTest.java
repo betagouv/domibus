@@ -6,19 +6,20 @@ import eu.domibus.ext.services.CommandExtTask;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Cosmin Baciu
  * @since 4.0.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class CommandServiceImplTest {
 
     @Tested
@@ -33,11 +34,6 @@ public class CommandServiceImplTest {
     @Injectable
     private ServerInfoService serverInfoService;
 
-    @Injectable
-    private List<CommandTask> commandTasks;
-
-    @Injectable
-    private List<CommandExtTask> pluginCommands;
 
     @Test
     public void testCreateClusterCommand() {

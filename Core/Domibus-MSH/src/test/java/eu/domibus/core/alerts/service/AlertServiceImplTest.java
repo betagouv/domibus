@@ -25,9 +25,9 @@ import eu.domibus.core.alerts.model.service.MailModel;
 import eu.domibus.core.converter.AlertCoreMapper;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.internal.matchers.GreaterThan;
 
 import javax.jms.Queue;
@@ -43,14 +43,14 @@ import static eu.domibus.core.alerts.model.common.MessageEvent.OLD_STATUS;
 import static eu.domibus.core.alerts.configuration.common.AlertConfigurationServiceImpl.DOMIBUS_ALERT_SUPER_INSTANCE_NAME_SUBJECT;
 import static eu.domibus.core.alerts.service.AlertServiceImpl.*;
 import static java.util.Optional.of;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Dussart
  * @since 4.0
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "AccessStaticViaInstance"})
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class AlertServiceImplTest {
 
     public static final String SUBJECT = "subject";
@@ -358,12 +358,20 @@ public class AlertServiceImplTest {
         new VerificationsInOrder() {{
             persistedAlert.setAlertStatus(AlertStatus.FAILED);
             times = 1;
-            reprogrammableService.setRescheduleInfo(persistedAlert, withArgThat(new GreaterThan<>(nextAttempt)));
+            reprogrammableService.setRescheduleInfo(persistedAlert, with(greaterThan(nextAttempt)));
             persistedAlert.setAttempts(1);
             times = 1;
             persistedAlert.setAlertStatus(AlertStatus.RETRY);
             times = 1;
         }};
+    }
+
+    private static Delegate<Date> greaterThan(Date expected) {
+        return new Delegate<Date>() {
+            public boolean greater(Date arg) {
+                return arg.after(expected);
+            }
+        };
     }
 
     @Test
@@ -419,7 +427,7 @@ public class AlertServiceImplTest {
             times = 1;
             reprogrammableService.removeRescheduleInfo(persistedAlert);
 
-            persistedAlert.setReportingTimeFailure(withArgThat(new GreaterThan<>(failureTime)));
+            persistedAlert.setReportingTimeFailure(with(greaterThan(failureTime)));
             times = 1;
 
             persistedAlert.setAttempts(2);
@@ -531,7 +539,9 @@ public class AlertServiceImplTest {
     }
 
     @Test
-    public void testFindAlerts(final @Injectable AlertCriteria alertCriteria, final @Injectable List<eu.domibus.core.alerts.model.persist.Alert> alerts) {
+    public void testFindAlerts(final @Injectable AlertCriteria alertCriteria) {
+        ArrayList<eu.domibus.core.alerts.model.persist.Alert> alerts = new ArrayList<>();
+
         new Expectations() {{
             alertDao.filterAlerts(alertCriteria);
             result = alerts;

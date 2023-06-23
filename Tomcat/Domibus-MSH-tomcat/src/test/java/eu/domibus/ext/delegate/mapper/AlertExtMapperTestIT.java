@@ -4,7 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.alerts.AlertEvent;
 import eu.domibus.ext.domain.AlertEventDTO;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 

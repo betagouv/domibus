@@ -9,9 +9,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 
 import java.util.concurrent.Future;
@@ -24,7 +25,7 @@ import static eu.domibus.core.multitenancy.DomainTaskExecutorImpl.DEFAULT_WAIT_T
  * @author Cosmin Baciu
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomainTaskExecutorImplTest {
 
     @Injectable
@@ -57,8 +58,8 @@ public class DomainTaskExecutorImplTest {
         }};
     }
 
-    @Test(expected = DomainTaskException.class)
-    public void testSubmitRunnableThreadInterruption(@Injectable Runnable submitRunnable,
+    @Test
+    void testSubmitRunnableThreadInterruption(@Injectable Runnable submitRunnable,
                                                      @Injectable Future<?> utrFuture) throws Exception {
         new Expectations() {{
             taskExecutor.submit(submitRunnable);
@@ -68,7 +69,8 @@ public class DomainTaskExecutorImplTest {
             result = new InterruptedException();
         }};
 
-        domainTaskExecutor.submitRunnable(taskExecutor, submitRunnable, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+        Assertions.assertThrows(DomainTaskException.class,
+                () -> domainTaskExecutor.submitRunnable(taskExecutor, submitRunnable, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS));
 
         new Verifications() {{
             taskExecutor.submit(submitRunnable);

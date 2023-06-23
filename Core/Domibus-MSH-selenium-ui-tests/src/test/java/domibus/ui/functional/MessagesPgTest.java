@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assertions.assertTrue;
 
 public class MessagesPgTest extends SeleniumTest {
 

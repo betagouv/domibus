@@ -8,11 +8,12 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ReloadTLSTruststoreCommandTaskTest {
 
@@ -36,7 +37,7 @@ public class ReloadTLSTruststoreCommandTaskTest {
     }
 
     @Test
-    public void execute(@Injectable Map<String, String> properties, @Injectable Domain domain, @Injectable String domainCode) {
+    public void execute(@Injectable Domain domain, @Injectable String domainCode) {
         new Expectations() {{
             domainContextProvider.getCurrentDomain();
             result = domain;
@@ -44,7 +45,7 @@ public class ReloadTLSTruststoreCommandTaskTest {
             result = domainCode;
         }};
 
-        reloadTLSTruststoreCommandTask.execute(properties);
+        reloadTLSTruststoreCommandTask.execute(new HashMap<>());
 
         new Verifications() {{
             tlsReaderService.reset(domainCode);

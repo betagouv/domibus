@@ -29,10 +29,10 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.soap.MessageFactory;
@@ -45,7 +45,7 @@ import javax.xml.transform.TransformerFactory;
  */
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class IncomingPullReceiptHandlerTest {
 
     @Injectable
@@ -288,7 +288,7 @@ public class IncomingPullReceiptHandlerTest {
         }};
 
         SOAPMessage response = incomingPullReceiptHandler.handlePullRequestReceipt(request, messageId);
-        Assert.assertNotNull(response);
+        Assertions.assertNotNull(response);
 
         new Verifications() {{
             pullMessageService.updatePullMessageAfterReceipt(ReliabilityChecker.CheckResult.PULL_FAILED, null, userMessageLog, legConfiguration, userMessage);

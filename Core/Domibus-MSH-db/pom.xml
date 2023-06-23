@@ -21,8 +21,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
         </dependency>
     </dependencies>
 
@@ -41,15 +41,23 @@
                         <configuration>
                             <fileSets>
                                 <fileSet>
-                                    <sourceFile>${basedir}/src/main/resources/db/scripts/mysql-VERSION-delete-db.sql</sourceFile>
-                                    <destinationFile>${project.build.directory}/db/scripts/mysql-${project.version}-delete-db.sql</destinationFile>
+                                    <sourceFile>${basedir}/src/main/resources/db/scripts/mysql-VERSION-delete-db.sql
+                                    </sourceFile>
+                                    <destinationFile>
+                                        ${project.build.directory}/db/scripts/mysql-${project.version}-delete-db.sql
+                                    </destinationFile>
                                 </fileSet>
                                 <fileSet>
-                                    <sourceFile>${basedir}/src/main/resources/db/scripts/mysql-VERSION-delete-dictionary-tables.sql</sourceFile>
-                                    <destinationFile>${project.build.directory}/db/scripts/mysql-${project.version}-delete-dictionary-tables.sql</destinationFile>
+                                    <sourceFile>
+                                        ${basedir}/src/main/resources/db/scripts/mysql-VERSION-delete-dictionary-tables.sql
+                                    </sourceFile>
+                                    <destinationFile>
+                                        ${project.build.directory}/db/scripts/mysql-${project.version}-delete-dictionary-tables.sql
+                                    </destinationFile>
                                 </fileSet>
                                 <fileSet>
-                                    <sourceFile>${basedir}/src/main/resources/db/scripts/oracle-VERSION-delete-db.sql</sourceFile>
+                                    <sourceFile>${basedir}/src/main/resources/db/scripts/oracle-VERSION-delete-db.sql
+                                    </sourceFile>
                                     <destinationFile>
                                         ${project.build.directory}/db/scripts/oracle-${project.version}-delete-db.sql
                                     </destinationFile>

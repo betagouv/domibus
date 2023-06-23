@@ -3,8 +3,11 @@ package eu.domibus.core.property;
 import mockit.Mocked;
 import mockit.Tested;
 import mockit.Verifications;
-import org.junit.Assert;
-import org.junit.Test;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.Resource;
@@ -18,6 +21,7 @@ import static eu.domibus.api.property.DomibusPropertyProvider.DOMIBUS_PROPERTY_F
  * @author Cosmin Baciu
  * @since 4.2
  */
+@ExtendWith(JMockitExtension.class)
 public class DomibusPropertyConfigurationTest {
 
     @Tested
@@ -31,8 +35,8 @@ public class DomibusPropertyConfigurationTest {
         new Verifications() {{
             Resource[] locations = null;
             propertiesFactoryBean.setLocations(locations = withCapture());
-            Assert.assertEquals("domibus-default.properties", locations[0].getFilename());
-            Assert.assertEquals(DOMIBUS_PROPERTY_FILE, locations[1].getFilename());
+            Assertions.assertEquals("domibus-default.properties", locations[0].getFilename());
+            Assertions.assertEquals(DOMIBUS_PROPERTY_FILE, locations[1].getFilename());
         }};
 
     }
@@ -47,9 +51,9 @@ public class DomibusPropertyConfigurationTest {
             Resource[] locations = null;
             propertiesFactoryBean.setLocations(locations = withCapture());
 
-            Assert.assertEquals("domibus-default.properties", locations[0].getFilename());
-            Assert.assertEquals(DOMIBUS_PROPERTY_FILE, locations[1].getFilename());
-            Assert.assertEquals(File.separator + domibusConfigLocation + File.separator + DOMIBUS_PROPERTY_FILE, locations[2].getFile().getPath());
+            Assertions.assertEquals("domibus-default.properties", locations[0].getFilename());
+            Assertions.assertEquals(DOMIBUS_PROPERTY_FILE, locations[1].getFilename());
+            Assertions.assertEquals(File.separator + domibusConfigLocation + File.separator + DOMIBUS_PROPERTY_FILE, locations[2].getFile().getPath());
         }};
     }
 
@@ -63,8 +67,8 @@ public class DomibusPropertyConfigurationTest {
             propertySourcesPlaceholderConfigurer.setIgnoreResourceNotFound(ignoreResourceNotFound = withCapture());
             propertySourcesPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(ignoreUnresolvablePlaceholders = withCapture());
 
-            Assert.assertEquals(true, ignoreResourceNotFound);
-            Assert.assertEquals(true, ignoreUnresolvablePlaceholders);
+            Assertions.assertEquals(true, ignoreResourceNotFound);
+            Assertions.assertEquals(true, ignoreUnresolvablePlaceholders);
         }};
     }
 }

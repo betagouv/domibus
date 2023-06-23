@@ -13,9 +13,9 @@ import eu.domibus.core.user.ui.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.security.AuthenticationService;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,7 +57,7 @@ public class UserManagementServiceTestIT extends AbstractIT {
     @Autowired
     protected CacheServiceDelegate cacheServiceDelegate;
 
-    @Before
+    @BeforeEach
     public void before() {
         userDao.delete(userDao.listUsers());
     }
@@ -77,10 +77,10 @@ public class UserManagementServiceTestIT extends AbstractIT {
         apiUser.setActive(false);
         try {
             userManagementService.updateUsers(Collections.singletonList(apiUser));
-            Assert.fail();
+            Assertions.fail();
         } catch (UserManagementException ex) {
             LOG.info(ex.getMessage(), ex);
-            Assert.assertTrue(ex.getMessage().contains("Cannot change the active status of the logged-in user"));
+            Assertions.assertTrue(ex.getMessage().contains("Cannot change the active status of the logged-in user"));
         }
     }
 
@@ -95,10 +95,10 @@ public class UserManagementServiceTestIT extends AbstractIT {
         apiUser.setAuthorities(Collections.singletonList("ROLE_ADMIN"));
         try {
             userManagementService.updateUsers(Collections.singletonList(apiUser));
-            Assert.fail();
+            Assertions.fail();
         } catch (UserManagementException ex) {
             LOG.info(ex.getMessage(), ex);
-            Assert.assertTrue(ex.getMessage().contains("Cannot change the role of the logged-in user"));
+            Assertions.assertTrue(ex.getMessage().contains("Cannot change the role of the logged-in user"));
         }
     }
 

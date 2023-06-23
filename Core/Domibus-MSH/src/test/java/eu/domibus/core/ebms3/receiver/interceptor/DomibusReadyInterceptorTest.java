@@ -6,13 +6,15 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.cxf.message.MessageImpl;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusReadyInterceptorTest {
 
     @Injectable
@@ -21,13 +23,13 @@ public class DomibusReadyInterceptorTest {
     @Tested
     private DomibusReadyInterceptor domibusReadyInterceptor;
 
-    @Test(expected = Fault.class)
-    public void isReady(@Mocked final Message message){
+    @Test
+    void isReady(){
         new Expectations(){{
             domibusStatusService.isNotReady();
             result=true;
         }};
-        domibusReadyInterceptor.handleMessage(message);
+        Assertions.assertThrows(Fault. class,() -> domibusReadyInterceptor.handleMessage(new MessageImpl()));
     }
 
 }

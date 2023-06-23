@@ -6,14 +6,14 @@ import eu.domibus.plugin.fs.FSFilesManager;
 import eu.domibus.plugin.fs.FSTestHelper;
 import eu.domibus.plugin.fs.worker.FSSendMessagesService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.*;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.Message;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import java.io.InputStream;
  * @author Catalin Enache
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class FSSendMessageListenerTest {
 
     @Tested
@@ -42,7 +42,7 @@ public class FSSendMessageListenerTest {
     private FileObject outgoingFolder;
     private FileObject contentFile;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         String location = "ram:///FSSendMessageListenerTest";
 
@@ -62,8 +62,8 @@ public class FSSendMessageListenerTest {
         }
     }
 
-    @After
-    public void tearDown() throws FileSystemException {
+    @AfterEach
+public void tearDown() throws FileSystemException {
         rootDir.close();
         outgoingFolder.close();
     }
@@ -91,7 +91,7 @@ public class FSSendMessageListenerTest {
 
             String domainActual;
             fsSendMessagesService.processFileSafely((FileObject) any, domainActual = withCapture());
-            Assert.assertEquals(domain, domainActual);
+            Assertions.assertEquals(domain, domainActual);
         }};
     }
 

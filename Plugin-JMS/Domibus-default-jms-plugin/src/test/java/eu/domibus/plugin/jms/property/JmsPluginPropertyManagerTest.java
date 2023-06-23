@@ -10,11 +10,11 @@ import eu.domibus.ext.services.DomibusPropertyExtService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Map;
 
@@ -25,7 +25,7 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.JMSPLUGIN_DOMAIN_ENABLED
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class JmsPluginPropertyManagerTest {
 
     @Tested
@@ -55,20 +55,20 @@ public class JmsPluginPropertyManagerTest {
         jmsPluginPropertyManager.setKnownPropertyValue(jmsProperty, testValue);
         final String newValue = jmsPluginPropertyManager.getKnownPropertyValue(jmsProperty);
 
-        Assert.assertTrue(oldValue != newValue);
-        Assert.assertEquals(testValue, newValue);
+        Assertions.assertTrue(oldValue != newValue);
+        Assertions.assertEquals(testValue, newValue);
     }
 
     @Test
     public void getKnownProperties() {
         Map<String, DomibusPropertyMetadataDTO> properties = jmsPluginPropertyManager.getKnownProperties();
-        Assert.assertTrue(properties.containsKey(jmsProperty));
+        Assertions.assertTrue(properties.containsKey(jmsProperty));
     }
 
     @Test
     public void hasKnownProperty() {
         boolean hasProperty = jmsPluginPropertyManager.hasKnownProperty(jmsProperty);
-        Assert.assertTrue(hasProperty);
+        Assertions.assertTrue(hasProperty);
     }
 
     @Test
@@ -76,7 +76,7 @@ public class JmsPluginPropertyManagerTest {
         String unknownPropertyName = "jmsplugin.unknown.property";
 
         String value = jmsPluginPropertyManager.getKnownPropertyValue(unknownPropertyName);
-        Assert.assertTrue(StringUtils.isBlank(value));
+        Assertions.assertTrue(StringUtils.isBlank(value));
     }
 
 }

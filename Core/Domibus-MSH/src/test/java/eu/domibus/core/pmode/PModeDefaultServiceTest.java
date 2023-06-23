@@ -14,16 +14,16 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Cosmin Baciu
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PModeDefaultServiceTest {
 
     @Tested
@@ -87,9 +87,9 @@ public class PModeDefaultServiceTest {
         // When
         try {
             pModeDefaultService.updatePModeFile(file, "description");
-            Assert.fail();
+            Assertions.fail();
         } catch (PModeValidationException ex) {
-            Assert.assertEquals("[DOM_003]:Failed to upload the PMode file due to: ", ex.getMessage());
+            Assertions.assertEquals("[DOM_003]:Failed to upload the PMode file due to: ", ex.getMessage());
         }
 
     }

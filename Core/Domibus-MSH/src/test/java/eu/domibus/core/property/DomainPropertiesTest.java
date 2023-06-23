@@ -2,12 +2,12 @@ package eu.domibus.core.property;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.ByteArrayInputStream;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomainPropertiesTest {
 
     public static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(DomainPropertiesTest.class);
@@ -37,7 +37,7 @@ public class DomainPropertiesTest {
         LOGGER.info("Properties after replacement: {}", domainNamePropertiesString);
         properties.load(new ByteArrayInputStream(domainNamePropertiesString.getBytes()));
         final List<String> propertiesNotStartingWith_domain_name = properties.keySet().stream().map(property -> (String) property).filter(property -> !property.startsWith("domain_name")).collect(Collectors.toList());
-        Assert.assertTrue("Properties not starting with the domain name: ["+ String.join(",",propertiesNotStartingWith_domain_name)+"]",propertiesNotStartingWith_domain_name.isEmpty());
+        Assertions.assertTrue(propertiesNotStartingWith_domain_name.isEmpty(), "Properties not starting with the domain name: ["+ String.join(",",propertiesNotStartingWith_domain_name)+"]");
 
 
 

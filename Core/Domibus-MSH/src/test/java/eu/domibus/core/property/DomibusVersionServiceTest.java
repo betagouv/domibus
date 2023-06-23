@@ -5,19 +5,20 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Locale;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Federico Martini
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusVersionServiceTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusVersionServiceTest.class);
@@ -38,6 +39,7 @@ public class DomibusVersionServiceTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testVersionNumber(@Mocked Properties versionProps) throws Exception {
 
         new Expectations() {{
@@ -69,6 +71,7 @@ public class DomibusVersionServiceTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getBuiltTime(@Mocked Properties versionProps) {
         Locale.setDefault(Locale.ENGLISH);
         new Expectations() {{

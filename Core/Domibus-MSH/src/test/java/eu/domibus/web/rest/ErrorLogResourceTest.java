@@ -15,10 +15,10 @@ import eu.domibus.web.rest.ro.ErrorLogResultRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -28,7 +28,7 @@ import java.util.*;
  * @author Tiago Miguel
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class ErrorLogResourceTest {
 
     private static final String CSV_TITLE = "Error Signal Message Id, Msh Role, Message In Error Id, Error Code, Error Detail, Timestamp, Notified";
@@ -79,17 +79,17 @@ public class ErrorLogResourceTest {
         }});
 
         // Then
-        Assert.assertNotNull(errorLogResultRO);
-        Assert.assertEquals(new Integer(1), errorLogResultRO.getCount());
-        Assert.assertEquals(1, errorLogResultRO.getErrorLogEntries().size());
+        Assertions.assertNotNull(errorLogResultRO);
+        Assertions.assertEquals(new Integer(1), errorLogResultRO.getCount());
+        Assertions.assertEquals(1, errorLogResultRO.getErrorLogEntries().size());
         ErrorLogRO errorLogRO = errorLogResultRO.getErrorLogEntries().get(0);
-        Assert.assertEquals(errorLogEntry.getErrorCode(), errorLogRO.getErrorCode());
-        Assert.assertEquals(errorLogEntry.getErrorDetail(), errorLogRO.getErrorDetail());
-        Assert.assertEquals(errorLogEntry.getErrorSignalMessageId(), errorLogRO.getErrorSignalMessageId());
-        Assert.assertEquals(errorLogEntry.getMessageInErrorId(), errorLogRO.getMessageInErrorId());
-        Assert.assertEquals(errorLogEntry.getMshRole(), errorLogRO.getMshRole());
-        Assert.assertEquals(errorLogEntry.getNotified(), errorLogRO.getNotified());
-        Assert.assertEquals(errorLogEntry.getTimestamp(), errorLogRO.getTimestamp());
+        Assertions.assertEquals(errorLogEntry.getErrorCode(), errorLogRO.getErrorCode());
+        Assertions.assertEquals(errorLogEntry.getErrorDetail(), errorLogRO.getErrorDetail());
+        Assertions.assertEquals(errorLogEntry.getErrorSignalMessageId(), errorLogRO.getErrorSignalMessageId());
+        Assertions.assertEquals(errorLogEntry.getMessageInErrorId(), errorLogRO.getMessageInErrorId());
+        Assertions.assertEquals(errorLogEntry.getMshRole(), errorLogRO.getMshRole());
+        Assertions.assertEquals(errorLogEntry.getNotified(), errorLogRO.getNotified());
+        Assertions.assertEquals(errorLogEntry.getTimestamp(), errorLogRO.getTimestamp());
     }
 
     @Test
@@ -143,8 +143,8 @@ public class ErrorLogResourceTest {
         }});
 
         // Then
-        Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
-        Assert.assertEquals(CSV_TITLE +
+        Assertions.assertEquals(HttpStatus.OK, csv.getStatusCode());
+        Assertions.assertEquals(CSV_TITLE +
                         signalMessageIdStr + "," + MSHRole.RECEIVING + "," + refToMessageIdStr + "," + ErrorCode.EBMS_0001.getErrorCodeName() + "," +
                         errorDetailStr + "," + date + "," + date + System.lineSeparator(),
                 csv.getBody());

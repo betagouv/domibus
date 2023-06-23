@@ -6,11 +6,12 @@ import eu.domibus.ext.exceptions.PluginUserExtServiceException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PluginUserExtService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PluginUserExtResourceTest {
 
     @Tested
@@ -38,14 +39,14 @@ public class PluginUserExtResourceTest {
         }};
     }
 
-    @Test(expected = PluginUserExtServiceException.class)
-    public void testCreatePluginUserErrorHandler(@Mocked PluginUserDTO pluginUserDTO) {
+    @Test
+    void testCreatePluginUserErrorHandler(@Mocked PluginUserDTO pluginUserDTO) {
         DomibusCoreException domibusCoreException = new DomibusCoreException("Test error message.");
         new Expectations(){{
             pluginUserExtService.createPluginUser(pluginUserDTO);
             result = domibusCoreException;
         }};
 
-        pluginUserExtResource.createPluginUser(pluginUserDTO);
+        Assertions.assertThrows(PluginUserExtServiceException. class,() -> pluginUserExtResource.createPluginUser(pluginUserDTO));
     }
 }

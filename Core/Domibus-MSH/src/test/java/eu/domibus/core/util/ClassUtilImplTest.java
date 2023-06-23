@@ -1,8 +1,8 @@
 package eu.domibus.core.util;
 
 import mockit.Tested;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ClassUtilImplTest {
     @Tested
@@ -11,12 +11,12 @@ public class ClassUtilImplTest {
     @Test
     public void isMethodDefined() {
         boolean res = classUtil.isMethodDefined(this, "isMethodDefined", new Class[]{});
-        Assert.assertTrue(res);
+        Assertions.assertTrue(res);
 
         res = classUtil.isMethodDefined(this, "isMethodDefined2", new Class[]{});
-        Assert.assertFalse(res);
+        Assertions.assertFalse(res);
 
         res = classUtil.isMethodDefined(this, "isMethodDefined", new Class[]{String.class});
-        Assert.assertFalse(res);
+        Assertions.assertFalse(res);
     }
 }

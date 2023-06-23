@@ -2,11 +2,11 @@ package eu.domibus.api.security;
 
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -19,7 +19,7 @@ import java.security.cert.X509Certificate;
  * @author idragusa
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class X509CertificateAuthenticationTest {
 
     private static final String RESOURCE_PATH = "src/test/resources/testkeystore.jks";
@@ -39,11 +39,11 @@ public class X509CertificateAuthenticationTest {
         String certificateId = authentication.getCertificateId();
         System.out.println(certificateId);
 
-        Assert.assertEquals(expectedCertId, certificateId);
+        Assertions.assertEquals(expectedCertId, certificateId);
 
     }
 
-    @Before
+    @BeforeEach
     public void loadCertificateFromJKSFile() {
         String filePath = RESOURCE_PATH;
         String alias = ALIAS_CN_AVAILABLE;

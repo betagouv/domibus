@@ -8,11 +8,11 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,7 @@ import java.util.*;
  * @author Catalin Enache
  * @since 4.1.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class BaseResourceTest {
 
     @Tested
@@ -34,7 +34,7 @@ public class BaseResourceTest {
 
     private static Map<String, String> jmsCustomColumns;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         jmsCustomColumns = new HashMap<>();
         jmsCustomColumns.put("id".toUpperCase(), "ID");
@@ -64,9 +64,9 @@ public class BaseResourceTest {
         final ResponseEntity<String> responseEntity = baseResource.exportToCSV(jmsMessageList, JmsMessage.class,
                 jmsCustomColumns, jmsExcludedColumns, moduleName);
 
-        Assert.assertNotNull(responseEntity);
-        Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        Assert.assertEquals(MediaType.parseMediaType(CsvServiceImpl.APPLICATION_EXCEL_STR), responseEntity.getHeaders().getContentType());
+        Assertions.assertNotNull(responseEntity);
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertEquals(MediaType.parseMediaType(CsvServiceImpl.APPLICATION_EXCEL_STR), responseEntity.getHeaders().getContentType());
 
         new FullVerifications() {{
             csvServiceImpl.exportToCSV(jmsMessageList, JmsMessage.class,

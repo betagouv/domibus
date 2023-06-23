@@ -6,8 +6,8 @@ import eu.domibus.core.property.listeners.ConcurrencyChangeListener;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
@@ -40,9 +40,9 @@ public class MessageListenerContainerInitializerIT extends AbstractIT {
             concurrencyChangeListener.propertyValueChanged(DomainDTO.DEFAULT_DOMAIN.getCode(), DOMIBUS_DISPATCHER_CONCURENCY, i + "-30");
 
             // THEN
-            Assert.assertFalse("Should have not thrown an XAException stating that the 2 phase commit cannot be "
-                                       + "completed because the XA transaction has not yet been prepared",
-                               transactionExceptionBrokerPlugin.isTestFailed());
+            Assertions.assertFalse(transactionExceptionBrokerPlugin.isTestFailed(),
+                    "Should have not thrown an XAException stating that the 2 phase commit cannot be "
+                                                   + "completed because the XA transaction has not yet been prepared");
         }
     }
 
@@ -52,8 +52,8 @@ public class MessageListenerContainerInitializerIT extends AbstractIT {
         messageListenerContainerInitializer.destroy();
 
         // THEN
-        Assert.assertFalse("Should have not thrown an XAException stating that the 2 phase commit cannot be "
-                                   + "completed because the XA transaction has not yet been prepared",
-                           transactionExceptionBrokerPlugin.isTestFailed());
+        Assertions.assertFalse(transactionExceptionBrokerPlugin.isTestFailed(),
+                "Should have not thrown an XAException stating that the 2 phase commit cannot be "
+                                           + "completed because the XA transaction has not yet been prepared");
     }
 }

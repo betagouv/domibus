@@ -9,9 +9,9 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.signal.SignalMessageLogDao;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +42,7 @@ public class SignalMessageLogDaoIT extends AbstractIT {
     private Date after;
     private Date old;
 
-    @Before
+    @BeforeEach
     public void setup() {
         before = dateUtil.fromString("2019-01-01T12:00:00Z");
         now = dateUtil.fromString("2020-01-01T12:00:00Z");
@@ -64,7 +64,7 @@ public class SignalMessageLogDaoIT extends AbstractIT {
 
         long count = signalMessageLogDao.countEntries(filters);
 
-        Assert.assertEquals(2, count);
+        Assertions.assertEquals(2, count);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class SignalMessageLogDaoIT extends AbstractIT {
 
         long count = signalMessageLogDao.countEntries(filters);
 
-        Assert.assertEquals(2, count);
+        Assertions.assertEquals(2, count);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class SignalMessageLogDaoIT extends AbstractIT {
 
         List<MessageLogInfo> messages = signalMessageLogDao.findAllInfoPaged(0, 10, "received", true, filters);
 
-        Assert.assertEquals(2, messages.size());
+        Assertions.assertEquals(2, messages.size());
     }
 
     @Test
@@ -114,7 +114,7 @@ public class SignalMessageLogDaoIT extends AbstractIT {
         String[] columnsToTest = new String[]{"nextAttempt", "sendAttempts", "sendAttemptsMax", "failed", "restored", "conversationId", "notificationStatus", "messageStatus", "mshRole", "refToMessageId", "toPartyId", "finalRecipient"};
         for (String column : columnsToTest) {
             List<MessageLogInfo> messages = signalMessageLogDao.findAllInfoPaged(0, 10, column, false, filters);
-            Assert.assertEquals(2, messages.size());
+            Assertions.assertEquals(2, messages.size());
         }
     }
 }

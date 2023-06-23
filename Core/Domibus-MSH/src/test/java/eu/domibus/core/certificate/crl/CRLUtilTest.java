@@ -5,11 +5,11 @@ import eu.domibus.core.pki.PKIUtil;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.cache.CacheManager;
 
 import java.io.ByteArrayInputStream;
@@ -21,13 +21,13 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Created by Cosmin Baciu on 07-Jul-16.
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class CRLUtilTest {
 
     @Tested
@@ -41,20 +41,20 @@ public class CRLUtilTest {
 
     private PKIUtil pkiUtil = new PKIUtil();
 
-    @Before
+    @BeforeEach
     public void init() {
         Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
     }
 
-    @Test(expected = DomibusCRLException.class)
-    public void testDownloadCRLWithNullUrl(@Injectable final URL crlUrl) throws Exception {
+    @Test
+    void testDownloadCRLWithNullUrl(@Injectable final URL crlUrl) throws Exception {
         final String crlUrlString = "file://test";
         new Expectations(crlUtil) {{
             crlUtil.getCrlURL(crlUrlString);
             result = null;
         }};
 
-        crlUtil.downloadCRL(crlUrlString, false);
+        Assertions.assertThrows(DomibusCRLException.class, () -> crlUtil.downloadCRL(crlUrlString, false));
     }
 
     @Test
@@ -124,7 +124,7 @@ public class CRLUtilTest {
         //final String ldapURL = "ldap://ldap.infonotary.com/dc=identity-ca,dc=infonotary,dc=com";
 
         X509CRL x509CRL = crlUtil.downloadCRLfromLDAP(ldapURL);
-        Assert.assertNotNull(x509CRL);
+        Assertions.assertNotNull(x509CRL);
 
         System.out.println(x509CRL);
     }
@@ -135,12 +135,12 @@ public class CRLUtilTest {
 //        crlUtil.ce
 //    }
 
-    @Test(expected = DomibusCRLException.class)
-    public void testDownloadCRLFromLDAP_WrongUrl() throws Exception {
+    @Test
+    void testDownloadCRLFromLDAP_WrongUrl() {
         //ldap url contains spaces and it will fail
         final String ldapURL = "ldap://ldap.sbca.telesec.de/CN=Shared Business CA 04,OU=T-Systems Trust Center,O=T-Systems International GmbH,C=DE?CertificateRevocationList";
 
-        X509CRL x509CRL = crlUtil.downloadCRLfromLDAP(ldapURL);
+        Assertions.assertThrows(DomibusCRLException.class, () -> crlUtil.downloadCRLfromLDAP(ldapURL));
     }
 
 

@@ -4,12 +4,12 @@ import eu.domibus.plugin.convert.StringToTemporalAccessorConverter;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * @author Sebastian-Ion TINCU
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class TimeAdapterTest {
 
     @Injectable
@@ -26,7 +26,7 @@ public class TimeAdapterTest {
     @Tested(availableDuringSetup = true)
     private TimeAdapter timeAdapter;
 
-    @Before
+    @BeforeEach
     public void setup() throws IllegalAccessException {
         FieldUtils.writeField(timeAdapter, "converter", converter, true);
     }
@@ -36,14 +36,15 @@ public class TimeAdapterTest {
         // GIVEN
         String input = null;
         new Expectations() {{
-            converter.convert(input); result = null;
+            converter.convert(input);
+            result = null;
         }};
 
         // WHEN
         LocalTime result = timeAdapter.unmarshal(input);
 
         // THEN
-        Assert.assertNull("Should have returned null when unmarshalling a null input string", result);
+        Assertions.assertNull(result, "Should have returned null when unmarshalling a null input string");
     }
 
     @Test
@@ -51,14 +52,15 @@ public class TimeAdapterTest {
         // GIVEN
         String input = "09:34:36";
         new Expectations() {{
-            converter.convert(input); result = parsedTime;
+            converter.convert(input);
+            result = parsedTime;
         }};
 
         // WHEN
         LocalTime result = timeAdapter.unmarshal(input);
 
         // THEN
-        Assert.assertSame("Should have returned the parsed time when unmarshalling a non-null input string", parsedTime, result);
+        Assertions.assertSame(parsedTime, result, "Should have returned the parsed time when unmarshalling a non-null input string");
     }
 
     @Test
@@ -70,7 +72,7 @@ public class TimeAdapterTest {
         String result = timeAdapter.marshal(input);
 
         // THEN
-        Assert.assertNull("Should have returned null when marshalling a null input time", result);
+        Assertions.assertNull(result, "Should have returned null when marshalling a null input time");
     }
 
 
@@ -79,13 +81,14 @@ public class TimeAdapterTest {
         // GIVEN
         String formattedTime = "09:34:36";
         new Expectations() {{
-            input.format(DateTimeFormatter.ISO_TIME); result = formattedTime;
+            input.format(DateTimeFormatter.ISO_TIME);
+            result = formattedTime;
         }};
 
         // WHEN
         String result = timeAdapter.marshal(input);
 
         // THEN
-        Assert.assertEquals("Should have returned the formatted time when marshalling a non-null input time", formattedTime, result);
+        Assertions.assertEquals(formattedTime, result, "Should have returned the formatted time when marshalling a non-null input time");
     }
 }

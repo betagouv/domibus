@@ -7,8 +7,8 @@ import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
 import org.apache.commons.collections4.CollectionUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import javax.validation.ConstraintValidatorContext;
 import java.util.Arrays;
@@ -32,7 +32,7 @@ public class BaseBlacklistValidatorTest {
         Pattern whitelistPattern = Pattern.compile("\\w*");
 
         List<Character> result = validator.findNonMatchingCharacters(inputValue, whitelistPattern, null);
-        Assert.assertTrue(result.containsAll(Arrays.asList('.', ' ')));
+        Assertions.assertTrue(result.containsAll(Arrays.asList('.', ' ')));
     }
 
     @Test
@@ -42,7 +42,7 @@ public class BaseBlacklistValidatorTest {
         String additionalWhitelist = " .";
 
         List<Character> result = validator.findNonMatchingCharacters(inputValue, whitelistPattern, additionalWhitelist);
-        Assert.assertTrue(CollectionUtils.isEmpty(result));
+        Assertions.assertTrue(CollectionUtils.isEmpty(result));
     }
 
     @Test
@@ -52,13 +52,13 @@ public class BaseBlacklistValidatorTest {
         String additionalWhitelist = " .";
 
         List<Character> result = validator.findNonMatchingCharacters(inputValue, whitelistPattern, additionalWhitelist);
-        Assert.assertTrue(CollectionUtils.isEmpty(result));
+        Assertions.assertTrue(CollectionUtils.isEmpty(result));
     }
 
     @Test
     public void testIsValidWhenValidationIsDisabled(@Mocked String testValue, @Mocked ConstraintValidatorContext mockContext) {
         boolean result = validator.isValid(testValue, mockContext);
-        Assert.assertEquals(true, result);
+        Assertions.assertEquals(true, result);
     }
 
     @Test
@@ -74,6 +74,6 @@ public class BaseBlacklistValidatorTest {
         validator.reset();
 
         boolean result = validator.isValid(testValue, mockContext);
-        Assert.assertEquals(false, result);
+        Assertions.assertEquals(false, result);
     }
 }

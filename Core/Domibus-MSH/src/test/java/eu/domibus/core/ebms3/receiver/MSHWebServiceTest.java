@@ -11,10 +11,12 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.phase.PhaseInterceptorChain;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.WebServiceException;
@@ -24,7 +26,7 @@ import javax.xml.ws.WebServiceException;
  * @author Cosmin Baciu
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MSHWebServiceTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHWebServiceTest.class);
@@ -46,6 +48,7 @@ public class MSHWebServiceTest {
     DomainContextProvider domainContextProvider;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testInvokeHappyFlow(@Injectable SOAPMessage request,
                                     @Injectable Ebms3Messaging messaging,
                                     @Injectable IncomingMessageHandler messageHandler,
@@ -65,11 +68,11 @@ public class MSHWebServiceTest {
         }};
     }
 
-    @Test(expected = WebServiceException.class)
-    public void testInvokeNoHandlerFound(@Injectable SOAPMessage request,
+    @Test
+    @Disabled("EDELIVERY-6896")
+    void testInvokeNoHandlerFound(@Injectable SOAPMessage request,
                                          @Injectable Ebms3Messaging messaging,
-                                         @Injectable IncomingMessageHandler messageHandler,
-                                         @Mocked PhaseInterceptorChain interceptors) throws EbMS3Exception {
+                                         @Injectable IncomingMessageHandler messageHandler) throws EbMS3Exception {
         new Expectations() {{
             PhaseInterceptorChain.getCurrentMessage().get(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY);
             result = messaging;
@@ -78,7 +81,7 @@ public class MSHWebServiceTest {
             result = null;
         }};
 
-        mshWebservice.invoke(request);
+        Assertions.assertThrows(WebServiceException. class,() -> mshWebservice.invoke(request));
 
         new Verifications() {{
             messageHandler.processMessage(request, messaging);

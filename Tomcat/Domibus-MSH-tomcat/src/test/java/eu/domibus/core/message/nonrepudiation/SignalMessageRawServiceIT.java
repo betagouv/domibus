@@ -6,8 +6,8 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.SignalMessage;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.signal.SignalMessageDao;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +36,7 @@ public class SignalMessageRawServiceIT extends AbstractIT {
     public void noSignalFound() {
         try {
             signalMessageRawService.saveSignalMessageRawService("", 1L);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusCoreException e) {
             //OK
         }
@@ -50,6 +50,6 @@ public class SignalMessageRawServiceIT extends AbstractIT {
 
         signalMessageRawService.saveSignalMessageRawService(RAW_XML, msg1.getEntityId());
 
-        Assert.assertEquals(RAW_XML, signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId("msg1", MSHRole.SENDING).getRawXmlMessage());
+        Assertions.assertEquals(RAW_XML, signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId("msg1", MSHRole.SENDING).getRawXmlMessage());
     }
 }

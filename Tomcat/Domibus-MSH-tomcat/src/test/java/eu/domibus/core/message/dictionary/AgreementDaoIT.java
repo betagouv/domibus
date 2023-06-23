@@ -2,12 +2,12 @@ package eu.domibus.core.message.dictionary;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.AgreementRefEntity;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Cosmin Baciu
@@ -29,13 +29,13 @@ public class AgreementDaoIT extends AbstractIT {
         final AgreementRefEntity foundAgreement = agreementDao.findOrCreateAgreement(value, type);
         assertNotNull(foundAgreement);
 
-        Assert.assertEquals(entity.getEntityId(), foundAgreement.getEntityId());
-        Assert.assertEquals(value, foundAgreement.getValue());
-        Assert.assertEquals(type, foundAgreement.getType());
+        Assertions.assertEquals(entity.getEntityId(), foundAgreement.getEntityId());
+        Assertions.assertEquals(value, foundAgreement.getValue());
+        Assertions.assertEquals(type, foundAgreement.getType());
 
         final AgreementRefEntity foundAgreement1 = agreementDao.findOrCreateAgreement(value, type);
 
-        Assert.assertEquals(foundAgreement.getEntityId(), foundAgreement1.getEntityId());
+        Assertions.assertEquals(foundAgreement.getEntityId(), foundAgreement1.getEntityId());
     }
 
     @Test
@@ -47,13 +47,13 @@ public class AgreementDaoIT extends AbstractIT {
         final AgreementRefEntity foundAgreement = agreementDao.findOrCreateAgreement(value, type);
         assertNotNull(foundAgreement);
 
-        Assert.assertEquals(entity.getEntityId(), foundAgreement.getEntityId());
-        Assert.assertEquals(value, foundAgreement.getValue());
-        Assert.assertEquals(type, foundAgreement.getType());
+        Assertions.assertEquals(entity.getEntityId(), foundAgreement.getEntityId());
+        Assertions.assertEquals(value, foundAgreement.getValue());
+        Assertions.assertEquals(type, foundAgreement.getType());
 
         final AgreementRefEntity foundAgreement1 = agreementDao.findOrCreateAgreement(value, type);
 
-        Assert.assertEquals(foundAgreement.getEntityId(), foundAgreement1.getEntityId());
+        Assertions.assertEquals(foundAgreement.getEntityId(), foundAgreement1.getEntityId());
     }
 
     @Test
@@ -72,9 +72,9 @@ public class AgreementDaoIT extends AbstractIT {
         final AgreementRefEntity foundAgreement4 = agreementDao.findOrCreateAgreement(value, "type1");
         assertNotNull(foundAgreement4);
 
-        Assert.assertEquals(foundAgreement1.getEntityId(), foundAgreement2.getEntityId());
-        Assert.assertEquals(foundAgreement1.getEntityId(), foundAgreement3.getEntityId());
-        Assert.assertNotEquals(foundAgreement1.getEntityId(), foundAgreement4.getEntityId());
+        Assertions.assertEquals(foundAgreement1.getEntityId(), foundAgreement2.getEntityId());
+        Assertions.assertEquals(foundAgreement1.getEntityId(), foundAgreement3.getEntityId());
+        Assertions.assertNotEquals(foundAgreement1.getEntityId(), foundAgreement4.getEntityId());
     }
 
 }

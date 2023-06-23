@@ -9,18 +9,19 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Cosmin Baciu
  * @since 3.3
  */
-@RunWith(JMockit.class)
-public class MessageAttemptDefaultServiceTest {
+@ExtendWith(JMockitExtension.class)
+class MessageAttemptDefaultServiceTest {
 
     @Tested
     MessageAttemptDefaultService messageAttemptDefaultService;
@@ -38,9 +39,9 @@ public class MessageAttemptDefaultServiceTest {
     UserMessageDao userMessageDao;
 
     @Test
-    public void testGetAttemptsHistory(@Injectable final List<MessageAttemptEntity> entities) throws Exception {
+    void testGetAttemptsHistory() {
         final String messageId = "1";
-
+        List<MessageAttemptEntity> entities = new ArrayList<>();
         new Expectations() {{
             messageAttemptDao.findByMessageId(messageId, MSHRole.SENDING);
             result = entities;
@@ -54,7 +55,7 @@ public class MessageAttemptDefaultServiceTest {
     }
 
     @Test
-    public void testCreate(@Injectable final MessageAttemptEntity entity, @Injectable final MessageAttempt attempt) throws Exception {
+    void testCreate(@Injectable final MessageAttemptEntity entity, @Injectable final MessageAttempt attempt) {
         new Expectations(messageAttemptDefaultService) {{
             messageAttemptDefaultService.isMessageAttemptAuditDisabled();
             result = false;

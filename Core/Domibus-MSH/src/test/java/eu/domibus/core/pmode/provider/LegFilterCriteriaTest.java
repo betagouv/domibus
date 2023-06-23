@@ -3,9 +3,9 @@ package eu.domibus.core.pmode.provider;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Process;
 import mockit.Injectable;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LegFilterCriteriaTest {
 

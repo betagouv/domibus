@@ -4,13 +4,13 @@ package eu.domibus.ext.delegate.services.property;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.plugin.property.PluginPropertyChangeListener;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Arrays;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PluginPropertyChangeNotifierImplTest {
 
     @Injectable

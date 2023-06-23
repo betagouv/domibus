@@ -8,11 +8,12 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.task.TaskRejectedException;
 import org.springframework.scheduling.SchedulingException;
 import org.springframework.scheduling.commonj.DelegatingWork;
@@ -20,13 +21,13 @@ import org.springframework.scheduling.commonj.DelegatingWork;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Cosmin Baciu
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusWorkManagerTaskExecutorTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusWorkManagerTaskExecutorTest.class);
@@ -34,9 +35,9 @@ public class DomibusWorkManagerTaskExecutorTest {
     @Tested
     DomibusWorkManagerTaskExecutor domibusWorkManagerTaskExecutor;
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testExecuteWithNoWorkManager(@Injectable Runnable task) {
-        domibusWorkManagerTaskExecutor.execute(task);
+        Assertions.assertThrows(IllegalStateException.class, () -> domibusWorkManagerTaskExecutor.execute(task));
     }
 
     @Test

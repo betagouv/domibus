@@ -30,11 +30,11 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.neethi.Policy;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.xml.soap.SOAPMessage;
 import java.util.UUID;
@@ -44,7 +44,7 @@ import java.util.UUID;
  * @since 4.1
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class AbstractEbms3UserMessageSenderTest {
 
     @Tested
@@ -201,19 +201,19 @@ public class AbstractEbms3UserMessageSenderTest {
             LegConfiguration legConfigurationActual;
             String receiverPartyNameActual;
             messageExchangeService.verifyReceiverCertificate(legConfigurationActual = withCapture(), receiverPartyNameActual = withCapture());
-            Assert.assertEquals(legConfiguration.getName(), legConfigurationActual.getName());
-            Assert.assertEquals(receiverName, receiverPartyNameActual);
+            Assertions.assertEquals(legConfiguration.getName(), legConfigurationActual.getName());
+            Assertions.assertEquals(receiverName, receiverPartyNameActual);
 
 
             String senderPartyNameActual;
             messageExchangeService.verifySenderCertificate(legConfigurationActual = withCapture(), senderPartyNameActual = withCapture());
-            Assert.assertEquals(legConfiguration.getName(), legConfigurationActual.getName());
-            Assert.assertEquals(senderName, senderPartyNameActual);
+            Assertions.assertEquals(legConfiguration.getName(), legConfigurationActual.getName());
+            Assertions.assertEquals(senderName, senderPartyNameActual);
 
             ReliabilityChecker.CheckResult checkResultActual;
 
             reliabilityService.handleReliability(userMessage, userMessageLog, checkResultActual = withCapture(), null, response, responseResult, legConfiguration, null);
-            Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
+            Assertions.assertEquals(reliabilityCheckSuccessful, checkResultActual);
 
         }};
     }
@@ -257,9 +257,9 @@ public class AbstractEbms3UserMessageSenderTest {
         new FullVerifications(abstractUserMessageSender) {{
             EbMS3Exception ebMS3ExceptionActual;
             reliabilityChecker.handleEbms3Exception(ebMS3ExceptionActual = withCapture(), userMessage);
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, ebMS3ExceptionActual.getErrorCode());
-            Assert.assertEquals("Policy configuration invalid", ebMS3ExceptionActual.getErrorDetail());
-            Assert.assertEquals(MSHRole.SENDING, ebMS3ExceptionActual.getMshRole());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, ebMS3ExceptionActual.getErrorCode());
+            Assertions.assertEquals("Policy configuration invalid", ebMS3ExceptionActual.getErrorDetail());
+            Assertions.assertEquals(MSHRole.SENDING, ebMS3ExceptionActual.getMshRole());
         }};
     }
 
@@ -316,7 +316,7 @@ public class AbstractEbms3UserMessageSenderTest {
             ReliabilityChecker.CheckResult checkResultActual;
             reliabilityService.handleReliability(userMessage, userMessageLog, checkResultActual = withCapture(), null, null, null, legConfiguration, null);
             errorLogService.createErrorLog(messageId, ErrorCode.EBMS_0004, chainCertificateInvalidException.getMessage(), MSHRole.SENDING, userMessage);
-            Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
+            Assertions.assertEquals(reliabilityCheckSuccessful, checkResultActual);
 
         }};
     }
@@ -407,13 +407,13 @@ public class AbstractEbms3UserMessageSenderTest {
             LegConfiguration legConfigurationActual;
             String receiverPartyNameActual;
             messageExchangeService.verifyReceiverCertificate(legConfigurationActual = withCapture(), receiverPartyNameActual = withCapture());
-            Assert.assertEquals(legConfiguration.getName(), legConfigurationActual.getName());
-            Assert.assertEquals(receiverName, receiverPartyNameActual);
+            Assertions.assertEquals(legConfiguration.getName(), legConfigurationActual.getName());
+            Assertions.assertEquals(receiverName, receiverPartyNameActual);
 
             String senderPartyNameActual;
             messageExchangeService.verifySenderCertificate(legConfigurationActual = withCapture(), senderPartyNameActual = withCapture());
-            Assert.assertEquals(legConfiguration.getName(), legConfigurationActual.getName());
-            Assert.assertEquals(senderName, senderPartyNameActual);
+            Assertions.assertEquals(legConfiguration.getName(), legConfigurationActual.getName());
+            Assertions.assertEquals(senderName, senderPartyNameActual);
 
             soapUtil.getRawXMLMessage(soapMessage);
 
@@ -421,9 +421,9 @@ public class AbstractEbms3UserMessageSenderTest {
 
             EbMS3Exception ebMS3ExceptionActual;
             reliabilityChecker.handleEbms3Exception(ebMS3ExceptionActual = withCapture(), userMessage);
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0004, ebMS3ExceptionActual.getErrorCode());
-            Assert.assertEquals("Problem occurred during marshalling", ebMS3ExceptionActual.getErrorDetail());
-            Assert.assertEquals(MSHRole.SENDING, ebMS3ExceptionActual.getMshRole());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0004, ebMS3ExceptionActual.getErrorCode());
+            Assertions.assertEquals("Problem occurred during marshalling", ebMS3ExceptionActual.getErrorDetail());
+            Assertions.assertEquals(MSHRole.SENDING, ebMS3ExceptionActual.getMshRole());
 
             ReliabilityChecker.CheckResult checkResultActual;
             reliabilityService.handleReliability(
@@ -436,11 +436,11 @@ public class AbstractEbms3UserMessageSenderTest {
                     legConfiguration,
                     null);
 
-            Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
+            Assertions.assertEquals(reliabilityCheckSuccessful, checkResultActual);
 
             String ToPartyName = userMessage.getPartyInfo().getToParty();
-            Assert.assertFalse(reliabilityService.isSmartRetryEnabledForParty(ToPartyName));
-            Assert.assertFalse(userMessage.isTestMessage());
+            Assertions.assertFalse(reliabilityService.isSmartRetryEnabledForParty(ToPartyName));
+            Assertions.assertFalse(userMessage.isTestMessage());
         }};
     }
 
@@ -520,7 +520,7 @@ public class AbstractEbms3UserMessageSenderTest {
         new Verifications() {{
             ReliabilityChecker.CheckResult checkResultActual;
             reliabilityService.handleReliability(userMessage, userMessageLog, checkResultActual = withCapture(), null, null, null, legConfiguration, null);
-            Assert.assertEquals(reliabilityCheckSuccessful, checkResultActual);
+            Assertions.assertEquals(reliabilityCheckSuccessful, checkResultActual);
         }};
     }
 }

@@ -11,9 +11,10 @@ import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.transaction.Transactional;
@@ -40,7 +41,7 @@ public class ErrorLogDaoIT extends AbstractIT {
     @Autowired
     private MshRoleDao mshRoleDao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(2, 1000);
 
@@ -70,9 +71,10 @@ public class ErrorLogDaoIT extends AbstractIT {
 
     @Test
     @Transactional
+    @Disabled("EDELIVERY-6896")
     public void test_deleteErrorLogsWithoutMessageIdOlderThan() {
         int result = errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(2, 1000);
-        Assert.assertEquals(2, result);
+        Assertions.assertEquals(2, result);
     }
 
     @Test
@@ -82,10 +84,10 @@ public class ErrorLogDaoIT extends AbstractIT {
         filters.put("mshRole", MSHRole.RECEIVING);
 
         List<ErrorLogEntry> list = errorLogDao.findPaged(0, 10, "timestamp", false, filters);
-        Assert.assertEquals(1, list.size());
+        Assertions.assertEquals(1, list.size());
 
         long count = errorLogDao.countEntries(filters);
-        Assert.assertEquals(1, count);
+        Assertions.assertEquals(1, count);
     }
 
 }

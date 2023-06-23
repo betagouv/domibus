@@ -5,16 +5,16 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.ApplicationContext;
 
 /**
  * Created by baciuco on 08/08/2016.
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class SubmissionValidatorListProviderImplTest {
 
     @Injectable
@@ -37,7 +37,7 @@ public class SubmissionValidatorListProviderImplTest {
             applicationContext.getBean(springBean = withCapture(), SubmissionValidatorList.class);
             times = 1;
 
-            Assert.assertEquals(springBean, "customPlugin");
+            Assertions.assertEquals(springBean, "customPlugin");
         }};
     }
 
@@ -49,7 +49,7 @@ public class SubmissionValidatorListProviderImplTest {
         }};
 
         SubmissionValidatorList noPlugin = submissionValidatorListProvider.getSubmissionValidatorList("noPlugin");
-        Assert.assertNull(noPlugin);
+        Assertions.assertNull(noPlugin);
 
         new Verifications() {{
             applicationContext.getBean(anyString, SubmissionValidatorList.class);

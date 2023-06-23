@@ -13,9 +13,9 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.KeystoreResource;
 import eu.domibus.web.rest.ro.TrustStoreRO;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,7 +50,7 @@ public class KeyStoreResourceIT extends AbstractIT {
     @Autowired
     CertificateHelper certificateHelper;
 
-    @Before
+    @BeforeEach
     public void before() {
         resetInitialStore();
     }
@@ -68,17 +68,17 @@ public class KeyStoreResourceIT extends AbstractIT {
 
         List<TrustStoreRO> newEntries = storeResource.listEntries();
 
-        Assert.assertNotEquals(entries.size(), newEntries.size());
+        Assertions.assertNotEquals(entries.size(), newEntries.size());
 
     }
 
     @Test
     public void isChangedObDisk() throws IOException {
         List<TrustStoreRO> trustStore = storeResource.listEntries();
-        Assert.assertEquals(2, trustStore.size());
+        Assertions.assertEquals(2, trustStore.size());
 
         boolean isChangedOnDisk = storeResource.isChangedOnDisk();
-        Assert.assertFalse(isChangedOnDisk);
+        Assertions.assertFalse(isChangedOnDisk);
 
         Path path = getPath("gateway_keystore2.jks");
         byte[] content = Files.readAllBytes(path);
@@ -86,14 +86,14 @@ public class KeyStoreResourceIT extends AbstractIT {
         Files.write(currentPath, content, StandardOpenOption.WRITE);
 
         isChangedOnDisk = storeResource.isChangedOnDisk();
-        Assert.assertTrue(isChangedOnDisk);
+        Assertions.assertTrue(isChangedOnDisk);
 
         trustStore = storeResource.listEntries();
-        Assert.assertEquals(2, trustStore.size());
+        Assertions.assertEquals(2, trustStore.size());
 
         storeResource.reset();
         trustStore = storeResource.listEntries();
-        Assert.assertEquals(9, trustStore.size());
+        Assertions.assertEquals(9, trustStore.size());
     }
 
     private Path getPath(String newStoreName) {

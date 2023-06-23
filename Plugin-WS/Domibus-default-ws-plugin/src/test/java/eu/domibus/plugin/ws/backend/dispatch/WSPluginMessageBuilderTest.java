@@ -16,10 +16,11 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.activation.DataHandler;
 import javax.xml.bind.JAXBContext;
@@ -32,15 +33,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import static eu.domibus.plugin.ws.backend.dispatch.WSPluginMessageBuilder.PAYLOAD_NAME;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author François Gautier
  * @since 5.0
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class WSPluginMessageBuilderTest {
 
     public static final String MESSAGE_ID = "messageId";
@@ -227,13 +228,13 @@ public class WSPluginMessageBuilderTest {
         };
     }
 
-    @Test(expected = WSPluginException.class)
-    public void getDeleteBatch_empty(@Injectable WSBackendMessageLogEntity messageLogEntity) {
+    @Test
+    void getDeleteBatch_empty(@Injectable WSBackendMessageLogEntity messageLogEntity) {
         new Expectations() {{
             messageLogEntity.getMessageId();
             result = "";
         }};
-        wsPluginMessageBuilder.getDeleteBatch(messageLogEntity);
+        Assertions.assertThrows(WSPluginException.class, () -> wsPluginMessageBuilder.getDeleteBatch(messageLogEntity));
     }
 
     @Test
@@ -248,8 +249,8 @@ public class WSPluginMessageBuilderTest {
         };
     }
 
-    @Test(expected = WSPluginException.class)
-    public void getSubmitMessage_MessageNotFoundException(@Injectable WSBackendMessageLogEntity messageLogEntity) throws MessageNotFoundException {
+    @Test
+    void getSubmitMessage_MessageNotFoundException(@Injectable WSBackendMessageLogEntity messageLogEntity) throws MessageNotFoundException {
         new Expectations() {{
             messageLogEntity.getMessageId();
             result = MESSAGE_ID;
@@ -261,7 +262,7 @@ public class WSPluginMessageBuilderTest {
             result = new MessageNotFoundException();
         }};
 
-        wsPluginMessageBuilder.buildSOAPMessageSubmit(messageLogEntity);
+        Assertions.assertThrows(WSPluginException. class,() -> wsPluginMessageBuilder.buildSOAPMessageSubmit(messageLogEntity));
 
         new FullVerifications() {
         };
@@ -405,7 +406,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-10727")
+    @Disabled("EDELIVERY-10727")
     public void fillInPart_notInBody(@Injectable SubmitRequest submitMessage,
                                      @Injectable ExtendedPartInfo partInfo,
                                      @Injectable DataHandler dataHandler) {
@@ -502,7 +503,7 @@ public class WSPluginMessageBuilderTest {
     }
 
     @Test
-    @Ignore("EDELIVERY-10727")
+    @Disabled("EDELIVERY-10727")
     public void createSOAPMessage(@Injectable SendSuccess sendSuccess,
                                   @Injectable SOAPMessage soapMessage,
                                   @Injectable SOAPBody soapBody) throws SOAPException, JAXBException {
@@ -526,8 +527,8 @@ public class WSPluginMessageBuilderTest {
 
     }
 
-    @Test(expected = WSPluginException.class)
-    @Ignore("EDELIVERY-10727")
+    @Test
+    @Disabled("EDELIVERY-10727")
     public void createSOAPMessage_exception(@Injectable SendSuccess sendSuccess,
                                             @Injectable SOAPMessage soapMessage,
                                             @Injectable SOAPBody soapBody) throws SOAPException {
@@ -539,7 +540,7 @@ public class WSPluginMessageBuilderTest {
             result = new SOAPException();
         }};
 
-        wsPluginMessageBuilder.createSOAPMessage(sendSuccess, null);
+        Assertions.assertThrows(WSPluginException. class,() -> wsPluginMessageBuilder.createSOAPMessage(sendSuccess, null));
 
         new FullVerifications() {
         };

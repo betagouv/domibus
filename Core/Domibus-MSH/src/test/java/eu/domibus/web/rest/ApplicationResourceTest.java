@@ -14,16 +14,16 @@ import eu.domibus.web.rest.ro.SupportTeamInfoRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Tiago Miguel, Catalin Enache
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class ApplicationResourceTest {
 
     private static final String DOMIBUS_VERSION = "Domibus Unit Tests";
@@ -71,8 +71,8 @@ public class ApplicationResourceTest {
         DomibusInfoRO domibusInfo = applicationResource.getDomibusInfo();
 
         // Then
-        Assert.assertNotNull(domibusInfo);
-        Assert.assertEquals(DOMIBUS_VERSION, domibusInfo.getVersion());
+        Assertions.assertNotNull(domibusInfo);
+        Assertions.assertEquals(DOMIBUS_VERSION, domibusInfo.getVersion());
     }
 
     public void testDomibusName(String name) {
@@ -86,7 +86,7 @@ public class ApplicationResourceTest {
         final String domibusName = applicationResource.getDomibusName();
 
         // Then
-        Assert.assertEquals(name, domibusName);
+        Assertions.assertEquals(name, domibusName);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class ApplicationResourceTest {
         final Boolean isMultiTenancy = applicationResource.getMultiTenancy();
 
         // Then
-        Assert.assertEquals(true, isMultiTenancy);
+        Assertions.assertEquals(true, isMultiTenancy);
     }
 
     @Test
@@ -125,7 +125,7 @@ public class ApplicationResourceTest {
         //tested method
         boolean isFourCornerEnabled = applicationResource.getFourCornerModelEnabled();
 
-        Assert.assertFalse(isFourCornerEnabled);
+        Assertions.assertFalse(isFourCornerEnabled);
     }
 
     @Test
@@ -143,8 +143,8 @@ public class ApplicationResourceTest {
         //tested method
         SupportTeamInfoRO supportTeamInfoRO = applicationResource.getSupportTeamInfo();
 
-        Assert.assertNotNull(supportTeamInfoRO);
-        Assert.assertEquals(supportTeamName, supportTeamInfoRO.getName());
-        Assert.assertEquals(supportTeamEmail, supportTeamInfoRO.getEmail());
+        Assertions.assertNotNull(supportTeamInfoRO);
+        Assertions.assertEquals(supportTeamName, supportTeamInfoRO.getName());
+        Assertions.assertEquals(supportTeamEmail, supportTeamInfoRO.getEmail());
     }
 }

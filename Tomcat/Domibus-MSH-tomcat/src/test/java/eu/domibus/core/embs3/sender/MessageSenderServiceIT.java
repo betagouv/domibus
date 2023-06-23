@@ -15,10 +15,10 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.user.UserManagementServiceTestIT;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +53,7 @@ public class MessageSenderServiceIT extends AbstractIT {
 
     ///////////////////////////////////////
 
-    @Before
+    @BeforeEach
     public void before() {
         try {
             uploadPMode(18001);
@@ -65,7 +65,7 @@ public class MessageSenderServiceIT extends AbstractIT {
     }
 
     @Test
-    @Ignore
+    @Disabled
     @Transactional
     @WithUserDetails(value = LOGGED_USER, userDetailsServiceBeanName = "testUserDetailService")
     public void testDestinationIsReachable() {
@@ -119,7 +119,7 @@ public class MessageSenderServiceIT extends AbstractIT {
 
         messageSenderService.sendUserMessage("messageId", userMessageLog.getEntityId(), 5);
 
-        Assert.assertNotNull(message.getEntityId());
+        Assertions.assertNotNull(message.getEntityId());
         }
 
 }

@@ -28,10 +28,10 @@ import eu.domibus.messaging.MessageConstants;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.Queue;
 import javax.management.NotificationListener;
@@ -43,14 +43,15 @@ import java.util.stream.Stream;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PLUGIN_NOTIFICATION_ACTIVE;
 import static eu.domibus.common.NotificationType.*;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Cosmin Baciu
  * @author Ion Perpegel
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class BackendNotificationServiceTest {
 
     public static final String FINAL_RECIPIENT = "finalRecipient";
@@ -185,7 +186,7 @@ public class BackendNotificationServiceTest {
 
 
     @Test
-    @Ignore
+    @Disabled
     public void notify(
             @Injectable final AsyncNotificationConfiguration notificationListener,
             @Mocked final BackendConnector<?, ?> backendConnector,
@@ -345,7 +346,7 @@ public class BackendNotificationServiceTest {
 
 
     @Test
-    @Ignore
+    @Disabled
     public void notifyOfMessageStatusChange_isPluginNotificationDisabled(
             @Mocked final UserMessageLog messageLog, @Mocked final UserMessage userMessage) {
         final String messageId = "1";
@@ -380,7 +381,7 @@ public class BackendNotificationServiceTest {
 
         backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
 
-        new FullVerificationsInOrder() {{
+        new VerificationsInOrder() {{
             eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
             times = 1;
         }};
@@ -388,7 +389,7 @@ public class BackendNotificationServiceTest {
 
 
     @Test
-    @Ignore
+    @Disabled
     public void notifyOfMessageStatusChange_notFragment(@Mocked final UserMessageLog messageLog,
                                                         @Mocked final UserMessage userMessage,
                                                         @Mocked final MessageStatusChangeEvent messageStatusChangeEvent) {
@@ -438,14 +439,14 @@ public class BackendNotificationServiceTest {
 
         backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
 
-        new FullVerificationsInOrder() {{
+        new VerificationsInOrder() {{
             eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
             times = 1;
         }};
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void notifyOfMessageStatusChange_fragment(@Mocked final UserMessageLog messageLog,
                                                      @Mocked final UserMessage userMessage,
                                                      @Mocked final MessageStatusChangeEvent messageStatusChangeEvent) {
@@ -495,7 +496,7 @@ public class BackendNotificationServiceTest {
 
         backendNotificationService.notifyOfMessageStatusChange(userMessage, messageLog, status, TIMESTAMP);
 
-        new FullVerificationsInOrder() {{
+        new VerificationsInOrder() {{
             eventService.enqueueMessageStatusChangedEvent(messageId, previousStatus, status, role);
             times = 1;
         }};
@@ -783,7 +784,7 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testNotifyMessageReceivedFailure(@Mocked UserMessage userMessage,
                                                  @Mocked ErrorResult errorResult,
                                                  @Mocked List<PartInfo> partInfoList,
@@ -1009,7 +1010,7 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void notifyPayloadSubmitted(
             @Mocked UserMessage userMessage,
             @Mocked PartInfo partInfo,
@@ -1068,7 +1069,7 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void notifyPayloadProcessed(
             @Mocked UserMessage userMessage,
             @Mocked PartInfo partInfo,
@@ -1168,7 +1169,7 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void notifyOfIncoming(
             @Mocked BackendFilter matchingBackendFilter,
             @Mocked UserMessage userMessage,
@@ -1192,7 +1193,7 @@ public class BackendNotificationServiceTest {
 
 
     @Test
-    @Ignore
+    @Disabled
     public void notifyOfIncoming(@Mocked UserMessage userMessage,
                                  @Mocked Map<String, String> properties,
                                  @Mocked BackendFilter matchingBackendFilter,
@@ -1385,7 +1386,7 @@ public class BackendNotificationServiceTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void notifyMessageDeleted(@Mocked UserMessageLog userMessageLog,
                                      @Mocked UserMessage userMessage) {
 

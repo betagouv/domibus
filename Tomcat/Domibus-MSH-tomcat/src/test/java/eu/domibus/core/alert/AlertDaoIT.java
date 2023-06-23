@@ -14,8 +14,8 @@ import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.alerts.model.persist.StringEventProperty;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +25,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Thomas Dussart
@@ -46,7 +46,7 @@ public class AlertDaoIT extends AbstractIT {
     @Autowired
     private DateUtil dateUtil;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         createAlert("blue_gw", "red_gw", false, null);
         createAlert("blue_gw", "red_gw", true, null);

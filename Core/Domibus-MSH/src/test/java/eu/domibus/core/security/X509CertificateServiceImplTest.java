@@ -4,21 +4,22 @@ import eu.domibus.api.security.AuthenticationException;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.certificate.crl.CRLService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.security.cert.X509Certificate;
 
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 /**
  * @author idragusa
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class X509CertificateServiceImplTest {
 
     @Injectable
@@ -54,8 +55,8 @@ public class X509CertificateServiceImplTest {
         new FullVerifications() {};
     }
 
-    @Test(expected = AuthenticationException.class)
-    public void verifyCertificateRevokedTest() {
+    @Test
+    void verifyCertificateRevokedTest() {
         X509Certificate[] certificates = createCertificates(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
         new Expectations(){{
             crlService.isCertificateRevoked(certificates[0]);
@@ -63,15 +64,17 @@ public class X509CertificateServiceImplTest {
             times = 1;
         }};
 
-        securityX509CertificateServiceImpl.validateClientX509Certificates(certificates);
+        Assertions.assertThrows(AuthenticationException. class,
+        () -> securityX509CertificateServiceImpl.validateClientX509Certificates(certificates));
 
         new FullVerifications() {};
     }
 
-    @Test(expected = AuthenticationException.class)
-    public void verifyCertificateExpiredTest() {
+    @Test
+    void verifyCertificateExpiredTest() {
         X509Certificate[] certificates = createCertificates(RESOURCE_PATH + EXPIRED_KEYSTORE, EXPIRED_ALIAS, EXPIRED_KEYSTORE_PASSWORD);
-        securityX509CertificateServiceImpl.validateClientX509Certificates(certificates);
+        Assertions.assertThrows(AuthenticationException. class,
+        () -> securityX509CertificateServiceImpl.validateClientX509Certificates(certificates));
 
         new Verifications() {{
             crlService.isCertificateRevoked(certificates[0]);

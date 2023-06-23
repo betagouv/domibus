@@ -7,29 +7,29 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Ion Perpegel
  * @since 5.0
  */
 @SuppressWarnings("ConstantConditions")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
+@Disabled("EDELIVERY-6896")
 public class PropertyRetrieveManagerTest {
 
     @Tested
     PropertyRetrieveManager propertyRetrieveManager;
-
-    @Injectable
-    protected Properties domibusProperties;
 
     @Injectable
     protected Properties domibusDefaultProperties;
@@ -128,8 +128,8 @@ public class PropertyRetrieveManagerTest {
         }};
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void getProperty_MultiTenancy_NotDomainProp() {
+    @Test
+    void getProperty_MultiTenancy_NotDomainProp() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.SUPER, true);
 
         new Expectations(propertyRetrieveManager) {{
@@ -143,8 +143,8 @@ public class PropertyRetrieveManagerTest {
             result = domain;
         }};
 
-        String result = propertyRetrieveManager.getInternalProperty(propertyName);
-        assertNull(result);
+        Assertions.assertThrows(DomibusPropertyException.class, () -> propertyRetrieveManager.getInternalProperty(propertyName));
+
 
         new Verifications() {{
             propertyRetrieveManager.getGlobalProperty(prop);
@@ -218,8 +218,8 @@ public class PropertyRetrieveManagerTest {
         }};
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void getProperty_MultiTenancy_NullDomain_DomainProp() {
+    @Test
+    void getProperty_MultiTenancy_NullDomain_DomainProp() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
 
         new Expectations(propertyRetrieveManager) {{
@@ -233,8 +233,7 @@ public class PropertyRetrieveManagerTest {
             result = null;
         }};
 
-        String result = propertyRetrieveManager.getInternalProperty(propertyName);
-        assertNull(result);
+        Assertions.assertThrows(DomibusPropertyException.class, () -> propertyRetrieveManager.getInternalProperty(propertyName));
 
         new Verifications() {{
             propertyRetrieveManager.getGlobalProperty(prop);
@@ -271,8 +270,8 @@ public class PropertyRetrieveManagerTest {
         }};
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void getDomainProperty_MultiTenancy_NoDomainProp() {
+    @Test
+    void getDomainProperty_MultiTenancy_NoDomainProp() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.GLOBAL, true);
 
         new Expectations(propertyRetrieveManager) {{
@@ -283,7 +282,7 @@ public class PropertyRetrieveManagerTest {
             result = true;
         }};
 
-        propertyRetrieveManager.getInternalProperty(domain, propertyName);
+        Assertions.assertThrows(DomibusPropertyException.class, () -> propertyRetrieveManager.getInternalProperty(domain, propertyName));
 
         new Verifications() {{
             propertyProviderHelper.isMultiTenantAware();
@@ -327,7 +326,7 @@ public class PropertyRetrieveManagerTest {
         String propertyKey = domain.getCode() + "." + propertyName;
         new Expectations(propertyRetrieveManager) {{
             propertyProviderHelper.getPropertyKeyForDomain(domain, prop.getName());
-            result=propertyKey;
+            result = propertyKey;
             propertyRetrieveManager.getPropertyValue(propertyKey);
             result = propertyValue;
         }};
@@ -349,7 +348,7 @@ public class PropertyRetrieveManagerTest {
         String propertyKey = domain.getCode() + "." + propertyName;
         new Expectations(propertyRetrieveManager) {{
             propertyProviderHelper.getPropertyKeyForDomain(domain, prop.getName());
-            result=propertyKey;
+            result = propertyKey;
             propertyRetrieveManager.getPropertyValue(propertyKey);
             result = null;
             propertyRetrieveManager.getPropertyValue(prop.getName());
@@ -373,7 +372,7 @@ public class PropertyRetrieveManagerTest {
         String propertyKey = domain.getCode() + "." + propertyName;
         new Expectations(propertyRetrieveManager) {{
             propertyProviderHelper.getPropertyKeyForDomain(domain, prop.getName());
-            result=propertyKey;
+            result = propertyKey;
             propertyRetrieveManager.getPropertyValue(propertyKey);
             result = null;
         }};

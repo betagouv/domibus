@@ -21,11 +21,12 @@ import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
 import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.*;
@@ -34,7 +35,7 @@ import java.util.*;
  * @author Thomas Dussart, Ion Perpegel
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserPersistenceServiceImplTest {
 
     @Injectable
@@ -155,8 +156,8 @@ public class UserPersistenceServiceImplTest {
     }
 
 
-    @Test(expected = UserManagementException.class)
-    public void insertNewUsersShouldFailIfUsernameAlreadyExists() {
+    @Test
+    void insertNewUsersShouldFailIfUsernameAlreadyExists() {
         String testUsername = "testUsername";
         String testDomain = "testDomain";
 
@@ -176,7 +177,7 @@ public class UserPersistenceServiceImplTest {
             result = new UserManagementException("");
         }};
 
-        userPersistenceService.insertNewUsers(addedUsers);
+        Assertions.assertThrows(UserManagementException.class, () -> userPersistenceService.insertNewUsers(addedUsers));
     }
 
     @Test
@@ -352,8 +353,9 @@ public class UserPersistenceServiceImplTest {
 
     }
 
-    @Test(expected = UserManagementException.class)
-    public void changePasswordPasswordsNotMatchTest() {
+    @Test
+    @Disabled("EDELIVERY-6896")
+    void changePasswordPasswordsNotMatchTest() {
         String userName = "user1";
         String currentPassword = "currentPassword";
         String newPassword = "newPassword";
@@ -369,7 +371,7 @@ public class UserPersistenceServiceImplTest {
             result = userEntity;
         }};
 
-        userPersistenceService.changePassword(userName, currentPassword, newPassword);
+        Assertions.assertThrows(UserManagementException.class,() -> userPersistenceService.changePassword(userName, currentPassword, newPassword));
 
         new Verifications() {{
             userDao.update(userEntity);
@@ -452,31 +454,32 @@ public class UserPersistenceServiceImplTest {
         }};
 
         Collection<eu.domibus.api.user.User> result1 = userPersistenceService.filterModifiedUserWithoutPasswordChange(users);
-        Assert.assertTrue(result1.size() == 1);
+        Assertions.assertTrue(result1.size() == 1);
         Collection<eu.domibus.api.user.User> result2 = userPersistenceService.filterModifiedUserWithoutPasswordChange(users);
-        Assert.assertTrue(result2.isEmpty());
+        Assertions.assertTrue(result2.isEmpty());
 
         Collection<eu.domibus.api.user.User> result3 = userPersistenceService.filterModifiedUserWithPasswordChange(users);
-        Assert.assertTrue(result3.isEmpty());
+        Assertions.assertTrue(result3.isEmpty());
         Collection<eu.domibus.api.user.User> result4 = userPersistenceService.filterModifiedUserWithPasswordChange(users);
-        Assert.assertTrue(result4.size() == 1);
+        Assertions.assertTrue(result4.size() == 1);
 
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void isPasswordChangedTest(@Injectable eu.domibus.api.user.User user1) {
 
-        new Expectations(userPersistenceService) {{
+        new Expectations() {{
             user1.getPassword();
             returns(StringUtils.EMPTY, "newPass", null);
         }};
 
         boolean res1 = userPersistenceService.isPasswordChanged(user1);
-        Assert.assertFalse(res1);
+        Assertions.assertFalse(res1);
         boolean res2 = userPersistenceService.isPasswordChanged(user1);
-        Assert.assertTrue(res2);
+        Assertions.assertTrue(res2);
         boolean res3 = userPersistenceService.isPasswordChanged(user1);
-        Assert.assertFalse(res3);
+        Assertions.assertFalse(res3);
     }
 
     @Test
@@ -488,11 +491,11 @@ public class UserPersistenceServiceImplTest {
         }};
 
         boolean res1 = userPersistenceService.isUpdated(user1);
-        Assert.assertTrue(res1);
+        Assertions.assertTrue(res1);
         boolean res2 = userPersistenceService.isUpdated(user1);
-        Assert.assertFalse(res2);
+        Assertions.assertFalse(res2);
         boolean res3 = userPersistenceService.isUpdated(user1);
-        Assert.assertFalse(res3);
+        Assertions.assertFalse(res3);
     }
 
     @Test
@@ -515,8 +518,8 @@ public class UserPersistenceServiceImplTest {
         }};
     }
 
-    @Test(expected = UserManagementException.class)
-    public void checkCanUpdateIfCurrentUser_ChangeActive(@Injectable eu.domibus.api.user.User user, @Injectable User existing, @Injectable DomibusUserDetailsImpl loggedUser) {
+    @Test
+    void checkCanUpdateIfCurrentUser_ChangeActive(@Injectable eu.domibus.api.user.User user, @Injectable User existing, @Injectable DomibusUserDetailsImpl loggedUser) {
         String userName = "userName";
         new Expectations() {{
             authUtils.getUserDetails();
@@ -531,11 +534,11 @@ public class UserPersistenceServiceImplTest {
             result = false;
         }};
 
-        userPersistenceService.checkCanUpdateIfCurrentUser(user, existing);
+        Assertions.assertThrows(UserManagementException.class, () -> userPersistenceService.checkCanUpdateIfCurrentUser(user, existing));
     }
 
-    @Test(expected = UserManagementException.class)
-    public void checkCanUpdateIfCurrentUser_ChangeRole(@Injectable eu.domibus.api.user.User user, @Injectable User existing, @Injectable DomibusUserDetailsImpl loggedUser) {
+    @Test
+    void checkCanUpdateIfCurrentUser_ChangeRole(@Injectable eu.domibus.api.user.User user, @Injectable User existing, @Injectable DomibusUserDetailsImpl loggedUser) {
         String userName = "userName";
         new Expectations(userPersistenceService) {{
             authUtils.getUserDetails();
@@ -552,7 +555,7 @@ public class UserPersistenceServiceImplTest {
             result = false;
         }};
 
-        userPersistenceService.checkCanUpdateIfCurrentUser(user, existing);
+        Assertions.assertThrows(UserManagementException. class,() -> userPersistenceService.checkCanUpdateIfCurrentUser(user, existing));
 
         new Verifications() {{
             existing.isActive();

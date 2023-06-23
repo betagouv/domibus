@@ -5,17 +5,16 @@ import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EXTENSION_IAM_AUTHENTICATION_IDENTIFIER;
 import static org.mockito.Mockito.*;
 
 /**
@@ -23,7 +22,7 @@ import static org.mockito.Mockito.*;
  * @since 4.0
  */
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DomainCryptoServiceImplTest {
 
     @Mock
@@ -38,9 +37,9 @@ public class DomainCryptoServiceImplTest {
     @InjectMocks
     private DomainCryptoServiceImpl domainCryptoService;
 
-    @Before
+    @BeforeEach
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        
     }
 
     @Test
@@ -62,8 +61,8 @@ public class DomainCryptoServiceImplTest {
     }
 
 
-    @Test(expected = IllegalStateException.class)
-    public void initTooManyProviderForGivenIdentifier() {
+    @Test
+    void initTooManyProviderForGivenIdentifier() {
         final String dss = "DSS";
         final DomainCryptoServiceSpi defaultSpi = Mockito.mock(DomainCryptoServiceSpi.class);
         final DomainCryptoServiceSpi dssSpi = Mockito.mock(DomainCryptoServiceSpi.class);
@@ -72,20 +71,20 @@ public class DomainCryptoServiceImplTest {
         domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList(defaultSpi, dssSpi));
         when(domainCryptoService.getSpiIdentifier()).thenReturn(dss);
 
-        domainCryptoService.init();
+        Assertions.assertThrows(IllegalStateException.class, () -> domainCryptoService.init());
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void initNoProviderCorrespondToIdentifier() {
+    @Test
+    void initNoProviderCorrespondToIdentifier() {
         final String dss = "DSS";
         final DomainCryptoServiceSpi defaultSpi = Mockito.mock(DomainCryptoServiceSpi.class);
         final DomainCryptoServiceSpi dssSpi = Mockito.mock(DomainCryptoServiceSpi.class);
-        when(defaultSpi.getIdentifier()).thenReturn(dss);
-        when(dssSpi.getIdentifier()).thenReturn(dss);
+        lenient().when(defaultSpi.getIdentifier()).thenReturn(dss);
+        lenient().when(dssSpi.getIdentifier()).thenReturn(dss);
         domainCryptoService.setDomainCryptoServiceSpiList(Lists.newArrayList());
         when(domainCryptoService.getSpiIdentifier()).thenReturn(dss);
 
-        domainCryptoService.init();
+        Assertions.assertThrows(IllegalStateException.class, () -> domainCryptoService.init());
     }
 
     @Test

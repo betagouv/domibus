@@ -13,7 +13,7 @@ import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.LoggingLevelRO;
 import eu.domibus.web.rest.ro.PModeResponseRO;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Random;

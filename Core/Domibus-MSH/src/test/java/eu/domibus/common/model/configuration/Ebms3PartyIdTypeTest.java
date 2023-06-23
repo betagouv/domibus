@@ -1,8 +1,8 @@
 package eu.domibus.common.model.configuration;
 
 import mockit.Tested;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class Ebms3PartyIdTypeTest {
 
@@ -18,12 +18,12 @@ public class Ebms3PartyIdTypeTest {
         PartyIdType partyIdType1 = new PartyIdType();
         partyIdType1.setName("PARTYTYPEURN");
 
-        Assert.assertFalse(partyIdType.equals(null));
-        Assert.assertTrue(partyIdType.equals(partyIdType1));
-        Assert.assertTrue(partyIdType1.equals(partyIdType));
-        Assert.assertTrue(partyIdType.equals(partyIdType));
+        Assertions.assertFalse(partyIdType.equals(null));
+        Assertions.assertTrue(partyIdType.equals(partyIdType1));
+        Assertions.assertTrue(partyIdType1.equals(partyIdType));
+        Assertions.assertTrue(partyIdType.equals(partyIdType));
         partyIdType.setName(null);
-        Assert.assertFalse(partyIdType.equals(partyIdType1));
+        Assertions.assertFalse(partyIdType.equals(partyIdType1));
     }
 
 }

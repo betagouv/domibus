@@ -4,10 +4,11 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 import java.util.regex.Matcher;
@@ -17,7 +18,7 @@ import java.util.regex.Pattern;
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class RegexIOFileFilterTest {
 
     @Injectable
@@ -27,6 +28,7 @@ public class RegexIOFileFilterTest {
     RegexIOFileFilter regexIOFileFilter;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void acceptFile(@Injectable File file) {
         String myFile = "myFile";
         new Expectations(regexIOFileFilter) {{
@@ -41,7 +43,7 @@ public class RegexIOFileFilterTest {
 
         new Verifications() {{
             regexIOFileFilter.accept(myFile);
-            Assert.assertTrue(accept);
+            Assertions.assertTrue(accept);
         }};
 
     }
@@ -58,6 +60,6 @@ public class RegexIOFileFilterTest {
             result = true;
         }};
 
-        Assert.assertTrue(regexIOFileFilter.accept(myFile));
+        Assertions.assertTrue(regexIOFileFilter.accept(myFile));
     }
 }

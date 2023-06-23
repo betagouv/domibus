@@ -12,10 +12,10 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Catalin Enache
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class ErrorServiceImplTest {
 
     @Tested
@@ -62,8 +62,8 @@ public class ErrorServiceImplTest {
         new FullVerifications() {{
             int daysActual, batchSizeActual;
             errorLogDao.deleteErrorLogsWithoutMessageIdOlderThan(daysActual = withCapture(), batchSizeActual = withCapture());
-            Assert.assertEquals(days, daysActual);
-            Assert.assertEquals(batchSize, batchSizeActual);
+            Assertions.assertEquals(days, daysActual);
+            Assertions.assertEquals(batchSize, batchSizeActual);
         }};
     }
 
@@ -89,8 +89,8 @@ public class ErrorServiceImplTest {
 
         List<? extends ErrorResult> result = errorService.getErrors("MESS_ID", MSHRole.RECEIVING);
 
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals(errorLogEntry.getErrorCode(), result.get(0).getErrorCode());
-        Assert.assertEquals(errorLogEntry.getErrorDetail(), result.get(0).getErrorDetail());
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertEquals(errorLogEntry.getErrorCode(), result.get(0).getErrorCode());
+        Assertions.assertEquals(errorLogEntry.getErrorDetail(), result.get(0).getErrorDetail());
     }
 }

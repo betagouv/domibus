@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.webservice;
 
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
@@ -9,9 +10,9 @@ import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import eu.domibus.plugin.ws.backend.dispatch.WSPluginDispatchClientProvider;
 import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.test.common.SoapSampleUtil;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,14 +53,14 @@ public class ReceiveMessageIT extends AbstractBackendWSIT {
     @Autowired
     protected PayloadFileStorageProvider payloadFileStorageProvider;
 
-    @Before
-    public void before() throws IOException, XmlProcessingException {
+    @BeforeEach
+    public void before(WireMockRuntimeInfo wmRuntimeInfo) throws IOException, XmlProcessingException {
         payloadFileStorageProvider.initialize();
 
-        Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
+        Mockito.when(backendConnectorProvider.getBackendConnector(ArgumentMatchers.anyString()))
                 .thenReturn(new BackendConnectorMock("name"));
 
-        uploadPmode(wireMockRule.port());
+        uploadPmode(wmRuntimeInfo.getHttpPort());
     }
 
     /**

@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.webservice.deprecated;
 
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.core.message.nonrepudiation.NonRepudiationChecker;
 import eu.domibus.messaging.XmlProcessingException;
@@ -8,9 +9,9 @@ import eu.domibus.plugin.webService.generated.SubmitRequest;
 import eu.domibus.plugin.webService.generated.SubmitResponse;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -18,8 +19,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Created by draguio on 17/02/2016.
@@ -31,16 +32,16 @@ public class SubmitMessageSignOnlyIT extends AbstractBackendWSIT {
     @Autowired
     NonRepudiationChecker nonRepudiationChecker;
 
-    @Before
-    public void before() throws IOException, XmlProcessingException {
-        uploadPmode(wireMockRule.port());
+    @BeforeEach
+    public void before(WireMockRuntimeInfo wmRuntimeInfo) throws IOException, XmlProcessingException {
+        uploadPmode(wmRuntimeInfo.getHttpPort());
     }
 
     /**
      * Test for the backend sendMessage service with payload profile enabled
      */
     @Test
-    @Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
+    @Disabled("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
     public void testSubmitMessageValid() throws SubmitMessageFault {
         String payloadHref = "cid:message";
         SubmitRequest submitRequest = createSubmitRequest(payloadHref);

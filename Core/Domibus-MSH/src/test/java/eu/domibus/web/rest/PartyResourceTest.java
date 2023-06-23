@@ -23,23 +23,23 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.security.cert.X509Certificate;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Thomas Dussart
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PartyResourceTest {
 
     @Injectable
@@ -260,8 +260,8 @@ public class PartyResourceTest {
         final ResponseEntity<String> csv = partyResource.getCsv(req);
 
         // Then
-        Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
-        Assert.assertEquals(mockCsvResult, csv.getBody());
+        Assertions.assertEquals(HttpStatus.OK, csv.getStatusCode());
+        Assertions.assertEquals(mockCsvResult, csv.getBody());
     }
 
     @Test
@@ -285,7 +285,7 @@ public class PartyResourceTest {
         final ValidationResponseRO response = partyResource.updateParties(partiesRo);
 
         // Then
-        Assert.assertEquals(0, response.getIssues().size());
+        Assertions.assertEquals(0, response.getIssues().size());
     }
 
 }

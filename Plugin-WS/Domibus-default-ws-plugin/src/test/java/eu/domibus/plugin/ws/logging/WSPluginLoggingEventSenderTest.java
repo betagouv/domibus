@@ -1,19 +1,20 @@
 package eu.domibus.plugin.ws.logging;
 
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.ext.logging.event.LogEvent;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * @author Catalin Enache
  * @since 4.1.4
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class WSPluginLoggingEventSenderTest {
 
     @Injectable
@@ -56,16 +57,16 @@ public class WSPluginLoggingEventSenderTest {
         }};
 
         //tested method
-        Assert.assertTrue(wsPluginLoggingEventSender.isCxfLoggingInfoEnabled());
+        Assertions.assertTrue(wsPluginLoggingEventSender.isCxfLoggingInfoEnabled());
     }
 
     @Test
     public void test_checkIfStripPayloadPossible(final @Injectable Logger logger) {
         new Expectations() {{
-            Deencapsulation.setField(wsPluginLoggingEventSender, "printPayload", true);
+            ReflectionTestUtils.setField(wsPluginLoggingEventSender, "printPayload", true);
         }};
 
         //tested method
-        Assert.assertFalse(wsPluginLoggingEventSender.checkIfStripPayloadPossible());
+        Assertions.assertFalse(wsPluginLoggingEventSender.checkIfStripPayloadPossible());
     }
 }

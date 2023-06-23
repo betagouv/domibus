@@ -7,10 +7,10 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Service;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.List;
  * @author Catalin Enache
  * @since 4.1.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class LegConfigurationValidatorTest {
 
     @Tested
@@ -62,8 +62,8 @@ public class LegConfigurationValidatorTest {
             pModeValidationHelper.createValidationIssue("ErrorHandling [%s] of leg configuration [%s] not found in business process error handlings.", null,  legConfigurationName);
         }};
 
-        Assert.assertNotNull(results);
-        Assert.assertTrue(results.size() == 6);
+        Assertions.assertNotNull(results);
+        Assertions.assertTrue(results.size() == 6);
     }
 
 }

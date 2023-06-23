@@ -1,15 +1,15 @@
 package eu.domibus.core.metrics;
 
 import com.codahale.metrics.MetricRegistry;
-import junit.framework.TestCase;
-import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(JMockit.class)
-public class MetricsAspectTest extends TestCase {
+import mockit.*;
+import mockit.integration.junit5.JMockitExtension;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+@ExtendWith(JMockitExtension.class)
+public class MetricsAspectTest {
 
     @Injectable
     protected MetricRegistry metricRegistry;

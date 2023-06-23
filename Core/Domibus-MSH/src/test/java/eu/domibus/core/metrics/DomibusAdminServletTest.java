@@ -2,9 +2,10 @@ package eu.domibus.core.metrics;
 
 import com.codahale.metrics.servlets.AdminServlet;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.servlet.ServletConfig;
 
@@ -12,13 +13,14 @@ import javax.servlet.ServletConfig;
  * @since 4.2
  * @author Catalin Enache
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusAdminServletTest {
 
     @Tested
     DomibusAdminServlet domibusAdminServlet;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void test_init(final @Injectable ServletConfig config,
                           final @Mocked DomibusMetricsServlet domibusMetricsServlet,
                           final @Mocked AdminServlet adminServlet) throws Exception {

@@ -5,15 +5,15 @@ import eu.domibus.ext.services.DomainExtService;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.VerificationsInOrder;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.quartz.JobExecutionContext;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class FSPurgeSentWorkerTest {
 
     @Injectable
@@ -32,7 +32,7 @@ public class FSPurgeSentWorkerTest {
     public void testExecuteJob(@Injectable final JobExecutionContext context) throws Exception {
         purgeSentWorker.executeJob(context, null);
 
-        new VerificationsInOrder(1){{
+        new VerificationsInOrder(){{
             purgeSentService.purgeMessages();
         }};
     }

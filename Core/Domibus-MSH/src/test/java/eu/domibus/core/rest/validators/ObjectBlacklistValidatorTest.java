@@ -8,8 +8,8 @@ import eu.domibus.web.rest.ro.MessageFilterRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -46,7 +46,7 @@ public class ObjectBlacklistValidatorTest {
 
         boolean actualValid = blacklistValidator.isValid(ro);
 
-        Assert.assertEquals(true, actualValid);
+        Assertions.assertEquals(true, actualValid);
     }
 
     @Test()
@@ -72,7 +72,7 @@ public class ObjectBlacklistValidatorTest {
 
         boolean actualValid = blacklistValidator.isValid(ro);
 
-        Assert.assertEquals(false, actualValid);
+        Assertions.assertEquals(false, actualValid);
     }
 
     @Test()
@@ -100,7 +100,7 @@ public class ObjectBlacklistValidatorTest {
         Thread t2 = new Thread(() -> {
             boolean actualValid2 = blacklistValidator.isValid(ro2);
             String mess2 = blacklistValidator.getErrorMessage();
-            Assert.assertEquals("Forbidden character detected in property routingCriterias[1]->name", mess2);
+            Assertions.assertEquals("Forbidden character detected in property routingCriterias[1]->name", mess2);
         });
 
 
@@ -113,7 +113,7 @@ public class ObjectBlacklistValidatorTest {
         }
 
         String mess1 = blacklistValidator.getErrorMessage();
-        Assert.assertEquals("Forbidden character detected in property routingCriterias[1]->expression", mess1);
+        Assertions.assertEquals("Forbidden character detected in property routingCriterias[1]->expression", mess1);
         t2.join();
     }
 }

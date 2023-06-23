@@ -4,11 +4,11 @@ import eu.domibus.plugin.ws.logging.WSPluginLoggingEventSender;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Mocked;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_LOGGING_PAYLOAD_PRINT;
 
@@ -16,7 +16,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author François Gautier
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class WSPluginLoggingPayloadPrintChangeListenerTest {
 
     @Injectable
@@ -24,19 +24,19 @@ public class WSPluginLoggingPayloadPrintChangeListenerTest {
 
     protected WSPluginLoggingPayloadPrintChangeListener listener;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         listener = new WSPluginLoggingPayloadPrintChangeListener(loggingSender);
     }
 
     @Test
     public void handlesProperty_true() {
-        Assert.assertTrue(listener.handlesProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT));
+        Assertions.assertTrue(listener.handlesProperty(DOMIBUS_LOGGING_PAYLOAD_PRINT));
     }
 
     @Test
     public void handlesProperty_false() {
-        Assert.assertFalse(listener.handlesProperty("I hate pickles"));
+        Assertions.assertFalse(listener.handlesProperty("I hate pickles"));
     }
 
     @Test

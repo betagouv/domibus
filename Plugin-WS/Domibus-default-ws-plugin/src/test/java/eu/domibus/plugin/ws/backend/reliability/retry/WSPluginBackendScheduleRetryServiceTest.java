@@ -9,23 +9,23 @@ import eu.domibus.plugin.ws.backend.WSBackendMessageType;
 import eu.domibus.plugin.ws.backend.reliability.queue.WSSendMessageListener;
 import eu.domibus.plugin.ws.backend.rules.WSPluginDispatchRule;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.JMSException;
 import javax.jms.Queue;
 import java.util.*;
 
 import static eu.domibus.common.MessageStatus.ACKNOWLEDGED;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author François Gautier
  * @since 5.0
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class WSPluginBackendScheduleRetryServiceTest {
     public static final String FINAL_RECIPIENT = "finalRecipient";
     public static final String ORIGINAL_SENDER = "originalSender";

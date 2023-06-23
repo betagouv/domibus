@@ -5,21 +5,21 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.*;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.activation.DataHandler;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class FSFilesManagerTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSFilesManagerTest.class);
@@ -38,7 +38,7 @@ public class FSFilesManagerTest {
     @Injectable
     protected FSFileNameHelper fsFileNameHelper;
 
-    @Before
+    @BeforeEach
     public void setUp() throws FileSystemException {
         String location = "ram:///FSFilesManagerTest";
         String sampleFolderName = "samplefolder";
@@ -62,23 +62,21 @@ public class FSFilesManagerTest {
         rootDir.resolveFile("targetfolder1/targetfolder2").createFolder();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws FileSystemException {
         rootDir.deleteAll();
         rootDir.close();
     }
 
     // This test fails with a temporary filesystem
-    @Test(expected = FSSetUpException.class)
-    public void testGetEnsureRootLocation_Auth() throws Exception {
+    @Test
+    void testGetEnsureRootLocation_Auth() {
         String location = "ram:///FSFilesManagerTest";
         String domain = "domain";
         String user = "user";
         String password = "password";
 
-        FileObject result = instance.getEnsureRootLocation(location, domain, user, password);
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.exists());
+        Assertions.assertThrows(FSSetUpException.class, () -> instance.getEnsureRootLocation(location, domain, user, password));
     }
 
     @Test
@@ -86,8 +84,8 @@ public class FSFilesManagerTest {
         String location = "ram:///FSFilesManagerTest";
 
         FileObject result = instance.getEnsureRootLocation(location);
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.exists());
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(result.exists());
     }
 
     @Test
@@ -96,13 +94,13 @@ public class FSFilesManagerTest {
 
         FileObject result = instance.getEnsureChildFolder(rootDir, folderName);
 
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.exists());
-        Assert.assertEquals(FileType.FOLDER, result.getType());
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(result.exists());
+        Assertions.assertEquals(FileType.FOLDER, result.getType());
     }
 
-    @Test(expected = FSSetUpException.class)
-    public void testGetEnsureChildFolder_FileSystemException() throws Exception {
+    @Test
+    void testGetEnsureChildFolder_FileSystemException() throws Exception {
         final String folderName = "samplefolder";
 
         new Expectations(instance) {{
@@ -113,37 +111,37 @@ public class FSFilesManagerTest {
             result = new FileSystemException("some unexpected error");
         }};
 
-        instance.getEnsureChildFolder(mockedRootDir, folderName);
+        Assertions.assertThrows(FSSetUpException.class, () -> instance.getEnsureChildFolder(mockedRootDir, folderName));
     }
 
     @Test
     public void testFindAllDescendantFiles() throws Exception {
         FileObject[] files = instance.findAllDescendantFiles(rootDir);
 
-        Assert.assertNotNull(files);
-        Assert.assertEquals(6, files.length);
-        Assert.assertEquals("ram:///FSFilesManagerTest/file1", files[0].getName().getURI());
-        Assert.assertEquals("ram:///FSFilesManagerTest/file2", files[1].getName().getURI());
-        Assert.assertEquals("ram:///FSFilesManagerTest/file3", files[2].getName().getURI());
-        Assert.assertEquals("ram:///FSFilesManagerTest/toberenamed", files[3].getName().getURI());
-        Assert.assertEquals("ram:///FSFilesManagerTest/tobemoved", files[4].getName().getURI());
-        Assert.assertEquals("ram:///FSFilesManagerTest/tobedeleted", files[5].getName().getURI());
+        Assertions.assertNotNull(files);
+        Assertions.assertEquals(6, files.length);
+        Assertions.assertEquals("ram:///FSFilesManagerTest/file1", files[0].getName().getURI());
+        Assertions.assertEquals("ram:///FSFilesManagerTest/file2", files[1].getName().getURI());
+        Assertions.assertEquals("ram:///FSFilesManagerTest/file3", files[2].getName().getURI());
+        Assertions.assertEquals("ram:///FSFilesManagerTest/toberenamed", files[3].getName().getURI());
+        Assertions.assertEquals("ram:///FSFilesManagerTest/tobemoved", files[4].getName().getURI());
+        Assertions.assertEquals("ram:///FSFilesManagerTest/tobedeleted", files[5].getName().getURI());
     }
 
     @Test
     public void testGetDataHandler() {
         DataHandler result = instance.getDataHandler(rootDir);
 
-        Assert.assertNotNull(result);
-        Assert.assertNotNull(result.getDataSource());
+        Assertions.assertNotNull(result);
+        Assertions.assertNotNull(result.getDataSource());
     }
 
     @Test
     public void testResolveSibling() throws Exception {
         FileObject result = instance.resolveSibling(rootDir, "siblingdir");
 
-        Assert.assertNotNull(result);
-        Assert.assertEquals("ram:///siblingdir", result.getName().getURI());
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals("ram:///siblingdir", result.getName().getURI());
     }
 
     @Test
@@ -154,16 +152,16 @@ public class FSFilesManagerTest {
         FileObject result = instance.renameFile(file, "renamed");
         long afterMillis = System.currentTimeMillis();
 
-        Assert.assertNotNull(result);
-        Assert.assertEquals("ram:///FSFilesManagerTest/renamed", result.getName().getURI());
-        Assert.assertTrue(result.exists());
-        Assert.assertTrue(result.getContent().getLastModifiedTime() >= beforeMillis);
-        Assert.assertTrue(result.getContent().getLastModifiedTime() <= afterMillis);
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals("ram:///FSFilesManagerTest/renamed", result.getName().getURI());
+        Assertions.assertTrue(result.exists());
+        Assertions.assertTrue(result.getContent().getLastModifiedTime() >= beforeMillis);
+        Assertions.assertTrue(result.getContent().getLastModifiedTime() <= afterMillis);
     }
 
     // This test fails with a temporary filesystem
-    @Test(expected = FSSetUpException.class)
-    public void testSetUpFileSystem_Domain() throws Exception {
+    @Test
+    void testSetUpFileSystem_Domain() {
         new Expectations(instance) {{
             fsPluginProperties.getLocation("DOMAIN1");
             result = "ram:///FSFilesManagerTest/samplefolder";
@@ -175,11 +173,8 @@ public class FSFilesManagerTest {
             result = "secret";
         }};
 
-        FileObject result = instance.setUpFileSystem("DOMAIN1");
+        Assertions.assertThrows(FSSetUpException.class, () -> instance.setUpFileSystem("DOMAIN1"));
 
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.exists());
-        Assert.assertEquals("ram:///FSFilesManagerTest/samplefolder", result.getName().getURI());
     }
 
     @Test
@@ -191,9 +186,9 @@ public class FSFilesManagerTest {
 
         try {
             instance.setUpFileSystem("DOMAIN1");
-            Assert.fail("Exception expected");
+            Assertions.fail("Exception expected");
         } catch (FSSetUpException e) {
-            Assert.assertTrue(e.getMessage().contains("Location folder is not set for domain"));
+            Assertions.assertTrue(e.getMessage().contains("Location folder is not set for domain"));
         }
 
         new FullVerifications() {
@@ -209,9 +204,9 @@ public class FSFilesManagerTest {
 
         FileObject result = instance.setUpFileSystem(null);
 
-        Assert.assertNotNull(result);
-        Assert.assertTrue(result.exists());
-        Assert.assertEquals("ram:///FSFilesManagerTest", result.getName().getURI());
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(result.exists());
+        Assertions.assertEquals("ram:///FSFilesManagerTest", result.getName().getURI());
     }
 
     @Test
@@ -219,8 +214,8 @@ public class FSFilesManagerTest {
         FileObject file = rootDir.resolveFile("tobedeleted");
         boolean result = instance.deleteFile(file);
 
-        Assert.assertTrue(result);
-        Assert.assertFalse(file.exists());
+        Assertions.assertTrue(result);
+        Assertions.assertFalse(file.exists());
     }
 
     @Test
@@ -228,14 +223,14 @@ public class FSFilesManagerTest {
                              @Mocked final FileObject file2,
                              @Mocked final FileObject file3) throws FileSystemException {
 
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             file2.close();
             result = new FileSystemException("Test-forced exception");
         }};
 
         instance.closeAll(new FileObject[]{file1, file2, file3});
 
-        new Verifications(1) {{
+        new Verifications() {{
             file1.close();
             file2.close();
             file3.close();
@@ -251,9 +246,9 @@ public class FSFilesManagerTest {
         instance.moveFile(file, targetFile);
         long afterMillis = System.currentTimeMillis();
 
-        Assert.assertTrue(targetFile.exists());
-        Assert.assertTrue(targetFile.getContent().getLastModifiedTime() >= beforeMillis);
-        Assert.assertTrue(targetFile.getContent().getLastModifiedTime() <= afterMillis);
+        Assertions.assertTrue(targetFile.exists());
+        Assertions.assertTrue(targetFile.getContent().getLastModifiedTime() >= beforeMillis);
+        Assertions.assertTrue(targetFile.getContent().getLastModifiedTime() <= afterMillis);
     }
 
     @Test
@@ -264,11 +259,11 @@ public class FSFilesManagerTest {
             if ("File closed.".equals(e.getMessage())) {
                 LOG.trace("unit test workaround, file is being closed twice");
             } else {
-                Assert.fail();
+                Assertions.fail();
             }
         }
 
-        Assert.assertTrue(rootDir.resolveFile("tobecreated").exists());
+        Assertions.assertTrue(rootDir.resolveFile("tobecreated").exists());
     }
 
 
@@ -285,7 +280,7 @@ public class FSFilesManagerTest {
 
         final boolean hasLockFile = instance.hasLockFile(file);
 
-        Assert.assertTrue(hasLockFile);
+        Assertions.assertTrue(hasLockFile);
     }
 
     @Test

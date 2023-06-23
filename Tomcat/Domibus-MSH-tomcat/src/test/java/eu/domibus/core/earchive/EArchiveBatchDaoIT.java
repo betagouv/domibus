@@ -5,9 +5,9 @@ import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +32,7 @@ public class EArchiveBatchDaoIT extends AbstractIT {
     private EArchiveBatchEntity secondContinuous;
     private EArchiveBatchEntity firstManual;
 
-    @Before
+    @BeforeEach
     @Transactional
     public void setup() {
         firstContinuous = new EArchiveBatchEntity();
@@ -51,9 +51,9 @@ public class EArchiveBatchDaoIT extends AbstractIT {
         EArchiveBatchEntity second = eArchiveBatchDao.findEArchiveBatchByBatchEntityId(secondContinuous.getEntityId());
         EArchiveBatchEntity third = eArchiveBatchDao.findEArchiveBatchByBatchEntityId(firstManual.getEntityId());
 
-        Assert.assertNotNull(first);
-        Assert.assertNotNull(second);
-        Assert.assertNotNull(third);
+        Assertions.assertNotNull(first);
+        Assertions.assertNotNull(second);
+        Assertions.assertNotNull(third);
     }
 
     private void create(EArchiveBatchEntity eArchiveBatch, Long lastPkUserMessage, EArchiveRequestType continuous) {

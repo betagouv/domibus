@@ -11,20 +11,20 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.ws.policy.PolicyBuilder;
 import org.apache.cxf.ws.policy.PolicyBuilderImpl;
 import org.apache.neethi.Policy;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Arun Raj
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PolicyServiceImplTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PolicyServiceImplTest.class);
@@ -43,7 +43,7 @@ public class PolicyServiceImplTest {
     public void testIsNoSecurityPolicy_NullPolicy() {
         //when null policy is specified
         boolean result1 = policyService.isNoSecurityPolicy(null);
-        assertTrue("Expected NoSecurityPolicy as true when null input provided", result1);
+        assertTrue(result1, "Expected NoSecurityPolicy as true when null input provided");
     }
 
     @Test
@@ -76,7 +76,7 @@ public class PolicyServiceImplTest {
             policyService.parsePolicy("NonExistentFileLocation", SecurityProfile.RSA);
             fail();
         } catch (Exception e) {
-            assertTrue("Expecting ConfigurationException", e instanceof ConfigurationException);
+            assertTrue(e instanceof ConfigurationException, "Expecting ConfigurationException");
         }
     }
 
@@ -109,7 +109,7 @@ public class PolicyServiceImplTest {
             policyService.getPolicy(legConfiguration);
             fail();
         } catch (Exception e) {
-            assertTrue("Expecting ConfigurationException", e instanceof ConfigurationException);
+            assertTrue(e instanceof ConfigurationException, "Expecting ConfigurationException");
         }
     }
 

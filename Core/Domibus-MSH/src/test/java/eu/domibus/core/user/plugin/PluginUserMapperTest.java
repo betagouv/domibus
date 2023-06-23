@@ -10,19 +10,19 @@ import eu.domibus.web.rest.ro.PluginUserRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+
+import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
  * @author Arun Raj
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PluginUserMapperTest {
 
     @Tested
@@ -45,8 +45,7 @@ public class PluginUserMapperTest {
     @Injectable
     private UserDomainService userDomainService;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    
 
     @Test
     public void convertAndPrepareUsers() {
@@ -67,8 +66,8 @@ public class PluginUserMapperTest {
 
         List<PluginUserRO> result = pluginUserMapper.convertAndPrepareUsers(userList);
 
-        Assert.assertEquals(userList.size(), result.size());
-        Assert.assertEquals(userRO, result.get(0));
+        Assertions.assertEquals(userList.size(), result.size());
+        Assertions.assertEquals(userRO, result.get(0));
     }
 
     @Test
@@ -93,12 +92,12 @@ public class PluginUserMapperTest {
 
         PluginUserRO result = pluginUserMapper.convertAndPrepareUser(user);
 
-        Assert.assertEquals(userRO, result);
-        Assert.assertEquals(UserState.PERSISTED.name(), result.getStatus());
-        Assert.assertEquals(AuthType.BASIC.name(), result.getAuthenticationType());
-        Assert.assertEquals(!user.isActive() && user.getSuspensionDate() != null, result.isSuspended());
-        Assert.assertEquals("domain1", result.getDomain());
-        Assert.assertEquals(expDate, result.getExpirationDate());
+        Assertions.assertEquals(userRO, result);
+        Assertions.assertEquals(UserState.PERSISTED.name(), result.getStatus());
+        Assertions.assertEquals(AuthType.BASIC.name(), result.getAuthenticationType());
+        Assertions.assertEquals(!user.isActive() && user.getSuspensionDate() != null, result.isSuspended());
+        Assertions.assertEquals("domain1", result.getDomain());
+        Assertions.assertEquals(expDate, result.getExpirationDate());
     }
 
 }

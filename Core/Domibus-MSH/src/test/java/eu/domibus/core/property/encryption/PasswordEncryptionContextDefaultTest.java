@@ -10,10 +10,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,13 +21,13 @@ import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PasswordEncryptionContextDefaultTest {
 
     @Injectable
@@ -55,7 +55,7 @@ public class PasswordEncryptionContextDefaultTest {
             result = true;
         }};
 
-        Assert.assertTrue(passwordEncryptionContextDefault.isPasswordEncryptionActive());
+        Assertions.assertTrue(passwordEncryptionContextDefault.isPasswordEncryptionActive());
     }
 
     @Test
@@ -77,7 +77,7 @@ public class PasswordEncryptionContextDefaultTest {
             result = myConfFile;
         }};
 
-        Assert.assertEquals(myConfFile, passwordEncryptionContextDefault.getConfigurationFileName());
+        Assertions.assertEquals(myConfFile, passwordEncryptionContextDefault.getConfigurationFileName());
     }
 
     @Test

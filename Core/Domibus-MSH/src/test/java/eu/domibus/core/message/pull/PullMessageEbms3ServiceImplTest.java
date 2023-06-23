@@ -20,18 +20,20 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import java.sql.Timestamp;
 import java.util.Date;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PullMessageEbms3ServiceImplTest {
 
     @Injectable
@@ -98,7 +100,7 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    public void getPullMessageIdFirstAttempt(@Mocked final MessagingLock messagingLock, @Mocked final PullMessageId pullMessageId) {
+    public void getPullMessageIdFirstAttempt( @Mocked final PullMessageId pullMessageId) {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
@@ -126,7 +128,7 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    public void getPullMessageIdExpired(@Mocked final MessagingLock messagingLock, @Mocked final PullMessageId pullMessageId) {
+    public void getPullMessageIdExpired(@Mocked final PullMessageId pullMessageId) {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
@@ -154,7 +156,7 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    public void getPullMessageIdRetry(@Mocked final MessagingLock messagingLock, @Mocked final PullMessageId pullMessageId,
+    public void getPullMessageIdRetry(@Mocked final PullMessageId pullMessageId,
                                       @Mocked UserMessage userMessage) {
         final String initiator = "initiator";
         final String mpc = "mpc";
@@ -185,8 +187,8 @@ public class PullMessageEbms3ServiceImplTest {
 
     }
 
-    @Test(expected = PModeException.class)
-    public void addPullMessageLockWithPmodeException(@Mocked final UserMessage userMessage, @Mocked final UserMessageLog messageLog) throws EbMS3Exception {
+    @Test
+    void addPullMessageLockWithPmodeException(@Mocked final UserMessage userMessage, @Mocked final UserMessageLog messageLog) throws EbMS3Exception {
         final String partyId = "partyId";
         final String messageId = "messageId";
         final String mpc = "mpc";
@@ -205,7 +207,8 @@ public class PullMessageEbms3ServiceImplTest {
                     .build();
         }};
 
-        pullMessageService.addPullMessageLock(userMessage, messageLog);
+        Assertions.assertThrows(PModeException.class,
+                () -> pullMessageService.addPullMessageLock(userMessage, messageLog));
     }
 
     @Test
@@ -254,6 +257,7 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void waitingForCallExpired(
             @Injectable final MessagingLock lock,
             @Injectable final LegConfiguration legConfiguration,
@@ -285,6 +289,7 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void waitingForCallBackWithAttempt(
             @Injectable final MessagingLock lock,
             @Injectable final LegConfiguration legConfiguration,

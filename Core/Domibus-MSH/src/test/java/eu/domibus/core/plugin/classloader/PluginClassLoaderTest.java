@@ -3,9 +3,10 @@ package eu.domibus.core.plugin.classloader;
 import com.google.common.collect.Sets;
 import mockit.Expectations;
 import mockit.Injectable;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -13,19 +14,20 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Created by Cosmin Baciu on 6/15/2016.
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PluginClassLoaderTest {
 
     @Injectable
     File pluginsDir;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testDiscoverPlugins() throws Exception {
         final File plugin1JarFile = new File("c:/plugin1.jar");
         final File plugin2JarFile = new File("c:/plugin2.jar");

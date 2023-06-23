@@ -18,10 +18,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,7 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Ion Perpegel
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class TLSTruststoreResourceTest {
 
     @Tested
@@ -99,7 +99,7 @@ public class TLSTruststoreResourceTest {
 
         String outcome = tlsTruststoreResource.addTLSCertificate(multiPartFile, alias);
 
-        Assert.assertTrue(outcome.contains("Certificate [" + alias + "] has been successfully added to the [" + tlsTruststoreResource.getStoreName() + "]."));
+        Assertions.assertTrue(outcome.contains("Certificate [" + alias + "] has been successfully added to the [" + tlsTruststoreResource.getStoreName() + "]."));
 
         new Verifications() {{
             tlsCertificateManager.addCertificate(content, alias);
@@ -112,9 +112,9 @@ public class TLSTruststoreResourceTest {
 
         try {
             tlsTruststoreResource.addTLSCertificate(multiPartFile, "");
-            Assert.fail();
+            Assertions.fail();
         } catch (RequestValidationException ex) {
-            Assert.assertTrue(ex.getMessage().contains("Please provide an alias for the certificate."));
+            Assertions.assertTrue(ex.getMessage().contains("Please provide an alias for the certificate."));
         }
     }
 }

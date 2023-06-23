@@ -11,25 +11,25 @@ import eu.domibus.api.property.encryption.PasswordEncryptionSecret;
 import eu.domibus.api.util.EncryptionUtil;
 import eu.domibus.core.util.backup.BackupService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.codec.binary.Base64;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import java.io.File;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PasswordDecryptionServiceImplTest {
 
     @Injectable
@@ -64,7 +64,7 @@ public class PasswordDecryptionServiceImplTest {
 
     @Test
     public void isValueEncryptedWithNonEncryptedValue() {
-        Assert.assertFalse(passwordDecryptorService.isValueEncrypted("nonEncrypted"));
+        Assertions.assertFalse(passwordDecryptorService.isValueEncrypted("nonEncrypted"));
     }
 
     @Test

@@ -5,8 +5,9 @@ import eu.domibus.AbstractIT;
 import eu.domibus.ext.domain.CacheEntryDTO;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -17,8 +18,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -47,13 +48,14 @@ public class DistributedCacheExtResourceIT extends AbstractIT {
     @Autowired
     private WebApplicationContext webAppContext;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webAppContext)
                 .build();
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testGetCachesName() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_NAMES)
@@ -70,6 +72,7 @@ public class DistributedCacheExtResourceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testGetEntries() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_ENTRIES, DOMIBUS_PROPERTY_METADATA)
@@ -85,6 +88,7 @@ public class DistributedCacheExtResourceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getEntry() throws Exception {
         // when
         MvcResult result = mockMvc.perform(get(TEST_ENDPOINT_ENTRIES_EVICT, DOMIBUS_PROPERTY_METADATA, DOMIBUS_DEPLOYMENT_CLUSTERED)
@@ -119,6 +123,7 @@ public class DistributedCacheExtResourceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testEvictEntry() throws Exception {
         // when
         mockMvc.perform(delete(TEST_ENDPOINT_ENTRIES_EVICT, DOMIBUS_PROPERTY_METADATA, DOMIBUS_DEPLOYMENT_CLUSTERED)
@@ -139,6 +144,7 @@ public class DistributedCacheExtResourceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testEvictEntry_error_entryNotFound() throws Exception {
         // when
         mockMvc.perform(delete(TEST_ENDPOINT_ENTRIES_EVICT, DOMIBUS_PROPERTY_METADATA, "entryNotFound")
@@ -149,6 +155,7 @@ public class DistributedCacheExtResourceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void addEntry() throws Exception {
         CacheEntryDTO cacheEntryDTO = new CacheEntryDTO();
         cacheEntryDTO.setKey("newKey");

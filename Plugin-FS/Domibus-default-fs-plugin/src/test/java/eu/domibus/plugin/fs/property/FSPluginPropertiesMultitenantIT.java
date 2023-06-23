@@ -10,9 +10,8 @@ import eu.domibus.core.property.PropertyRetrieveManager;
 import eu.domibus.ext.exceptions.DomibusPropertyExtException;
 import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.test.AbstractIT;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -63,43 +62,43 @@ public class FSPluginPropertiesMultitenantIT extends AbstractIT {
     @Test
     public void testGetLocation_Domain1() {
         String location = fsPluginProperties.getLocation(DOMAIN1);
-        Assert.assertEquals(DOMAIN1_LOCATION, location);
+        Assertions.assertEquals(DOMAIN1_LOCATION, location);
     }
 
     @Test
     public void testGetLocation_NonExistentDomain() {
         try {
             fsPluginProperties.getLocation(NONEXISTENT_DOMAIN);
-            Assert.fail("Exception expected");
+            Assertions.fail("Exception expected");
         } catch (DomibusPropertyExtException e) {
-            Assert.assertTrue(e.getMessage().contains("Could not find domain with code"));
+            Assertions.assertTrue(e.getMessage().contains("Could not find domain with code"));
         }
     }
 
     @Test
     public void testGetUser() {
         String user = fsPluginProperties.getUser(DOMAIN1);
-        Assert.assertEquals("user1", user);
+        Assertions.assertEquals("user1", user);
     }
 
     @Test
     public void testGetPassword() {
-        Assert.assertEquals("pass1", fsPluginProperties.getPassword(DOMAIN1));
+        Assertions.assertEquals("pass1", fsPluginProperties.getPassword(DOMAIN1));
     }
 
     @Test
     public void testGetUser_NotSecured() {
-        Assert.assertEquals("", fsPluginProperties.getUser(DOMAIN2));
+        Assertions.assertEquals("", fsPluginProperties.getUser(DOMAIN2));
     }
 
     @Test
     public void testGetPayloadId_Domain() {
-        Assert.assertEquals("cid:message", fsPluginProperties.getPayloadId(DOMAIN1));
+        Assertions.assertEquals("cid:message", fsPluginProperties.getPayloadId(DOMAIN1));
     }
 
     @Test
     public void testGetPassword_NotSecured() {
-        Assert.assertEquals("", fsPluginProperties.getPassword(DOMAIN2));
+        Assertions.assertEquals("", fsPluginProperties.getPassword(DOMAIN2));
     }
 
     @Test
@@ -113,8 +112,8 @@ public class FSPluginPropertiesMultitenantIT extends AbstractIT {
         String value1 = fsPluginProperties.getKnownPropertyValue(DOMAIN1, LOCATION);
         String value2 = fsPluginProperties.getKnownPropertyValue(DOMAIN2, LOCATION);
 
-        Assert.assertEquals(oldPropertyValue1, value1);
-        Assert.assertEquals(oldPropertyValue2, value2);
+        Assertions.assertEquals(oldPropertyValue1, value1);
+        Assertions.assertEquals(oldPropertyValue2, value2);
 
         // test set value
         fsPluginProperties.setKnownPropertyValue(DOMAIN1, LOCATION, newPropertyValue1, true);
@@ -123,8 +122,8 @@ public class FSPluginPropertiesMultitenantIT extends AbstractIT {
         value1 = fsPluginProperties.getKnownPropertyValue(DOMAIN1, LOCATION);
         value2 = fsPluginProperties.getKnownPropertyValue(DOMAIN2, LOCATION);
 
-        Assert.assertEquals(newPropertyValue1, value1);
-        Assert.assertEquals(newPropertyValue2, value2);
+        Assertions.assertEquals(newPropertyValue1, value1);
+        Assertions.assertEquals(newPropertyValue2, value2);
 
         // reset context
         fsPluginProperties.setKnownPropertyValue(DOMAIN1, LOCATION, oldPropertyValue1, true);

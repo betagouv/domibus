@@ -8,18 +8,18 @@ import eu.domibus.core.alerts.model.service.ConfigurationLoader;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.common.ConfigurationReader;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class CommonConfigurationManagerTest {
 
     @Tested
@@ -91,9 +91,9 @@ public class CommonConfigurationManagerTest {
         }};
         try {
             configurationManager.readDomainEmailConfiguration(1);
-            Assert.fail();
+            Assertions.fail();
         } catch (IllegalArgumentException ex) {
-            Assert.assertEquals(ex.getMessage(), "Empty sender/receiver email address configured for the alert module.");
+            Assertions.assertEquals(ex.getMessage(), "Empty sender/receiver email address configured for the alert module.");
         }
     }
 
@@ -117,9 +117,9 @@ public class CommonConfigurationManagerTest {
         }};
         try {
             configurationManager.readDomainEmailConfiguration(1);
-            Assert.fail();
+            Assertions.fail();
         } catch (IllegalArgumentException ex) {
-            Assert.assertEquals(ex.getMessage(), "Invalid sender/receiver email address configured for the alert module: abc.def@mail#g.c");
+            Assertions.assertEquals(ex.getMessage(), "Invalid sender/receiver email address configured for the alert module: abc.def@mail#g.c");
         }
     }
 }

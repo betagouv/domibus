@@ -17,9 +17,9 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.mime.MimeTypes;
 import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.activation.DataHandler;
 import java.io.*;
@@ -27,8 +27,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.zip.GZIPOutputStream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author François Gautier
@@ -59,7 +60,7 @@ public class EArchivingFileServiceTest {
     private UserMessageRawEnvelopeDao userMessageRawEnvelopeDao;
     private long entityId;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         entityId = new Random().nextLong();
     }
@@ -99,8 +100,8 @@ public class EArchivingFileServiceTest {
         new Verifications() {
         };
 
-        MatcherAssert.assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML).getInputStream(), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
-        MatcherAssert.assertThat(archivingFiles.get(MESSAGE + ".attachment.xml").getInputStream(), is(inputStream));
+        assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML).getInputStream(), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
+        assertThat(archivingFiles.get(MESSAGE + ".attachment.xml").getInputStream(), is(inputStream));
     }
 
     @Test
@@ -135,8 +136,8 @@ public class EArchivingFileServiceTest {
         new Verifications() {
         };
 
-        Assert.assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML).getInputStream(), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
-        Assert.assertThat(archivingFiles.get(MESSAGE + ".attachment.xml").getInputStream(), is(inputStream));
+        assertThat(IOUtils.toString(archivingFiles.get(EArchivingFileService.SOAP_ENVELOPE_XML).getInputStream(), StandardCharsets.UTF_8), is(RAW_ENVELOPE_CONTENT));
+        assertThat(archivingFiles.get(MESSAGE + ".attachment.xml").getInputStream(), is(inputStream));
     }
 
     @Test
@@ -169,7 +170,7 @@ public class EArchivingFileServiceTest {
 
         try {
             eArchivingFileService.getArchivingFiles(entityId);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusEArchiveExportException e) {
             //ok
         }
@@ -214,7 +215,7 @@ public class EArchivingFileServiceTest {
 
         try {
             eArchivingFileService.getArchivingFiles(entityId);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusEArchiveExportException e) {
             //ok
         }
@@ -245,7 +246,7 @@ public class EArchivingFileServiceTest {
         }};
         ArchivingFileDTO file = eArchivingFileService.getArchivingFileDTO(1L, partInfo);
 
-        assertNotNull("message.attachment.xml", file);
+        assertNotNull( file,"message.attachment.xml");
 
         new Verifications() {
         };

@@ -4,17 +4,17 @@ import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.executor.tomcat.TomcatTaskExecutorConfiguration;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.scheduling.quartz.SimpleThreadPoolTaskExecutor;
 
 /**
  * @author Cosmin Baciu
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class TomcatTaskExecutorConfigurationTest {
 
     @Tested
@@ -30,7 +30,7 @@ public class TomcatTaskExecutorConfigurationTest {
         }};
 
         final SimpleThreadPoolTaskExecutor simpleThreadPoolTaskExecutor = tomcatTaskExecutorConfiguration.simpleThreadPoolTaskExecutor(domibusPropertyProvider);
-        Assert.assertEquals(threadCount, simpleThreadPoolTaskExecutor.getThreadCount());
+        Assertions.assertEquals(threadCount, simpleThreadPoolTaskExecutor.getThreadCount());
     }
 
     @Test
@@ -43,7 +43,7 @@ public class TomcatTaskExecutorConfigurationTest {
         }};
 
         final SimpleThreadPoolTaskExecutor simpleThreadPoolTaskExecutor = tomcatTaskExecutorConfiguration.simpleThreadPoolMshTaskExecutor(domibusPropertyProvider);
-        Assert.assertEquals(threadCount, simpleThreadPoolTaskExecutor.getThreadCount());
+        Assertions.assertEquals(threadCount, simpleThreadPoolTaskExecutor.getThreadCount());
     }
 
 

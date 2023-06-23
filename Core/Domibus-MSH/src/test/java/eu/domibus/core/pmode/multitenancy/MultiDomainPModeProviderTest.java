@@ -1,11 +1,11 @@
 package eu.domibus.core.pmode.multitenancy;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.XMLUtil;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.ConfigurationRawDAO;
@@ -16,17 +16,17 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.persistence.EntityManager;
 import javax.xml.bind.JAXBContext;
 import java.util.HashMap;
 import java.util.Map;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class MultiDomainPModeProviderTest {
 
     protected volatile Map<Domain, PModeProvider> providerMap = new HashMap<>();
@@ -84,7 +84,7 @@ public class MultiDomainPModeProviderTest {
         }};
 
         multiDomainPModeProvider.getCurrentPModeProvider();
-        Assert.assertTrue(providerMap.containsKey(currentDomain));
+        Assertions.assertTrue(providerMap.containsKey(currentDomain));
 
         multiDomainPModeProvider.getCurrentPModeProvider();
 

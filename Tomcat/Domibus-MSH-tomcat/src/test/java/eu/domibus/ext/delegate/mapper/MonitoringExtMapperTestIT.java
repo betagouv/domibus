@@ -4,7 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.monitoring.domain.*;
 import eu.domibus.ext.domain.monitoring.*;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 

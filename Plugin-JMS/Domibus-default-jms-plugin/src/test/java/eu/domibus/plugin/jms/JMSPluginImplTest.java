@@ -15,11 +15,11 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.activemq.command.ActiveMQMapMessage;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 
@@ -27,8 +27,8 @@ import javax.jms.MapMessage;
 
 import static eu.domibus.plugin.jms.JMSMessageConstants.JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR;
 import static eu.domibus.plugin.jms.JMSMessageConstants.JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR_ROUTING;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 /**
@@ -36,7 +36,7 @@ import static org.junit.Assert.assertNull;
  * @since 3.3
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class JMSPluginImplTest {
 
     @Injectable
@@ -257,9 +257,9 @@ public class JMSPluginImplTest {
             QueueContext queueContext = null;
             backendJMS.sendJmsMessage(jmsMessageDTO = withCapture(), queueContext = withCapture(), JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR, JMSPLUGIN_QUEUE_CONSUMER_NOTIFICATION_ERROR_ROUTING);
 
-            Assert.assertEquals(errorCode.getErrorCodeName(), jmsMessageDTO.getStringProperty(JMSMessageConstants.ERROR_CODE));
-            Assert.assertEquals(errorDetail, jmsMessageDTO.getStringProperty(JMSMessageConstants.ERROR_DETAIL));
-            Assert.assertEquals(messageId, queueContext.getMessageId());
+            Assertions.assertEquals(errorCode.getErrorCodeName(), jmsMessageDTO.getStringProperty(JMSMessageConstants.ERROR_CODE));
+            Assertions.assertEquals(errorDetail, jmsMessageDTO.getStringProperty(JMSMessageConstants.ERROR_DETAIL));
+            Assertions.assertEquals(messageId, queueContext.getMessageId());
         }};
     }
 }

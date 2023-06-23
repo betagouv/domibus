@@ -9,16 +9,16 @@ import eu.domibus.core.property.GlobalPropertyMetadataManager;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PasswordEncryptionContextFactoryTest {
 
     @Injectable
@@ -39,7 +39,7 @@ public class PasswordEncryptionContextFactoryTest {
     @Test
     public void getPasswordEncryptionContextNoDomain() {
         final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getPasswordEncryptionContext(null);
-        Assert.assertTrue(passwordEncryptionContext instanceof PasswordEncryptionContextDefault);
+        Assertions.assertTrue(passwordEncryptionContext instanceof PasswordEncryptionContextDefault);
 
         new Verifications() {{
             new PasswordEncryptionContextDefault(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService, globalPropertyMetadataManager);
@@ -49,7 +49,7 @@ public class PasswordEncryptionContextFactoryTest {
     @Test
     public void getPasswordEncryptionContextWithDomain(@Injectable Domain domain) {
         final PasswordEncryptionContext passwordEncryptionContext = passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
-        Assert.assertTrue(passwordEncryptionContext instanceof PasswordEncryptionContextDomain);
+        Assertions.assertTrue(passwordEncryptionContext instanceof PasswordEncryptionContextDomain);
 
         new Verifications() {{
             new PasswordEncryptionContextDomain(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService, globalPropertyMetadataManager, domain);

@@ -5,10 +5,10 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.jms.listener.DefaultMessageListenerContainer;
 import org.springframework.jms.support.destination.JndiDestinationResolver;
 
@@ -20,7 +20,7 @@ import java.util.Optional;
  * @author Cosmin Baciu
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class ControllerListenerConfigurationTest {
 
     @Tested
@@ -38,9 +38,9 @@ public class ControllerListenerConfigurationTest {
         }};
 
         DefaultMessageListenerContainer defaultMessageListenerContainer = controllerListenerConfiguration.createDefaultMessageListenerContainer(connectionFactory, destination, messageListener, internalDestinationResolver, domibusPropertyProvider);
-        Assert.assertEquals(2, defaultMessageListenerContainer.getConcurrentConsumers());
-        Assert.assertEquals(3, defaultMessageListenerContainer.getMaxConcurrentConsumers());
-        Assert.assertEquals(destination, defaultMessageListenerContainer.getDestination());
+        Assertions.assertEquals(2, defaultMessageListenerContainer.getConcurrentConsumers());
+        Assertions.assertEquals(3, defaultMessageListenerContainer.getMaxConcurrentConsumers());
+        Assertions.assertEquals(destination, defaultMessageListenerContainer.getDestination());
 
     }
 }

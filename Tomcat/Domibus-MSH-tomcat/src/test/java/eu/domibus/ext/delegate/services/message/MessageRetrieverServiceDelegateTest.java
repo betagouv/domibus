@@ -14,12 +14,12 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MessageRetrieverServiceDelegateTest {
     private static final String MESS_ID = UUID.randomUUID().toString();
@@ -56,7 +56,7 @@ public class MessageRetrieverServiceDelegateTest {
 
         try {
             messageRetrieverServiceDelegate.checkMessageAuthorization(messageId);
-            Assert.fail("It should throw AuthenticationException");
+            Assertions.fail("It should throw AuthenticationException");
         } catch (AuthenticationException adEx) {
             assertTrue(adEx.getMessage().contains("You are not allowed to handle this message"));
         }
@@ -78,7 +78,7 @@ public class MessageRetrieverServiceDelegateTest {
         // When
         final eu.domibus.common.MessageStatus status = messageRetrieverServiceDelegate.getStatus(MESS_ID);
 
-        Assert.assertEquals(eu.domibus.common.MessageStatus.ACKNOWLEDGED, status);
+        Assertions.assertEquals(eu.domibus.common.MessageStatus.ACKNOWLEDGED, status);
 
         new Verifications() {{
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(MESS_ID);
@@ -99,12 +99,12 @@ public class MessageRetrieverServiceDelegateTest {
         eu.domibus.common.MessageStatus status = null;
         try {
             status = messageRetrieverServiceDelegate.getStatus(MESS_ID);
-            Assert.fail("It should throw AuthenticationException");
+            Assertions.fail("It should throw AuthenticationException");
         } catch (AuthenticationException ex) {
             // ok
         }
 
-        Assert.assertNull(status);
+        Assertions.assertNull(status);
 
     }
 }

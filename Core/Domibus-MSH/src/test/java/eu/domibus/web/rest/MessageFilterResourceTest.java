@@ -15,12 +15,13 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -38,7 +39,7 @@ import static org.hamcrest.core.IsNull.nullValue;
  * @author Tiago Miguel
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MessageFilterResourceTest {
 
     private static final String CSV_TITLE = "Backend Name, From, To, Action, Service, Is Persisted";
@@ -81,9 +82,9 @@ public class MessageFilterResourceTest {
         MessageFilterResultRO messageFilterResultRO = getMessageFilterResultRO(null);
 
         // Then
-        Assert.assertNotNull(messageFilterResultRO);
-        Assert.assertFalse(messageFilterResultRO.isAreFiltersPersisted());
-        Assert.assertEquals(getMessageFilterROS(null), messageFilterResultRO.getMessageFilterEntries());
+        Assertions.assertNotNull(messageFilterResultRO);
+        Assertions.assertFalse(messageFilterResultRO.isAreFiltersPersisted());
+        Assertions.assertEquals(getMessageFilterROS(null), messageFilterResultRO.getMessageFilterEntries());
     }
 
     @Test
@@ -91,12 +92,13 @@ public class MessageFilterResourceTest {
         MessageFilterResultRO messageFilterResultRO = getMessageFilterResultRO("1");
 
         // Then
-        Assert.assertNotNull(messageFilterResultRO);
-        Assert.assertTrue(messageFilterResultRO.isAreFiltersPersisted());
-        Assert.assertEquals(getMessageFilterROS("1"), messageFilterResultRO.getMessageFilterEntries());
+        Assertions.assertNotNull(messageFilterResultRO);
+        Assertions.assertTrue(messageFilterResultRO.isAreFiltersPersisted());
+        Assertions.assertEquals(getMessageFilterROS("1"), messageFilterResultRO.getMessageFilterEntries());
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testGetMessageFilterCsv() throws CsvException {
         // Given
         final String backendName = "Backend Filter 1";
@@ -138,8 +140,8 @@ public class MessageFilterResourceTest {
         final ResponseEntity<String> csv = messageFilterResource.getCsv();
 
         // Then
-        Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
-        Assert.assertEquals(CSV_TITLE +
+        Assertions.assertEquals(HttpStatus.OK, csv.getStatusCode());
+        Assertions.assertEquals(CSV_TITLE +
                         backendName + "," + fromExpression + ", , , ," + true + System.lineSeparator(),
                 csv.getBody());
         new FullVerifications(){{

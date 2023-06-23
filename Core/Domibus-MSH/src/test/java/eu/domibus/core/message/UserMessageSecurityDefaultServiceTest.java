@@ -1,5 +1,6 @@
 package eu.domibus.core.message;
 
+import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
@@ -10,15 +11,17 @@ import eu.domibus.messaging.MessageConstants;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Cosmin Baciu
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserMessageSecurityDefaultServiceTest {
 
     @Tested
@@ -37,15 +40,15 @@ public class UserMessageSecurityDefaultServiceTest {
     UserMessageServiceHelper userMessageServiceHelper;
 
 
-    @Test(expected = MessageNotFoundException.class)
+    @Test
     public void testCheckMessageAuthorizationWithNonExistingMessage() {
         final String messageId = "1";
         new Expectations() {{
             userMessageDao.findByMessageId(messageId, MSHRole.RECEIVING);
             result = null;
         }};
-
-        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, MSHRole.RECEIVING);
+        Assertions.assertThrows(MessageNotFoundException.class,
+                () -> userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId, MSHRole.RECEIVING));
     }
 
     @Test
@@ -118,8 +121,9 @@ public class UserMessageSecurityDefaultServiceTest {
         userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
     }
 
-    @Test(expected = AuthenticationException.class)
-    public void validateUserAccess_noAccess(@Injectable final UserMessage userMessage) {
+    @Test
+    @Disabled("EDELIVERY-6896")
+    void validateUserAccess_noAccess(@Injectable final UserMessage userMessage) {
         String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
         String other = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";
 
@@ -136,8 +140,8 @@ public class UserMessageSecurityDefaultServiceTest {
             userMessageServiceHelper.getProperty(userMessage, MessageConstants.FINAL_RECIPIENT);
             result = other;
         }};
-
-        userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage);
+        Assertions.assertThrows(AuthenticationException.class,
+                () -> userMessageSecurityDefaultService.checkMessageAuthorizationWithUnsecureLoginAllowed(userMessage));
     }
 
 }

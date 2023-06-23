@@ -3,12 +3,12 @@ package eu.domibus.core.ebms3.sender.client;
 import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -20,7 +20,7 @@ import java.util.Optional;
 /**
  * @author Sebastian-Ion TINCU
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class TLSReaderTest {
 
     public static final String CONFIG_LOCATION = "configLocation";
@@ -46,7 +46,7 @@ public class TLSReaderTest {
 
     boolean domainSpecificPathExists, defaultPathExists;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         new Expectations() {{
             domibusConfigurationService.getConfigLocation();
@@ -62,7 +62,7 @@ public class TLSReaderTest {
 
         whenRetrievingTheClientAuthenticationPath();
 
-        Assert.assertSame("Should have returned the domain specific path if present", clientAuthenticationPath.get(), domainSpecificPath);
+        Assertions.assertSame(clientAuthenticationPath.get(), domainSpecificPath, "Should have returned the domain specific path if present");
     }
 
     @Test
@@ -73,7 +73,7 @@ public class TLSReaderTest {
 
         whenRetrievingTheClientAuthenticationPath();
 
-        Assert.assertSame("Should have returned the default path if present when the domain specific path is missing", clientAuthenticationPath.get(), defaultPath);
+        Assertions.assertSame(clientAuthenticationPath.get(), defaultPath, "Should have returned the default path if present when the domain specific path is missing");
     }
 
     @Test
@@ -84,7 +84,7 @@ public class TLSReaderTest {
 
         whenRetrievingTheClientAuthenticationPath();
 
-        Assert.assertFalse("Should have returned no path when the domain specific and the default paths are both missing", clientAuthenticationPath.isPresent());
+        Assertions.assertFalse(clientAuthenticationPath.isPresent(), "Should have returned no path when the domain specific and the default paths are both missing");
     }
 
     @Test

@@ -3,10 +3,11 @@ package eu.domibus.core.cache;
 import com.google.common.collect.Lists;
 import eu.domibus.api.cluster.SignalService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.hibernate.SessionFactory;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -18,10 +19,9 @@ import java.util.List;
 /**
  * @author Sebastian-Ion TINCU
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusLocalCacheServiceImplTest {
 
-    @Tested
     private DomibusLocalCacheServiceImpl domibusCacheService;
 
     @Injectable
@@ -36,8 +36,10 @@ public class DomibusLocalCacheServiceImplTest {
     @Injectable
     SignalService signalService;
 
-    @Injectable
-    List<DomibusCacheServiceNotifier> domibusCacheServiceNotifiers;
+    @BeforeEach
+    void setUp() {
+        domibusCacheService = new DomibusLocalCacheServiceImpl(cacheManager, new ArrayList<>(), localContainerEntityManagerFactoryBean);
+    }
 
     @Test
     public void doesNotRefreshTheCacheWhenTheCacheManagerContainsNoCaches() {

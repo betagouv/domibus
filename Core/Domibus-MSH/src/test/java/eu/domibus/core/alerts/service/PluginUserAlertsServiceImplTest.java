@@ -11,16 +11,16 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.VerificationsInOrder;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Thomas Dussart
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PluginUserAlertsServiceImplTest {
 
     @Injectable
@@ -42,28 +42,28 @@ public class PluginUserAlertsServiceImplTest {
     public void testGetMaximumDefaultPasswordAgeProperty() {
         String prop = userAlertsService.getMaximumDefaultPasswordAgeProperty();
 
-        Assert.assertEquals(PluginUserAlertsServiceImpl.MAXIMUM_DEFAULT_PASSWORD_AGE, prop);
+        Assertions.assertEquals(PluginUserAlertsServiceImpl.MAXIMUM_DEFAULT_PASSWORD_AGE, prop);
     }
 
     @Test
     public void testGetMaximumPasswordAgeProperty() {
         String prop = userAlertsService.getMaximumPasswordAgeProperty();
 
-        Assert.assertEquals(PluginUserAlertsServiceImpl.MAXIMUM_PASSWORD_AGE, prop);
+        Assertions.assertEquals(PluginUserAlertsServiceImpl.MAXIMUM_PASSWORD_AGE, prop);
     }
 
     @Test
     public void testGetEventTypeForPasswordExpired() {
         EventType val = userAlertsService.getEventTypeForPasswordExpired();
 
-        Assert.assertEquals(EventType.PLUGIN_PASSWORD_EXPIRED, val);
+        Assertions.assertEquals(EventType.PLUGIN_PASSWORD_EXPIRED, val);
     }
 
     @Test
     public void testGetUserType() {
         UserEntityBase.Type val = userAlertsService.getUserType();
 
-        Assert.assertEquals(UserEntityBase.Type.PLUGIN, val);
+        Assertions.assertEquals(UserEntityBase.Type.PLUGIN, val);
     }
 
     @Test

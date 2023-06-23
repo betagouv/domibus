@@ -6,7 +6,7 @@ import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.party.PartyResponseRo;
 import eu.domibus.core.party.ProcessRo;
 import eu.domibus.web.rest.ro.TrustStoreRO;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Random;

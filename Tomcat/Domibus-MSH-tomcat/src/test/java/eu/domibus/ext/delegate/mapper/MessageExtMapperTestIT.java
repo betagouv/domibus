@@ -6,7 +6,7 @@ import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.ext.domain.MessageAcknowledgementDTO;
 import eu.domibus.ext.domain.MessageAttemptDTO;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 

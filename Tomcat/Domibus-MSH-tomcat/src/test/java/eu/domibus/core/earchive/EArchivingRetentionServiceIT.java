@@ -24,10 +24,10 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.VFS;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -103,7 +103,7 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         waitUntilDatabaseIsInitialized();
 
@@ -175,8 +175,8 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
                 new EArchiveBatchUserMessage(uml3.getEntityId(), uml3.getUserMessage().getMessageId())));
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+public void tearDown() throws IOException {
         FileUtils.deleteDirectory(temp);
         LOG.info("temp folder deleted: [{}]", temp.getAbsolutePath());
     }
@@ -189,7 +189,7 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
         EArchiveBatchFilter filter = new EArchiveBatchFilter(singletonList(EXPIRED), null, null, null, null, null, null, null, null);
         List<EArchiveBatchRequestDTO> batchRequestsCount = eArchivingService.getBatchRequestList(filter);
         // Only one expired
-        Assert.assertEquals(1, batchRequestsCount.size());
+        Assertions.assertEquals(1, batchRequestsCount.size());
     }
 
     @Test
@@ -206,8 +206,8 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
         // check exported successfully
         try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), eArchiveBatch.getBatchId())) {
             final FileObject[] children = batchDirectory.getChildren();
-            Assert.assertEquals(2, children.length);
-            Assert.assertNotNull(batchDirectory.getChild("METS.xml"));
+            Assertions.assertEquals(2, children.length);
+            Assertions.assertNotNull(batchDirectory.getChild("METS.xml"));
         } catch (Exception e) {
             LOG.error("Error reading eark structure for batch [{}]", eArchiveBatch.getBatchId(), e);
         }
@@ -217,11 +217,11 @@ public class EArchivingRetentionServiceIT extends AbstractIT {
         EArchiveBatchFilter filter = new EArchiveBatchFilter(singletonList(DELETED), null, null, null, null, null, null, null, null);
         List<EArchiveBatchRequestDTO> batchRequestsCount = eArchivingService.getBatchRequestList(filter);
         // Only one deleted
-        Assert.assertEquals(1, batchRequestsCount.size());
+        Assertions.assertEquals(1, batchRequestsCount.size());
 
         // check nothing left
         try (FileObject batchDirectory = VFS.getManager().resolveFile(storageProvider.getCurrentStorage().getStorageDirectory(), eArchiveBatch.getBatchId())) {
-            Assert.assertEquals(FileType.IMAGINARY, batchDirectory.getType());
+            Assertions.assertEquals(FileType.IMAGINARY, batchDirectory.getType());
         } catch (Exception e) {
             LOG.error("Error reading eark structure for batch [{}]", eArchiveBatch.getBatchId(), e);
         }

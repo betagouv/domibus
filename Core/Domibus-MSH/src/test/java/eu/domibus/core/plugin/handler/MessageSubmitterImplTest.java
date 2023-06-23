@@ -20,13 +20,13 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 @SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class MessageSubmitterImplTest {
     @Tested
     MessageSubmitterImpl messageSubmitter;
@@ -114,14 +114,14 @@ public class MessageSubmitterImplTest {
             result = initiator;
         }};
         Party party = messageSubmitter.createNewParty(mpc);
-        Assert.assertNotNull(party);
-        Assert.assertEquals(initiator, party.getName());
+        Assertions.assertNotNull(party);
+        Assertions.assertEquals(initiator, party.getName());
     }
 
     @Test
     public void testcreateNewPartyNull() {
         Party party = messageSubmitter.createNewParty(null);
-        Assert.assertNull(party);
+        Assertions.assertNull(party);
     }
 
 }

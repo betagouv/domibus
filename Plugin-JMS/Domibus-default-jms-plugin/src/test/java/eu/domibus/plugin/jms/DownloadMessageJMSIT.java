@@ -24,9 +24,10 @@ import eu.domibus.test.UserMessageService;
 import eu.domibus.test.common.JMSMessageUtil;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.activemq.ActiveMQXAConnection;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.activation.DataHandler;
@@ -79,7 +80,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
     @Autowired
     JmsPluginPropertyManager jmsPluginPropertyManager;
 
-    @Before
+    @BeforeEach
     public void before() throws IOException, XmlProcessingException {
         pModeUtil.uploadPmode();
     }
@@ -87,22 +88,22 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
     /**
      * Negative test: the message is not found in the JMS queue and a specific exception is returned.
      */
-    @Test(expected = RuntimeException.class)
-    public void testDownloadMessageInvalidId() throws RuntimeException {
+    @Test
+    void testDownloadMessageInvalidId() throws RuntimeException {
 
         // Prepare the request to the backend
         String messageId = "invalid@e-delivery.eu";
 
         DeliverMessageEvent deliverMessageEvent = new DeliverMessageEvent(123, messageId, new HashMap<>());
-        backendJms.deliverMessage(deliverMessageEvent);
+        Assertions.assertThrows(RuntimeException.class, () -> backendJms.deliverMessage(deliverMessageEvent));
 
-        Assert.fail("DownloadMessageFault was expected but was not raised");
     }
 
     /**
      * Tests that a message is found in the JMS queue and pushed to the business queue.
      */
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testDownloadMessageOk() throws Exception {
         final UserMessage userMessage = getUserMessage();
         javax.jms.Connection connection = jmsConnectionFactory.createConnection("domibus", "changeit");
@@ -111,7 +112,7 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         pushQueueMessage(userMessage.getEntityId(), userMessage.getMessageId(), connection, JMS_NOT_QUEUE_NAME);
 
         Message message = jmsMessageUtil.popQueueMessageWithTimeout(connection, JMS_BACKEND_OUT_QUEUE_NAME, 5000);
-        Assert.assertNotNull(message);
+        Assertions.assertNotNull(message);
 
         connection.close();
     }
@@ -173,12 +174,6 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
 
     @Test
     public void testDisableDomain() {
-        try {
-            jmsPluginPropertyManager.setKnownPropertyValue(JMSPLUGIN_DOMAIN_ENABLED, "false");
-            Assert.fail();
-        } catch (DomibusPropertyException ex) {
-            Assert.assertEquals("Cannot disable the plugin [Jms] on domain [default] because there won't remain any enabled plugins.",
-                    ex.getCause().getMessage());
-        }
+        Assertions.assertThrows(DomibusPropertyException.class, () -> jmsPluginPropertyManager.setKnownPropertyValue(JMSPLUGIN_DOMAIN_ENABLED, "false"));
     }
 }

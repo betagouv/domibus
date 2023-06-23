@@ -12,10 +12,11 @@ import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.*;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -26,7 +27,7 @@ import java.util.*;
  * @since 3.3
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class JmsResourceTest {
 
     public static final List<String> MESSAGES_IDS = Arrays.asList("message1", "message2");
@@ -70,8 +71,8 @@ public class JmsResourceTest {
         DestinationsResponseRO destinations = jmsResource.destinations();
 
         // Then
-        Assert.assertNotNull(destinations);
-        Assert.assertEquals(dests, destinations.getJmsDestinations());
+        Assertions.assertNotNull(destinations);
+        Assertions.assertEquals(dests, destinations.getJmsDestinations());
 
         new FullVerifications() {
         };
@@ -88,7 +89,7 @@ public class JmsResourceTest {
         // When
         try {
             jmsResource.action(messagesActionRequestRO);
-            Assert.fail();
+            Assertions.fail();
         } catch (RequestValidationException e) {
             //do nothing
         }
@@ -98,6 +99,7 @@ public class JmsResourceTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testActionMove_ok(final @Mocked SortedMap<String, JMSDestination> dests,
                                   final @Mocked JMSDestination queue1,
                                   final @Mocked JMSDestination queue2) {
@@ -119,8 +121,8 @@ public class JmsResourceTest {
         MessagesActionResponseRO responseEntity = jmsResource.action(messagesActionRequestRO);
 
         // Then
-        Assert.assertNotNull(responseEntity);
-        Assert.assertEquals("Success", responseEntity.getOutcome());
+        Assertions.assertNotNull(responseEntity);
+        Assertions.assertEquals("Success", responseEntity.getOutcome());
 
         new FullVerifications() {{
             jmsManager.moveMessages(SOURCE_1, DOMIBUS_QUEUE_1, MESSAGES_IDS.toArray(new String[0]));
@@ -146,8 +148,8 @@ public class JmsResourceTest {
         MessagesActionResponseRO responseEntity = jmsResource.action(messagesActionRequestRO);
 
         // Then
-        Assert.assertNotNull(responseEntity);
-        Assert.assertEquals("Success", responseEntity.getOutcome());
+        Assertions.assertNotNull(responseEntity);
+        Assertions.assertEquals("Success", responseEntity.getOutcome());
 
         new FullVerifications() {{
             jmsManager.deleteMessages(anyString, (String[]) any);

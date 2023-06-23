@@ -1,7 +1,7 @@
 package eu.domibus.api.security;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
@@ -25,10 +25,10 @@ public class BlueCoatClientCertificateAuthenticationTest {
         String certHeaderValue = "serial=" + serial + "&subject=" + subject + "&validFrom="+ df.format(validFrom) +"&validTo=" + df.format(validTo) +"&issuer=" + issuer;
         BlueCoatClientCertificateAuthentication bcAuth = new BlueCoatClientCertificateAuthentication(certHeaderValue);
 
-        Assert.assertEquals(serial, ((CertificateDetails) bcAuth.getCredentials()).getSerial());
-        Assert.assertEquals(issuer, ((CertificateDetails) bcAuth.getCredentials()).getIssuer());
-        Assert.assertEquals(validFrom, ((CertificateDetails) bcAuth.getCredentials()).getValidFrom().getTime());
-        Assert.assertEquals(validTo, ((CertificateDetails) bcAuth.getCredentials()).getValidTo().getTime());
+        Assertions.assertEquals(serial, ((CertificateDetails) bcAuth.getCredentials()).getSerial());
+        Assertions.assertEquals(issuer, ((CertificateDetails) bcAuth.getCredentials()).getIssuer());
+        Assertions.assertEquals(validFrom, ((CertificateDetails) bcAuth.getCredentials()).getValidFrom().getTime());
+        Assertions.assertEquals(validTo, ((CertificateDetails) bcAuth.getCredentials()).getValidTo().getTime());
     }
 
     /**
@@ -48,10 +48,10 @@ public class BlueCoatClientCertificateAuthenticationTest {
         String certHeaderValue = "serial=" + serial + "&subject=" + subject + "&validFrom="+ df.format(validFrom) +"&validTo=" + df.format(validTo) +"&issuer=" + issuer;
         BlueCoatClientCertificateAuthentication bcAuth = new BlueCoatClientCertificateAuthentication(certHeaderValue);
 
-        Assert.assertEquals(serial, ((CertificateDetails) bcAuth.getCredentials()).getSerial());
-        Assert.assertEquals(issuer, ((CertificateDetails) bcAuth.getCredentials()).getIssuer());
-        Assert.assertEquals(validFrom, ((CertificateDetails) bcAuth.getCredentials()).getValidFrom().getTime());
-        Assert.assertEquals(validTo, ((CertificateDetails) bcAuth.getCredentials()).getValidTo().getTime());
+        Assertions.assertEquals(serial, ((CertificateDetails) bcAuth.getCredentials()).getSerial());
+        Assertions.assertEquals(issuer, ((CertificateDetails) bcAuth.getCredentials()).getIssuer());
+        Assertions.assertEquals(validFrom, ((CertificateDetails) bcAuth.getCredentials()).getValidFrom().getTime());
+        Assertions.assertEquals(validTo, ((CertificateDetails) bcAuth.getCredentials()).getValidTo().getTime());
     }
 
     /**
@@ -73,10 +73,10 @@ public class BlueCoatClientCertificateAuthenticationTest {
         String certHeaderValue = "iSsUeR=" + issuer  + "&VaLiDFrOm="+ df.format(validFrom) + "&sUbJecT=" + subject + "&VALidTo=" + df.format(validTo)  + "&serIAL=" + serial;
         BlueCoatClientCertificateAuthentication bcAuth = new BlueCoatClientCertificateAuthentication(certHeaderValue);
 
-        Assert.assertEquals(serial, ((CertificateDetails) bcAuth.getCredentials()).getSerial());
-        Assert.assertEquals(issuer, ((CertificateDetails) bcAuth.getCredentials()).getIssuer());
-        Assert.assertEquals(validFrom, ((CertificateDetails) bcAuth.getCredentials()).getValidFrom().getTime());
-        Assert.assertEquals(validTo, ((CertificateDetails) bcAuth.getCredentials()).getValidTo().getTime());
+        Assertions.assertEquals(serial, ((CertificateDetails) bcAuth.getCredentials()).getSerial());
+        Assertions.assertEquals(issuer, ((CertificateDetails) bcAuth.getCredentials()).getIssuer());
+        Assertions.assertEquals(validFrom, ((CertificateDetails) bcAuth.getCredentials()).getValidFrom().getTime());
+        Assertions.assertEquals(validTo, ((CertificateDetails) bcAuth.getCredentials()).getValidTo().getTime());
     }
 
     /**
@@ -88,6 +88,6 @@ public class BlueCoatClientCertificateAuthenticationTest {
     public void calculateCertificateId() {
         String certHeader = "sno=53%3Aef%3A79%3Ac3%3A54%3A98%3Abb%3A63%3A38%3A35%3A9a%3A19%3A5d%3A2d%3Ad8%3A8c&subject=C%3DBE%2C+O%3DDG-DIGIT%2C+CN%3DSMP_1000000007&validfrom=Oct+21+00%3A00%3A00+2014+GMT&validto=Oct+20+23%3A59%3A59+2016+GMT&issuer=C%3DDK%2C+O%3DNATIONAL+IT+AND+TELECOM+AGENCY%2C+OU%3DFOR+TEST+PURPOSES+ONLY%2C+CN%3DPEPPOL+SERVICE+METADATA+PUBLISHER+TEST+CA";
         BlueCoatClientCertificateAuthentication auth = new BlueCoatClientCertificateAuthentication(certHeader);
-        Assert.assertEquals("CN=SMP_1000000007,O=DG-DIGIT,C=BE:53ef79c35498bb6338359a195d2dd88c", auth.getName());
+        Assertions.assertEquals("CN=SMP_1000000007,O=DG-DIGIT,C=BE:53ef79c35498bb6338359a195d2dd88c", auth.getName());
     }
 }

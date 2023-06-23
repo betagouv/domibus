@@ -10,10 +10,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -29,14 +29,14 @@ import java.util.Date;
 import java.util.Locale;
 
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.x509;
 
 /**
  * @author idragusa
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class AuthenticationDefaultServiceTest {
 
     private static final String DOMIBUS_URL = "https://localhost:8080/domibus/services/backend";
@@ -87,12 +87,12 @@ public class AuthenticationDefaultServiceTest {
         authenticationService.authenticate(postProcessedRequest);
     }
 
-    @Test(expected = AuthenticationException.class)
-    public void authenticateX509MissingTest() {
+    @Test
+    void authenticateX509MissingTest() {
         MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.POST, DOMIBUS_URL);
         request.setScheme("https");
 
-        authenticationService.authenticate(request);
+        Assertions.assertThrows(AuthenticationException. class,() -> authenticationService.authenticate(request));
 
         new Verifications() {{
             securityCustomAuthenticationProvider.authenticate((Authentication) any);
@@ -100,8 +100,8 @@ public class AuthenticationDefaultServiceTest {
         }};
     }
 
-    @Test(expected = AuthenticationException.class)
-    public void authenticateX509InvalidTest() {
+    @Test
+    void authenticateX509InvalidTest() {
         X509Certificate certificate = createCertificate(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
 
         new Expectations() {{
@@ -110,7 +110,7 @@ public class AuthenticationDefaultServiceTest {
         }};
 
         MockHttpServletRequest postProcessedRequest = createHttpRequest(certificate, "https");
-        authenticationService.authenticate(postProcessedRequest);
+        Assertions.assertThrows(AuthenticationException. class,() -> authenticationService.authenticate(postProcessedRequest));
 
         new Verifications() {{
             securityCustomAuthenticationProvider.authenticate((Authentication) any);
@@ -157,8 +157,8 @@ public class AuthenticationDefaultServiceTest {
         }};
     }
 
-    @Test(expected = AuthenticationException.class)
-    public void authenticateBasicInvalidTest() {
+    @Test
+    void authenticateBasicInvalidTest() {
         MockHttpServletRequest request = createHttpBasicAuthRequest();
 
         new Expectations() {{
@@ -170,7 +170,7 @@ public class AuthenticationDefaultServiceTest {
             result = "default";
         }};
 
-        authenticationService.authenticate(request);
+        Assertions.assertThrows(AuthenticationException. class,() -> authenticationService.authenticate(request));
 
         new Verifications() {{
             securityCustomAuthenticationProvider.authenticate((Authentication) any);
@@ -185,7 +185,7 @@ public class AuthenticationDefaultServiceTest {
 
         try {
             authenticationService.authenticate(request);
-            Assert.fail("Authorization header [" + headerValueToTest + "] should not pass authentication");
+            Assertions.fail("Authorization header [" + headerValueToTest + "] should not pass authentication");
         } catch (AuthenticationException ex) {
             // the exception is expected,
             // but we need to verify the auth provider is not called at all
@@ -196,12 +196,12 @@ public class AuthenticationDefaultServiceTest {
         }
     }
 
-    @Test(expected = AuthenticationException.class)
-    public void authenticateBasic_wrongEncodingTest() {
+    @Test
+    void authenticateBasic_wrongEncodingTest() {
         String headerValueToTest = "Basic aaa";
         MockHttpServletRequest request = createHttpBasicAuthRequest(headerValueToTest);
 
-        authenticationService.authenticate(request);
+        Assertions.assertThrows(AuthenticationException. class,() -> authenticationService.authenticate(request));
     }
 
     @Test
@@ -223,8 +223,8 @@ public class AuthenticationDefaultServiceTest {
         }};
     }
 
-    @Test(expected = AuthenticationException.class)
-    public void authenticateEnabledMissingTest() throws UnsupportedEncodingException, ParseException {
+    @Test
+    void authenticateEnabledMissingTest() {
         MockHttpServletRequest request = new MockHttpServletRequest(HttpMethod.POST, DOMIBUS_URL);
 
         new Expectations() {{
@@ -232,7 +232,7 @@ public class AuthenticationDefaultServiceTest {
             result = false;
         }};
 
-        authenticationService.authenticate(request);
+        Assertions.assertThrows(AuthenticationException. class,() -> authenticationService.authenticate(request));
 
         new Verifications() {{
             securityCustomAuthenticationProvider.authenticate((Authentication) any);

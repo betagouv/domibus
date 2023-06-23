@@ -2,28 +2,28 @@ package eu.domibus.core.jpa;
 
 import mockit.Expectations;
 import mockit.Injectable;
-import mockit.integration.junit4.JMockit;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 
 import static eu.domibus.core.jpa.DomibusJPAConfiguration.CONFIG_DOMIBUS_ORM;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author François Gautier
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusJPAConfigurationTest {
 
     private DomibusJPAConfiguration domibusJPAConfiguration;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         domibusJPAConfiguration = new DomibusJPAConfiguration();
     }

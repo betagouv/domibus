@@ -5,9 +5,9 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.FileAppender;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Gabriel Maier
@@ -27,7 +27,7 @@ public class DomibusLineOfCallerConverterTest {
     private static final ByteArrayOutputStream LOG_OUTPUT_STREAM = new ByteArrayOutputStream();
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusLineOfCallerConverterTest.class);
 
-    @BeforeClass
+    @BeforeAll
     public static void validateConfigurationAndAddAppender() {
         Logger logger = (Logger) LoggerFactory.getLogger(DomibusLineOfCallerConverterTest.class);
         LoggerContext loggerContext = logger.getLoggerContext();
@@ -40,8 +40,8 @@ public class DomibusLineOfCallerConverterTest {
                 .map(Map.Entry::getKey)
                 .findFirst();
 
-        assertTrue("The logback config file in the classpath should contain a conversionRule of type " + DOMIBUS_LINE_OF_CALLER_CLASS_NAME,
-                conversionWord.isPresent());
+        assertTrue(conversionWord.isPresent(),
+                "The logback config file in the classpath should contain a conversionRule of type " + DOMIBUS_LINE_OF_CALLER_CLASS_NAME);
 
         addCapturingAppender(logger, conversionWord.get());
     }
@@ -71,7 +71,7 @@ public class DomibusLineOfCallerConverterTest {
         logger.addAppender(inMemoryAppender);
     }
 
-    @AfterClass
+    @AfterAll
     public static void clearByteArrayStream() throws IOException {
         LOG_OUTPUT_STREAM.close();
     }
@@ -85,14 +85,14 @@ public class DomibusLineOfCallerConverterTest {
         int expectedLineNumber = logTextAndReturnLineNumber();
         //then
         String logOutput = LOG_OUTPUT_STREAM.toString();
-        assertFalse("Expected a log message in the output stream", logOutput.isEmpty());
+        assertFalse(logOutput.isEmpty(), "Expected a log message in the output stream");
         assertOutputIsCorrect(logOutput, expectedLineNumber, getClass().getSimpleName());
     }
 
     private void assertOutputIsCorrect(String logOutput, int expectedLineNumber, String expectedClassName) {
         String[] tokens = logOutput.split(";");
-        assertTrue("Expecting class name " + expectedClassName + " but actual class name was " + tokens[0],
-                tokens[0].endsWith("." + expectedClassName));
+        assertTrue(tokens[0].endsWith("." + expectedClassName),
+                "Expecting class name " + expectedClassName + " but actual class name was " + tokens[0]);
         assertEquals(String.valueOf(expectedLineNumber), tokens[1]);
     }
 

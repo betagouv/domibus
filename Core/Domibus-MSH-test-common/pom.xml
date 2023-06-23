@@ -12,7 +12,7 @@
     </parent>
     <artifactId>domibus-msh-test-common</artifactId>
     <packaging>jar</packaging>
-	<name>Domibus MSH Test Common</name>
+    <name>Domibus MSH Test Common</name>
 
     <build>
         <plugins>
@@ -145,8 +145,8 @@
             <artifactId>hibernate-entitymanager</artifactId>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>

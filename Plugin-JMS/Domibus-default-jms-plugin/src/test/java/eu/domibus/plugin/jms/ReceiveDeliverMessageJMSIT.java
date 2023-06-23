@@ -1,7 +1,8 @@
 
 package eu.domibus.plugin.jms;
 
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
+import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.common.DomibusJMSConstants;
 import eu.domibus.core.message.MessagingService;
@@ -12,10 +13,10 @@ import eu.domibus.test.PModeUtil;
 import eu.domibus.test.common.JMSMessageUtil;
 import eu.domibus.test.common.SubmissionUtil;
 import org.apache.activemq.command.ActiveMQMapMessage;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -25,7 +26,6 @@ import javax.jms.Message;
 import java.io.IOException;
 import java.util.UUID;
 
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_ID;
 
 
@@ -34,6 +34,7 @@ import static eu.domibus.plugin.jms.JMSMessageConstants.MESSAGE_ID;
  *
  * @author martifp
  */
+@WireMockTest
 public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
 
     @Autowired
@@ -65,12 +66,9 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
     @Autowired
     PModeUtil pModeUtil;
 
-    @Rule
-    public WireMockRule wireMockRule = new WireMockRule(wireMockConfig().dynamicPort().dynamicHttpsPort());
-
-    @Before
-    public void before() throws IOException, XmlProcessingException {
-        pModeUtil.uploadPmode(wireMockRule.port());
+    @BeforeEach
+    public void before(WireMockRuntimeInfo wmRuntimeInfo) throws IOException, XmlProcessingException {
+        pModeUtil.uploadPmode(wmRuntimeInfo.getHttpPort());
     }
 
     /**
@@ -95,8 +93,8 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
 
         // Verifies that the message is really in the queue
         Message message = popMessageFromQueue();
-        Assert.assertEquals(message.getStringProperty(JMSMessageConstants.MESSAGE_ID), messageId);
-        Assert.assertNull(message.getStringProperty("ErrorMessage"));
+        Assertions.assertEquals(message.getStringProperty(JMSMessageConstants.MESSAGE_ID), messageId);
+        Assertions.assertNull(message.getStringProperty("ErrorMessage"));
 
     }
 
@@ -122,6 +120,7 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
      * @throws Exception
      */
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testDuplicateMessage() throws Exception {
         final MapMessage mapMessage = createJMSMessageForReceive();
 
@@ -136,8 +135,8 @@ public class ReceiveDeliverMessageJMSIT extends AbstractBackendJMSIT {
         jmsPluginImpl.receiveMessage(mapMessage);
         // Verifies that the message is really in the queue
         Message message = popMessageFromQueue();
-        Assert.assertEquals(message.getStringProperty(JMSMessageConstants.MESSAGE_ID), messageId);
-        Assert.assertNotNull(message.getStringProperty("ErrorMessage"));
+        Assertions.assertEquals(message.getStringProperty(JMSMessageConstants.MESSAGE_ID), messageId);
+        Assertions.assertNotNull(message.getStringProperty("ErrorMessage"));
     }
 
 

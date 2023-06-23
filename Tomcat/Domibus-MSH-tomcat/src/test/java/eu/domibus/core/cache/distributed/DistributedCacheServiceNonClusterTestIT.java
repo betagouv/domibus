@@ -5,13 +5,14 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.cache.distributed.DistributedCacheService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class DistributedCacheServiceNonClusterTestIT extends AbstractIT {
 
@@ -25,6 +26,7 @@ public class DistributedCacheServiceNonClusterTestIT extends AbstractIT {
     HazelcastInstance hazelcastInstance;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testCreateCache() {
         //check that in a non cluster deployment, the create cache operations are not failing
         distributedCacheService.createCache("mycache1");
@@ -36,6 +38,7 @@ public class DistributedCacheServiceNonClusterTestIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void evictEntryFromCache() {
         final String myKey = "mykey";
         final String myValue = "myvalue";

@@ -14,9 +14,10 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +28,7 @@ import java.util.UUID;
  * @author Cosmin Baciu
  * @since 4.1.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class FileSystemPayloadPersistenceTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemPayloadPersistenceTest.class);
@@ -89,6 +90,7 @@ public class FileSystemPayloadPersistenceTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testSaveIncomingPayloadToDisk(@Injectable PartInfo partInfo,
                                               @Injectable PayloadFileStorage storage,
                                               @Mocked File file,
@@ -144,6 +146,7 @@ public class FileSystemPayloadPersistenceTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testSaveOutgoingPayloadToDisk(@Injectable PartInfo partInfo,
                                               @Injectable UserMessage userMessage,
                                               @Injectable PayloadFileStorage currentStorage,

@@ -2,16 +2,16 @@ package eu.domibus.core.csv.serializer;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class CsvSerializerMapTest {
 
     @Tested
@@ -19,13 +19,13 @@ public class CsvSerializerMapTest {
 
     @Test
     public void canHandle() {
-        Assert.assertTrue(cvsSerializerMap.canHandle(new HashMap<>()));
-        Assert.assertFalse(cvsSerializerMap.canHandle(new ArrayList<>()));
+        Assertions.assertTrue(cvsSerializerMap.canHandle(new HashMap<>()));
+        Assertions.assertFalse(cvsSerializerMap.canHandle(new ArrayList<>()));
     }
 
     @Test
     public void serialize_Empty() throws DomibusCoreException {
-        Assert.assertEquals(cvsSerializerMap.serialize(new HashMap<>()), "{}");
+        Assertions.assertEquals(cvsSerializerMap.serialize(new HashMap<>()), "{}");
     }
 
     @Test
@@ -35,6 +35,6 @@ public class CsvSerializerMapTest {
         props.put("attribute2", null);
 
         String res = cvsSerializerMap.serialize(props);
-        Assert.assertTrue(res.contains("\"attribute2\":null"));
+        Assertions.assertTrue(res.contains("\"attribute2\":null"));
     }
 }

@@ -13,15 +13,15 @@ import eu.domibus.core.alerts.model.persist.StringEventProperty;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.hamcrest.core.Is;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author Thomas Dussart
@@ -35,7 +35,7 @@ public class SequenceGeneratorIT extends AbstractIT {
     @Autowired
     private AlertDao alertDao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         createAlert("blue_gw", "red_gw", false, null);
         createAlert("blue_gw", "red_gw", true, null);

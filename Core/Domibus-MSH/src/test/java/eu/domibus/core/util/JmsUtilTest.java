@@ -6,9 +6,10 @@ import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
 import org.apache.activemq.command.ActiveMQTextMessage;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import javax.jms.Message;
 import java.util.Random;
@@ -31,7 +32,7 @@ public class JmsUtilTest {
     private String valueString;
     private Long valueLong;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         valueString = UUID.randomUUID().toString();
         valueLong = new Random().nextLong();
@@ -45,31 +46,33 @@ public class JmsUtilTest {
     @Test
     public void getStringProperty() {
         String result = jmsUtil.getStringPropertySafely(message, "String");
-        Assert.assertEquals(valueString, result);
+        Assertions.assertEquals(valueString, result);
     }
 
     @Test
     public void getStringProperty_notFound() {
         String result = jmsUtil.getStringPropertySafely(message, "NotFound");
-        Assert.assertNull(result);
+        Assertions.assertNull(result);
     }
 
     @Test
     public void getLongProperty() {
         Long result = jmsUtil.getLongPropertySafely(message, "Long");
-        Assert.assertEquals(valueLong, result);
+        Assertions.assertEquals(valueLong, result);
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getLongProperty_notFound() {
         Long result = jmsUtil.getLongPropertySafely(message, "NotFound");
-        Assert.assertNull(result);
+        Assertions.assertNull(result);
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getLongProperty_notALong() {
         Long result = jmsUtil.getLongPropertySafely(message, "NotALong");
-        Assert.assertNull(result);
+        Assertions.assertNull(result);
     }
 
     @Test

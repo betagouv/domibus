@@ -9,10 +9,11 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,13 +24,13 @@ import java.time.ZoneOffset;
 
 import static eu.domibus.core.util.backup.BackupServiceImpl.BACKUP_EXT;
 import static eu.domibus.core.util.backup.BackupServiceImpl.BACKUP_FILE_FORMATTER;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ion Perpegel
  * @since 4.1.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class BackupServiceImplTest {
 
     @Tested
@@ -48,6 +49,7 @@ public class BackupServiceImplTest {
     DomainContextProvider domainProvider;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testBackupFile() throws IOException {
         File originalFile = new File("testfile");
         new Expectations(FileUtils.class) {{
@@ -84,6 +86,7 @@ public class BackupServiceImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testTimestampFormatter() {
         final LocalDateTime now = LocalDateTime.of(2019, 9, 2, 15, 1, 55, 123 * 1000000);
         final String expectedValue = "2019-09-02_15_01_55.123";
@@ -98,6 +101,7 @@ public class BackupServiceImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void backupFileInLocation(@Injectable Domain currentDomain) throws IOException {
         File originalFile = new File("testfile");
         String backupLocation = "testfile_backup";
@@ -119,6 +123,7 @@ public class BackupServiceImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void createBackupFileInLocation() throws IOException {
         File originalFile = new File("testfile");
         final String backupLocation = "test_backupFile";

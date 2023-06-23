@@ -15,9 +15,10 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 
@@ -28,7 +29,7 @@ import java.util.UUID;
  * @author François Gautier
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class EArchiveNotificationListenerTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveNotificationListenerTest.class);
@@ -118,9 +119,9 @@ public class EArchiveNotificationListenerTest {
         eArchiveNotificationListener.onMessage(message);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void onMessageExported_NotificationTypeUnknown(@Injectable Message message,
-                                                          @Injectable EArchiveBatchEntity eArchiveBatch) {
+    @Test
+    void onMessageExported_NotificationTypeUnknown(@Injectable Message message,
+                                                   @Injectable EArchiveBatchEntity eArchiveBatch) {
 
         LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
 
@@ -139,10 +140,7 @@ public class EArchiveNotificationListenerTest {
 
         }};
 
-        eArchiveNotificationListener.onMessage(message);
-
-        new FullVerifications() {
-        };
+        Assertions.assertThrows(IllegalArgumentException.class, () -> eArchiveNotificationListener.onMessage(message));
 
     }
 }

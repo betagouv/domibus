@@ -8,14 +8,14 @@ import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.wss4j.dom.WSConstants;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -34,7 +34,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author idragusa
  * @since 3.2.5
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class SoapUtilTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SoapUtilTest.class);
@@ -55,7 +55,7 @@ public class SoapUtilTest {
 
         SOAPMessage soapMessage = SoapUtilTest.createSOAPMessage("SOAPMessage.xml");
         String rawXMLMessage = getSoapUtil().getRawXMLMessage(soapMessage);
-        Assert.assertEquals(expectedRawMessage, rawXMLMessage.replaceAll("\\s+", ""));
+        Assertions.assertEquals(expectedRawMessage, rawXMLMessage.replaceAll("\\s+", ""));
 
     }
 
@@ -99,7 +99,7 @@ public class SoapUtilTest {
             soapMessage.getSOAPHeader().getElementsByTagNameNS(WSConstants.SIG_NS, WSConstants.SIG_LN).item(0);
         } catch (SOAPException | IOException | ParserConfigurationException | SAXException e) {
             LOG.error(e.getMessage(), e);
-            Assert.assertFalse(true);
+            Assertions.assertFalse(true);
         }
     }
 
@@ -108,7 +108,7 @@ public class SoapUtilTest {
         String expectedRawMessage = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("dataset/as4/UserMessageReceipt.xml"), StandardCharsets.UTF_8);
         SOAPMessage soapMessage = getSoapUtil().createSOAPMessage(expectedRawMessage);
         final SOAPElement messaging = (SOAPElement) soapMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME).next();
-        Assert.assertNotNull(messaging);
+        Assertions.assertNotNull(messaging);
     }
 
     @Test

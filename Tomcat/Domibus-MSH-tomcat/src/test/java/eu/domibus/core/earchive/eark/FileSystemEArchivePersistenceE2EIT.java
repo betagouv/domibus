@@ -24,10 +24,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.VFS;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.roda_project.commons_ip2.model.IPConstants;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_ACTIVE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_STORAGE_LOCATION;
 import static eu.domibus.core.earchive.eark.EArchivingFileService.SOAP_ENVELOPE_XML;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author François Gautier
@@ -99,11 +99,11 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
     private String batchId;
 
     @Transactional
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         payloadFileStorageProvider.initialize();
 
-        Mockito.when(backendConnectorProvider.getBackendConnector(Matchers.anyString()))
+        Mockito.when(backendConnectorProvider.getBackendConnector(ArgumentMatchers.anyString()))
                 .thenReturn(new BackendConnectorMock("name"));
         // because we must not use DirtyContext do not use common identifiers!
         //messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
@@ -138,8 +138,8 @@ public class FileSystemEArchivePersistenceE2EIT extends AbstractIT {
         currentStorage.init();
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+public void tearDown() throws IOException {
         FileUtils.deleteDirectory(temp);
         LOG.info("temp folder deleted: [{}]", temp.getAbsolutePath());
     }

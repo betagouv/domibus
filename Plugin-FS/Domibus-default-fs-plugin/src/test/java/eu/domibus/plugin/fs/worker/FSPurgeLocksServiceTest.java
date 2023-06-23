@@ -8,15 +8,15 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 
@@ -26,7 +26,7 @@ import static eu.domibus.plugin.fs.FSFileNameHelper.LOCK_SUFFIX;
  * @author Ion Perpegel
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class FSPurgeLocksServiceTest {
 
     @Tested
@@ -50,7 +50,7 @@ public class FSPurgeLocksServiceTest {
     private String dataFileName1 = "invoice.pdf";
     private String lockFileName1 = "invoice.pdf" + LOCK_SUFFIX;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         String location = "ram:///FSPurgeLocksServiceTest";
 
@@ -65,8 +65,8 @@ public class FSPurgeLocksServiceTest {
         lockFile1.createFile();
     }
 
-    @After
-    public void tearDown() throws FileSystemException {
+    @AfterEach
+public void tearDown() throws FileSystemException {
         rootDir.close();
         outFolder.close();
     }
@@ -75,7 +75,7 @@ public class FSPurgeLocksServiceTest {
     public void testPurge() {
         String domain = "DOMAIN1";
 
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             fsMultiTenancyService.getFSPluginDomain();
             result = domain;
         }};
@@ -92,7 +92,7 @@ public class FSPurgeLocksServiceTest {
         Integer expiredLimit = 600;
         String domain = FSSendMessagesService.DEFAULT_DOMAIN;
 
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             fsPluginProperties.getLocksPurgeExpired(domain);
             result = expiredLimit;
 
@@ -120,7 +120,7 @@ public class FSPurgeLocksServiceTest {
 
         instance.purgeForDomain(domain);
 
-        new Verifications(1) {{
+        new Verifications() {{
             fsFilesManager.deleteFile(lockFile1);
         }};
     }
@@ -130,7 +130,7 @@ public class FSPurgeLocksServiceTest {
         Integer expiredLimit = 600;
         String domain = FSSendMessagesService.DEFAULT_DOMAIN;
 
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             fsPluginProperties.getLocksPurgeExpired(domain);
             result = expiredLimit;
 
@@ -169,7 +169,7 @@ public class FSPurgeLocksServiceTest {
         Integer expiredLimit = 600;
         String domain = FSSendMessagesService.DEFAULT_DOMAIN;
 
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             fsPluginProperties.getLocksPurgeExpired(domain);
             result = expiredLimit;
 
@@ -206,7 +206,7 @@ public class FSPurgeLocksServiceTest {
         Integer expiredLimit = 600;
         String domain = FSSendMessagesService.DEFAULT_DOMAIN;
 
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             fsPluginProperties.getLocksPurgeExpired(domain);
             result = expiredLimit;
 
@@ -239,7 +239,7 @@ public class FSPurgeLocksServiceTest {
 
     @Test
     public void testPurgeForDOmain_Domain1_BadConfiguration() throws FileSystemException, FSSetUpException {
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             fsPluginProperties.getLocksPurgeExpired("DOMAIN1");
             result = 100;
             fsFilesManager.setUpFileSystem("DOMAIN1");

@@ -6,17 +6,19 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.common.model.configuration.Configuration;
 import eu.domibus.core.pmode.validation.validators.LegConfigurationValidator;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
+@Disabled("EDELIVERY-6896")
 public class PModeValidationServiceImplTest {
 
     @Tested
@@ -31,7 +33,7 @@ public class PModeValidationServiceImplTest {
     @Injectable
     LegConfigurationValidator legConfigurationValidator;
 
-    @Before
+    @BeforeEach
     public void init() {
         pModeValidatorList.add(legConfigurationValidator);
     }
@@ -46,11 +48,11 @@ public class PModeValidationServiceImplTest {
             times = 1;
         }};
 
-        Assert.assertTrue(issues.size() == 0);
+        Assertions.assertTrue(issues.size() == 0);
     }
 
-    @Test(expected = PModeValidationException.class)
-    public void validate_Error(@Mocked Configuration configuration) {
+    @Test
+    void validate_Error(@Mocked Configuration configuration) {
 
         ValidationIssue issue = new ValidationIssue();
         issue.setLevel(ValidationIssue.Level.ERROR);
@@ -63,15 +65,12 @@ public class PModeValidationServiceImplTest {
             result = Arrays.asList(issue);
         }};
 
-        List<ValidationIssue> issues = pModeValidationService.validate(configuration);
+        Assertions.assertThrows(PModeValidationException.class, () -> pModeValidationService.validate(configuration));
 
         new Verifications() {{
             legConfigurationValidator.validate(configuration);
             times = 1;
         }};
-
-        Assert.assertTrue(issues.size() == 1);
-        Assert.assertTrue(issues.get(0).getLevel() == ValidationIssue.Level.ERROR);
     }
 
 

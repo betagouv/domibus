@@ -10,10 +10,10 @@ import eu.domibus.api.usermessage.domain.PartProperties;
 import eu.domibus.api.usermessage.domain.PayloadInfo;
 import eu.domibus.core.message.dictionary.*;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.activation.DataHandler;
 import java.io.File;
@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.HashSet;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserMessageDefaultFactoryTest {
 
     @Tested
@@ -142,7 +142,7 @@ public class UserMessageDefaultFactoryTest {
     public void createMessageFragmentEntityTest(@Injectable MessageGroupEntity messageGroupEntity) {
         Long fragmentNumber = 1L;
 
-        Assert.assertNotNull(userMessageDefaultFactory.createMessageFragmentEntity(messageGroupEntity, fragmentNumber));
+        Assertions.assertNotNull(userMessageDefaultFactory.createMessageFragmentEntity(messageGroupEntity, fragmentNumber));
     }
 
     @Test
@@ -161,7 +161,7 @@ public class UserMessageDefaultFactoryTest {
             result = 2L;
         }};
 
-        Assert.assertNotNull(userMessageDefaultFactory.createMessageFragmentPartInfo(fragmentFile, fragmentNumber));
+        Assertions.assertNotNull(userMessageDefaultFactory.createMessageFragmentPartInfo(fragmentFile, fragmentNumber));
     }
 
     @Test
@@ -210,7 +210,7 @@ public class UserMessageDefaultFactoryTest {
 
         }};
 
-        Assert.assertNotNull(userMessageDefaultFactory.createPartyInfo(source));
+        Assertions.assertNotNull(userMessageDefaultFactory.createPartyInfo(source));
     }
 
 }

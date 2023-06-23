@@ -15,14 +15,15 @@ import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.message.signal.SignalMessageLogDefaultService;
 import eu.domibus.core.util.MessageUtil;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 /**
@@ -30,7 +31,7 @@ import static org.hamcrest.core.Is.is;
  * @since 4.2
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class ResponseHandlerTest {
 
     public static final String MESSAGE_ID = "MESSAGE_ID";
@@ -83,8 +84,8 @@ public class ResponseHandlerTest {
         }};
         ResponseResult responseResult = responseHandler.verifyResponse(soapMessage, null);
 
-        Assert.assertNotNull(responseResult);
-        Assert.assertThat(responseResult.getResponseStatus(), is(responseStatus));
+        Assertions.assertNotNull(responseResult);
+        assertThat(responseResult.getResponseStatus(), is(responseStatus));
 
         new FullVerifications() {
         };
@@ -99,13 +100,13 @@ public class ResponseHandlerTest {
         }};
         try {
             responseHandler.verifyResponse(soapMessage, MESSAGE_ID);
-            Assert.fail();
+            Assertions.fail();
         } catch (EbMS3Exception e) {
-           Assert.assertThat(e.getErrorCode(), is(ErrorCode.EbMS3ErrorCode.EBMS_0004));
-           Assert.assertThat(e.getErrorDetail(), is(DETAIL));
-           Assert.assertThat(e.getRefToMessageId(), is(MESSAGE_ID));
-           Assert.assertThat(e.getMshRole(), is(MSHRole.SENDING));
-           Assert.assertThat(e.getCause(), is(CAUSE));
+           assertThat(e.getErrorCode(), is(ErrorCode.EbMS3ErrorCode.EBMS_0004));
+           assertThat(e.getErrorDetail(), is(DETAIL));
+           assertThat(e.getRefToMessageId(), is(MESSAGE_ID));
+           assertThat(e.getMshRole(), is(MSHRole.SENDING));
+           assertThat(e.getCause(), is(CAUSE));
         }
 
         new FullVerifications() {

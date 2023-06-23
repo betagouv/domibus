@@ -15,9 +15,9 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.roda_project.commons_ip2.model.IPConstants;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -33,7 +33,7 @@ import static eu.domibus.core.earchive.eark.EArchivingFileService.SOAP_ENVELOPE_
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.contains;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author François Gautier
@@ -79,7 +79,7 @@ public class FileSystemEArchivePersistenceIT {
     private long entityId2;
     private List<EArchiveBatchUserMessage> userMessageEntityIds;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         batchId = UUID.randomUUID().toString();
         msg1 = UUID.randomUUID().toString();
@@ -106,8 +106,8 @@ public class FileSystemEArchivePersistenceIT {
      * mshWebserviceTest.invoke(soapMessage);
      *
      */
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+public void tearDown() throws IOException {
         FileUtils.deleteDirectory(temp);
         LOG.info("temp folder deleted: [{}]", temp.getAbsolutePath());
     }

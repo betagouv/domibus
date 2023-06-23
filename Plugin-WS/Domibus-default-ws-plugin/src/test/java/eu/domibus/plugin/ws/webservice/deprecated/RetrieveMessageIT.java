@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.webservice.deprecated;
 
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import eu.domibus.api.jms.JMSManager;
 import eu.domibus.common.model.org.oasis_open.docs.ebxml_msg.ebms.v3_0.ns.core._200704.Messaging;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
@@ -20,10 +21,10 @@ import eu.domibus.test.common.UserMessageSampleUtil;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.SAXException;
 
@@ -40,7 +41,7 @@ import java.nio.charset.Charset;
  * @deprecated to be removed when deprecated endpoint /backend is removed
  */
 @Deprecated
-@Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
+@Disabled("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
 public class RetrieveMessageIT extends AbstractBackendWSIT {
 
     @Autowired
@@ -76,9 +77,9 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
     @Autowired
     MessageRetentionDefaultService messageRetentionService;
 
-    @Before
-    public void updatePMode() throws IOException, XmlProcessingException, SOAPException, ParserConfigurationException, SAXException {
-        pModeUtil.uploadPmode(wireMockRule.port());
+    @BeforeEach
+    public void updatePMode(WireMockRuntimeInfo wmRuntimeInfo) throws IOException, XmlProcessingException, SOAPException, ParserConfigurationException, SAXException {
+        pModeUtil.uploadPmode(wmRuntimeInfo.getHttpPort());
     }
 
     private void receiveMessage(String messageId) throws SOAPException, IOException, ParserConfigurationException, SAXException {
@@ -89,14 +90,14 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         domibusConditionUtil.waitUntilMessageIsReceived(messageId);
     }
 
-    @Test(expected = RetrieveMessageFault.class)
-    public void testMessageIdEmpty() throws RetrieveMessageFault {
-        retrieveMessageFail("", "Message ID is empty");
+    @Test
+    void testMessageIdEmpty() {
+        Assertions.assertThrows(RetrieveMessageFault.class, () -> retrieveMessageFail("", "Message ID is empty"));
     }
 
-    @Test(expected = RetrieveMessageFault.class)
-    public void testMessageNotFound() throws RetrieveMessageFault {
-        retrieveMessageFail("notFound", "Message not found, id [notFound]");
+    @Test
+    void testMessageNotFound() {
+        Assertions.assertThrows(RetrieveMessageFault.class, () -> retrieveMessageFail("notFound", "Message not found, id [notFound]"));
     }
 
     @Test
@@ -110,7 +111,7 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
     }
 
     @Test
-    @Ignore("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
+    @Disabled("[EDELIVERY-8828] WSPLUGIN: tests for rest methods ignored")
     public void testMessageIdNeedsATrimSpacesAndTabs() throws Exception {
         retrieveMessage(" \t 33bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu \t ");
     }
@@ -129,10 +130,10 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         try {
             backendWebService.retrieveMessage(retrieveMessageRequest, retrieveMessageResponse, ebMSHeaderInfo);
         } catch (RetrieveMessageFault re) {
-            Assert.assertEquals(errorMessage, re.getMessage());
+            Assertions.assertEquals(errorMessage, re.getMessage());
             throw re;
         }
-        Assert.fail("DownloadMessageFault was expected but was not raised");
+        Assertions.fail("DownloadMessageFault was expected but was not raised");
     }
 
     private void retrieveMessage(String messageId) throws Exception {
@@ -149,13 +150,13 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         try {
             backendWebService.retrieveMessage(retrieveMessageRequest, retrieveMessageResponse, ebMSHeaderInfo);
         } catch (RetrieveMessageFault dmf) {
-            Assert.assertTrue(dmf.getMessage().contains(WebServiceImpl.MESSAGE_NOT_FOUND_ID));
+            Assertions.assertTrue(dmf.getMessage().contains(WebServiceImpl.MESSAGE_NOT_FOUND_ID));
             throw dmf;
         }
-        Assert.assertFalse(retrieveMessageResponse.value.getPayload().isEmpty());
+        Assertions.assertFalse(retrieveMessageResponse.value.getPayload().isEmpty());
         LargePayloadType payloadType = retrieveMessageResponse.value.getPayload().iterator().next();
         String payload = IOUtils.toString(payloadType.getValue().getDataSource().getInputStream(), Charset.defaultCharset());
-        Assert.assertEquals("",payload);
+        Assertions.assertEquals("", payload);
     }
 
     private RetrieveMessageRequest createRetrieveMessageRequest(String messageId) {

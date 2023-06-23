@@ -1,12 +1,12 @@
 package eu.domibus.core.util;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -17,7 +17,7 @@ import java.sql.SQLException;
  * @author Sebastian-Ion TINCU
  * @since 4.2
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DatabaseUtilImplTest {
 
     @InjectMocks
@@ -41,13 +41,13 @@ public class DatabaseUtilImplTest {
         databaseUtil.init();
 
         Mockito.verify(connection).close();
-        Assert.assertEquals("Should have returned the correct user name", "current_db_user", databaseUtil.getDatabaseUserName());
+        Assertions.assertEquals("current_db_user", databaseUtil.getDatabaseUserName(), "Should have returned the correct user name");
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void getDatabaseUserName_throwsExceptionWhenFailingToAquireConnection() throws Exception {
+    @Test
+    void getDatabaseUserName_throwsExceptionWhenFailingToAquireConnection() throws Exception {
         Mockito.when(dataSource.getConnection()).thenThrow(new SQLException());
 
-        databaseUtil.init();
+        Assertions.assertThrows(IllegalStateException. class,() -> databaseUtil.init());
     }
 }

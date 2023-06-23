@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws;
 
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.messaging.XmlProcessingException;
@@ -10,9 +11,9 @@ import eu.domibus.test.DomibusConditionUtil;
 import eu.domibus.test.PModeUtil;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,10 +45,10 @@ public class ListPushFailedMessagesIT extends AbstractBackendWSIT {
     @Autowired
     SoapSampleUtil soapSampleUtil;
 
-    @Before
-    public void before() throws IOException, XmlProcessingException {
+    @BeforeEach
+    public void before(WireMockRuntimeInfo wmRuntimeInfo) throws IOException, XmlProcessingException {
         domibusConditionUtil.waitUntilDatabaseIsInitialized();
-        pModeUtil.uploadPmode(wireMockRule.port());
+        pModeUtil.uploadPmode(wmRuntimeInfo.getHttpPort());
     }
 
     @Test
@@ -57,10 +58,10 @@ public class ListPushFailedMessagesIT extends AbstractBackendWSIT {
         ListPushFailedMessagesRequest listPushFailedMessagesRequest = createListPushFailedMessagesRequest(emptyMessageId, null);
         try {
             webServicePluginInterface.listPushFailedMessages(listPushFailedMessagesRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (ListPushFailedMessagesFault listPushFailedMessagesFault) {
             String message = "Message ID is empty";
-            Assert.assertEquals(message, listPushFailedMessagesFault.getMessage());
+            Assertions.assertEquals(message, listPushFailedMessagesFault.getMessage());
         }
     }
 
@@ -70,10 +71,10 @@ public class ListPushFailedMessagesIT extends AbstractBackendWSIT {
         ListPushFailedMessagesRequest listPushFailedMessagesRequest = createListPushFailedMessagesRequest(invalidMessageId, null);
         try {
             webServicePluginInterface.listPushFailedMessages(listPushFailedMessagesRequest);
-            Assert.fail();
+            Assertions.fail();
         } catch (ListPushFailedMessagesFault listPushFailedMessagesFault) {
             String message = "Invalid Message Id. ";
-            Assert.assertEquals(message, listPushFailedMessagesFault.getMessage());
+            Assertions.assertEquals(message, listPushFailedMessagesFault.getMessage());
         }
     }
 
@@ -85,7 +86,7 @@ public class ListPushFailedMessagesIT extends AbstractBackendWSIT {
         ListPushFailedMessagesRequest listPushFailedMessagesRequest = createListPushFailedMessagesRequest(messageId, originalSender);
 
         ListPushFailedMessagesResponse response = webServicePluginInterface.listPushFailedMessages(listPushFailedMessagesRequest);
-        Assert.assertEquals(response.getMessageID(), Collections.emptyList());
+        Assertions.assertEquals(response.getMessageID(), Collections.emptyList());
     }
 
 

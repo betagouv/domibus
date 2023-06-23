@@ -15,8 +15,8 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static eu.domibus.plugin.ws.client.WebserviceClient.DEFAULT_WEBSERVICE_LOCATION;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author François Gautier

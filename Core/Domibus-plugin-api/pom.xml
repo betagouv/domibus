@@ -13,7 +13,7 @@
     </parent>
     <artifactId>domibus-plugin-api</artifactId>
     <packaging>jar</packaging>
-	<name>Domibus MSH Plugin API</name>
+    <name>Domibus MSH Plugin API</name>
 
     <build>
         <plugins>
@@ -128,8 +128,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- End Test -->

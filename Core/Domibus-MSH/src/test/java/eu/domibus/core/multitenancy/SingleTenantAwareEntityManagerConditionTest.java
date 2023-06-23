@@ -5,19 +5,19 @@ import eu.domibus.core.jpa.SingleTenantAwareEntityManagerCondition;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.env.Environment;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Sebastian-Ion TINCU
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class SingleTenantAwareEntityManagerConditionTest {
 
     @Tested
@@ -37,7 +37,7 @@ public class SingleTenantAwareEntityManagerConditionTest {
 
         boolean matches = singleTenantAwareEntityManagerCondition.matches(context, null);
 
-        assertFalse("Should have not matched when the environment is null", matches);
+        assertFalse(matches, "Should have not matched when the environment is null");
     }
 
     @Test
@@ -49,7 +49,7 @@ public class SingleTenantAwareEntityManagerConditionTest {
 
         boolean matches = singleTenantAwareEntityManagerCondition.matches(context, null);
 
-        assertTrue("Should have matched when the environment doesn't contain the multitenancy property", matches);
+        assertTrue(matches, "Should have matched when the environment doesn't contain the multitenancy property");
     }
 
     @Test
@@ -61,6 +61,6 @@ public class SingleTenantAwareEntityManagerConditionTest {
 
         boolean matches = singleTenantAwareEntityManagerCondition.matches(context, null);
 
-        assertFalse("Should have not matched when the environment contains the multitenancy property", matches);
+        assertFalse(matches, "Should have not matched when the environment contains the multitenancy property");
     }
 }

@@ -18,17 +18,17 @@ import eu.domibus.plugin.handler.MessageSubmitter;
 import eu.domibus.plugin.transformer.MessageRetrievalTransformer;
 import eu.domibus.plugin.transformer.MessageSubmissionTransformer;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.provider.UriParser;
 import org.apache.tika.mime.MimeTypeException;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.activation.DataHandler;
@@ -44,7 +44,7 @@ import java.util.*;
  * @author FERNANDES Henrique, GONCALVES Bruno
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class FSPluginImplTest {
 
     private static final String TEXT_XML = "text/xml";
@@ -107,6 +107,9 @@ public class FSPluginImplTest {
     protected FSFileNameHelper fsFileNameHelper;
 
     @Injectable
+    protected FileUtilExtService fileUtilExtService;
+
+    @Injectable
     BackendConnectorProviderExtService backendConnectorProviderExtService;
 
     @Injectable
@@ -139,7 +142,7 @@ public class FSPluginImplTest {
     private DeliverMessageEvent messageEvent = new DeliverMessageEvent(123, messageId, new HashMap<>());
     private final String messageIdFolder = messageId;
 
-    @Before
+    @BeforeEach
     public void setUp() throws org.apache.commons.vfs2.FileSystemException {
         FileSystemManager fsManager = VFS.getManager();
 
@@ -170,7 +173,7 @@ public class FSPluginImplTest {
         messageEvent = new DeliverMessageEvent(123, messageId, properties);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws FileSystemException {
         incomingFolder.close();
         incomingFolderByRecipient.close();
@@ -211,19 +214,19 @@ public class FSPluginImplTest {
         // Assert results
         FileObject[] files = incomingFolderByMessageId.findFiles(new FileTypeSelector(FileType.FILE));
 
-        Assert.assertEquals(2, files.length);
+        Assertions.assertEquals(2, files.length);
 
         //metadata first
         FileObject metadataFile = files[0];
 
-        Assert.assertEquals(FSSendMessagesService.METADATA_FILE_NAME, metadataFile.getName().getBaseName());
+        Assertions.assertEquals(FSSendMessagesService.METADATA_FILE_NAME, metadataFile.getName().getBaseName());
 
 
         UserMessage expectedUserMessage = FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml");
         new Verifications() {{
             UserMessage savedUserMessage;
             fsxmlHelper.writeXML((OutputStream) any, UserMessage.class, savedUserMessage = withCapture());
-            Assert.assertEquals(expectedUserMessage, savedUserMessage);
+            Assertions.assertEquals(expectedUserMessage, savedUserMessage);
         }};
 
 
@@ -233,14 +236,14 @@ public class FSPluginImplTest {
         //payload
         FileObject payloadFile = files[1];
 
-        Assert.assertEquals(payloadFileName, payloadFile.getName().getBaseName());
-        Assert.assertEquals(payloadContent, IOUtils.toString(payloadFile.getContent().getInputStream(), StandardCharsets.UTF_8));
+        Assertions.assertEquals(payloadFileName, payloadFile.getName().getBaseName());
+        Assertions.assertEquals(payloadContent, IOUtils.toString(payloadFile.getContent().getInputStream(), StandardCharsets.UTF_8));
         payloadFile.close();
         payloadFile.delete();
     }
 
     private void expectationsDeliverMessage(String domain, UserMessage userMessage, Map<String, FSPayload> fsPayloads) throws MessageNotFoundException, FileSystemException {
-        new Expectations(1, backendFS) {{
+        new Expectations(backendFS) {{
             backendFS.browseMessage(messageId, MSHRole.RECEIVING, null);
             result = new FSMessage(fsPayloads, userMessage);
 
@@ -302,17 +305,17 @@ public class FSPluginImplTest {
 
         // Assert results
         FileObject[] files = incomingFolderByMessageId.findFiles(new FileTypeSelector(FileType.FILE));
-        Assert.assertEquals(3, files.length);
+        Assertions.assertEquals(3, files.length);
 
         FileObject fileMetadata = files[0];
-        Assert.assertEquals(FSSendMessagesService.METADATA_FILE_NAME,
+        Assertions.assertEquals(FSSendMessagesService.METADATA_FILE_NAME,
                 fileMetadata.getName().getBaseName());
 
         UserMessage expectedUserMessage = FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml");
         new Verifications() {{
             UserMessage savedUserMessage;
             fsxmlHelper.writeXML((OutputStream) any, UserMessage.class, savedUserMessage = withCapture());
-            Assert.assertEquals(expectedUserMessage, savedUserMessage);
+            Assertions.assertEquals(expectedUserMessage, savedUserMessage);
         }};
 
 
@@ -320,16 +323,16 @@ public class FSPluginImplTest {
         fileMetadata.close();
 
         FileObject fileMessage0 = files[1];
-        Assert.assertEquals("message.xml",
+        Assertions.assertEquals("message.xml",
                 fileMessage0.getName().getBaseName());
-        Assert.assertEquals(messageContent, IOUtils.toString(fileMessage0.getContent().getInputStream(), StandardCharsets.UTF_8));
+        Assertions.assertEquals(messageContent, IOUtils.toString(fileMessage0.getContent().getInputStream(), StandardCharsets.UTF_8));
         fileMessage0.close();
         fileMessage0.delete();
 
         FileObject fileMessage1 = files[2];
-        Assert.assertEquals("invoice.xml",
+        Assertions.assertEquals("invoice.xml",
                 fileMessage1.getName().getBaseName());
-        Assert.assertEquals(invoiceContent, IOUtils.toString(fileMessage1.getContent().getInputStream(), StandardCharsets.UTF_8));
+        Assertions.assertEquals(invoiceContent, IOUtils.toString(fileMessage1.getContent().getInputStream(), StandardCharsets.UTF_8));
         fileMessage1.close();
         fileMessage1.delete();
     }
@@ -366,17 +369,17 @@ public class FSPluginImplTest {
 
         // Assert results
         FileObject[] files = incomingFolderByMessageId.findFiles(new FileTypeSelector(FileType.FILE));
-        Assert.assertEquals(3, files.length);
+        Assertions.assertEquals(3, files.length);
 
         FileObject fileMetadata = files[0];
-        Assert.assertEquals(FSSendMessagesService.METADATA_FILE_NAME,
+        Assertions.assertEquals(FSSendMessagesService.METADATA_FILE_NAME,
                 fileMetadata.getName().getBaseName());
 
         UserMessage expectedUserMessage = FSTestHelper.getUserMessage(this.getClass(), "testDeliverMessageNormalFlow_metadata.xml");
         new Verifications() {{
             UserMessage savedUserMessage;
             fsxmlHelper.writeXML((OutputStream) any, UserMessage.class, savedUserMessage = withCapture());
-            Assert.assertEquals(expectedUserMessage, savedUserMessage);
+            Assertions.assertEquals(expectedUserMessage, savedUserMessage);
         }};
 
 
@@ -384,24 +387,24 @@ public class FSPluginImplTest {
         fileMetadata.close();
 
         FileObject fileMessage0 = files[1];
-        Assert.assertEquals("message2.xml",
+        Assertions.assertEquals("message2.xml",
                 fileMessage0.getName().getBaseName());
-        Assert.assertEquals(messageContent, IOUtils.toString(fileMessage0.getContent().getInputStream(), StandardCharsets.UTF_8));
+        Assertions.assertEquals(messageContent, IOUtils.toString(fileMessage0.getContent().getInputStream(), StandardCharsets.UTF_8));
         fileMessage0.close();
         fileMessage0.delete();
 
         FileObject fileMessage1 = files[2];
-        Assert.assertEquals("invoice2.xml",
+        Assertions.assertEquals("invoice2.xml",
                 fileMessage1.getName().getBaseName());
-        Assert.assertEquals(invoiceContent, IOUtils.toString(fileMessage1.getContent().getInputStream(), StandardCharsets.UTF_8));
+        Assertions.assertEquals(invoiceContent, IOUtils.toString(fileMessage1.getContent().getInputStream(), StandardCharsets.UTF_8));
         fileMessage1.close();
         fileMessage1.delete();
     }
 
-    @Test(expected = FSPluginException.class)
-    public void testDeliverMessage_MessageNotFound(@Injectable final FSMessage fsMessage) throws MessageNotFoundException {
+    @Test
+    void testDeliverMessage_MessageNotFound(@Injectable final FSMessage fsMessage) throws MessageNotFoundException {
 
-        new Expectations(1, backendFS) {{
+        new Expectations(backendFS) {{
             backendFS.browseMessage(messageId, MSHRole.RECEIVING, null);
             result = new MessageNotFoundException("message not found");
 
@@ -409,11 +412,11 @@ public class FSPluginImplTest {
             result = true;
         }};
 
-        backendFS.deliverMessage(messageEvent);
+        Assertions.assertThrows(FSPluginException.class, () -> backendFS.deliverMessage(messageEvent));
     }
 
-    @Test(expected = FSPluginException.class)
-    public void testDeliverMessage_FSSetUpException(@Injectable final FSMessage fsMessage)
+    @Test
+    void testDeliverMessage_FSSetUpException(@Injectable final FSMessage fsMessage)
             throws MessageNotFoundException, JAXBException, IOException, FSSetUpException {
 
         final String payloadContent = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPGhlbGxvPndvcmxkPC9oZWxsbz4=";
@@ -422,7 +425,7 @@ public class FSPluginImplTest {
         final Map<String, FSPayload> fsPayloads = new HashMap<>();
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "message.xml", dataHandler));
 
-        new Expectations(1, backendFS) {{
+        new Expectations(backendFS) {{
             backendFS.browseMessage(messageId, MSHRole.RECEIVING, null);
             result = new FSMessage(fsPayloads, userMessage);
 
@@ -436,11 +439,11 @@ public class FSPluginImplTest {
             result = new FSSetUpException("Test-forced exception");
         }};
 
-        backendFS.deliverMessage(messageEvent);
+        Assertions.assertThrows(FSPluginException.class, () -> backendFS.deliverMessage(messageEvent));
     }
 
-    @Test(expected = FSPluginException.class)
-    public void testDeliverMessage_IOException(@Injectable final FSMessage fsMessage)
+    @Test
+    void testDeliverMessage_IOException(@Injectable final FSMessage fsMessage)
             throws MessageNotFoundException, JAXBException, IOException, FSSetUpException {
 
         // the null causes an IOException
@@ -449,7 +452,7 @@ public class FSPluginImplTest {
         final Map<String, FSPayload> fsPayloads = new HashMap<>();
         fsPayloads.put("cid:message", new FSPayload(TEXT_XML, "message.xml", dataHandler));
 
-        new Expectations(1, backendFS) {{
+        new Expectations(backendFS) {{
             backendFS.browseMessage(messageId, MSHRole.RECEIVING, null);
             result = new FSMessage(fsPayloads, userMessage);
 
@@ -466,21 +469,21 @@ public class FSPluginImplTest {
             result = true;
         }};
 
-        backendFS.deliverMessage(messageEvent);
+        Assertions.assertThrows(FSPluginException.class, () -> backendFS.deliverMessage(messageEvent));
     }
 
     @Test
     public void testGetMessageSubmissionTransformer() {
         MessageSubmissionTransformer<FSMessage> result = backendFS.getMessageSubmissionTransformer();
 
-        Assert.assertEquals(defaultTransformer, result);
+        Assertions.assertEquals(defaultTransformer, result);
     }
 
     @Test
     public void testGetMessageRetrievalTransformer() {
         MessageRetrievalTransformer<FSMessage> result = backendFS.getMessageRetrievalTransformer();
 
-        Assert.assertEquals(defaultTransformer, result);
+        Assertions.assertEquals(defaultTransformer, result);
     }
 
     @Test
@@ -494,7 +497,7 @@ public class FSPluginImplTest {
         String file = "content_" + messageId + ".xml.READY_TO_SEND";
         final FileObject contentFile = outgoingFolder.resolveFile(file);
 
-        new Expectations(1, backendFS) {{
+        new Expectations(backendFS) {{
             fsFilesManager.setUpFileSystem(null);
             result = rootDir;
 
@@ -515,7 +518,7 @@ public class FSPluginImplTest {
 
         contentFile.close();
 
-        new VerificationsInOrder(1) {{
+        new VerificationsInOrder() {{
             fsFilesManager.renameFile(contentFile, "content_" + messageId + ".xml.SEND_ENQUEUED");
         }};
     }
@@ -531,7 +534,7 @@ public class FSPluginImplTest {
 
         final FileObject contentFile = outgoingFolder.resolveFile("content_" + messageId + ".xml.ACKNOWLEDGED");
 
-        new Expectations(1, backendFS) {{
+        new Expectations(backendFS) {{
             fsFilesManager.setUpFileSystem(null);
             result = rootDir;
 
@@ -552,7 +555,7 @@ public class FSPluginImplTest {
 
         contentFile.close();
 
-        new VerificationsInOrder(1) {{
+        new VerificationsInOrder() {{
             fsFilesManager.deleteFile(contentFile);
         }};
     }
@@ -566,7 +569,7 @@ public class FSPluginImplTest {
         properties.put("service", service);
         properties.put("action", action);
 
-        new Expectations(1, backendFS) {{
+        new Expectations(backendFS) {{
             backendFS.isEnabled(anyString);
             result = true;
 
@@ -655,7 +658,7 @@ public class FSPluginImplTest {
 
         final FileObject contentFile = outgoingFolder.resolveFile("content_" + messageId + ".xml.SEND_ENQUEUED");
 
-        new Expectations(1, backendFS) {{
+        new Expectations(backendFS) {{
             fsFilesManager.setUpFileSystem(null);
             result = rootDir;
 
@@ -674,7 +677,7 @@ public class FSPluginImplTest {
 
         contentFile.close();
 
-        new VerificationsInOrder(1) {{
+        new VerificationsInOrder() {{
             fsSendMessagesService.handleSendFailedMessage(contentFile, anyString, anyString);
         }};
     }
@@ -689,7 +692,7 @@ public class FSPluginImplTest {
 
         final FileObject contentFile = outgoingFolder.resolveFile("content_" + messageId + ".xml.SEND_ENQUEUED");
 
-        new Expectations(1, backendFS) {{
+        new Expectations(backendFS) {{
             fsFilesManager.setUpFileSystem(null);
             result = rootDir;
 
@@ -708,7 +711,7 @@ public class FSPluginImplTest {
 
         contentFile.close();
 
-        new VerificationsInOrder(1) {{
+        new VerificationsInOrder() {{
             fsSendMessagesService.handleSendFailedMessage(contentFile, anyString, anyString);
         }};
     }
@@ -728,7 +731,7 @@ public class FSPluginImplTest {
         errorResult.setErrorCode(ErrorCode.EBMS_0001);
         errorList.add(errorResult);
 
-        new Expectations(1, backendFS) {{
+        new Expectations(backendFS) {{
             fsFilesManager.setUpFileSystem(null);
             result = rootDir;
 
@@ -749,7 +752,7 @@ public class FSPluginImplTest {
 
         contentFile.close();
 
-        new VerificationsInOrder(1) {{
+        new VerificationsInOrder() {{
             fsSendMessagesService.handleSendFailedMessage(contentFile, anyString, anyString);
         }};
     }
@@ -799,7 +802,7 @@ public class FSPluginImplTest {
         }};
 
         String result = backendFS.getFileName(contentId, fsPayload, incomingFolderByMessageId);
-        Assert.assertEquals(fileName, result);
+        Assertions.assertEquals(fileName, result);
 
         new FullVerifications() {{
             incomingFolderByMessageId.resolveFile(fileName, NameScope.CHILD);
@@ -827,7 +830,7 @@ public class FSPluginImplTest {
         }};
 
         String result = backendFS.getFileName(contentId, fsPayload, incomingFolderByMessageId);
-        Assert.assertEquals(expectedResult, result);
+        Assertions.assertEquals(expectedResult, result);
 
         new FullVerifications() {
         };
@@ -859,13 +862,13 @@ public class FSPluginImplTest {
         }};
 
         final String fileName = backendFS.getFileName(contentId, fsPayload, incomingFolderByMessageId);
-        Assert.assertNotNull(fileName);
-        Assert.assertEquals(fileNameExpected, fileName);
+        Assertions.assertNotNull(fileName);
+        Assertions.assertEquals(fileNameExpected, fileName);
 
         new FullVerifications() {{
             String fileNameActual;
             incomingFolderByMessageId.resolveFile(fileNameActual = withCapture(), NameScope.CHILD);
-            Assert.assertEquals(fileNameDecoded, fileNameActual);
+            Assertions.assertEquals(fileNameDecoded, fileNameActual);
         }};
     }
 
@@ -888,8 +891,8 @@ public class FSPluginImplTest {
         }};
 
         String fileNameActual = backendFS.getFileName(contentId, fsPayload, incomingFolderByMessageId);
-        Assert.assertTrue(StringUtils.isNotBlank(fileNameActual));
-        Assert.assertEquals(fileName, fileNameActual);
+        Assertions.assertTrue(StringUtils.isNotBlank(fileNameActual));
+        Assertions.assertEquals(fileName, fileNameActual);
 
         new FullVerifications() {
         };
@@ -913,8 +916,8 @@ public class FSPluginImplTest {
         }};
 
         String fileNameActual = backendFS.getFileName(contentId, fsPayload, incomingFolderByMessageId);
-        Assert.assertTrue(StringUtils.isNotBlank(fileNameActual));
-        Assert.assertTrue(StringUtils.endsWith(fileNameActual, fileExtension));
+        Assertions.assertTrue(StringUtils.isNotBlank(fileNameActual));
+        Assertions.assertTrue(StringUtils.endsWith(fileNameActual, fileExtension));
 
         new FullVerifications() {
         };
@@ -929,6 +932,6 @@ public class FSPluginImplTest {
             result = new MimeTypeException("Invalid Type");
         }};
 
-        Assert.assertNotNull(backendFS.getFileNameExtension(mimeType));
+        Assertions.assertNotNull(backendFS.getFileNameExtension(mimeType));
     }
 }

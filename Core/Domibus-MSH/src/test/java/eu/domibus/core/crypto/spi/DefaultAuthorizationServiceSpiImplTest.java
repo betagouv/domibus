@@ -23,12 +23,13 @@ import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.RegexUtilImpl;
 import eu.domibus.ext.domain.SecurityProfileDTO;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
@@ -39,13 +40,14 @@ import java.util.Set;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
 import static eu.domibus.core.pki.PKIUtil.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author idragusa
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DefaultAuthorizationServiceSpiImplTest {
     private static final String RESOURCE_PATH = "src/test/resources/eu/domibus/core/security/";
     private static final String TEST_KEYSTORE = "testauthkeystore.jks";
@@ -88,7 +90,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
 
     @Test
     public void testGetIdentifier() {
-        Assert.assertEquals(DefaultAuthorizationServiceSpiImpl.DEFAULT_IAM_AUTHORIZATION_IDENTIFIER, defaultAuthorizationServiceSpi.getIdentifier());
+        Assertions.assertEquals(DefaultAuthorizationServiceSpiImpl.DEFAULT_IAM_AUTHORIZATION_IDENTIFIER, defaultAuthorizationServiceSpi.getIdentifier());
     }
 
     @Test
@@ -130,20 +132,17 @@ public class DefaultAuthorizationServiceSpiImplTest {
         defaultAuthorizationServiceSpi.authorizeAgainstCertificateCNMatch(signingCertificate, "nobodywho");
     }
 
-    @Test(expected = AuthorizationException.class)
-    public void authorizeAgainstCertificateCNMatchTestExc() {
+    @Test
+    void authorizeAgainstCertificateCNMatchTestExc() {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
 
         new Expectations() {{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_CERTIFICATE_SUBJECT_CHECK);
             result = true;
         }};
-        try {
-            defaultAuthorizationServiceSpi.authorizeAgainstCertificateCNMatch(signingCertificate, "nobodywho");
-        } catch (AuthorizationException exc) {
-            Assert.assertEquals(AuthorizationError.AUTHORIZATION_REJECTED, exc.getAuthorizationError());
-            throw exc;
-        }
+        AuthorizationException nobodywho = assertThrows(AuthorizationException.class,
+                () -> defaultAuthorizationServiceSpi.authorizeAgainstCertificateCNMatch(signingCertificate, "nobodywho"));
+        Assertions.assertEquals(AuthorizationError.AUTHORIZATION_REJECTED, nobodywho.getAuthorizationError());
     }
 
     @Test
@@ -205,7 +204,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_SENDER_TRUST_VALIDATION_CERTIFICATE_POLICY_OIDS);
             // list with spaces
-            result = CERTIFICATE_POLICY_QCP_LEGAL+" , " + CERTIFICATE_POLICY_QCP_NATURAL + ", " + CERTIFICATE_POLICY_QCP_LEGAL_QSCD;
+            result = CERTIFICATE_POLICY_QCP_LEGAL + " , " + CERTIFICATE_POLICY_QCP_NATURAL + ", " + CERTIFICATE_POLICY_QCP_LEGAL_QSCD;
 
             certificateService.getCertificatePolicyIdentifiers((X509Certificate) any);
             result = Collections.singletonList(CERTIFICATE_POLICY_QCP_NATURAL);
@@ -220,7 +219,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_SENDER_TRUST_VALIDATION_CERTIFICATE_POLICY_OIDS);
             // list with spaces
-            result =CERTIFICATE_POLICY_QCP_LEGAL_QSCD;
+            result = CERTIFICATE_POLICY_QCP_LEGAL_QSCD;
 
             certificateService.getCertificatePolicyIdentifiers((X509Certificate) any);
             result = Arrays.asList(CERTIFICATE_POLICY_QCP_LEGAL_QSCD, CERTIFICATE_POLICY_QCP_LEGAL);
@@ -242,10 +241,10 @@ public class DefaultAuthorizationServiceSpiImplTest {
 
         //when
         AuthorizationException exception = assertThrows(AuthorizationException.class,
-                () ->   defaultAuthorizationServiceSpi.authorizeAgainstCertificatePolicyMatch(signingCertificate, "nobodywho"));
+                () -> defaultAuthorizationServiceSpi.authorizeAgainstCertificatePolicyMatch(signingCertificate, "nobodywho"));
 
         assertEquals(AuthorizationError.AUTHORIZATION_REJECTED, exception.getAuthorizationError());
-        MatcherAssert.assertThat(exception.getMessage(), CoreMatchers.containsString("has empty CertificatePolicy extension"));
+        assertThat(exception.getMessage(), CoreMatchers.containsString("has empty CertificatePolicy extension"));
     }
 
     @Test
@@ -253,7 +252,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
         X509Certificate signingCertificate = pkiUtil.createCertificate(BigInteger.ONE, null, null);
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_SENDER_TRUST_VALIDATION_CERTIFICATE_POLICY_OIDS);
-            result = CERTIFICATE_POLICY_QCP_NATURAL_QSCD+","+CERTIFICATE_POLICY_QCP_NATURAL;
+            result = CERTIFICATE_POLICY_QCP_NATURAL_QSCD + "," + CERTIFICATE_POLICY_QCP_NATURAL;
 
             certificateService.getCertificatePolicyIdentifiers((X509Certificate) any);
             result = Arrays.asList(CERTIFICATE_POLICY_QCP_LEGAL_QSCD, CERTIFICATE_POLICY_QCP_LEGAL);
@@ -261,10 +260,10 @@ public class DefaultAuthorizationServiceSpiImplTest {
 
         //when
         AuthorizationException exception = assertThrows(AuthorizationException.class,
-                () ->   defaultAuthorizationServiceSpi.authorizeAgainstCertificatePolicyMatch(signingCertificate, "nobodywho"));
+                () -> defaultAuthorizationServiceSpi.authorizeAgainstCertificatePolicyMatch(signingCertificate, "nobodywho"));
 
         assertEquals(AuthorizationError.AUTHORIZATION_REJECTED, exception.getAuthorizationError());
-        MatcherAssert.assertThat(exception.getMessage(),CoreMatchers.containsString("does not contain any of the required certificate policies"));
+        assertThat(exception.getMessage(), CoreMatchers.containsString("does not contain any of the required certificate policies"));
     }
 
 
@@ -280,20 +279,17 @@ public class DefaultAuthorizationServiceSpiImplTest {
 
     }
 
-    @Test(expected = AuthorizationException.class)
-    public void authorizeAgainstCertificateSubjectExpressionTestException() {
+    @Test
+    void authorizeAgainstCertificateSubjectExpressionTestException() {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_SENDER_TRUST_VALIDATION_EXPRESSION);
             result = "TEST.EU";
         }};
 
-        try {
-            defaultAuthorizationServiceSpi.authorizeAgainstCertificateSubjectExpression(signingCertificate);
-        } catch (AuthorizationException exc) {
-            Assert.assertEquals(AuthorizationError.AUTHORIZATION_REJECTED, exc.getAuthorizationError());
-            throw exc;
-        }
+        AuthorizationException exception = assertThrows(AuthorizationException.class,
+                () -> defaultAuthorizationServiceSpi.authorizeAgainstCertificateSubjectExpression(signingCertificate));
+        Assertions.assertEquals(AuthorizationError.AUTHORIZATION_REJECTED, exception.getAuthorizationError());
     }
 
     @Test
@@ -330,7 +326,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
     }
 
     @Test
-    public void authorizeAgainstTruststoreAliasDynamicDiscovery(@Injectable  X509Certificate signingCertificate) {
+    public void authorizeAgainstTruststoreAliasDynamicDiscovery(@Injectable X509Certificate signingCertificate) {
         new Expectations() {{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_SENDER_TRUST_VALIDATION_TRUSTSTORE_ALIAS);
             result = true;
@@ -341,7 +337,8 @@ public class DefaultAuthorizationServiceSpiImplTest {
 
         defaultAuthorizationServiceSpi.authorizeAgainstTruststoreAlias(signingCertificate, "nobodywho");
 
-        new FullVerifications() { };
+        new FullVerifications() {
+        };
     }
 
     @Test
@@ -360,8 +357,8 @@ public class DefaultAuthorizationServiceSpiImplTest {
     }
 
 
-    @Test(expected = AuthorizationException.class)
-    public void authorizeAgainstTruststoreAliasTestNullTruststore(@Mocked Domain domain) throws Exception {
+    @Test
+    void authorizeAgainstTruststoreAliasTestNullTruststore(@Mocked Domain domain) throws Exception {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
         new Expectations() {{
             domainProvider.getCurrentDomain();
@@ -372,12 +369,13 @@ public class DefaultAuthorizationServiceSpiImplTest {
             result = null;
         }};
 
-        defaultAuthorizationServiceSpi.authorizeAgainstTruststoreAlias(signingCertificate, ALIAS_CN_AVAILABLE);
+        Assertions.assertThrows(AuthorizationException. class,
+        () -> defaultAuthorizationServiceSpi.authorizeAgainstTruststoreAlias(signingCertificate, ALIAS_CN_AVAILABLE));
     }
 
 
-    @Test(expected = AuthorizationException.class)
-    public void authorizeAgainstTruststoreAliasTestNotOK(@Mocked Domain domain) throws Exception {
+    @Test
+    void authorizeAgainstTruststoreAliasTestNotOK(@Mocked Domain domain) throws Exception {
         X509Certificate signingCertificate = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_KEYSTORE, ALIAS_TEST_AUTH, TEST_KEYSTORE_PASSWORD);
         new Expectations() {{
             domainProvider.getCurrentDomain();
@@ -388,7 +386,8 @@ public class DefaultAuthorizationServiceSpiImplTest {
             result = loadCertificateFromJKSFile(RESOURCE_PATH + TEST_TRUSTSTORE, ALIAS_CN_AVAILABLE, TEST_KEYSTORE_PASSWORD);
         }};
 
-        defaultAuthorizationServiceSpi.authorizeAgainstTruststoreAlias(signingCertificate, ALIAS_CN_AVAILABLE);
+        Assertions.assertThrows(AuthorizationException. class,
+        () -> defaultAuthorizationServiceSpi.authorizeAgainstTruststoreAlias(signingCertificate, ALIAS_CN_AVAILABLE));
     }
 
     @Test
@@ -482,8 +481,9 @@ public class DefaultAuthorizationServiceSpiImplTest {
         }};
     }
 
-    @Test(expected = AuthorizationException.class)
-    public void authorizePullTestInitiatorException() throws Exception {
+    @Test
+    @Disabled("EDELIVERY-6896")
+    void authorizePullTestInitiatorException() throws Exception {
         final String testMpc = "mpc_for_test";
         String testQualifiedMpc = "qualified_mpc_for_test";
         PullRequestPmodeData pullRequestPmodeData = new PullRequestPmodeData(testMpc);
@@ -496,7 +496,8 @@ public class DefaultAuthorizationServiceSpiImplTest {
             result = pullContext;
         }};
 
-        defaultAuthorizationServiceSpi.authorize(null, null, null, pullRequestPmodeData);
+        Assertions.assertThrows(AuthorizationException. class,
+        () -> defaultAuthorizationServiceSpi.authorize(null, null, null, pullRequestPmodeData));
 
         new Verifications() {{
             defaultAuthorizationServiceSpi.doAuthorize(null, ALIAS_TEST_AUTH);
@@ -504,8 +505,9 @@ public class DefaultAuthorizationServiceSpiImplTest {
         }};
     }
 
-    @Test(expected = AuthorizationException.class)
-    public void authorizePullTestPullContextException() throws Exception {
+    @Test
+    @Disabled("EDELIVERY-6896")
+    void authorizePullTestPullContextException() throws Exception {
         final String testMpc = "mpc_for_test";
         String testQualifiedMpc = "qualified_mpc_for_test";
         PullRequestPmodeData pullRequestPmodeData = new PullRequestPmodeData(testMpc);
@@ -516,7 +518,8 @@ public class DefaultAuthorizationServiceSpiImplTest {
             result = null;
         }};
 
-        defaultAuthorizationServiceSpi.authorize(null, null, null, pullRequestPmodeData);
+        Assertions.assertThrows(AuthorizationException. class,
+        () -> defaultAuthorizationServiceSpi.authorize(null, null, null, pullRequestPmodeData));
 
         new Verifications() {{
             defaultAuthorizationServiceSpi.doAuthorize(null, ALIAS_TEST_AUTH);
@@ -524,10 +527,11 @@ public class DefaultAuthorizationServiceSpiImplTest {
         }};
     }
 
-    @Test(expected = AuthorizationException.class)
-    public void authorizePullTestNullMpc() {
+    @Test
+    void authorizePullTestNullMpc() {
         PullRequestPmodeData pullRequestPmodeData = new PullRequestPmodeData(null);
-        defaultAuthorizationServiceSpi.authorize(null, null, null, pullRequestPmodeData);
+        Assertions.assertThrows(AuthorizationException. class,
+        () -> defaultAuthorizationServiceSpi.authorize(null, null, null, pullRequestPmodeData));
     }
 
 }

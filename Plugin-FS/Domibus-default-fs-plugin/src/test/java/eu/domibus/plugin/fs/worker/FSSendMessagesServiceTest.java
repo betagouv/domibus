@@ -11,11 +11,15 @@ import eu.domibus.plugin.fs.ebms3.UserMessage;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.*;
-import org.junit.*;
-import org.junit.runner.RunWith;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.jms.Queue;
@@ -33,7 +37,7 @@ import static eu.domibus.plugin.fs.worker.FSSendMessagesService.METADATA_FILE_NA
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno, Catalin Enache
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class FSSendMessagesServiceTest {
 
     @Tested
@@ -73,7 +77,6 @@ public class FSSendMessagesServiceTest {
     @Injectable
     protected FSFileNameHelper fsFileNameHelper;
 
-    @Tested
     @Injectable
     private FSProcessFileService fsProcessFileService;
 
@@ -84,7 +87,7 @@ public class FSSendMessagesServiceTest {
 
     private UserMessage metadata;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException, JAXBException {
         String location = "ram:///FSSendMessagesServiceTest";
 
@@ -114,7 +117,7 @@ public class FSSendMessagesServiceTest {
         }
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws FileSystemException {
         rootDir.close();
         outgoingFolder.close();
@@ -147,7 +150,7 @@ public class FSSendMessagesServiceTest {
     @Test
     public void testSendMessages_RootDomain_NoMultitenancy() throws MessagingProcessingException, FileSystemException, FSSetUpException {
         final String domain = null; //root
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             domibusConfigurationExtService.isSecuredLoginRequired();
             result = false;
 
@@ -170,17 +173,17 @@ public class FSSendMessagesServiceTest {
         //tested method
         instance.sendMessages(domain);
 
-        new VerificationsInOrder(1) {{
+        new VerificationsInOrder() {{
             FileObject fileActual;
             instance.enqueueProcessableFile(fileActual = withCapture());
-            Assert.assertEquals(contentFile, fileActual);
+            Assertions.assertEquals(contentFile, fileActual);
         }};
     }
 
     @Test
     public void test_SendMessages_RootDomain_Multitenancy() throws FileSystemException, FSSetUpException {
         final String domainDefault = FSSendMessagesService.DEFAULT_DOMAIN;
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             domibusConfigurationExtService.isSecuredLoginRequired();
             result = true;
 
@@ -209,19 +212,19 @@ public class FSSendMessagesServiceTest {
         //tested method
         instance.sendMessages(domainDefault);
 
-        new VerificationsInOrder(1) {{
+        new VerificationsInOrder() {{
             authenticationExtService.basicAuthenticate(anyString, anyString);
 
             FileObject fileActual;
             instance.enqueueProcessableFile(fileActual = withCapture());
-            Assert.assertEquals(contentFile, fileActual);
+            Assertions.assertEquals(contentFile, fileActual);
         }};
     }
 
     @Test
     public void testSendMessages_Domain1() throws MessagingProcessingException, FileSystemException {
         final String domain1 = "DOMAIN1";
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             domibusConfigurationExtService.isSecuredLoginRequired();
             result = true;
 
@@ -254,14 +257,14 @@ public class FSSendMessagesServiceTest {
 
             FileObject fileActual;
             instance.enqueueProcessableFile(fileActual = withCapture());
-            Assert.assertEquals(contentFile, fileActual);
+            Assertions.assertEquals(contentFile, fileActual);
         }};
     }
 
     @Test
     public void testSendMessages_Domain1_BadConfiguration() throws MessagingProcessingException, FileSystemException, FSSetUpException {
         final String domain1 = "DOMAIN1";
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             domibusConfigurationExtService.isSecuredLoginRequired();
             result = true;
 
@@ -293,7 +296,7 @@ public class FSSendMessagesServiceTest {
         final String domain = null; //root
         final String errorMessage = "mock error";
         final FileObject processableFile = metadataFile;
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             fsFilesManager.setUpFileSystem(domain);
             result = rootDir;
 
@@ -311,7 +314,7 @@ public class FSSendMessagesServiceTest {
     @Test
     public void testCanReadFileSafely() {
         String domain = "domain1";
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             instance.checkSizeChangedRecently(contentFile, domain);
             result = false;
             instance.checkTimestampChangedRecently(contentFile, domain);
@@ -323,13 +326,13 @@ public class FSSendMessagesServiceTest {
         //tested method
         boolean actualRes = instance.canReadFileSafely(contentFile, domain);
 
-        Assert.assertEquals(true, actualRes);
+        Assertions.assertEquals(true, actualRes);
     }
 
     @Test
     public void testCanReadFileSafelyFalse() {
         String domain = "domain1";
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             instance.checkSizeChangedRecently(contentFile, domain);
             result = false;
             instance.checkTimestampChangedRecently(contentFile, domain);
@@ -339,7 +342,7 @@ public class FSSendMessagesServiceTest {
         //tested method
         boolean actualRes = instance.canReadFileSafely(contentFile, domain);
 
-        Assert.assertEquals(false, actualRes);
+        Assertions.assertEquals(false, actualRes);
     }
 
     @Test
@@ -350,7 +353,7 @@ public class FSSendMessagesServiceTest {
         long currentTime = new Date().getTime();
         instance.observedFilesInfo.put(fileName, new FileInfo(fileSize, currentTime, domain));
 
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             fsPluginProperties.getSendDelay(domain);
             result = 2000;
 
@@ -363,7 +366,7 @@ public class FSSendMessagesServiceTest {
 
         //tested method
         boolean actualRes = instance.checkSizeChangedRecently(contentFile2, domain);
-        Assert.assertEquals(true, actualRes);
+        Assertions.assertEquals(true, actualRes);
 
     }
 
@@ -375,7 +378,7 @@ public class FSSendMessagesServiceTest {
         long currentTime = new Date().getTime();
         instance.observedFilesInfo.put(fileName, new FileInfo(fileSize, currentTime - 500, domain));
 
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             fsPluginProperties.getSendDelay(domain);
             result = 200;
 
@@ -388,14 +391,14 @@ public class FSSendMessagesServiceTest {
 
         //tested method
         boolean actualRes = instance.checkSizeChangedRecently(contentFile2, domain);
-        Assert.assertEquals(false, actualRes);
+        Assertions.assertEquals(false, actualRes);
 
     }
 
     @Test
     public void testCheckTimestampChangedRecently_RecentFile(final @Mocked FileObject contentFile2) throws FileSystemException {
         final String domain = "default";
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             fsPluginProperties.getSendDelay(domain);
             result = 200;
 
@@ -406,13 +409,13 @@ public class FSSendMessagesServiceTest {
 
         //tested method
         boolean actualRes = instance.checkTimestampChangedRecently(contentFile2, domain);
-        Assert.assertEquals(true, actualRes);
+        Assertions.assertEquals(true, actualRes);
     }
 
     @Test
     public void testCheckTimestampChangedRecently_OldFile(final @Mocked FileObject contentFile2) throws FileSystemException {
         final String domain = "default";
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             fsPluginProperties.getSendDelay(domain);
             result = 200;
 
@@ -423,7 +426,7 @@ public class FSSendMessagesServiceTest {
 
         //tested method
         boolean actualRes = instance.checkTimestampChangedRecently(contentFile2, domain);
-        Assert.assertEquals(false, actualRes);
+        Assertions.assertEquals(false, actualRes);
     }
 
     @Test
@@ -431,7 +434,7 @@ public class FSSendMessagesServiceTest {
         final String domain = "default";
         //tested method
         boolean actualRes = instance.checkHasWriteLock(contentFile);
-        Assert.assertEquals(true, actualRes);
+        Assertions.assertEquals(true, actualRes);
     }
 
     @Test
@@ -442,7 +445,7 @@ public class FSSendMessagesServiceTest {
         long currentTime = new Date().getTime();
         instance.observedFilesInfo.put(fileName, new FileInfo(fileSize, currentTime - 800, domain));
 
-        new Expectations(1, instance) {{
+        new Expectations( instance) {{
             fsPluginProperties.getSendDelay(domain);
             result = 100;
 
@@ -452,7 +455,7 @@ public class FSSendMessagesServiceTest {
 
         //tested method
         instance.clearObservedFiles(domain);
-        Assert.assertEquals(0, instance.observedFilesInfo.size());
+        Assertions.assertEquals(0, instance.observedFilesInfo.size());
     }
 
     @Test
@@ -465,7 +468,7 @@ public class FSSendMessagesServiceTest {
             result = any;
         }};
 
-        Assert.assertNull(instance.buildErrorMessage(errorDetail));
+        Assertions.assertNull(instance.buildErrorMessage(errorDetail));
 
     }
 
@@ -478,7 +481,7 @@ public class FSSendMessagesServiceTest {
         final String notified = "notified";
         final String timestamp = null;
 
-        Assert.assertNotNull(instance.buildErrorMessage(errorCode, errorDetail, messageId, mshRole, notified, timestamp));
+        Assertions.assertNotNull(instance.buildErrorMessage(errorCode, errorDetail, messageId, mshRole, notified, timestamp));
     }
 
     @Test
@@ -531,8 +534,8 @@ public class FSSendMessagesServiceTest {
 
     @Test
     public void isMetadata() {
-        Assert.assertTrue(instance.isMetadata(METADATA_FILE_NAME));
-        Assert.assertFalse(instance.isMetadata("non_metadata.xml"));
+        Assertions.assertTrue(instance.isMetadata(METADATA_FILE_NAME));
+        Assertions.assertFalse(instance.isMetadata("non_metadata.xml"));
     }
 
     @Test
@@ -542,9 +545,9 @@ public class FSSendMessagesServiceTest {
         Optional<String> nonExistingFileName = Optional.of("file11.pdf");
         Optional<String> emptyFileName = Optional.empty();
 
-        Assert.assertTrue(instance.isLocked(lockedFileNames, existingFileName));
-        Assert.assertFalse(instance.isLocked(lockedFileNames, nonExistingFileName));
-        Assert.assertFalse(instance.isLocked(lockedFileNames, emptyFileName));
+        Assertions.assertTrue(instance.isLocked(lockedFileNames, existingFileName));
+        Assertions.assertFalse(instance.isLocked(lockedFileNames, nonExistingFileName));
+        Assertions.assertFalse(instance.isLocked(lockedFileNames, emptyFileName));
     }
 
 }

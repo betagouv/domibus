@@ -16,9 +16,9 @@ import org.apache.commons.lang3.Validate;
 import org.h2.tools.Server;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.mock.web.MockMultipartFile;
@@ -38,7 +38,8 @@ import java.util.*;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
@@ -80,7 +81,7 @@ public class UploadPModeIT extends AbstractIT {
     @Autowired
     ConfigurationRawDAO configurationRawDAO;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Locale.setDefault(Locale.ENGLISH);
         SecurityContextHolder.getContext()
@@ -320,7 +321,7 @@ public class UploadPModeIT extends AbstractIT {
             fail("exception expected");
         } catch (PModeValidationException ex) {
             assertTrue(ex.getIssues().get(1).getMessage().contains("Duplicate unique value [http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/defaultMPC]"));
-            MatcherAssert.assertThat(ex.getIssues().get(2).getMessage(), allOf(containsString("[defaultInitiatorRole] declared for identity constraint"), containsString("of element \"roles\"")));
+            assertThat(ex.getIssues().get(2).getMessage(), allOf(containsString("[defaultInitiatorRole] declared for identity constraint"), containsString("of element \"roles\"")));
             assertTrue(ex.getIssues().get(3).getMessage().contains("Duplicate unique value [partyTypeUrn]"));
             assertTrue(ex.getIssues().get(4).getMessage().contains("Duplicate unique value [urn:oasis:names:tc:ebcore:partyid-type:unregistered]"));
             assertTrue(ex.getIssues().get(5).getMessage().contains("Duplicate unique value [red_gw]"));

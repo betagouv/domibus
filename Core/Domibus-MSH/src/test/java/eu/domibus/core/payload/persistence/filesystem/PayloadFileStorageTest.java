@@ -8,8 +8,8 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -56,10 +56,10 @@ public class PayloadFileStorageTest {
         final String location = "..\\domibus_blue\\domibus\\payload_storage";
         try {
             payloadFileStorage.createLocation(location);
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusCoreException ex) {
-            Assert.assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
-            Assert.assertEquals(ex.getMessage(), "[DOM_001]:Relative path [..\\domibus_blue\\domibus\\payload_storage] is forbidden. Please provide absolute path for payload storage");
+            Assertions.assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
+            Assertions.assertEquals(ex.getMessage(), "[DOM_001]:Relative path [..\\domibus_blue\\domibus\\payload_storage] is forbidden. Please provide absolute path for payload storage");
         }
     }
 
@@ -67,13 +67,13 @@ public class PayloadFileStorageTest {
     public void createLocationWithAbsolutePath(@Injectable Path path, @Injectable Files files, @Injectable Domain domain) {
         final String location = System.getProperty("java.io.tmpdir");
         path = payloadFileStorage.createLocation(location);
-        Assert.assertNotNull(path);
-        Assert.assertTrue(files.exists(path));
+        Assertions.assertNotNull(path);
+        Assertions.assertTrue(files.exists(path));
     }
 
     @Test
     public void getStorageDirectory(@Injectable Domain domain) {
-        Assert.assertNull(payloadFileStorage.getStorageDirectory());
+        Assertions.assertNull(payloadFileStorage.getStorageDirectory());
     }
 
 }

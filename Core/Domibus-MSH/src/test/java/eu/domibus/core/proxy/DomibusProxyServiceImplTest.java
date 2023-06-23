@@ -7,10 +7,10 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -18,7 +18,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @author idragusa
  * @since 4.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusProxyServiceImplTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusProxyServiceImplTest.class);
@@ -29,19 +29,19 @@ public class DomibusProxyServiceImplTest {
     @Tested
     DomibusProxyServiceImpl domibusProxyService;
 
-    @Test(expected = DomibusCoreException.class)
-    public void initDomibusProxyMissingHostTest() {
-        new Expectations(){{
+    @Test
+    void initDomibusProxyMissingHostTest() {
+        new Expectations() {{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
             result = true;
 
         }};
-        domibusProxyService.initDomibusProxy();
+        Assertions.assertThrows(DomibusCoreException.class, () -> domibusProxyService.initDomibusProxy());
     }
 
-    @Test(expected = DomibusCoreException.class)
-    public void initDomibusProxyMissingPortTest() {
-        new Expectations(){{
+    @Test
+    void initDomibusProxyMissingPortTest() {
+        new Expectations() {{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
             result = true;
 
@@ -49,12 +49,12 @@ public class DomibusProxyServiceImplTest {
             result = "12.13.14.15";
 
         }};
-        domibusProxyService.initDomibusProxy();
+        Assertions.assertThrows(DomibusCoreException.class, () -> domibusProxyService.initDomibusProxy());
     }
 
     @Test
     public void initDomibusProxyTest() {
-        new Expectations(){{
+        new Expectations() {{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
             result = true;
 
@@ -68,9 +68,9 @@ public class DomibusProxyServiceImplTest {
         domibusProxyService.initDomibusProxy();
     }
 
-    @Test(expected = DomibusCoreException.class)
-    public void initDomibusProxyMissingPasswordTest() {
-        new Expectations(){{
+    @Test
+    void initDomibusProxyMissingPasswordTest() {
+        new Expectations() {{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
             result = true;
 
@@ -84,12 +84,12 @@ public class DomibusProxyServiceImplTest {
             result = "idragusa";
 
         }};
-        domibusProxyService.initDomibusProxy();
+        Assertions.assertThrows(DomibusCoreException. class,() -> domibusProxyService.initDomibusProxy());
     }
 
     @Test
     public void initDomibusProxyAuthTest() {
-        new Expectations(){{
+        new Expectations() {{
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_PROXY_ENABLED);
             result = true;
 
@@ -111,12 +111,12 @@ public class DomibusProxyServiceImplTest {
 
         }};
         domibusProxyService.initDomibusProxy();
-        Assert.assertTrue(domibusProxyService.getDomibusProxy().isEnabled());
-        Assert.assertEquals("12.13.14.15", domibusProxyService.getDomibusProxy().getHttpProxyHost());
-        Assert.assertEquals(new Integer("8012"), domibusProxyService.getDomibusProxy().getHttpProxyPort());
-        Assert.assertEquals("idragusa", domibusProxyService.getDomibusProxy().getHttpProxyUser());
-        Assert.assertEquals("pass", domibusProxyService.getDomibusProxy().getHttpProxyPassword());
-        Assert.assertEquals("localhost", domibusProxyService.getDomibusProxy().getNonProxyHosts());
+        Assertions.assertTrue(domibusProxyService.getDomibusProxy().isEnabled());
+        Assertions.assertEquals("12.13.14.15", domibusProxyService.getDomibusProxy().getHttpProxyHost());
+        Assertions.assertEquals(new Integer("8012"), domibusProxyService.getDomibusProxy().getHttpProxyPort());
+        Assertions.assertEquals("idragusa", domibusProxyService.getDomibusProxy().getHttpProxyUser());
+        Assertions.assertEquals("pass", domibusProxyService.getDomibusProxy().getHttpProxyPassword());
+        Assertions.assertEquals("localhost", domibusProxyService.getDomibusProxy().getNonProxyHosts());
     }
 }
 

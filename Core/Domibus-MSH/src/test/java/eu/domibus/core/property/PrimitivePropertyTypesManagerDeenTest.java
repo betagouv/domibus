@@ -1,18 +1,18 @@
 package eu.domibus.core.property;
 
-import mockit.Deencapsulation;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Properties;
 
 /**
  * @author Sebastian-Ion TINCU
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PrimitivePropertyTypesManagerDeenTest {
 
     private String customValue;
@@ -25,25 +25,25 @@ public class PrimitivePropertyTypesManagerDeenTest {
 
     private PrimitivePropertyTypesManager primitivePropertyTypesManager = new PrimitivePropertyTypesManager(domibusDefaultProperties);
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        Deencapsulation.setField(primitivePropertyTypesManager, "domibusDefaultProperties", domibusDefaultProperties);
+        ReflectionTestUtils.setField(primitivePropertyTypesManager, "domibusDefaultProperties", domibusDefaultProperties);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void throwsIllegalStateExceptionWhenRetrievingAnIntegerPropertyHavingBothItsCustomValueAndItsDefaultValueMissing() {
+    @Test
+    void throwsIllegalStateExceptionWhenRetrievingAnIntegerPropertyHavingBothItsCustomValueAndItsDefaultValueMissing() {
         givenMissingCustomValue();
         givenMissingDefaultValue();
 
-        whenRetrievingTheIntegerProperty();
+        Assertions.assertThrows(IllegalStateException. class,() -> whenRetrievingTheIntegerProperty());
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void throwsIllegalStateExceptionWhenRetrievingAnIntegerPropertyHavingItsCustomValueMissingAndItsDefaultValueInvalid() {
+    @Test
+    void throwsIllegalStateExceptionWhenRetrievingAnIntegerPropertyHavingItsCustomValueMissingAndItsDefaultValueInvalid() {
         givenMissingCustomValue();
         givenDefaultValue("INVALID_INTEGER_VALUE");
 
-        whenRetrievingTheIntegerProperty();
+        Assertions.assertThrows(IllegalStateException. class,() -> whenRetrievingTheIntegerProperty());
     }
 
     @Test
@@ -99,20 +99,20 @@ public class PrimitivePropertyTypesManagerDeenTest {
                 "The integer property value should have been taken from the custom properties when the custom value valid (ignores invalid default value)", -712853);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void throwsIllegalStateExceptionWhenRetrievingABooleanPropertyHavingBothItsCustomValueAndItsDefaultValueMissing() {
+    @Test
+    void throwsIllegalStateExceptionWhenRetrievingABooleanPropertyHavingBothItsCustomValueAndItsDefaultValueMissing() {
         givenMissingCustomValue();
         givenMissingDefaultValue();
 
-        whenRetrievingTheBooleanProperty();
+        Assertions.assertThrows(IllegalStateException. class,() -> whenRetrievingTheBooleanProperty());
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void throwsIllegalStateExceptionWhenRetrievingABooleanPropertyHavingItsCustomValueMissingAndItsDefaultValueInvalid() {
+    @Test
+    void throwsIllegalStateExceptionWhenRetrievingABooleanPropertyHavingItsCustomValueMissingAndItsDefaultValueInvalid() {
         givenMissingCustomValue();
         givenDefaultValue("INVALID_BOOLEAN_VALUE");
 
-        whenRetrievingTheBooleanProperty();
+        Assertions.assertThrows(IllegalStateException. class,() -> whenRetrievingTheBooleanProperty());
     }
 
     @Test
@@ -194,6 +194,6 @@ public class PrimitivePropertyTypesManagerDeenTest {
     }
 
     private void thenPropertyValueTakenFromDefaults(String message, Object expectedValue) {
-        Assert.assertEquals(message, expectedValue, myResult);
+        Assertions.assertEquals(expectedValue, myResult, message);
     }
 }

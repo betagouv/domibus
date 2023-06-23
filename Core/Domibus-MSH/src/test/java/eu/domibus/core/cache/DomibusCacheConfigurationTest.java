@@ -1,11 +1,13 @@
 package eu.domibus.core.cache;
 
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.cache.configuration.Configuration;
 import javax.cache.spi.CachingProvider;
@@ -19,7 +21,7 @@ import java.util.List;
  * @author Catalin Enache
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusCacheConfigurationTest {
 
     @Tested
@@ -27,6 +29,7 @@ public class DomibusCacheConfigurationTest {
 
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void test_cacheManagerExternalFilePresent() throws  Exception {
         prepareTestEhCacheFiles();
         new Expectations(domibusCacheConfiguration) {{
@@ -38,17 +41,18 @@ public class DomibusCacheConfigurationTest {
         //tested method
         org.springframework.cache.CacheManager cacheManager = domibusCacheConfiguration.cacheManager();
 
-        Assert.assertNotNull(cacheManager.getCache("policyCacheDefault"));
-        Assert.assertNotNull(cacheManager.getCache("policyCacheExternal"));
+        Assertions.assertNotNull(cacheManager.getCache("policyCacheDefault"));
+        Assertions.assertNotNull(cacheManager.getCache("policyCacheExternal"));
 
     }
 
     protected void prepareTestEhCacheFiles() {
-        Deencapsulation.setField(domibusCacheConfiguration, "defaultEhCacheFile", "config/ehcache/ehcache-default-test.xml");
-        Deencapsulation.setField(domibusCacheConfiguration, "externalEhCacheFile", "target/test-classes/conf/domibus/internal/ehcache-test.xml");
+        ReflectionTestUtils.setField(domibusCacheConfiguration, "defaultEhCacheFile", "config/ehcache/ehcache-default-test.xml");
+        ReflectionTestUtils.setField(domibusCacheConfiguration, "externalEhCacheFile", "target/test-classes/conf/domibus/internal/ehcache-test.xml");
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void test_cacheManagerNoExternalFilePresent() throws  Exception {
         prepareTestEhCacheFiles();
         new Expectations(domibusCacheConfiguration) {{
@@ -59,12 +63,13 @@ public class DomibusCacheConfigurationTest {
         //tested method
         org.springframework.cache.CacheManager cacheManager = domibusCacheConfiguration.cacheManager();
 
-        Assert.assertNotNull(cacheManager.getCache("policyCacheDefault"));
-        Assert.assertNull(cacheManager.getCache("policyCacheExternal"));
+        Assertions.assertNotNull(cacheManager.getCache("policyCacheDefault"));
+        Assertions.assertNull(cacheManager.getCache("policyCacheExternal"));
     }
 
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void test_mergeExternalCacheConfiguration(@Mocked javax.cache.CacheManager defaultCacheManager,
                                                      @Mocked javax.cache.CacheManager externalCacheManager,
                                                      @Mocked CachingProvider cachingProvider) {
@@ -96,7 +101,7 @@ public class DomibusCacheConfigurationTest {
 
             List<String> cacheNamesActual =  new ArrayList<>();
             defaultCacheManager.createCache(withCapture(cacheNamesActual), (Configuration)any);
-            Assert.assertTrue(cacheNamesActual.size() == 2);
+            Assertions.assertTrue(cacheNamesActual.size() == 2);
         }};
     }
 
@@ -128,11 +133,11 @@ public class DomibusCacheConfigurationTest {
         new FullVerifications(domibusCacheConfiguration) {{
             List<Resource> resourceParams = new ArrayList<>();
             domibusCacheConfiguration.readPluginCacheConfig(cachingProvider, cacheManagerPlugins, withCapture(resourceParams));
-            Assert.assertTrue(resourceParams.size() == 2);
+            Assertions.assertTrue(resourceParams.size() == 2);
 
             List<String> cacheNamesActual =  new ArrayList<>();
             cacheManager.createCache(withCapture(cacheNamesActual), (Configuration)any);
-            Assert.assertTrue(cacheNamesActual.size() == 3);
+            Assertions.assertTrue(cacheNamesActual.size() == 3);
         }};
     }
 

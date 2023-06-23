@@ -14,10 +14,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -28,7 +28,7 @@ import java.util.List;
  * @author Ion Perpegel
  * @since 4.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusPropertyResourceTest {
 
     @Tested
@@ -63,7 +63,7 @@ public class DomibusPropertyResourceTest {
 
         DomibusPropertyRO res = domibusPropertyResource.getProperty("propertyName");
 
-        Assert.assertEquals(convertedProp, res);
+        Assertions.assertEquals(convertedProp, res);
     }
 
     @Test
@@ -87,6 +87,6 @@ public class DomibusPropertyResourceTest {
 
         ResponseEntity<String> res = domibusPropertyResource.getCsv(request);
 
-        Assert.assertEquals(HttpStatus.OK, res.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, res.getStatusCode());
     }
 }

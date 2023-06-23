@@ -12,8 +12,8 @@
     </parent>
     <artifactId>domibus-msh-jms-activemq</artifactId>
     <packaging>jar</packaging>
-	<name>Domibus MSH JMS ActiveMQ</name>
- 
+    <name>Domibus MSH JMS ActiveMQ</name>
+
 
     <build>
         <plugins>
@@ -99,8 +99,8 @@
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

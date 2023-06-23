@@ -12,22 +12,23 @@ import eu.domibus.plugin.ws.property.WSPluginPropertyManager;
 import eu.domibus.plugin.ws.message.WSMessageLogDao;
 import eu.domibus.plugin.ws.webservice.deprecated.mapper.WSPluginMessagingMapper;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.xml.ws.Holder;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Cosmin Baciu
  * @since 4.0.2
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 @Deprecated
 public class WebServicePluginImplTest {
 
@@ -63,11 +64,11 @@ public class WebServicePluginImplTest {
     private WSPluginMessagingMapper messagingMapper;
 
 
-    @Test(expected = SubmitMessageFault.class)
-    public void validateSubmitRequestWithPayloadsAndBodyLoad(@Injectable SubmitRequest submitRequest,
-                                                             @Injectable LargePayloadType payload1,
-                                                             @Injectable LargePayloadType payload2,
-                                                             @Injectable LargePayloadType bodyLoad) throws SubmitMessageFault {
+    @Test
+    void validateSubmitRequestWithPayloadsAndBodyLoad(@Injectable SubmitRequest submitRequest,
+                                                      @Injectable LargePayloadType payload1,
+                                                      @Injectable LargePayloadType payload2,
+                                                      @Injectable LargePayloadType bodyLoad) {
         List<LargePayloadType> payloadList = new ArrayList<>();
         payloadList.add(payload1);
         payloadList.add(payload2);
@@ -89,12 +90,12 @@ public class WebServicePluginImplTest {
             result = "null";
         }};
 
-        webServicePlugin.validateSubmitRequest(submitRequest);
+        Assertions.assertThrows(SubmitMessageFault.class, () -> webServicePlugin.validateSubmitRequest(submitRequest));
     }
 
-    @Test(expected = SubmitMessageFault.class)
-    public void validateSubmitRequestWithMissingPayloadIdForPayload(@Injectable SubmitRequest submitRequest,
-                                                                    @Injectable LargePayloadType payload1) throws SubmitMessageFault {
+    @Test
+    void validateSubmitRequestWithMissingPayloadIdForPayload(@Injectable SubmitRequest submitRequest,
+                                                             @Injectable LargePayloadType payload1) throws SubmitMessageFault {
         List<LargePayloadType> payloadList = new ArrayList<>();
         payloadList.add(payload1);
 
@@ -106,12 +107,12 @@ public class WebServicePluginImplTest {
             result = null;
         }};
 
-        webServicePlugin.validateSubmitRequest(submitRequest);
+        Assertions.assertThrows(SubmitMessageFault.class, () -> webServicePlugin.validateSubmitRequest(submitRequest));
     }
 
-    @Test(expected = SubmitMessageFault.class)
-    public void validateSubmitRequestWithPayloadIdAddedForBodyLoad(@Injectable SubmitRequest submitRequest,
-                                                                   @Injectable LargePayloadType bodyLoad) throws SubmitMessageFault {
+    @Test
+    void validateSubmitRequestWithPayloadIdAddedForBodyLoad(@Injectable SubmitRequest submitRequest,
+                                                            @Injectable LargePayloadType bodyLoad) throws SubmitMessageFault {
 
         new Expectations() {{
             submitRequest.getBodyload();
@@ -121,7 +122,7 @@ public class WebServicePluginImplTest {
             result = "cid:message";
         }};
 
-        webServicePlugin.validateSubmitRequest(submitRequest);
+        Assertions.assertThrows(SubmitMessageFault.class, () -> webServicePlugin.validateSubmitRequest(submitRequest));
     }
 
     @Test
@@ -141,7 +142,7 @@ public class WebServicePluginImplTest {
         new Verifications() {{
             String messageId;
             messageExtService.cleanMessageIdentifier(messageId = withCapture());
-            assertEquals("The message identifier should have been cleaned before retrieving the message", "-Dom137-- ", messageId);
+            assertEquals("-Dom137-- ", messageId, "The message identifier should have been cleaned before retrieving the message");
         }};
     }
 
@@ -159,7 +160,7 @@ public class WebServicePluginImplTest {
         new Verifications() {{
             String messageId;
             messageExtService.cleanMessageIdentifier(messageId = withCapture());
-            assertEquals("The message identifier should have been cleaned before retrieving the message", "-Dom137--", messageId);
+            assertEquals("-Dom137--", messageId, "The message identifier should have been cleaned before retrieving the message");
         }};
     }
 
@@ -187,7 +188,8 @@ public class WebServicePluginImplTest {
 
         webServicePlugin.getStatus(statusRequest);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
 }

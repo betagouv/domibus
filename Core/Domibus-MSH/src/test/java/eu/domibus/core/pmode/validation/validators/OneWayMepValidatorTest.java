@@ -3,11 +3,11 @@ package eu.domibus.core.pmode.validation.validators;
 import eu.domibus.api.pmode.ValidationIssue;
 import eu.domibus.common.model.configuration.Binding;
 import eu.domibus.common.model.configuration.Configuration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ion Perpegel

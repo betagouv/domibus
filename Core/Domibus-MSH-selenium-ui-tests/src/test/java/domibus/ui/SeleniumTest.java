@@ -53,7 +53,7 @@ public class SeleniumTest extends BaseTest {
 	public void afterSuite() throws Exception {
 	}
 
-	@BeforeClass(alwaysRun = true)
+	@BeforeAll(alwaysRun = true)
 	public void beforeClass() throws Exception {
 		log.info("--------Initialize test class-------");
 		driver = DriverManager.getDriver();

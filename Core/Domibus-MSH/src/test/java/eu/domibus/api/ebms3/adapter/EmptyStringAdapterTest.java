@@ -2,9 +2,9 @@ package eu.domibus.api.ebms3.adapter;
 
 import eu.domibus.api.ebms3.adapter.EmptyStringAdapter;
 import mockit.Tested;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EmptyStringAdapterTest {
 

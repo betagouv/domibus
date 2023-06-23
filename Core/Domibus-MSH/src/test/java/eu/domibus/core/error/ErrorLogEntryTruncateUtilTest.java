@@ -2,9 +2,9 @@ package eu.domibus.core.error;
 
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Thomas Dussart

@@ -6,21 +6,21 @@ import eu.domibus.ext.services.AuthenticationExtService;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author migueti, Cosmin Baciu
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class AuthenticationInterceptorTest {
 
     @Tested
@@ -31,28 +31,26 @@ public class AuthenticationInterceptorTest {
 
     @Test
     public void testPreHandle(@Injectable final HttpServletRequest httpRequest,
-                              @Injectable final HttpServletResponse httpServletResponse,
-                              @Injectable final Object handler) throws Exception {
+                              @Injectable final HttpServletResponse httpServletResponse) throws Exception {
 
         new Expectations() {{
             authenticationExtService.enforceAuthentication(httpRequest);
         }};
 
-        assertTrue(authenticationInterceptor.preHandle(httpRequest, httpServletResponse, handler));
+        assertTrue(authenticationInterceptor.preHandle(httpRequest, httpServletResponse, new Object()));
     }
 
 
     @Test
     public void testPreHandleWhenExceptionIsRaised(@Injectable final HttpServletRequest httpRequest,
-                              @Injectable final HttpServletResponse httpServletResponse,
-                              @Injectable final Object handler) throws Exception {
+                              @Injectable final HttpServletResponse httpServletResponse) throws Exception {
 
         new Expectations() {{
             authenticationExtService.enforceAuthentication(httpRequest);
             result = new AuthenticationExtException(DomibusErrorCode.DOM_002, "authentication error");
         }};
 
-        assertFalse(authenticationInterceptor.preHandle(httpRequest, httpServletResponse, handler));
+        assertFalse(authenticationInterceptor.preHandle(httpRequest, httpServletResponse, new Object()));
     }
 
 }

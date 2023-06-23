@@ -28,10 +28,10 @@ import eu.domibus.test.common.DomibusMTTestDatasourceConfiguration;
 import eu.domibus.web.spring.DomibusWebConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -41,7 +41,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.SocketUtils;
 import org.w3c.dom.Document;
@@ -74,7 +74,7 @@ import static org.awaitility.Awaitility.with;
  */
 @EnableMethodSecurity
 @WebAppConfiguration
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(initializers = PropertyOverrideContextInitializer.class,
         classes = {DomibusRootConfiguration.class, DomibusWebConfiguration.class,
                 DomibusMTTestDatasourceConfiguration.class, DomibusTestMocksConfiguration.class})
@@ -124,7 +124,7 @@ public abstract class AbstractIT {
 
     public static boolean springContextInitialized = false;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() throws IOException {
         LOG.info(WarningUtil.warnOutput("Initializing Spring context"));
 
@@ -142,7 +142,7 @@ public abstract class AbstractIT {
         LOG.info("activeMQConnectorPort=[{}]", activeMQConnectorPort);
     }
 
-    @Before
+    @BeforeEach
     public void initInstance() {
         domainContextProvider.setCurrentDomain(DomainService.DEFAULT_DOMAIN);
 
@@ -269,7 +269,7 @@ public abstract class AbstractIT {
             transformer.transform(new DOMSource(doc), new StreamResult(writer));
             return writer.getBuffer().toString().replaceAll("\n|\r", "");
         } catch (Exception exc) {
-            Assert.fail(exc.getMessage());
+            Assertions.fail(exc.getMessage());
             exc.printStackTrace();
         }
         return null;

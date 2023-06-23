@@ -9,16 +9,16 @@ import eu.domibus.api.security.X509CertificateService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.proxy.ProxyUtil;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import network.oxalis.vefa.peppol.common.lang.PeppolParsingException;
 import network.oxalis.vefa.peppol.common.model.*;
 import network.oxalis.vefa.peppol.lookup.LookupClient;
 import network.oxalis.vefa.peppol.lookup.locator.BusdoxLocator;
 import network.oxalis.vefa.peppol.mode.Mode;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.ObjectProvider;
 
 import java.net.URI;
@@ -28,8 +28,8 @@ import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Ioana DRAGUSANU
@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNotNull;
  * @since 3.2.5
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
     private static final String RESOURCE_PATH = "src/test/resources/eu/domibus/ebms3/common/dao/DynamicDiscoveryPModeProviderTest/";
@@ -116,23 +116,6 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
     private String transportProfileAS4;
 
-    @Before
-    public void setup() {
-        new NonStrictExpectations() {{
-            domibusCertificateValidators.getObject(any, any, anyString, anyString);
-            result = domibusCertificateValidator;
-
-            busdoxLocators.getObject(anyString);
-            result = busdoxLocator;
-
-            domibusApacheFetchers.getObject(any, proxyUtil, domibusHttpRoutePlanner);
-            result = domibusApacheFetcher;
-
-            endpointInfos.getObject(anyString, any);
-            result = endpointInfo;
-        }};
-    }
-
     @Test
     public void testLookupInformationMock(@Capturing LookupClient smpClient) throws Exception {
         new Expectations() {{
@@ -202,7 +185,7 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
             times = 1;
         }};
         String partyIdType = dynamicDiscoveryServicePEPPOL.getPartyIdType();
-        Assert.assertEquals(partyIdType, URN_TYPE_VALUE);
+        Assertions.assertEquals(partyIdType, URN_TYPE_VALUE);
     }
 
     @Test
@@ -213,11 +196,11 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
             times = 1;
         }};
         String partyIdType = dynamicDiscoveryServicePEPPOL.getPartyIdType();
-        Assert.assertNull(partyIdType);
+        Assertions.assertNull(partyIdType);
     }
 
-    @Test(expected = ConfigurationException.class)
-    public void testLookupInformationNotFound(final @Capturing LookupClient smpClient) throws Exception {
+    @Test
+    void testLookupInformationNotFound(final @Capturing LookupClient smpClient) throws Exception {
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);
             result = TEST_SML_ZONE;
@@ -232,7 +215,9 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
 
         }};
 
-        dynamicDiscoveryServicePEPPOL.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_INVALID_SERVICE_VALUE, TEST_SERVICE_TYPE);
+        Assertions.assertThrows(ConfigurationException.class,
+                () -> dynamicDiscoveryServicePEPPOL.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_INVALID_SERVICE_VALUE, TEST_SERVICE_TYPE))
+        ;
     }
 
 
@@ -296,24 +281,27 @@ public class DynamicDiscoveryEbms3ServicePEPPOLTest {
         }};
     }
 
-    @Test(expected = ConfigurationException.class)
-    public void testSmlZoneEmpty() {
+    @Test
+    void testSmlZoneEmpty() {
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);
             result = "";
             times = 1;
         }};
-        dynamicDiscoveryServicePEPPOL.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
+        Assertions.assertThrows(ConfigurationException.class,
+                () -> dynamicDiscoveryServicePEPPOL.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE))
+        ;
     }
 
-    @Test(expected = ConfigurationException.class)
-    public void testSmlZoneNull()  {
+    @Test
+    void testSmlZoneNull() {
         new Expectations() {{
             domibusPropertyProvider.getProperty(DOMIBUS_SMLZONE);
             result = null;
             times = 1;
         }};
-        dynamicDiscoveryServicePEPPOL.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
+        Assertions.assertThrows(ConfigurationException.class,
+                () -> dynamicDiscoveryServicePEPPOL.lookupInformation(DOMAIN, TEST_RECEIVER_ID, TEST_RECEIVER_ID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE));
     }
 
 }

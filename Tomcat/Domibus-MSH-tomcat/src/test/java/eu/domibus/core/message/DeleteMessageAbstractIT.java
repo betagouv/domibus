@@ -9,8 +9,8 @@ import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.test.common.MessageDBUtil;
 import eu.domibus.test.common.SoapSampleUtil;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
@@ -49,7 +49,7 @@ public abstract class DeleteMessageAbstractIT extends AbstractIT {
     @Autowired
     protected PayloadFileStorageProvider payloadFileStorageProvider;
 
-    @BeforeClass
+    @BeforeAll
     public static void initTablesToExclude() {
         tablesToExclude = new ArrayList<>(Arrays.asList(
                 "TB_EVENT",
@@ -60,7 +60,7 @@ public abstract class DeleteMessageAbstractIT extends AbstractIT {
     }
 
     @Transactional
-    @Before
+    @BeforeEach
     public void before() throws XmlProcessingException, IOException {
         payloadFileStorageProvider.initialize();
     }

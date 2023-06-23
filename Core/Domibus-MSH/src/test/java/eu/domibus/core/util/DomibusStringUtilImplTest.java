@@ -1,19 +1,19 @@
 package eu.domibus.core.util;
 
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Soumya Chandran
  * @since 5.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusStringUtilImplTest {
 
     @Tested
@@ -31,28 +31,28 @@ public class DomibusStringUtilImplTest {
     public void isTrimmedStringLengthLongerThanDefaultMaxLength() {
         String messageId = StringUtils.repeat("X", 256);
 
-        Assert.assertTrue(domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId));
+        Assertions.assertTrue(domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId));
     }
 
     @Test
     public void isTrimmedStringLengthLongerThanDefaultMaxLength_255() {
         String messageId = StringUtils.repeat("X", 255);
 
-        Assert.assertFalse(domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId));
+        Assertions.assertFalse(domibusStringUtil.isTrimmedStringLengthLongerThanDefaultMaxLength(messageId));
     }
 
     @Test
     public void isStringLengthLongerThan1024Chars_Valid() {
         String messageId = StringUtils.repeat("X", 1024);
 
-        Assert.assertFalse(domibusStringUtil.isStringLengthLongerThan1024Chars(messageId));
+        Assertions.assertFalse(domibusStringUtil.isStringLengthLongerThan1024Chars(messageId));
     }
 
     @Test
     public void isStringLengthLongerThan1024Chars() {
         String messageId = StringUtils.repeat("X", 1025);
 
-        Assert.assertTrue(domibusStringUtil.isStringLengthLongerThan1024Chars(messageId));
+        Assertions.assertTrue(domibusStringUtil.isStringLengthLongerThan1024Chars(messageId));
     }
 
     @Test
@@ -60,7 +60,7 @@ public class DomibusStringUtilImplTest {
         String camelCaseString = "messageId";
 
         String unCamelCaseString = domibusStringUtil.unCamelCase(camelCaseString);
-        Assert.assertNotEquals(unCamelCaseString, camelCaseString);
-        Assert.assertEquals(unCamelCaseString, "Message Id");
+        Assertions.assertNotEquals(unCamelCaseString, camelCaseString);
+        Assertions.assertEquals(unCamelCaseString, "Message Id");
     }
 }

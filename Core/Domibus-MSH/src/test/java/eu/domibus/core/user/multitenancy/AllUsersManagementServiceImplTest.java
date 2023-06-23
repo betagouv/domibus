@@ -19,25 +19,26 @@ import eu.domibus.core.user.ui.UserFilteringDao;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager;
-import junit.framework.TestCase;
+
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(JMockit.class)
-public class AllUsersManagementServiceImplTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@ExtendWith(JMockitExtension.class)
+public class AllUsersManagementServiceImplTest {
 
     @Tested
-//    @Mocked
     private AllUsersManagementServiceImpl allUsersManagementService;
 
     @Injectable

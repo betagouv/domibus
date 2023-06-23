@@ -8,14 +8,14 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 
 import static eu.domibus.common.ErrorCode.EBMS_0001;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestMessageValidatorTest {
     String pmodeKey = "pmodeKey";
@@ -33,8 +33,8 @@ public class TestMessageValidatorTest {
     public void testCheckTestMessage_false() {
         UserMessage userMessage = createSampleUserMessage();
 
-        Assert.assertFalse("Expecting false for test message as valid data message is supplied ",
-                testMessageValidator.checkTestMessage(userMessage));
+        Assertions.assertFalse(testMessageValidator.checkTestMessage(userMessage),
+                "Expecting false for test message as valid data message is supplied ");
     }
 
     @Test
@@ -44,8 +44,8 @@ public class TestMessageValidatorTest {
         userMessage.getService().setValue(Ebms3Constants.TEST_SERVICE);
         userMessage.getAction().setValue(Ebms3Constants.TEST_ACTION);
 
-        Assert.assertTrue("Expecting true for Check Test Message with modified data",
-                testMessageValidator.checkTestMessage(userMessage));
+        Assertions.assertTrue(testMessageValidator.checkTestMessage(userMessage),
+                "Expecting true for Check Test Message with modified data");
     }
 
     @Test

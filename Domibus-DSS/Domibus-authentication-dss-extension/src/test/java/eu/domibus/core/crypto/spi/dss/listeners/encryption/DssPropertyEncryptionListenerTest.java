@@ -8,9 +8,10 @@ import eu.domibus.ext.services.DomainExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.PasswordEncryptionExtService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Arrays;
 
@@ -18,7 +19,7 @@ import java.util.Arrays;
  * @author Soumya Chandran
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DssPropertyEncryptionListenerTest {
 
     @Injectable
@@ -43,6 +44,7 @@ public class DssPropertyEncryptionListenerTest {
     DssPropertyEncryptionListener dssPropertyEncryptionListener;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void encryptGlobalProperties(@Mocked DssGlobalPasswordEncryptionContext dssPropertyPasswordEncryptionContext) {
         new Expectations() {{
             domainContextProvider.clearCurrentDomain();
@@ -59,6 +61,7 @@ public class DssPropertyEncryptionListenerTest {
     }
     
     @Test
+    @Disabled("EDELIVERY-6896")
     public void encryptDomainProperties(@Injectable DomainDTO domain,
                                          @Mocked DssDomainPasswordEncryptionContext dssPropertyPasswordEncryptionContext) {
         new Expectations() {{

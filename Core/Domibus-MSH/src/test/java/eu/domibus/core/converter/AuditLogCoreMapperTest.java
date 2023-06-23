@@ -7,7 +7,7 @@ import eu.domibus.core.audit.model.Audit;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.web.rest.ro.AuditResponseRo;
 import eu.domibus.web.rest.ro.ErrorLogRO;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

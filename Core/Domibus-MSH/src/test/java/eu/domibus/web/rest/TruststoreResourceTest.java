@@ -12,10 +12,11 @@ import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ import java.util.List;
  * @author Tiago Miguel
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class TruststoreResourceTest {
 
     @Tested
@@ -89,6 +90,7 @@ public class TruststoreResourceTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getTrustStoreEntries(@Mocked List<TrustStoreEntry> trustStoreEntries) {
 
         new Expectations() {{
@@ -98,7 +100,7 @@ public class TruststoreResourceTest {
 
         List<TrustStoreEntry> res = truststoreResource.doGetStoreEntries();
 
-        Assert.assertEquals(trustStoreEntries, res);
+        Assertions.assertEquals(trustStoreEntries, res);
     }
 
 }

@@ -1,5 +1,6 @@
 package eu.domibus.plugin.ws.webservice;
 
+import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import eu.domibus.core.message.retention.MessageRetentionDefaultService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ws.AbstractBackendWSIT;
@@ -7,17 +8,17 @@ import eu.domibus.plugin.ws.generated.SubmitMessageFault;
 import eu.domibus.plugin.ws.generated.body.SubmitRequest;
 import eu.domibus.plugin.ws.generated.body.SubmitResponse;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author venugar
@@ -28,9 +29,9 @@ public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
     @Autowired
     MessageRetentionDefaultService messageRetentionService;
 
-    @Before
-    public void updatePMode() throws IOException, XmlProcessingException {
-        uploadPmode(wireMockRule.port());
+    @BeforeEach
+    public void updatePMode(WireMockRuntimeInfo wmRuntimeInfo) throws IOException, XmlProcessingException {
+        uploadPmode(wmRuntimeInfo.getHttpPort());
     }
 
     /**
@@ -38,7 +39,7 @@ public class SubmitMessageCaseInsensitiveIT extends AbstractBackendWSIT {
      * The message components should be case insensitive from the PMode data
      *
      */
-    @Ignore("will be fixed by EDELIVERY-11139") //TODO
+    @Disabled("will be fixed by EDELIVERY-11139") //TODO
     @Test
     public void testSubmitMessageOK() throws SubmitMessageFault {
         String payloadHref = "cid:message";

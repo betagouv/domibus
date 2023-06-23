@@ -9,10 +9,10 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.xml.sax.SAXException;
 
 import javax.xml.bind.JAXBContext;
@@ -21,13 +21,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
  * Created by Cosmin Baciu on 14-Sep-16.
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class XMLUtilImplTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(XMLUtilImplTest.class);

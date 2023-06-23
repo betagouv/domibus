@@ -10,9 +10,9 @@ import eu.domibus.core.pmode.provider.CachingPModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.RandomUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author François Gautier
@@ -35,7 +35,7 @@ public class DynamicDiscoveryPModeProviderIT {
 
     private final CachingPModeProvider cachingPModeProvider = new CachingPModeProvider(DomainService.DEFAULT_DOMAIN);
 
-    @Before
+    @BeforeEach
     public void setUp() {
         ReflectionTestUtils.setField(cachingPModeProvider, "configuration", getConfiguration());
     }
@@ -142,11 +142,11 @@ public class DynamicDiscoveryPModeProviderIT {
         do {
             try {
                 cachingPModeProvider.findPartyName(partyId);
-                Assert.fail("Exception expected");
+                Assertions.fail("Exception expected");
             } catch (Exception e) {
                 LOG.error("exception thrown", e);
-                Assert.assertTrue(e instanceof EbMS3Exception);
-                Assert.assertTrue(e.getMessage().contains("No matching party found"));
+                Assertions.assertTrue(e instanceof EbMS3Exception);
+                Assertions.assertTrue(e.getMessage().contains("No matching party found"));
             }
         } while (executorUpdate.isTerminated());
     }

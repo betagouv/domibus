@@ -3,6 +3,7 @@ package eu.domibus.core.message;
 import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.*;
+import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.pmode.PModeServiceHelper;
 import eu.domibus.api.pmode.domain.LegConfiguration;
@@ -14,10 +15,10 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.quartz.SchedulerException;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -27,13 +28,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Soumya
  * @since 4.2.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserMessageDefaultRestoreServiceTest {
 
     @Tested
@@ -112,7 +113,7 @@ public class UserMessageDefaultRestoreServiceTest {
         }};
 
         final Integer maxAttemptsConfiguration = restoreService.getMaxAttemptsConfiguration(messageEntityId);
-        Assert.assertSame(maxAttemptsConfiguration, pModeMaxAttempts);
+        Assertions.assertSame(maxAttemptsConfiguration, pModeMaxAttempts);
     }
 
     @Test
@@ -133,7 +134,7 @@ public class UserMessageDefaultRestoreServiceTest {
         assertEquals(11, (int) maxAttemptsConfiguration);
     }
 
-    @Test(expected = UserMessageException.class)
+    @Test
     public void testRestoreMessageWhenMessageIsDeleted(@Injectable final UserMessageLog userMessageLog) {
         final String messageId = "1";
 
@@ -145,8 +146,8 @@ public class UserMessageDefaultRestoreServiceTest {
             result = MessageStatus.DELETED;
 
         }};
-
-        restoreService.restoreFailedMessage(messageId);
+        Assertions.assertThrows(UserMessageException.class,
+                () -> restoreService.restoreFailedMessage(messageId));
     }
 
     @Test
@@ -256,9 +257,9 @@ public class UserMessageDefaultRestoreServiceTest {
         try {
             //tested method
             restoreService.resendFailedOrSendEnqueuedMessage(messageId);
-            Assert.fail("Exception expected");
+            Assertions.fail("Exception expected");
         } catch (Exception e) {
-            Assert.assertEquals(MessageNotFoundException.class, e.getClass());
+            Assertions.assertEquals(MessageNotFoundException.class, e.getClass());
         }
 
         new FullVerifications() {
@@ -283,10 +284,10 @@ public class UserMessageDefaultRestoreServiceTest {
         new FullVerifications(userMessageDefaultService) {{
             String messageIdActual;
             userMessageDefaultService.sendEnqueuedMessage(messageIdActual = withCapture()); //method tested in UserMessageDefaultServiceTest.test_sendEnqueued
-            Assert.assertEquals(messageId, messageIdActual);
+            Assertions.assertEquals(messageId, messageIdActual);
 
             auditService.addMessageResentAudit(messageIdActual = withCapture());
-            Assert.assertEquals(messageId, messageIdActual);
+            Assertions.assertEquals(messageId, messageIdActual);
         }};
     }
 

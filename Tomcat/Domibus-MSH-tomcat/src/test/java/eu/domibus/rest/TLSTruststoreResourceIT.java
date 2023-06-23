@@ -8,6 +8,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
+import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.MultiPartFileUtil;
@@ -20,9 +21,9 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.TLSTruststoreResource;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
@@ -85,7 +86,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
 
     protected RestUtilBase restUtil;
 
-    @Before
+    @BeforeEach
     public void before() {
         mockMvc = MockMvcBuilders.standaloneSetup(tlsTruststoreResource).build();
         resetInitalTruststore();
@@ -97,14 +98,14 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         List<TrustStoreRO> trustStoreROS = tlsTruststoreResource.getTLSTruststoreEntries();
 
         for (TrustStoreRO trustStoreRO : trustStoreROS) {
-            Assert.assertNotNull("Certificate name should be populated in TrustStoreRO:", trustStoreRO.getName());
-            Assert.assertNotNull("Certificate subject should be populated in TrustStoreRO:", trustStoreRO.getSubject());
-            Assert.assertNotNull("Certificate issuer should be populated in TrustStoreRO:", trustStoreRO.getIssuer());
-            Assert.assertNotNull("Certificate validity from should be populated in TrustStoreRO:", trustStoreRO.getValidFrom());
-            Assert.assertNotNull("Certificate validity until should be populated in TrustStoreRO:", trustStoreRO.getValidUntil());
-            Assert.assertNotNull("Certificate fingerprints should be populated in TrustStoreRO:", trustStoreRO.getFingerprints());
-            Assert.assertNotNull("Certificate imminent expiry alert days should be populated in TrustStoreRO:", trustStoreRO.getCertificateExpiryAlertDays());
-            Assert.assertEquals("Certificate imminent expiry alert days should be populated in TrustStoreRO:", 60, trustStoreRO.getCertificateExpiryAlertDays());
+            Assertions.assertNotNull(trustStoreRO.getName(), "Certificate name should be populated in TrustStoreRO:");
+            Assertions.assertNotNull(trustStoreRO.getSubject(), "Certificate subject should be populated in TrustStoreRO:");
+            Assertions.assertNotNull(trustStoreRO.getIssuer(), "Certificate issuer should be populated in TrustStoreRO:");
+            Assertions.assertNotNull(trustStoreRO.getValidFrom(), "Certificate validity from should be populated in TrustStoreRO:");
+            Assertions.assertNotNull(trustStoreRO.getValidUntil(), "Certificate validity until should be populated in TrustStoreRO:");
+            Assertions.assertNotNull(trustStoreRO.getFingerprints(), "Certificate fingerprints should be populated in TrustStoreRO:");
+            Assertions.assertNotNull(trustStoreRO.getCertificateExpiryAlertDays(), "Certificate imminent expiry alert days should be populated in TrustStoreRO:");
+            Assertions.assertEquals(60, trustStoreRO.getCertificateExpiryAlertDays(), "Certificate imminent expiry alert days should be populated in TrustStoreRO:");
         }
     }
 
@@ -115,9 +116,9 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         MockMultipartFile truststoreFile = new MockMultipartFile("file", filename, "octetstream", content);
         try {
             tlsTruststoreResource.uploadTLSTruststoreFile(truststoreFile, "");
-            Assert.fail();
+            Assertions.fail();
         } catch (RequestValidationException ex) {
-            Assert.assertEquals("[DOM_001]:Failed to upload the truststoreFile file since its password was empty.", ex.getMessage());
+            Assertions.assertEquals("[DOM_001]:Failed to upload the truststoreFile file since its password was empty.", ex.getMessage());
         }
     }
 
@@ -128,9 +129,9 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         MockMultipartFile truststoreFile = new MockMultipartFile("file", filename, "octetstream", content);
         try {
             tlsTruststoreResource.uploadTLSTruststoreFile(truststoreFile, "test123");
-            Assert.fail();
+            Assertions.fail();
         } catch (CryptoException ex) {
-            Assert.assertTrue(ex.getMessage().contains("[DOM_001]:Error while replacing the store [TLS.truststore] with content of the file named [file.jks]."));
+            Assertions.assertTrue(ex.getMessage().contains("[DOM_001]:Error while replacing the store [TLS.truststore] with content of the file named [file.jks]."));
         }
     }
 
@@ -145,7 +146,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
 
             List<TrustStoreRO> newEntries = tlsTruststoreResource.getTLSTruststoreEntries();
 
-            Assert.assertNotEquals(entries.size(), newEntries.size());
+            Assertions.assertNotEquals(entries.size(), newEntries.size());
         }
     }
 
@@ -156,9 +157,9 @@ public class TLSTruststoreResourceIT extends AbstractIT {
                     "octetstream", IOUtils.toByteArray(resourceAsStream));
             try {
                 tlsTruststoreResource.uploadTLSTruststoreFile(multiPartFile, "test123");
-                Assert.fail();
+                Assertions.fail();
             } catch (CryptoException ex) {
-                Assert.assertTrue(ex.getMessage().contains("[DOM_001]:Current store [TLS.truststore] was not replaced with the content of the file [gateway_truststore.jks] because they are identical."));
+                Assertions.assertTrue(ex.getMessage().contains("[DOM_001]:Current store [TLS.truststore] was not replaced with the content of the file [gateway_truststore.jks] because they are identical."));
             }
         }
     }
@@ -166,7 +167,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
     @Test()
     public void downloadTrust() {
         ResponseEntity<ByteArrayResource> res = tlsTruststoreResource.downloadTLSTrustStore();
-        Assert.assertEquals(HttpStatus.OK, res.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, res.getStatusCode());
     }
 
     @Test
@@ -178,7 +179,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         MvcResult result;
         result = uploadTrustStore("keystores/gateway_truststore2.jks", "gateway_truststore2.jks");
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals("TLS truststore file has been successfully replaced.", content);
+        Assertions.assertEquals("TLS truststore file has been successfully replaced.", content);
     }
 
     private static String getAliases(KeyStore keystore) throws KeyStoreException {
@@ -227,17 +228,17 @@ public class TLSTruststoreResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        Assert.assertNotNull(content);
+        Assertions.assertNotNull(content);
     }
 
-    @Test(expected = DomibusCertificateException.class)
-    public void addTLSCertificateWithSecurityProfiles() {
-        addTLSCertificate(true);
+    @Test
+    void addTLSCertificateWithSecurityProfiles() {
+        Assertions.assertThrows(DomibusCertificateException.class, () -> addTLSCertificate(true));
     }
 
-    @Test(expected = DomibusCertificateException.class)
-    public void addTLSCertificateWithoutSecurityProfiles() {
-        addTLSCertificate(false);
+    @Test
+    void addTLSCertificateWithoutSecurityProfiles() {
+        Assertions.assertThrows(DomibusCertificateException.class, () -> addTLSCertificate(false));
     }
 
     protected void addTLSCertificate(boolean areSecurityProfilesUsed) {
@@ -263,7 +264,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
 
         //then
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully added to the [TLS.truststore].", content);
+        Assertions.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully added to the [TLS.truststore].", content);
     }
 
     @Test
@@ -274,24 +275,24 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         uploadTrustStore("keystores/default.jks", "default.jks");
         MvcResult result = restUtil.addCertificateToStore(TEST_ENDPOINT_ADD_WITH_SECURITY_PROFILES);
         String content = result.getResponse().getContentAsString();
-        Assert.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully added to the [TLS.truststore].", content);
+        Assertions.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully added to the [TLS.truststore].", content);
 
         //when
         result = restUtil.deleteCertificateFromStore(TEST_ENDPOINT_DELETE_WITH_SECURITY_PROFILES);
 
         //then
         content = result.getResponse().getContentAsString();
-        Assert.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully removed from the [TLS.truststore].", content);
+        Assertions.assertEquals("Certificate [red_gw_rsa_decrypt] has been successfully removed from the [TLS.truststore].", content);
     }
 
-    @Test(expected = DomibusCertificateException.class)
-    public void removeTLSCertificateWithSecurityProfiles() {
-        removeTLSCertificate(true);
+    @Test
+    void removeTLSCertificateWithSecurityProfiles() {
+        Assertions.assertThrows(DomibusCertificateException.class, () -> removeTLSCertificate(true));
     }
 
-    @Test(expected = DomibusCertificateException.class)
-    public void removeTLSCertificateWithoutSecurityProfiles() {
-        removeTLSCertificate(false);
+    @Test
+    void removeTLSCertificateWithoutSecurityProfiles() {
+        Assertions.assertThrows(DomibusCertificateException.class, () -> removeTLSCertificate(false));
     }
 
     public void removeTLSCertificate(boolean areSecurityProfilesUsed) {

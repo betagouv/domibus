@@ -1,17 +1,14 @@
 package eu.domibus.plugin.fs.property;
 
-import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyException;
-import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.property.DefaultDomibusConfigurationService;
 import eu.domibus.core.property.PropertyChangeManager;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.test.AbstractIT;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -23,7 +20,6 @@ import java.util.List;
 
 import static eu.domibus.core.property.PropertyChangeManager.PROPERTY_VALUE_DELIMITER;
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.DOMAIN_ENABLED;
-import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.LOCATION;
 
 /**
  * @author Ion Perpegel
@@ -65,8 +61,8 @@ public class FSPluginPropertiesWriteIT extends AbstractIT {
         String value1 = fsPluginProperties.getKnownPropertyValue(domainDefault, propertyName1);
         String value2 = fsPluginProperties.getKnownPropertyValue(domainDefault, propertyName2);
 
-        Assert.assertEquals(oldPropertyValue1, value1);
-        Assert.assertEquals(oldPropertyValue2, value2);
+        Assertions.assertEquals(oldPropertyValue1, value1);
+        Assertions.assertEquals(oldPropertyValue2, value2);
 
         // test set value
         fsPluginProperties.setKnownPropertyValue(domainDefault, propertyName1, newPropertyValue1, false);
@@ -78,10 +74,10 @@ public class FSPluginPropertiesWriteIT extends AbstractIT {
         String persistedPropertyName1 = findPropertyInFile(domain.getCode() + "." + propertyName1, propertyFile);
         String persistedPropertyName2 = findPropertyInFile(domain.getCode() + "." + propertyName2, propertyFile);
 
-        Assert.assertEquals(persistedPropertyName1, value1);
-        Assert.assertEquals(persistedPropertyName2, value2);
-        Assert.assertEquals(newPropertyValue1, value1);
-        Assert.assertEquals(newPropertyValue2, value2);
+        Assertions.assertEquals(persistedPropertyName1, value1);
+        Assertions.assertEquals(persistedPropertyName2, value2);
+        Assertions.assertEquals(newPropertyValue1, value1);
+        Assertions.assertEquals(newPropertyValue2, value2);
 
         // reset context
         fsPluginProperties.setKnownPropertyValue(domainDefault, propertyName1, oldPropertyValue1, false);
@@ -109,9 +105,9 @@ public class FSPluginPropertiesWriteIT extends AbstractIT {
     public void testDisableDomain() {
         try {
             fsPluginProperties.setKnownPropertyValue(DOMAIN_ENABLED, "false");
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusPropertyException ex) {
-            Assert.assertEquals("Cannot disable the plugin [backendFSPlugin] on domain [default] because there won't remain any enabled plugins.",
+            Assertions.assertEquals("Cannot disable the plugin [backendFSPlugin] on domain [default] because there won't remain any enabled plugins.",
                     ex.getCause().getMessage());
         }
     }

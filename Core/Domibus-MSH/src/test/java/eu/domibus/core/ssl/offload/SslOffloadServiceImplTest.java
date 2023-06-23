@@ -4,11 +4,11 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.transport.http.Address;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.net.URL;
 
@@ -18,7 +18,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Sebastian-Ion TINCU
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class SslOffloadServiceImplTest {
 
     @Injectable
@@ -33,7 +33,7 @@ public class SslOffloadServiceImplTest {
         boolean sslOffloadEnabled = sslOffloadService.isSslOffloadEnabled(null);
 
         // THEN
-        Assert.assertFalse("Should have returned false if passing null when checking whether the SSL offload is enabled or not", sslOffloadEnabled);
+        Assertions.assertFalse(sslOffloadEnabled, "Should have returned false if passing null when checking whether the SSL offload is enabled or not");
     }
 
     @Test
@@ -45,7 +45,7 @@ public class SslOffloadServiceImplTest {
         boolean sslOffloadEnabled = sslOffloadService.isSslOffloadEnabled(unsecureUrl);
 
         // THEN
-        Assert.assertFalse("Should have returned false if passing an HTTP URL when checking whether the SSL offload is enabled or not", sslOffloadEnabled);
+        Assertions.assertFalse(sslOffloadEnabled, "Should have returned false if passing an HTTP URL when checking whether the SSL offload is enabled or not");
     }
 
     @Test
@@ -61,7 +61,7 @@ public class SslOffloadServiceImplTest {
         boolean sslOffloadEnabled = sslOffloadService.isSslOffloadEnabled(secureUrl);
 
         // THEN
-        Assert.assertFalse("Should have returned false if the SSL Domibus property is off (even if passing an HTTPS URL) when checking whether the SSL offload is enabled or not", sslOffloadEnabled);
+        Assertions.assertFalse(sslOffloadEnabled, "Should have returned false if the SSL Domibus property is off (even if passing an HTTPS URL) when checking whether the SSL offload is enabled or not");
     }
 
     @Test
@@ -77,7 +77,7 @@ public class SslOffloadServiceImplTest {
         boolean sslOffloadEnabled = sslOffloadService.isSslOffloadEnabled(secureUrl);
 
         // THEN
-        Assert.assertTrue("Should have returned true if the SSL Domibus property is on and if passing an HTTPS URL when checking whether the SSL offload is enabled or not", sslOffloadEnabled);
+        Assertions.assertTrue(sslOffloadEnabled, "Should have returned true if the SSL Domibus property is on and if passing an HTTPS URL when checking whether the SSL offload is enabled or not");
     }
 
     @Test
@@ -89,7 +89,7 @@ public class SslOffloadServiceImplTest {
         Address result = sslOffloadService.offload(secureAddress);
 
         // THEN
-        Assert.assertNotSame("Should have replaced the address when offloading", secureAddress, result);
+        Assertions.assertNotSame(secureAddress, result, "Should have replaced the address when offloading");
     }
 
     @Test
@@ -101,7 +101,7 @@ public class SslOffloadServiceImplTest {
         Address result = sslOffloadService.offload(secureAddress);
 
         // THEN
-        Assert.assertEquals("Should have switched the address URL to HTTP when offloading", "http://ec.europa.eu", result.getString());
+        Assertions.assertEquals("http://ec.europa.eu", result.getString(), "Should have switched the address URL to HTTP when offloading");
     }
 
     @Test
@@ -113,7 +113,7 @@ public class SslOffloadServiceImplTest {
         Address result = sslOffloadService.offload(secureAddress);
 
         // THEN
-        Assert.assertEquals("Should have reverted the address URL protocol back to HTTPS", "https", result.getURL().getProtocol());
+        Assertions.assertEquals("https", result.getURL().getProtocol(), "Should have reverted the address URL protocol back to HTTPS");
     }
 
 }

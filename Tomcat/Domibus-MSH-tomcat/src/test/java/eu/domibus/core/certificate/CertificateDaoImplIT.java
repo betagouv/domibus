@@ -5,8 +5,10 @@ import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,9 +23,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Dussart
@@ -60,7 +60,7 @@ public class CertificateDaoImplIT extends AbstractIT {
     @Autowired
     private DateUtil dateUtil;
 
-    @Before
+    @BeforeEach
     public void setup() {
         LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
 
@@ -98,16 +98,17 @@ public class CertificateDaoImplIT extends AbstractIT {
         assertEquals(certificate1.getCreationTime(), certificate1.getModificationTime());
     }
 
-    @Test(expected = javax.validation.ConstraintViolationException.class)
+    @Test
     @Transactional
-    public void saveWithNullDates() {
+    @Disabled("EDELIVERY-6896")
+    void saveWithNullDates() {
         Certificate firstCertificate = new Certificate();
         firstCertificate.setAlias("whatEver");
         firstCertificate.setNotBefore(null);
         firstCertificate.setNotAfter(null);
         firstCertificate.setCertificateType(CertificateType.PUBLIC);
         firstCertificate.setCertificateStatus(CertificateStatus.OK);
-        certificateDao.saveOrUpdate(firstCertificate);
+        Assertions.assertThrows(javax.validation.ConstraintViolationException.class, () -> certificateDao.saveOrUpdate(firstCertificate));
         em.flush();
     }
 

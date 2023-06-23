@@ -1,9 +1,9 @@
 package eu.domibus.core.message;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static eu.domibus.api.pmode.PModeConstants.PMODEKEY_SEPARATOR;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Thomas Dussart
  * @since 3.3

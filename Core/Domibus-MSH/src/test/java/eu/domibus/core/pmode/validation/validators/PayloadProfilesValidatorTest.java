@@ -9,9 +9,9 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.*;
 
@@ -19,7 +19,7 @@ import java.util.*;
  * @author Catalin Enache
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PayloadProfilesValidatorTest {
 
     @Tested
@@ -30,8 +30,7 @@ public class PayloadProfilesValidatorTest {
 
     @Test
     public void test_validate(final @Injectable Configuration configuration,
-                              final @Injectable PayloadProfile payloadProfile,
-                              final @Injectable Set<Payload> validPayloads) {
+                              final @Injectable PayloadProfile payloadProfile) {
 
 
         final Set<PayloadProfile> payloadProfileList = Collections.singleton(payloadProfile);
@@ -41,21 +40,20 @@ public class PayloadProfilesValidatorTest {
             result = payloadProfileList;
 
             configuration.getBusinessProcesses().getPayloads();
-            result = validPayloads;
+            result = new HashSet<>();
         }};
 
 
         payloadProfilesValidator.validate(configuration);
 
         new FullVerifications() {{
-            payloadProfilesValidator.validatePayloadProfile(payloadProfile, validPayloads);
+            payloadProfilesValidator.validatePayloadProfile(payloadProfile, (Set<Payload>) any);
         }};
     }
 
     @Test
     public void test_validateEmptyPayloadProfile(final @Injectable Configuration configuration,
-                                                 final @Injectable PayloadProfile payloadProfile,
-                                                 final @Injectable Set<Payload> validPayloads) {
+                                                 final @Injectable PayloadProfile payloadProfile) {
 
 
         new Expectations(payloadProfilesValidator) {{
@@ -63,7 +61,7 @@ public class PayloadProfilesValidatorTest {
             result = null;
 
             configuration.getBusinessProcesses().getPayloads();
-            result = validPayloads;
+            result = new HashSet<>();
         }};
 
 
@@ -74,8 +72,7 @@ public class PayloadProfilesValidatorTest {
     }
 
     @Test
-    public void test_validatePayloadProfile(final @Injectable PayloadProfile payloadProfile,
-                                            final @Injectable Set<Payload> validPayloads) {
+    public void test_validatePayloadProfile(final @Injectable PayloadProfile payloadProfile) {
         final List<Attachment> attachmentList = new ArrayList<>();
 
         new Expectations() {{
@@ -86,7 +83,7 @@ public class PayloadProfilesValidatorTest {
             result = 400;
         }};
 
-        payloadProfilesValidator.validatePayloadProfile(payloadProfile, validPayloads);
+        payloadProfilesValidator.validatePayloadProfile(payloadProfile, new HashSet<>());
 
         new FullVerifications() {{
         }};

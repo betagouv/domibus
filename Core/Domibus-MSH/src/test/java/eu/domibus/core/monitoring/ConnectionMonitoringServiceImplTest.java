@@ -12,10 +12,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -28,7 +28,7 @@ import java.util.Map;
  * @since 4.2
  */
 @Service
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class ConnectionMonitoringServiceImplTest {
 
     @Tested
@@ -132,15 +132,15 @@ public class ConnectionMonitoringServiceImplTest {
         Map<String, ConnectionMonitorRO> result = connectionMonitoringService.getConnectionStatus(senderPartyId, partyIds);
 
         // Then
-        Assert.assertEquals(result.size(), 2);
+        Assertions.assertEquals(result.size(), 2);
 
-        Assert.assertEquals(result.get(partyId1).isTestable(), true);
-        Assert.assertEquals(result.get(partyId1).isMonitored(), true);
-        Assert.assertEquals(result.get(partyId1).getStatus(), ConnectionMonitorRO.ConnectionStatus.OK);
+        Assertions.assertEquals(result.get(partyId1).isTestable(), true);
+        Assertions.assertEquals(result.get(partyId1).isMonitored(), true);
+        Assertions.assertEquals(result.get(partyId1).getStatus(), ConnectionMonitorRO.ConnectionStatus.OK);
 
-        Assert.assertEquals(result.get(partyId2).isTestable(), true);
-        Assert.assertEquals(result.get(partyId2).isMonitored(), false);
-        Assert.assertEquals(result.get(partyId2).getStatus(), ConnectionMonitorRO.ConnectionStatus.BROKEN);
+        Assertions.assertEquals(result.get(partyId2).isTestable(), true);
+        Assertions.assertEquals(result.get(partyId2).isMonitored(), false);
+        Assertions.assertEquals(result.get(partyId2).getStatus(), ConnectionMonitorRO.ConnectionStatus.BROKEN);
 
     }
 

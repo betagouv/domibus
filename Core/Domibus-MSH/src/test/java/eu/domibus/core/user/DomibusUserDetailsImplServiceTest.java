@@ -14,9 +14,10 @@ import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -25,14 +26,14 @@ import java.util.Collections;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_POLICY_CHECK_DEFAULT_PASSWORD;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Thomas Dussart
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusUserDetailsImplServiceTest {
 
     @Injectable
@@ -178,14 +179,14 @@ public class DomibusUserDetailsImplServiceTest {
         assertEquals(Collections.singleton("red"), admin.getAvailableDomainCodes());
     }
 
-    @Test(expected = UsernameNotFoundException.class)
-    public void testUserNotFound() {
+    @Test
+    void testUserNotFound() {
         new Expectations() {{
             userDao.loadActiveUserByUsername("adminNotInThere");
             result = null;
         }};
 
-        userDetailService.loadUserByUsername("adminNotInThere");
+        Assertions.assertThrows(UsernameNotFoundException. class,() -> userDetailService.loadUserByUsername("adminNotInThere"));
     }
 
 }

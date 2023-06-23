@@ -11,20 +11,21 @@ import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import eu.domibus.core.util.SoapUtil;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.InputStream;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ion Perpegel
  * @since 5.0
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class NonRepudiationDefaultServiceTest {
 
     @Tested
@@ -55,7 +56,7 @@ public class NonRepudiationDefaultServiceTest {
     private UserMessageDao userMessageDao;
 
 
-    @Test(expected = MessageNotFoundException.class)
+    @Test
     public void getUserMessageEnvelope_noMessage() {
         String messageId = "msgid";
         new Expectations(nonRepudiationService) {{
@@ -63,7 +64,8 @@ public class NonRepudiationDefaultServiceTest {
             result = new MessageNotFoundException(messageId);
         }};
 
-        nonRepudiationService.getUserMessageEnvelope(messageId, MSHRole.SENDING);
+        Assertions.assertThrows(MessageNotFoundException.class,
+                () -> nonRepudiationService.getUserMessageEnvelope(messageId, MSHRole.SENDING));
 
     }
 

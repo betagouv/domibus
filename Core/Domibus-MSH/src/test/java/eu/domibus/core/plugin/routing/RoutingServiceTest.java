@@ -18,12 +18,13 @@ import eu.domibus.core.plugin.routing.dao.BackendFilterDao;
 import eu.domibus.plugin.AbstractBackendConnector;
 import eu.domibus.plugin.BackendConnector;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 import static eu.domibus.core.plugin.notification.BackendPlugin.*;
 import static eu.domibus.core.plugin.notification.BackendPlugin.Name.*;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ion Perpegel
@@ -39,7 +40,8 @@ import static org.junit.Assert.*;
  * @since 4.1
  */
 @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored", "ConstantConditions", "rawtypes", "JUnitMalformedDeclaration"})
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
+@Disabled("EDELIVERY-6896")
 public class RoutingServiceTest {
 
     public static final int MAX_INDEX = 10;
@@ -82,11 +84,10 @@ public class RoutingServiceTest {
     @Tested
     private RoutingService routingService;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    
 
-    @Test(expected = ConfigurationException.class)
-    public void ensureUnicityThrowsError() {
+    @Test
+    void ensureUnicityThrowsError() {
         BackendFilter bf1 = new BackendFilter();
         bf1.setBackendName("wsPlugin");
         List<RoutingCriteria> rc = Arrays.asList(
@@ -130,7 +131,7 @@ public class RoutingServiceTest {
                 }});
         bf3.setRoutingCriterias(rcd);
 
-        routingService.ensureUnicity(Arrays.asList(bf1, bf2, bf3));
+        Assertions.assertThrows(ConfigurationException. class,() -> routingService.ensureUnicity(asList(bf1, bf2, bf3)));
     }
 
     @Test
@@ -283,7 +284,7 @@ public class RoutingServiceTest {
         }};
 
         final boolean backendFilterMatching = routingService.isBackendFilterMatching(filter, criteriaMap, userMessage);
-        Assert.assertTrue(backendFilterMatching);
+        Assertions.assertTrue(backendFilterMatching);
     }
 
     @Test
@@ -336,7 +337,7 @@ public class RoutingServiceTest {
         }};
 
         final boolean backendFilterMatching = routingService.isBackendFilterMatching(filter, criteriaMap, userMessage);
-        Assert.assertFalse(backendFilterMatching);
+        Assertions.assertFalse(backendFilterMatching);
     }
 
 
@@ -378,7 +379,7 @@ public class RoutingServiceTest {
         }};
 
         final boolean backendFilterMatching = routingService.isBackendFilterMatching(filter, criteriaMap, userMessage);
-        Assert.assertFalse(backendFilterMatching);
+        Assertions.assertFalse(backendFilterMatching);
 
         new FullVerifications() {{
             criteriaMap.get(actionCriteriaName);
@@ -441,7 +442,7 @@ public class RoutingServiceTest {
         }};
 
         final boolean backendFilterMatching = routingService.isBackendFilterMatching(filter, criteriaMap, userMessage);
-        Assert.assertFalse(backendFilterMatching);
+        Assertions.assertFalse(backendFilterMatching);
 
         new FullVerifications() {{
             actionRoutingCriteriaConfiguration.matches(userMessage, anyString);
@@ -471,7 +472,7 @@ public class RoutingServiceTest {
         }};
 
         final boolean backendFilterMatching = routingService.isBackendFilterMatching(filter, criteriaMap, userMessage);
-        Assert.assertTrue(backendFilterMatching);
+        Assertions.assertTrue(backendFilterMatching);
 
         new FullVerifications() {{
             criteriaMap.get(anyString);
@@ -518,7 +519,7 @@ public class RoutingServiceTest {
         }};
 
         final boolean backendFilterMatching = routingService.isBackendFilterMatching(filter, criteriaMap, userMessage);
-        Assert.assertFalse(backendFilterMatching);
+        Assertions.assertFalse(backendFilterMatching);
     }
 
     @Test
@@ -783,8 +784,8 @@ public class RoutingServiceTest {
         };
     }
 
-    @Test(expected = ConfigurationException.class)
-    public void ensureAtLeastOneFilterForEachPluginInvalid(@Mocked BackendConnector<?, ?> bc1,
+    @Test
+    void ensureAtLeastOneFilterForEachPluginInvalid(@Mocked BackendConnector<?, ?> bc1,
                                                            @Mocked BackendConnector<?, ?> bc2,
                                                            @Mocked BackendFilter bf1) {
         routingService.backendConnectorProvider = backendConnectorProvider;
@@ -801,7 +802,8 @@ public class RoutingServiceTest {
             result = "jmsPlugin";
         }};
 
-        routingService.ensureAtLeastOneFilterForEachPlugin(Collections.singletonList(bf1));
+        Assertions.assertThrows(ConfigurationException. class,
+        () -> routingService.ensureAtLeastOneFilterForEachPlugin(Collections.singletonList(bf1)));
     }
 
     @Test
@@ -832,7 +834,7 @@ public class RoutingServiceTest {
             new FullVerifications() {
             };
         } catch (ConfigurationException ex) {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 

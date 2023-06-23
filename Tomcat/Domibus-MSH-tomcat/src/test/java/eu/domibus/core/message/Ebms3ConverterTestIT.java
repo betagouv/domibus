@@ -6,14 +6,14 @@ import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.test.common.MessageTestUtility;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Cosmin Baciu
@@ -31,8 +31,8 @@ public class Ebms3ConverterTestIT extends AbstractIT {
         final List<PartInfo> partInfoList = messageTestUtility.createPartInfoList(userMessage);
         Ebms3UserMessage ebms3UserMessage = ebms3Converter.convertToEbms3(userMessage, partInfoList);
 
-        Assert.assertNotNull(ebms3UserMessage.getPayloadInfo().getPartInfo());
-        Assert.assertEquals(1, ebms3UserMessage.getPayloadInfo().getPartInfo().size());
+        Assertions.assertNotNull(ebms3UserMessage.getPayloadInfo().getPartInfo());
+        Assertions.assertEquals(1, ebms3UserMessage.getPayloadInfo().getPartInfo().size());
 
         UserMessage converted = ebms3Converter.convertFromEbms3(ebms3UserMessage);
         assertEquals(userMessage, converted);

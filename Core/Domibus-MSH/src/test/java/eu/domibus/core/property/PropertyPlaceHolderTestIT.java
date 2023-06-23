@@ -1,16 +1,16 @@
 package eu.domibus.core.property;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Created by baciuco on 08/08/2016.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("classpath:spring/propertyResolverContext.xml")
 public class PropertyPlaceHolderTestIT {
 
@@ -25,15 +25,15 @@ public class PropertyPlaceHolderTestIT {
 
     @Test
     public void testResolveProperty() throws Exception {
-        Assert.assertNotNull(value);
-        Assert.assertEquals(value, "mycustomvalue");
+        Assertions.assertNotNull(value);
+        Assertions.assertEquals(value, "mycustomvalue");
 
         System.out.println("value1=" + value1);
-        Assert.assertNotNull(value1);
+        Assertions.assertNotNull(value1);
 
 
         System.out.println("mycustomKey1=" + myProperty1);
-        Assert.assertNotNull(myProperty1);
+        Assertions.assertNotNull(myProperty1);
     }
 
 }

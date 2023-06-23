@@ -3,12 +3,12 @@ package eu.domibus.plugin.ws.property.listeners;
 import eu.domibus.plugin.ws.logging.WSPluginLoggingEventSender;
 import mockit.FullVerifications;
 import mockit.Injectable;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.ext.logging.LoggingFeature;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
@@ -16,7 +16,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
  * @author François Gautier
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class WSPluginLoggingApacheCXFChangeListenerTest {
 
     @Injectable
@@ -27,19 +27,19 @@ public class WSPluginLoggingApacheCXFChangeListenerTest {
 
     protected WSPluginLoggingApacheCXFChangeListener listener;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         listener = new WSPluginLoggingApacheCXFChangeListener(loggingFeature, loggingSender);
     }
 
     @Test
     public void handlesProperty_true() {
-        Assert.assertTrue(listener.handlesProperty(DOMIBUS_LOGGING_METADATA_PRINT));
+        Assertions.assertTrue(listener.handlesProperty(DOMIBUS_LOGGING_METADATA_PRINT));
     }
 
     @Test
     public void handlesProperty_false() {
-        Assert.assertFalse(listener.handlesProperty("I hate pickles"));
+        Assertions.assertFalse(listener.handlesProperty("I hate pickles"));
     }
 
     @Test

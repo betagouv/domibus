@@ -8,16 +8,16 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Catalin Enache
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PayloadPersistenceHelperTest {
 
     @Tested
@@ -49,9 +49,9 @@ public class PayloadPersistenceHelperTest {
 
         try {
             payloadPersistenceHelper.validatePayloadSize(legConfiguration, partInfo.getLength());
-            Assert.fail("exception expected");
+            Assertions.fail("exception expected");
         } catch (InvalidPayloadSizeException e) {
-            Assert.assertEquals("[DOM_007]:Payload size [" + partInfoLength + "] is greater than the maximum value defined [" + payloadProfileMaxSize + "] for profile [" + payloadProfileName + "]",
+            Assertions.assertEquals("[DOM_007]:Payload size [" + partInfoLength + "] is greater than the maximum value defined [" + payloadProfileMaxSize + "] for profile [" + payloadProfileName + "]",
                     e.getMessage());
         }
     }

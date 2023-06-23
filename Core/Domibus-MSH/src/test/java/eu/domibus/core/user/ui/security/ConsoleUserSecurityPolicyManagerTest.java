@@ -16,8 +16,8 @@ import eu.domibus.core.user.ui.security.password.ConsoleUserPasswordHistoryDao;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static eu.domibus.core.user.ui.security.ConsoleUserSecurityPolicyManager.LOGIN_SUSPENSION_TIME;
@@ -66,31 +66,31 @@ public class ConsoleUserSecurityPolicyManagerTest {
     @Test
     public void testGetPasswordComplexityPatternProperty() {
         String result = userSecurityPolicyManager.getPasswordComplexityPatternProperty();
-        Assert.assertEquals(ConsoleUserSecurityPolicyManager.PASSWORD_COMPLEXITY_PATTERN, result);
+        Assertions.assertEquals(ConsoleUserSecurityPolicyManager.PASSWORD_COMPLEXITY_PATTERN, result);
     }
 
     @Test
     public void testGetPasswordHistoryPolicyProperty() {
         String result = userSecurityPolicyManager.getPasswordHistoryPolicyProperty();
-        Assert.assertEquals(ConsoleUserSecurityPolicyManager.PASSWORD_HISTORY_POLICY, result);
+        Assertions.assertEquals(ConsoleUserSecurityPolicyManager.PASSWORD_HISTORY_POLICY, result);
     }
 
     @Test
     public void testGetMaximumDefaultPasswordAgeProperty() {
         String result = userSecurityPolicyManager.getMaximumDefaultPasswordAgeProperty();
-        Assert.assertEquals(ConsoleUserSecurityPolicyManager.MAXIMUM_DEFAULT_PASSWORD_AGE, result);
+        Assertions.assertEquals(ConsoleUserSecurityPolicyManager.MAXIMUM_DEFAULT_PASSWORD_AGE, result);
     }
 
     @Test
     public void testGetMaximumPasswordAgeProperty() {
         String result = userSecurityPolicyManager.getMaximumPasswordAgeProperty();
-        Assert.assertEquals(ConsoleUserSecurityPolicyManager.MAXIMUM_PASSWORD_AGE, result);
+        Assertions.assertEquals(ConsoleUserSecurityPolicyManager.MAXIMUM_PASSWORD_AGE, result);
     }
 
     @Test
     public void testGetWarningDaysBeforeExpiration() {
         String result = userSecurityPolicyManager.getWarningDaysBeforeExpirationProperty();
-        Assert.assertEquals(ConsoleUserSecurityPolicyManager.WARNING_DAYS_BEFORE_EXPIRATION, result);
+        Assertions.assertEquals(ConsoleUserSecurityPolicyManager.WARNING_DAYS_BEFORE_EXPIRATION, result);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class ConsoleUserSecurityPolicyManagerTest {
 
         int result = userSecurityPolicyManager.getMaxAttemptAmount(user);
 
-        Assert.assertEquals(20, result);
+        Assertions.assertEquals(20, result);
     }
 
     @Test
@@ -118,6 +118,6 @@ public class ConsoleUserSecurityPolicyManagerTest {
 
         int result = userSecurityPolicyManager.getSuspensionInterval();
 
-        Assert.assertEquals(3600, result);
+        Assertions.assertEquals(3600, result);
     }
 }

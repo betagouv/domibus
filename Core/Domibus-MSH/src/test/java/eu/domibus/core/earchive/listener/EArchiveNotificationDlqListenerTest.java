@@ -13,9 +13,10 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.jms.Message;
 import java.util.UUID;
@@ -25,7 +26,7 @@ import java.util.UUID;
  * @since 5.0
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class EArchiveNotificationDlqListenerTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchiveNotificationDlqListenerTest.class);
@@ -89,10 +90,10 @@ public class EArchiveNotificationDlqListenerTest {
         eArchiveNotificationDlqListener.onMessage(message);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void onMessageExported_NotificationTypeUnknown(final @Mocked Message message,
-                                                          @Injectable EArchiveBatchEntity eArchiveBatch,
-                                                          @Injectable AlertModuleConfiguration alertConfiguration
+    @Test
+    void onMessageExported_NotificationTypeUnknown(final @Mocked Message message,
+                                                   @Injectable EArchiveBatchEntity eArchiveBatch,
+                                                   @Injectable AlertModuleConfiguration alertConfiguration
     ) {
 
         LOG.putMDC(DomibusLogger.MDC_BATCH_ENTITY_ID, entityId + "");
@@ -118,7 +119,7 @@ public class EArchiveNotificationDlqListenerTest {
 
         }};
 
-        eArchiveNotificationDlqListener.onMessage(message);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> eArchiveNotificationDlqListener.onMessage(message));
 
         new FullVerifications() {{
             jmsUtil.setCurrentDomainFromMessage(message);

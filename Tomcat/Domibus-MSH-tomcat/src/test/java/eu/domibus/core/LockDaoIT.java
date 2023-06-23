@@ -5,15 +5,15 @@ import eu.domibus.core.spring.lock.LockDao;
 import eu.domibus.core.spring.lock.LockEntity;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.NoResultException;
 
 import static eu.domibus.core.spring.DomibusApplicationContextListener.SYNC_LOCK_KEY;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Ion Perpegel
@@ -33,11 +33,10 @@ public class LockDaoIT extends AbstractIT {
         assertNotNull(lock);
     }
 
-    @Test(expected = NoResultException.class)
+    @Test
     @Transactional
-    public void doNotFindOtherLock() {
-        final LockEntity lock = lockDao.findByLockKeyWithLock("non-existent-lock");
-        Assert.fail();
+    void doNotFindOtherLock() {
+        Assertions.assertThrows(NoResultException.class, () -> lockDao.findByLockKeyWithLock("non-existent-lock"));
     }
 
 }

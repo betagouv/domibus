@@ -6,8 +6,8 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 
 import javax.validation.ValidationException;
@@ -33,11 +33,11 @@ public class RestBodyValidationInterceptorTest {
 
         Object actualBody = restBodyValidationInterceptor.handleRequestBody(ro);
 
-        Assert.assertEquals(ro, actualBody);
+        Assertions.assertEquals(ro, actualBody);
     }
 
-    @Test(expected = ValidationException.class)
-    public void handleQueryParamsTestInvalid() {
+    @Test
+    void handleQueryParamsTestInvalid() {
         MessageFilterRO ro = new MessageFilterRO();
         ro.setPersisted(false);
         ro.setEntityId("1");
@@ -48,7 +48,7 @@ public class RestBodyValidationInterceptorTest {
             result = new ValidationException("Blacklist character detected");
         }};
 
-        restBodyValidationInterceptor.handleRequestBody(ro);
+        Assertions.assertThrows(ValidationException. class,() -> restBodyValidationInterceptor.handleRequestBody(ro));
 
     }
 
@@ -57,6 +57,6 @@ public class RestBodyValidationInterceptorTest {
 
         boolean actual = restBodyValidationInterceptor.supports(methodParameter, type, null);
 
-        Assert.assertEquals(true, actual);
+        Assertions.assertEquals(true, actual);
     }
 }

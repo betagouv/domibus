@@ -18,10 +18,10 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -33,15 +33,15 @@ import java.util.List;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_BATCH_MPCS;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS;
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author François Gautier
  * @since 5.0
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class EArchivingJobServiceTest {
 
     @Tested
@@ -78,9 +78,9 @@ public class EArchivingJobServiceTest {
             result = "test1, test2,test3";
         }};
         List<String> mpcs = eArchivingJobService.getMpcs();
-        Assert.assertEquals("test1", mpcs.get(0));
-        Assert.assertEquals("test2", mpcs.get(1));
-        Assert.assertEquals("test3", mpcs.get(2));
+        Assertions.assertEquals("test1", mpcs.get(0));
+        Assertions.assertEquals("test2", mpcs.get(1));
+        Assertions.assertEquals("test3", mpcs.get(2));
 
     }
 
@@ -144,16 +144,16 @@ public class EArchivingJobServiceTest {
         assertEquals(2, id);
     }
 
-    @Test(expected = DomibusEArchiveException.class)
-    public void getId_MANUAL() {
-        eArchivingJobService.getEArchiveBatchStartId(EArchiveRequestType.MANUAL);
+    @Test
+    void getId_MANUAL() {
+        Assertions.assertThrows(DomibusEArchiveException.class, () -> eArchivingJobService.getEArchiveBatchStartId(EArchiveRequestType.MANUAL));
     }
 
     @Test
-    public void createEventOnNonFinalMessages(@Injectable  EArchiveBatchUserMessage batchUserMessage) {
-        new Expectations(){{
+    public void createEventOnNonFinalMessages(@Injectable EArchiveBatchUserMessage batchUserMessage) {
+        new Expectations() {{
             userMessageLogDao.findMessagesNotFinalAsc(0L, 1L);
-            result =  asList(batchUserMessage);
+            result = asList(batchUserMessage);
 
             batchUserMessage.getMessageId();
             result = "messageId";
@@ -163,7 +163,7 @@ public class EArchivingJobServiceTest {
         }};
         eArchivingJobService.createEventOnNonFinalMessages(0L, 1L);
 
-        new FullVerifications(){{
+        new FullVerifications() {{
             eArchivingEventService.sendEventMessageNotFinal("messageId", MessageStatus.NOT_FOUND);
             times = 1;
         }};
@@ -171,13 +171,13 @@ public class EArchivingJobServiceTest {
 
     @Test
     public void createEventOnNonFinalMessages_noAlert() {
-        new Expectations(){{
+        new Expectations() {{
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
             result = 5;
         }};
         eArchivingJobService.createEventOnStartDateContinuousJobStopped(new Date());
 
-        new FullVerifications(){{
+        new FullVerifications() {{
             eArchivingEventService.sendEventStartDateStopped();
             times = 0;
         }};
@@ -185,13 +185,13 @@ public class EArchivingJobServiceTest {
 
     @Test
     public void createEventOnNonFinalMessages_alert() {
-        new Expectations(){{
+        new Expectations() {{
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
             result = 5;
         }};
         eArchivingJobService.createEventOnStartDateContinuousJobStopped(Date.from(ZonedDateTime.now(ZoneOffset.UTC).minusHours(10).toInstant()));
 
-        new FullVerifications(){{
+        new FullVerifications() {{
             eArchivingEventService.sendEventStartDateStopped();
             times = 1;
         }};
@@ -199,13 +199,13 @@ public class EArchivingJobServiceTest {
 
     @Test
     public void createEventOnNonFinalMessages_wrongConfig() {
-        new Expectations(){{
+        new Expectations() {{
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
             result = null;
         }};
         eArchivingJobService.createEventOnStartDateContinuousJobStopped(new Date());
 
-        new FullVerifications(){{
+        new FullVerifications() {{
             eArchivingEventService.sendEventStartDateStopped();
             times = 1;
         }};
@@ -213,13 +213,13 @@ public class EArchivingJobServiceTest {
 
     @Test
     public void createEventOnNonFinalMessages_dateNull() {
-        new Expectations(){{
+        new Expectations() {{
             domibusPropertyProvider.getIntegerProperty(DOMIBUS_EARCHIVE_START_DATE_STOPPED_ALLOWED_HOURS);
             result = 5;
         }};
         eArchivingJobService.createEventOnStartDateContinuousJobStopped(null);
 
-        new FullVerifications(){{
+        new FullVerifications() {{
             eArchivingEventService.sendEventStartDateStopped();
             times = 1;
         }};

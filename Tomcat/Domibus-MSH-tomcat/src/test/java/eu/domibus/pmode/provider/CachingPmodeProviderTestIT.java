@@ -7,7 +7,7 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.messaging.XmlProcessingException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,8 +15,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**

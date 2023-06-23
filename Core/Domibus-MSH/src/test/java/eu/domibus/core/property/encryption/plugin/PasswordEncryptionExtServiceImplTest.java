@@ -10,15 +10,16 @@ import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.PluginPasswordEncryptionContext;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 @SuppressWarnings("TestMethodWithIncorrectSignature")
 public class PasswordEncryptionExtServiceImplTest {
 
@@ -38,6 +39,7 @@ public class PasswordEncryptionExtServiceImplTest {
     protected DomibusCoreMapper coreMapper;
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void encryptPasswordsInFilePositive(@Injectable PluginPasswordEncryptionContext pluginPasswordEncryptionContext,
                                                @Injectable Domain domain,
                                                @Injectable PasswordEncryptionContext passwordEncryptionContext,

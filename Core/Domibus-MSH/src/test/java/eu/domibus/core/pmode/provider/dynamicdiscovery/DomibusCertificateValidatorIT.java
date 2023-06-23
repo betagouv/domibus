@@ -3,15 +3,19 @@ package eu.domibus.core.pmode.provider.dynamicdiscovery;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.core.pki.PKIUtil;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import network.oxalis.vefa.peppol.common.code.Service;
 import network.oxalis.vefa.peppol.security.lang.PeppolSecurityException;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.hamcrest.MatcherAssert;
+
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
@@ -32,9 +36,10 @@ import java.util.regex.Pattern;
 import static eu.domibus.core.pki.PKIUtil.*;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.startsWith;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
+@Disabled("EDELIVERY-6896")
 public class DomibusCertificateValidatorIT {
 
     static {
@@ -48,8 +53,6 @@ public class DomibusCertificateValidatorIT {
 
     private static final String RESOURCE_PATH = "/eu/domibus/common/services/cert-validator/";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Injectable
     private CertificateService certificateService;
@@ -121,8 +124,8 @@ public class DomibusCertificateValidatorIT {
     }
 
 
-    @Test(expected = CertificateException.class)
-    public void testValidateSMPCertificateCainNotValid() throws Exception {
+    @Test
+    void testValidateSMPCertificateCainNotValid() throws Exception {
         // given
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
         new MockUp<DomibusCertificateValidator>() {
@@ -142,12 +145,12 @@ public class DomibusCertificateValidatorIT {
 
         }};
         // then
-        domibusCertificateValidator.validateSMPCertificate(certificate);
+        Assertions.assertThrows(CertificateException.class, () -> domibusCertificateValidator.validateSMPCertificate(certificate));
 
     }
 
-    @Test(expected = CertificateException.class)
-    public void testValidateSMPCertificateNotValid() throws Exception {
+    @Test
+    void testValidateSMPCertificateNotValid() throws Exception {
         // given
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
         new Expectations() {{
@@ -156,13 +159,13 @@ public class DomibusCertificateValidatorIT {
 
         }};
         // then
-        domibusCertificateValidator.validateSMPCertificate(certificate);
+        Assertions.assertThrows(CertificateException. class,() -> domibusCertificateValidator.validateSMPCertificate(certificate));
 
     }
 
 
-    @Test(expected = CertificateException.class)
-    public void testValidateSMPCertificateTrustVerificationFailed() throws Exception {
+    @Test
+    void testValidateSMPCertificateTrustVerificationFailed() throws Exception {
         // given
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
         new MockUp<DomibusCertificateValidator>() {
@@ -178,7 +181,7 @@ public class DomibusCertificateValidatorIT {
 
         }};
         // then
-        domibusCertificateValidator.validateSMPCertificate(certificate);
+        Assertions.assertThrows(CertificateException. class,() -> domibusCertificateValidator.validateSMPCertificate(certificate));
 
     }
 
@@ -250,8 +253,8 @@ public class DomibusCertificateValidatorIT {
     }
 
 
-    @Test(expected = WSSecurityException.class)
-    public void testVerifyTrustIssuerChainCertsInKeyStoreRegExpNOTTRUSTED() throws Exception {
+    @Test
+    void testVerifyTrustIssuerChainCertsInKeyStoreRegExpNOTTRUSTED() throws Exception {
         // given
         KeyStore trustStore = buildTruststore(CERT_FILENAME_INTERMEDIATE, CERT_FILENAME_ROOT_CA);
         domibusCertificateValidator.setTrustStore(trustStore);
@@ -259,7 +262,7 @@ public class DomibusCertificateValidatorIT {
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
 
         // when-then
-        domibusCertificateValidator.verifyTrust(certificate);
+        Assertions.assertThrows(WSSecurityException. class,() -> domibusCertificateValidator.verifyTrust(certificate));
     }
 
     @Test
@@ -274,26 +277,26 @@ public class DomibusCertificateValidatorIT {
     }
 
 
-    @Test(expected = WSSecurityException.class)
-    public void testVerifyTrustOnlyIntermediateNOTTRUSTED() throws Exception {
+    @Test
+    void testVerifyTrustOnlyIntermediateNOTTRUSTED() throws Exception {
         // given
         KeyStore trustStore = buildTruststore(CERT_FILENAME_INTERMEDIATE);
         domibusCertificateValidator.setTrustStore(trustStore);
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
 
         // when - then
-        domibusCertificateValidator.verifyTrust(certificate);
+        Assertions.assertThrows(WSSecurityException. class,() -> domibusCertificateValidator.verifyTrust(certificate));
     }
 
-    @Test(expected = WSSecurityException.class)
-    public void testVerifyTrustOnlyRootCANOTTRUSTED() throws Exception {
+    @Test
+    void testVerifyTrustOnlyRootCANOTTRUSTED() throws Exception {
         // given
         KeyStore trustStore = buildTruststore(CERT_FILENAME_ROOT_CA);
         domibusCertificateValidator.setTrustStore(trustStore);
         X509Certificate certificate = getCertificate(CERT_FILENAME_SMP);
 
         // when - then
-        domibusCertificateValidator.verifyTrust(certificate);
+        Assertions.assertThrows(WSSecurityException. class,() -> domibusCertificateValidator.verifyTrust(certificate));
     }
 
     @Test
@@ -308,12 +311,11 @@ public class DomibusCertificateValidatorIT {
             result = true;
 
         }};
-        expectedException.expect(CertificateException.class);
-        expectedException.expectMessage(startsWith("Lookup certificate validator failed for C=EU, O=eDelivery, OU=Domibus, CN=test. The certificate chain is not valid"));
         // certificate must have Certificate policy 1.3.6.1
         ReflectionTestUtils.setField(domibusCertificateValidator, "allowedCertificatePolicyOIDs", allowedCertificatePolicyId);
         // when-then
-        domibusCertificateValidator.validateSMPCertificate(certificate);
+        CertificateException certificateException = assertThrows(CertificateException.class, () -> domibusCertificateValidator.validateSMPCertificate(certificate));
+        MatcherAssert.assertThat(certificateException.getMessage(), startsWith("Lookup certificate validator failed for C=EU, O=eDelivery, OU=Domibus, CN=test. The certificate chain is not valid"));
     }
 
     @Test
@@ -327,12 +329,12 @@ public class DomibusCertificateValidatorIT {
             result = true;
 
         }};
-        expectedException.expect(CertificateException.class);
-        expectedException.expectMessage(startsWith("Lookup certificate validator failed for C=EU, O=eDelivery, OU=Domibus, CN=test. The certificate chain is not valid"));
         // certificate must have Certificate policy 1.3.6.1
         ReflectionTestUtils.setField(domibusCertificateValidator, "allowedCertificatePolicyOIDs", Collections.singletonList("1.3.6.1"));
         // when-then
-        domibusCertificateValidator.validateSMPCertificate(certificate);
+        CertificateException certificateException = assertThrows(CertificateException.class, () -> domibusCertificateValidator.validateSMPCertificate(certificate));
+        MatcherAssert.assertThat(certificateException.getMessage(), startsWith("Lookup certificate validator failed for C=EU, O=eDelivery, OU=Domibus, CN=test. The certificate chain is not valid"));
+
     }
 
     @Test

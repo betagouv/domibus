@@ -11,12 +11,11 @@ import eu.domibus.jms.spi.InternalJMSDestination;
 import eu.domibus.jms.spi.InternalJmsMessage;
 import eu.domibus.jms.spi.helper.JMSSelectorUtil;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.jms.core.JmsOperations;
 
 import javax.management.MBeanServerConnection;
@@ -26,18 +25,15 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static eu.domibus.jms.spi.InternalJMSConstants.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by Cosmin Baciu on 30-Sep-16.
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class JMSManagerWeblogicTest {
 
     @Tested
@@ -82,10 +78,10 @@ public class JMSManagerWeblogicTest {
     @Test
     public void testGetQueueName() throws Exception {
         String queueName = jmsManagerWeblogic.getShortDestName("JmsModule!DomibusNotifyBackendEtrustexQueue");
-        Assert.assertEquals(queueName, "DomibusNotifyBackendEtrustexQueue");
+        Assertions.assertEquals(queueName, "DomibusNotifyBackendEtrustexQueue");
 
         queueName = jmsManagerWeblogic.getShortDestName("DomibusNotifyBackendEtrustexQueue");
-        Assert.assertEquals(queueName, "DomibusNotifyBackendEtrustexQueue");
+        Assertions.assertEquals(queueName, "DomibusNotifyBackendEtrustexQueue");
     }
 
 
@@ -316,13 +312,13 @@ public class JMSManagerWeblogicTest {
 
     @Test
     public void testBrowseMessagesMessages(final @Injectable InternalJMSDestination internalJmsDestination,
-                                           final @Injectable ObjectName destination,
-                                           final @Injectable List<InternalJmsMessage> messageSPIs) throws Exception {
+                                           final @Injectable ObjectName destination)  {
         final String source = "myqueue";
         final String jmsType = "message";
         final Date fromDate = new Date();
         final Date toDate = new Date();
         final String selectorClause = "mytype = 'message'";
+        ArrayList<InternalJmsMessage> messageSPIs = new ArrayList<>();
 
         new Expectations(jmsManagerWeblogic) {{
 

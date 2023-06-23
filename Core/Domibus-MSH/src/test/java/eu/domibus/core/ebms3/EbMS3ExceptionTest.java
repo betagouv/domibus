@@ -1,12 +1,12 @@
 package eu.domibus.core.ebms3;
 
 import eu.domibus.common.ErrorCode;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by muellers on 4/20/16.
@@ -17,7 +17,7 @@ public class EbMS3ExceptionTest {
     private static final String ERROR_DETAIL_256CHARS = "OkgJvOG5Xp7rL1CzL5AXjdpgDGCYFIxXw43k6D87NA27CnnY3SKDX5FDGnU90IW6uNGMgxqi3nvbpMyIIxcuOLm9PP8cVytva0uyGiyiJHituKdj9bxnxYeRazfqLOz8HvfVfHxFF3JsXWwndiCgTUIdVzeDXnPt6tSB5NOEPdq6tbH7WScgY2kHl0VBhW8eGZu220D2MwSuFIFh6k2U2VzCd80eKz0bQlcOAQpDN2Pssj308uWULedijmPbvRoH";
     private static final String ERROR_DETAIL_254CHARS = "gJvOG5Xp7rL1CzL5AXjdpgDGCYFIxXw43k6D87NA27CnnY3SKDX5FDGnU90IW6uNGMgxqi3nvbpMyIIxcuOLm9PP8cVytva0uyGiyiJHituKdj9bxnxYeRazfqLOz8HvfVfHxFF3JsXWwndiCgTUIdVzeDXnPt6tSB5NOEPdq6tbH7WScgY2kHl0VBhW8eGZu220D2MwSuFIFh6k2U2VzCd80eKz0bQlcOAQpDN2Pssj308uWULedijmPbvRoH";
 
-    @Before
+    @BeforeEach
     public void setup() {
         ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
                 .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)

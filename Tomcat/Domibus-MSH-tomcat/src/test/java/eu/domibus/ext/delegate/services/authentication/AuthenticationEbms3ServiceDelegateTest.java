@@ -6,9 +6,10 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author migueti, Cosmin Baciu
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class AuthenticationEbms3ServiceDelegateTest {
 
     @Tested
@@ -38,14 +39,14 @@ public class AuthenticationEbms3ServiceDelegateTest {
     }
 
 
-    @Test(expected = AuthenticationExtException.class)
-    public void testAuthenticateWhenAuthenticationExceptionIsRaised(@Injectable final HttpServletRequest httpRequest) throws Exception {
+    @Test
+    void testAuthenticateWhenAuthenticationExceptionIsRaised(@Injectable final HttpServletRequest httpRequest) throws Exception {
         new Expectations(messageAcknowledgeServiceDelegate) {{
             authenticationService.authenticate(httpRequest);
             result = new eu.domibus.api.security.AuthenticationException("not authenticated");
         }};
 
-        messageAcknowledgeServiceDelegate.authenticate(httpRequest);
+        Assertions.assertThrows(AuthenticationExtException. class,() -> messageAcknowledgeServiceDelegate.authenticate(httpRequest));
 
         new Verifications() {{
             authenticationService.authenticate(httpRequest);

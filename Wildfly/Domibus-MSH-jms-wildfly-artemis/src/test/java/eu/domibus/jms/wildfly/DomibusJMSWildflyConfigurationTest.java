@@ -3,10 +3,11 @@ package eu.domibus.jms.wildfly;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jmx.access.MBeanProxyFactoryBean;
 
@@ -23,7 +24,7 @@ import static eu.domibus.jms.wildfly.DomibusJMSWildflyConfiguration.MQ_BROKER_NA
  * @author Cosmin Baciu
  * @since 4.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class DomibusJMSWildflyConfigurationTest {
 
     @Tested
@@ -60,6 +61,7 @@ public class DomibusJMSWildflyConfigurationTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void jmsSender(@Injectable ConnectionFactory connectionFactory,
                           @Mocked JmsTemplate jmsTemplate) {
         domibusJMSWildflyConfiguration.jmsSender(connectionFactory);

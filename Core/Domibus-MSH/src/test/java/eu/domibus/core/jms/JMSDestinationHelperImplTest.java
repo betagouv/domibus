@@ -5,16 +5,16 @@ import eu.domibus.api.util.RegexUtil;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * @author Cosmin Baciu
  * @since 3.2
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class JMSDestinationHelperImplTest {
 
     @Injectable
@@ -35,7 +35,7 @@ public class JMSDestinationHelperImplTest {
         }};
 
         boolean internal = jmsDestinationHelper.isInternal(queueName);
-        Assert.assertFalse(internal);
+        Assertions.assertFalse(internal);
     }
 
     @Test
@@ -50,7 +50,7 @@ public class JMSDestinationHelperImplTest {
         }};
 
         boolean internal = jmsDestinationHelper.isInternal(queueName);
-        Assert.assertTrue(internal);
+        Assertions.assertTrue(internal);
 
     }
 
@@ -67,7 +67,7 @@ public class JMSDestinationHelperImplTest {
         }};
 
         boolean internal = jmsDestinationHelper.isInternal(queueName);
-        Assert.assertTrue(internal);
+        Assertions.assertTrue(internal);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class JMSDestinationHelperImplTest {
         }};
 
         boolean internal = jmsDestinationHelper.isInternal(queueName);
-        Assert.assertTrue(internal);
+        Assertions.assertTrue(internal);
     }
 
     @Test
@@ -99,6 +99,6 @@ public class JMSDestinationHelperImplTest {
         }};
 
         boolean internal = jmsDestinationHelper.isInternal(queueName);
-        Assert.assertTrue(internal);
+        Assertions.assertTrue(internal);
     }
 }

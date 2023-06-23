@@ -4,8 +4,8 @@ import eu.domibus.api.exceptions.RequestValidationException;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.Tested;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -19,19 +19,19 @@ public class MultiPartFileUtilImplTest {
     @Tested
     MultiPartFileUtilImpl multiPartFileUtil;
 
-    @Test(expected = RequestValidationException.class)
-    public void sanitiseFileUpload_empty(final @Mocked MultipartFile file) throws IOException {
+    @Test
+    void sanitiseFileUpload_empty(final @Mocked MultipartFile file) {
         new Expectations() {{
             file.isEmpty();
             result = true;
         }};
 
         //tested
-        multiPartFileUtil.validateAndGetFileContent(file);
+        Assertions.assertThrows(RequestValidationException.class, () -> multiPartFileUtil.validateAndGetFileContent(file));
     }
 
-    @Test(expected = RequestValidationException.class)
-    public void sanitiseFileUpload_IOException(final @Mocked MultipartFile file) throws IOException {
+    @Test
+    void sanitiseFileUpload_IOException(final @Mocked MultipartFile file) throws IOException {
         new Expectations() {{
             file.isEmpty();
             result = false;
@@ -40,7 +40,7 @@ public class MultiPartFileUtilImplTest {
         }};
 
         //tested
-        multiPartFileUtil.validateAndGetFileContent(file);
+        Assertions.assertThrows(RequestValidationException.class, () -> multiPartFileUtil.validateAndGetFileContent(file));
     }
 
     @Test()
@@ -57,7 +57,7 @@ public class MultiPartFileUtilImplTest {
         //tested
         byte[] result = multiPartFileUtil.validateAndGetFileContent(file);
 
-        Assert.assertTrue(result == bytes);
+        Assertions.assertTrue(result == bytes);
     }
 
 }

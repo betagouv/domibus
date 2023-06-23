@@ -3,10 +3,10 @@ package eu.domibus.web.rest;
 import eu.domibus.web.rest.ro.LoginRO;
 import eu.domibus.web.rest.ro.UserRO;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.mock.web.MockHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Tiago Miguel
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class TestResourceTest {
 
     @Tested
@@ -29,8 +29,8 @@ public class TestResourceTest {
         UserRO userRO = testResource.testGet();
 
         // Then
-        Assert.assertNotNull(userRO);
-        Assert.assertEquals("testGet", userRO.getUsername());
+        Assertions.assertNotNull(userRO);
+        Assertions.assertEquals("testGet", userRO.getUsername());
     }
 
     @Test
@@ -43,7 +43,7 @@ public class TestResourceTest {
         UserRO userRO = testResource.testPost(loginRO, request);
 
         // Then
-        Assert.assertNotNull(userRO);
-        Assert.assertEquals("testPost", userRO.getUsername());
+        Assertions.assertNotNull(userRO);
+        Assertions.assertEquals("testPost", userRO.getUsername());
     }
 }

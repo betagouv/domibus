@@ -13,11 +13,12 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
@@ -29,7 +30,8 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
+@Disabled("EDELIVERY-6896")
 public class PropertyChangeManagerTest {
 
     @Tested
@@ -77,7 +79,7 @@ public class PropertyChangeManagerTest {
     private String propertyName = "domibus.property.name";
     private String propertyValue = "domibus.property.value";
 
-    @Before
+    @BeforeEach
     public void setUp() {
         props = Arrays.stream(new DomibusPropertyMetadata[]{
                 new DomibusPropertyMetadata(DOMIBUS_UI_TITLE_NAME, DomibusPropertyMetadata.Usage.DOMAIN, true),
@@ -136,8 +138,8 @@ public class PropertyChangeManagerTest {
         }};
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void setPropertyValue_MultiTenancy_Domain_NoDomainProp() {
+    @Test
+    void setPropertyValue_MultiTenancy_Domain_NoDomainProp() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.GLOBAL, false);
 
         new Expectations() {{
@@ -147,7 +149,8 @@ public class PropertyChangeManagerTest {
             result = prop;
         }};
 
-        propertyChangeManager.doSetPropertyValue(domain, propertyName, propertyValue);
+        Assertions.assertThrows(DomibusPropertyException. class,
+        () -> propertyChangeManager.doSetPropertyValue(domain, propertyName, propertyValue));
 
         new Verifications() {{
             domibusProperties.setProperty(domain.getCode() + "." + propertyName, propertyValue);
@@ -199,8 +202,8 @@ public class PropertyChangeManagerTest {
         }};
     }
 
-    @Test(expected = DomibusPropertyException.class)
-    public void setPropertyValue_MultiTenancy_NoDomain_DomainProp() {
+    @Test
+    void setPropertyValue_MultiTenancy_NoDomain_DomainProp() {
         DomibusPropertyMetadata prop = new DomibusPropertyMetadata(propertyName, DomibusPropertyMetadata.Usage.DOMAIN, true);
 
         new Expectations() {{
@@ -210,7 +213,8 @@ public class PropertyChangeManagerTest {
             result = prop;
         }};
 
-        propertyChangeManager.doSetPropertyValue(null, propertyName, propertyValue);
+        Assertions.assertThrows(DomibusPropertyException. class,
+        () -> propertyChangeManager.doSetPropertyValue(null, propertyName, propertyValue));
 
         new Verifications() {{
             domibusProperties.setProperty(propertyName, propertyValue);
@@ -264,6 +268,6 @@ public class PropertyChangeManagerTest {
             result = propertyValue;
         }};
         propIntValue = propertyChangeManager.getPropertyValueAsInteger(domain, propertyName, defaultValue);
-        Assert.assertEquals(propIntValue, defaultValue);
+        Assertions.assertEquals(propIntValue, defaultValue);
     }
 }

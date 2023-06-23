@@ -5,7 +5,7 @@ import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.core.plugin.routing.BackendFilterEntity;
 import eu.domibus.web.rest.ro.MessageFilterRO;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Random;

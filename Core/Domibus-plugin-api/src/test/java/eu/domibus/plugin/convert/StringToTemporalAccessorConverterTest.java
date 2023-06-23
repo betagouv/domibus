@@ -1,11 +1,8 @@
 package eu.domibus.plugin.convert;
 
 import eu.domibus.ext.exceptions.DomibusDateTimeExtException;
-import org.hamcrest.core.StringContains;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,9 +20,6 @@ public class StringToTemporalAccessorConverterTest {
 
     private StringToTemporalAccessorConverter converter;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Test
     public void convert_returnsNullWhenSourceIsNull() {
         // GIVEN
@@ -36,7 +30,7 @@ public class StringToTemporalAccessorConverterTest {
         TemporalAccessor result = converter.convert(source);
 
         // THEN
-        Assert.assertNull("Should have returned a null UTC local date time when the input source is null", result);
+        Assertions.assertNull(result, "Should have returned a null UTC local date time when the input source is null");
     }
 
     @Test
@@ -44,10 +38,12 @@ public class StringToTemporalAccessorConverterTest {
         // GIVEN
         String invalid = "2021/07/21 13:10:00";
         givenFormatter(DateTimeFormatter.ISO_DATE_TIME);
-        givenDateTimeParseExceptionExpected(invalid);
 
         // WHEN
-        converter.convert(invalid);
+        Assertions.assertThrows(DomibusDateTimeExtException.class,
+                () -> converter.convert(invalid),
+                "Invalid date time value [" + invalid + "]");
+
     }
 
     @Test
@@ -55,10 +51,11 @@ public class StringToTemporalAccessorConverterTest {
         // GIVEN
         String invalid = "2021/07/21";
         givenFormatter(DateTimeFormatter.ISO_DATE);
-        givenDateTimeParseExceptionExpected(invalid);
 
         // WHEN
-        converter.convert(invalid);
+        Assertions.assertThrows(DomibusDateTimeExtException.class,
+                () -> converter.convert(invalid),
+                "Invalid date time value [" + invalid + "]");
     }
 
     @Test
@@ -66,10 +63,11 @@ public class StringToTemporalAccessorConverterTest {
         // GIVEN
         String invalid = "13H10'00";
         givenFormatter(DateTimeFormatter.ISO_TIME);
-        givenDateTimeParseExceptionExpected(invalid);
 
         // WHEN
-        converter.convert(invalid);
+        Assertions.assertThrows(DomibusDateTimeExtException.class,
+                () -> converter.convert(invalid),
+                "Invalid date time value [" + invalid + "]");
     }
 
     @Test
@@ -83,7 +81,7 @@ public class StringToTemporalAccessorConverterTest {
         TemporalAccessor result = converter.convert(valid);
 
         // THEN
-        Assert.assertEquals("Should have returned a valid UTC local date time for a valid date time source", expected, result);
+        Assertions.assertEquals( expected, result, "Should have returned a valid UTC local date time for a valid date time source");
     }
 
     @Test
@@ -97,7 +95,7 @@ public class StringToTemporalAccessorConverterTest {
         TemporalAccessor result = converter.convert(valid);
 
         // THEN
-        Assert.assertEquals("Should have returned a valid UTC local date time for a valid offset date time source", expected, result);
+        Assertions.assertEquals( expected, result, "Should have returned a valid UTC local date time for a valid offset date time source");
     }
 
     @Test
@@ -111,7 +109,7 @@ public class StringToTemporalAccessorConverterTest {
         TemporalAccessor result = converter.convert(valid);
 
         // THEN
-        Assert.assertEquals("Should have returned a valid UTC local date for a valid date source", expected, result);
+        Assertions.assertEquals( expected, result, "Should have returned a valid UTC local date for a valid date source");
     }
 
     @Test
@@ -125,7 +123,7 @@ public class StringToTemporalAccessorConverterTest {
         TemporalAccessor result = converter.convert(valid);
 
         // THEN
-        Assert.assertEquals("Should have ignored the offset and returned a valid UTC local date for a valid offset date source", expected, result);
+        Assertions.assertEquals( expected, result, "Should have ignored the offset and returned a valid UTC local date for a valid offset date source");
     }
 
     @Test
@@ -139,7 +137,7 @@ public class StringToTemporalAccessorConverterTest {
         TemporalAccessor result = converter.convert(valid);
 
         // THEN
-        Assert.assertEquals("Should have returned a valid UTC local time for a valid time source", expected, result);
+        Assertions.assertEquals( expected, result, "Should have returned a valid UTC local time for a valid time source");
     }
 
     @Test
@@ -153,7 +151,7 @@ public class StringToTemporalAccessorConverterTest {
         TemporalAccessor result = converter.convert(valid);
 
         // THEN
-        Assert.assertEquals("Should have returned a valid UTC local time for a valid offset time source", expected, result);
+        Assertions.assertEquals( expected, result, "Should have returned a valid UTC local time for a valid offset time source");
     }
 
     public void givenFormatter(DateTimeFormatter formatter) {
@@ -161,8 +159,4 @@ public class StringToTemporalAccessorConverterTest {
         converter = new StringToTemporalAccessorConverter(formatter);
     }
 
-    private void givenDateTimeParseExceptionExpected(String source) {
-        thrown.expect(DomibusDateTimeExtException.class);
-        thrown.expectMessage(new StringContains("Invalid date time value [" + source + "]"));
-    }
 }

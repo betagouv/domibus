@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.util.TimeZone;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_SCHEMA;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Cosmin Baciu

@@ -150,6 +150,18 @@ To skip the unit tests from the build process:
 mvn clean install -DskipTests=true -DskipITs=true
 ```
 
+#### Intellij
+
+jmockit requires an agent to be attached to the jvm to work.
+```
+-javaagent:C:/Users/Az/.m2/repository/org/jmockit/jmockit/{version}/jmockit-{version}.jar
+```
+To automatically add this agent in intellij, run this command.
+```shell
+mvn process-resources -Pintellij
+```
+It will create the file Template Junit.run.xml at the root of the project (directory .junit) and any new test will have the agent.
+
 [Top](#domibus)
 
 ## Default plugins

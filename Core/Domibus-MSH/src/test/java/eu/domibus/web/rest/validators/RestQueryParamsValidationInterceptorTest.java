@@ -5,13 +5,17 @@ import eu.domibus.core.rest.validators.QueryParamLengthValidator;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import org.junit.Assert;
-import org.junit.Test;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.validation.ValidationException;
 import java.util.HashMap;
 import java.util.Map;
 
+@ExtendWith(JMockitExtension.class)
 public class RestQueryParamsValidationInterceptorTest {
     @Tested
     RestQueryParamsValidationInterceptor restQueryParamsValidationInterceptor;
@@ -32,11 +36,11 @@ public class RestQueryParamsValidationInterceptorTest {
 
         boolean actualValid = restQueryParamsValidationInterceptor.handleQueryParams(queryParams, null);
 
-        Assert.assertTrue(actualValid);
+        Assertions.assertTrue(actualValid);
     }
 
-    @Test(expected = ValidationException.class)
-    public void handleQueryParamsTestInValid() {
+    @Test
+    void handleQueryParamsTestInValid() {
         String[] arr1 = new String[]{"", "valid value", "also valid value"};
         String[] arr2 = new String[]{"", "invalid.value;2", "also invalid value%2"};
 
@@ -49,7 +53,7 @@ public class RestQueryParamsValidationInterceptorTest {
             result = new ValidationException("");
         }};
 
-        restQueryParamsValidationInterceptor.handleQueryParams(queryParams, null);
+        Assertions.assertThrows(ValidationException. class,() -> restQueryParamsValidationInterceptor.handleQueryParams(queryParams, null));
     }
 
 }

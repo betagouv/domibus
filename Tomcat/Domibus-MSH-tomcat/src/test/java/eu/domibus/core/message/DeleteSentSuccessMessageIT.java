@@ -10,9 +10,9 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +39,7 @@ public class DeleteSentSuccessMessageIT extends DeleteMessageAbstractIT {
     private UserMessageLogDao userMessageLogDao;
 
     @Transactional
-    @Before
+    @BeforeEach
     public void updatePmodeForAcknowledged() throws IOException, XmlProcessingException {
         Map<String, String> toReplace = new HashMap<>();
         toReplace.put("security=\"eDeliveryAS4Policy\"", "security=\"noSigNoEnc\"");
@@ -58,14 +58,14 @@ public class DeleteSentSuccessMessageIT extends DeleteMessageAbstractIT {
 
         LOG.info("Message Id to delete: [{}]", messageId);
         UserMessage byMessageId = userMessageDao.findByMessageId(messageId);
-        Assert.assertNotNull(byMessageId);
+        Assertions.assertNotNull(byMessageId);
 
-        Assert.assertNotNull(userMessageDao.findByEntityId(byMessageId.getEntityId()));
-        Assert.assertNotNull(userMessageLogDao.findByEntityIdSafely(byMessageId.getEntityId()));
+        Assertions.assertNotNull(userMessageDao.findByEntityId(byMessageId.getEntityId()));
+        Assertions.assertNotNull(userMessageLogDao.findByEntityIdSafely(byMessageId.getEntityId()));
 
         deleteAllMessages(messageId);
 
-        Assert.assertNull(userMessageDao.findByMessageId(messageId));
-        Assert.assertNull(userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING));
+        Assertions.assertNull(userMessageDao.findByMessageId(messageId));
+        Assertions.assertNull(userMessageLogDao.findByMessageId(messageId, MSHRole.SENDING));
     }
 }

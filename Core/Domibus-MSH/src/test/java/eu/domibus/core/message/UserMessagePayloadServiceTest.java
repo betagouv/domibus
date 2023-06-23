@@ -10,10 +10,10 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.dictionary.PartPropertyDictionaryService;
 import eu.domibus.core.util.SoapUtil;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Node;
 
 import javax.activation.DataHandler;
@@ -23,9 +23,9 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
 import java.util.*;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserMessagePayloadServiceTest {
 
     @Injectable
@@ -148,7 +148,7 @@ public class UserMessagePayloadServiceTest {
             userMessagePayloadService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
             fail("Expecting error that - More than one Partinfo referencing the soap body found!");
         } catch (EbMS3Exception e) {
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
         }
 
         new Verifications() {
@@ -243,7 +243,7 @@ public class UserMessagePayloadServiceTest {
             userMessagePayloadService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
             fail("Expected Ebms3 exception that no matching payload was found!");
         } catch (EbMS3Exception e) {
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0011, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0011, e.getErrorCode());
         }
 
         new FullVerifications() {{

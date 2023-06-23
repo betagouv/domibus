@@ -5,12 +5,12 @@ import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -18,9 +18,9 @@ import java.util.List;
 
 import static eu.domibus.core.pki.PKIUtil.*;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class AbstractDynamicDiscoveryServiceTest {
 
     @Tested
@@ -50,12 +50,12 @@ public class AbstractDynamicDiscoveryServiceTest {
             String parameter;
             logger.debug(logTemplate = withCapture(), parameter = withCapture());
 
-            Assert.assertEquals("The value for property [{}] is empty.", logTemplate);
-            Assert.assertEquals(DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION, parameter);
+            Assertions.assertEquals("The value for property [{}] is empty.", logTemplate);
+            Assertions.assertEquals(DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION, parameter);
             // test call correct property
             String property;
             testInstance.getDynamicDiscoveryUtil().getTrimmedDomibusProperty(property = withCapture());
-            Assert.assertEquals(DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION, property);
+            Assertions.assertEquals(DOMIBUS_DYNAMICDISCOVERY_CLIENT_CERTIFICATE_POLICY_OID_VALIDATION, property);
         }};
     }
 
@@ -120,7 +120,7 @@ public class AbstractDynamicDiscoveryServiceTest {
         }};
 
         String partyIdType = testInstance.getPartyIdType();
-        Assert.assertEquals(partyIdType, URN_TYPE_VALUE);
+        Assertions.assertEquals(partyIdType, URN_TYPE_VALUE);
     }
 
     @Test
@@ -136,7 +136,7 @@ public class AbstractDynamicDiscoveryServiceTest {
 
         String partyIdType = testInstance.getResponderRole();
 
-        Assert.assertEquals(partyIdType, RESPONDER_ROLE);
+        Assertions.assertEquals(partyIdType, RESPONDER_ROLE);
     }
 
     @Test
@@ -144,7 +144,7 @@ public class AbstractDynamicDiscoveryServiceTest {
 
         boolean result = testInstance.isValidEndpoint(null, null);
 
-        assertTrue("If period is not given the endpoint must be considered as valid!", result);
+        assertTrue(result, "If period is not given the endpoint must be considered as valid!");
     }
 
     @Test
@@ -173,8 +173,8 @@ public class AbstractDynamicDiscoveryServiceTest {
             String parameter;
             logger.warn(logTemplate = withCapture(), parameter = withCapture());
 
-            Assert.assertEquals("Found endpoint which is not yet activated! Endpoint's activation date: [{}]!", logTemplate);
-            Assert.assertEquals(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(fromDate), parameter);
+            Assertions.assertEquals("Found endpoint which is not yet activated! Endpoint's activation date: [{}]!", logTemplate);
+            Assertions.assertEquals(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(fromDate), parameter);
         }};
     }
 
@@ -195,8 +195,8 @@ public class AbstractDynamicDiscoveryServiceTest {
             String parameter;
             logger.warn(logTemplate = withCapture(), parameter = withCapture());
 
-            Assert.assertEquals("Found endpoint, which is expired! Endpoint's expiration date: [{}]!", logTemplate);
-            Assert.assertEquals(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(toDate), parameter);
+            Assertions.assertEquals("Found endpoint, which is expired! Endpoint's expiration date: [{}]!", logTemplate);
+            Assertions.assertEquals(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(toDate), parameter);
         }};
     }
 }

@@ -3,15 +3,17 @@ package eu.domibus.core.util;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import org.hamcrest.core.Is;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author François Gautier
@@ -23,7 +25,7 @@ public class DomibusDateFormatterTest {
     public static final String VALID_DATE_STRING = "2020-06-02T20:00:00";
     private DomibusDateFormatter domibusDateFormatter;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         domibusDateFormatter = new DomibusDateFormatter(DateTimeFormatter.ofPattern(DEFAULT_PATTERN));
     }
@@ -35,19 +37,19 @@ public class DomibusDateFormatterTest {
                 .atZone(ZoneOffset.UTC)
                 .toLocalDateTime();
 
-        Assert.assertEquals(2020, from.getYear());
-        Assert.assertEquals(20, from.getHour());
-        Assert.assertEquals(0, from.getMinute());
-        Assert.assertEquals(0, from.getSecond());
+        Assertions.assertEquals(2020, from.getYear());
+        Assertions.assertEquals(20, from.getHour());
+        Assertions.assertEquals(0, from.getMinute());
+        Assertions.assertEquals(0, from.getSecond());
     }
 
     @Test
     public void fromString_exception() {
         try {
             domibusDateFormatter.fromString("tomorrow");
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusCoreException e) {
-            Assert.assertThat(e.getError(), Is.is(DomibusCoreErrorCode.DOM_007));
+            assertThat(e.getError(), Is.is(DomibusCoreErrorCode.DOM_007));
         }
 
     }

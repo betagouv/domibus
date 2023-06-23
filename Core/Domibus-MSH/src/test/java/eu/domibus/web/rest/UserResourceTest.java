@@ -18,10 +18,10 @@ import eu.domibus.web.rest.ro.UserResultRO;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -34,7 +34,7 @@ import java.util.Map;
  * @author Tiago Miguel
  * @since 3.3
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class UserResourceTest {
 
     @Tested
@@ -119,9 +119,9 @@ public class UserResourceTest {
         userResource.updateUsers(userResponseROS);
 
         // Then
-        Assert.assertNotNull(userResponseROS);
+        Assertions.assertNotNull(userResponseROS);
         UserResponseRO userResponseRO = getUserResponseRO();
-        Assert.assertEquals(userResponseRO, userResponseROS.get(0));
+        Assertions.assertEquals(userResponseRO, userResponseROS.get(0));
     }
 
     @Test
@@ -140,8 +140,8 @@ public class UserResourceTest {
         List<String> roles = userResource.userRoles();
 
         // Then
-        Assert.assertNotNull(roles);
-        Assert.assertFalse("ROLE_AP_ADMIN must not be returned for regular admins", roles.contains(AuthRole.ROLE_AP_ADMIN.name()));
+        Assertions.assertNotNull(roles);
+        Assertions.assertFalse(roles.contains(AuthRole.ROLE_AP_ADMIN.name()), "ROLE_AP_ADMIN must not be returned for regular admins");
     }
 
     @Test
@@ -160,8 +160,8 @@ public class UserResourceTest {
         List<String> roles = userResource.userRoles();
 
         // Then
-        Assert.assertNotNull(roles);
-        Assert.assertTrue("ROLE_AP_ADMIN must be returned for super admins", roles.contains(AuthRole.ROLE_AP_ADMIN.name()));
+        Assertions.assertNotNull(roles);
+        Assertions.assertTrue(roles.contains(AuthRole.ROLE_AP_ADMIN.name()), "ROLE_AP_ADMIN must be returned for super admins");
     }
 
     @Test
@@ -181,7 +181,7 @@ public class UserResourceTest {
 
         final ResponseEntity<String> csv = userResource.getCsv(request);
 
-        Assert.assertEquals(HttpStatus.OK, csv.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, csv.getStatusCode());
     }
 
     @Test
@@ -202,6 +202,6 @@ public class UserResourceTest {
             result = userResponseROS;
         }};
 
-        Assert.assertNotNull(userResource.retrieveAndPackageUsers(request));
+        Assertions.assertNotNull(userResource.retrieveAndPackageUsers(request));
     }
 }

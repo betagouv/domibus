@@ -6,10 +6,10 @@ import eu.domibus.ext.exceptions.PModeExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
 import eu.domibus.ext.services.PModeExtService;
 import mockit.*;
-import mockit.integration.junit4.JMockit;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,7 +24,7 @@ import java.util.List;
  * @author Catalin Enache
  * @since 4.1.1
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class PModeFileExtResourceTest {
 
     @Tested
@@ -52,7 +52,7 @@ public class PModeFileExtResourceTest {
 
         //tested method
         final ResponseEntity<ByteArrayResource> response = pModeFileExtResource.downloadPMode(pModeId);
-        Assert.assertNotNull(response);
+        Assertions.assertNotNull(response);
 
         new FullVerifications() {{
             ResponseEntity.status(HttpStatus.OK).
@@ -75,7 +75,7 @@ public class PModeFileExtResourceTest {
 
         //tested method
         final ResponseEntity<ByteArrayResource> response = pModeFileExtResource.downloadPMode(pModeId);
-        Assert.assertNotNull(response);
+        Assertions.assertNotNull(response);
 
         new FullVerifications() {{
             ResponseEntity.status(HttpStatus.NO_CONTENT).
@@ -100,8 +100,8 @@ public class PModeFileExtResourceTest {
 
         //tested method
         final PModeArchiveInfoDTO result = pModeFileExtResource.getCurrentPMode();
-        Assert.assertNotNull(result);
-        Assert.assertEquals(pModeId, result.getId());
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(pModeId, result.getId());
 
     }
 
@@ -120,13 +120,14 @@ public class PModeFileExtResourceTest {
     }
 
     @Test
-    public void test_handlePartyExtServiceException(final @Mocked PModeExtException pModeExtException) {
+    public void test_handlePartyExtServiceException() {
 
         //tested method
-        pModeFileExtResource.handlePModeExtException(pModeExtException);
+        PModeExtException e = new PModeExtException("");
+        pModeFileExtResource.handlePModeExtException(e);
 
         new FullVerifications() {{
-            extExceptionHelper.handleExtException(pModeExtException);
+            extExceptionHelper.handleExtException(e);
         }};
     }
 }

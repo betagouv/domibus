@@ -3,10 +3,11 @@ package eu.domibus.plugin.validation;
 import eu.domibus.plugin.Submission;
 import mockit.Expectations;
 import mockit.Injectable;
-import mockit.integration.junit4.JMockit;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.ClassPathResource;
 
 import javax.xml.bind.JAXBContext;
@@ -15,12 +16,12 @@ import javax.xml.bind.JAXBException;
 /**
  * Created by baciuco on 08/08/2016.
  */
-@RunWith(JMockit.class)
+@ExtendWith(JMockitExtension.class)
 public class Ebms3SchemaPayloadSubmissionValidatorTestIT {
 
     SchemaPayloadSubmissionValidator schemaPayloadSubmissionValidator;
 
-    @Before
+    @BeforeEach
     public void init() throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance("eu.domibus.core.plugin.validation");
         schemaPayloadSubmissionValidator = new SchemaPayloadSubmissionValidator();
@@ -38,13 +39,13 @@ public class Ebms3SchemaPayloadSubmissionValidatorTestIT {
         schemaPayloadSubmissionValidator.validatePayload(payload);
     }
 
-    @Test(expected = SubmissionValidationException.class)
-    public void testValidatePayloadWithValidInvalidPayload(@Injectable final Submission.Payload payload) throws Exception {
+    @Test
+    void testValidatePayloadWithValidInvalidPayload(@Injectable final Submission.Payload payload) throws Exception {
         new Expectations() {{
             payload.getPayloadDatahandler().getInputStream();
             result = new ClassPathResource("eu/domibus/core/plugin/validation/invalidPayload.xml").getInputStream();
         }};
 
-        schemaPayloadSubmissionValidator.validatePayload(payload);
+        Assertions.assertThrows(SubmissionValidationException. class,() -> schemaPayloadSubmissionValidator.validatePayload(payload));
     }
 }
