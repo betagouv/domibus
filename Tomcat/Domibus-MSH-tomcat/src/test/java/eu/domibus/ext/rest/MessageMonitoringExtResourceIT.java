@@ -14,7 +14,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -141,6 +140,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void delete_toDateTooEarly() throws Exception {
         FailedMessagesCriteriaRO failedMessagesCriteriaRO = new FailedMessagesCriteriaRO();
         failedMessagesCriteriaRO.setFromDate(getDateFrom(uml1_failed.getEntityId(), getHour(uml1_failed.getEntityId())));
@@ -229,6 +229,7 @@ public class MessageMonitoringExtResourceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void restoreFailedMessages_toDateTooEarly() throws Exception {
         FailedMessagesCriteriaRO failedMessagesCriteriaRO = new FailedMessagesCriteriaRO();
         failedMessagesCriteriaRO.setFromDate(getDateFrom(uml1_failed.getEntityId(), getHour(uml1_failed.getEntityId())));

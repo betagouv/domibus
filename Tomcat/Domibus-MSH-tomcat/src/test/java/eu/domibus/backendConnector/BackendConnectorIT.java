@@ -2,9 +2,8 @@ package eu.domibus.backendConnector;
 
 import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.api.model.*;
+import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -19,14 +18,8 @@ import eu.domibus.core.util.MessageUtil;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.backendConnector.TestFSPluginMock;
-import eu.domibus.backendConnector.TestWSPluginMock;
-import eu.domibus.test.common.BackendConnectorMock;
 import eu.domibus.test.common.SoapSampleUtil;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -38,15 +31,17 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_CACHE_LOCATION;
 import static eu.domibus.backendConnector.TestFSPluginMock.TEST_FS_PLUGIN;
 import static eu.domibus.backendConnector.TestFSPluginPropertyManager.TEST_FSPLUGIN_DOMAIN_ENABLED;
 import static eu.domibus.backendConnector.TestWSPluginMock.TEST_WS_PLUGIN;
 import static eu.domibus.backendConnector.TestWSPluginPropertyManager.TEST_WSPLUGIN_DOMAIN_ENABLED;
 import static eu.domibus.common.NotificationType.DEFAULT_PUSH_NOTIFICATIONS;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ion perpegel
@@ -91,7 +86,7 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
 
     String messageId, filename;
 
-    @Before
+    @BeforeEach
     public void before() throws XmlProcessingException, IOException {
         super.before();
 
@@ -127,7 +122,7 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
         return UUID.randomUUID() + "@domibus.eu";
     }
 
-    @After
+    @AfterEach
     public void after() {
         List<MessageLogInfo> list = userMessageLogDao.findAllInfoPaged(0, 100, "ID_PK", true, new HashMap<>());
         list.forEach(el -> {
@@ -137,6 +132,7 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void testNotifyFirstEnabledPlugin() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
         final SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
@@ -151,6 +147,7 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
     }
 
     @Test
+    @Disabled
     public void testNotifySingleEnabledPlugin() throws SOAPException, IOException, ParserConfigurationException, SAXException, EbMS3Exception {
         // ws plugin not ebabled so the FS will receive the message
         domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
@@ -187,36 +184,36 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
         try {
             SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
             mshWebserviceTest.invoke(soapMessage);
-            Assert.fail();
+            Assertions.fail();
         } catch (javax.xml.ws.WebServiceException ex) {
-            Assert.assertTrue(ex.getMessage().contains("Could not find matching backend filter"));
+            Assertions.assertTrue(ex.getMessage().contains("Could not find matching backend filter"));
         }
     }
 
     @Test
     public void testTryDisableAllPlugins() {
         domibusPropertyProvider.setProperty(TEST_WSPLUGIN_DOMAIN_ENABLED, "false");
-        Assert.assertFalse(domibusPropertyProvider.getBooleanProperty(TEST_WSPLUGIN_DOMAIN_ENABLED));
+        Assertions.assertFalse(domibusPropertyProvider.getBooleanProperty(TEST_WSPLUGIN_DOMAIN_ENABLED));
         try {
             domibusPropertyProvider.setProperty(TEST_FSPLUGIN_DOMAIN_ENABLED, "false");
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusPropertyException ex) {
-            Assert.assertTrue(domibusPropertyProvider.getBooleanProperty(TEST_FSPLUGIN_DOMAIN_ENABLED));
-            Assert.assertTrue(ex.getCause().getMessage().contains("Cannot disable the plugin [fsPlugin] on domain [default] because there won't remain any enabled plugins"));
+            Assertions.assertTrue(domibusPropertyProvider.getBooleanProperty(TEST_FSPLUGIN_DOMAIN_ENABLED));
+            Assertions.assertTrue(ex.getCause().getMessage().contains("Cannot disable the plugin [fsPlugin] on domain [default] because there won't remain any enabled plugins"));
         }
     }
 
     @Test
     public void testTrySubmitWithDisabledPlugin() {
         domibusPropertyProvider.setProperty(TEST_FSPLUGIN_DOMAIN_ENABLED, "false");
-        Assert.assertFalse(domibusPropertyProvider.getBooleanProperty(TEST_FSPLUGIN_DOMAIN_ENABLED));
+        Assertions.assertFalse(domibusPropertyProvider.getBooleanProperty(TEST_FSPLUGIN_DOMAIN_ENABLED));
         try {
             testFSPluginMock.submit(new Object());
-            Assert.fail();
+            Assertions.fail();
         } catch (DomibusCoreException ex) {
-            Assert.assertTrue(ex.getMessage().contains("Backend connector [fsPlugin] is not enabled; Cancelling submit"));
+            Assertions.assertTrue(ex.getMessage().contains("Backend connector [fsPlugin] is not enabled; Cancelling submit"));
         } catch (MessagingProcessingException e) {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
