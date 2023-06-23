@@ -68,6 +68,9 @@ public class FSPluginImplTest {
     private FSMessageTransformer defaultTransformer;
 
     @Injectable
+    private FileUtilExtService fileUtilExtService;
+
+    @Injectable
     private DomibusConfigurationExtService domibusConfigurationExtService;
 
     @Injectable
@@ -142,6 +145,7 @@ public class FSPluginImplTest {
     @BeforeEach
     public void setUp() throws org.apache.commons.vfs2.FileSystemException {
         FileSystemManager fsManager = VFS.getManager();
+
         rootDir = fsManager.resolveFile(location);
         rootDir.createFolder();
 

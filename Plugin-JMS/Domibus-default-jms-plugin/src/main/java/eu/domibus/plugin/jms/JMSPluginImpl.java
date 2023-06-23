@@ -123,13 +123,13 @@ public class JMSPluginImpl extends AbstractBackendConnector<MapMessage, MapMessa
                 //in case the messageID is not sent by the user it will be generated
                 messageID = submit(map);
             } catch (final MessagingProcessingException e) {
-                LOG.error("Exception occurred receiving message [{}}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID, e);
+                LOG.error("Exception occurred receiving message [{}], jmsCorrelationID [{}]", messageID, jmsCorrelationID, e);
                 errorMessage = e.getMessage() + ": Error Code: " + (e.getEbms3ErrorCode() != null ? e.getEbms3ErrorCode().getErrorCodeName() : " not set");
             }
 
             sendReplyMessage(queueContext, errorMessage, jmsCorrelationID);
 
-            LOG.info("Submitted message with messageId [{}], jmsCorrelationID [{}}]", messageID, jmsCorrelationID);
+            LOG.info("Submitted message with messageId [{}], jmsCorrelationID [{}]", messageID, jmsCorrelationID);
         } catch (Exception e) {
             throw new DefaultJmsPluginException("Exception occurred while receiving message [" + map + "]", e);
         }
