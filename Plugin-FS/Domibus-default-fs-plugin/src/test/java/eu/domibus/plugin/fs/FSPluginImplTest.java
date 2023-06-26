@@ -107,9 +107,6 @@ public class FSPluginImplTest {
     protected FSFileNameHelper fsFileNameHelper;
 
     @Injectable
-    protected FileUtilExtService fileUtilExtService;
-
-    @Injectable
     BackendConnectorProviderExtService backendConnectorProviderExtService;
 
     @Injectable
