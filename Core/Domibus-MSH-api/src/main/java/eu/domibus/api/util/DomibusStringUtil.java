@@ -23,4 +23,6 @@ public interface DomibusStringUtil {
      */
     String sanitizeFileName(String fileName);
 
+    public void validateForbiddenString(String userName);
+
 }

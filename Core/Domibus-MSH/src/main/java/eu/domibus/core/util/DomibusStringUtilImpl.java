@@ -1,9 +1,12 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.util.DomibusStringUtil;
+import eu.domibus.ext.exceptions.DomibusErrorCode;
+import eu.domibus.ext.exceptions.DomibusServiceExtException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
+import static eu.domibus.api.property.DomibusGeneralConstants.VALID_STRING_PATTERN;
 import static org.apache.commons.lang3.StringUtils.trim;
 
 /**
@@ -42,5 +45,14 @@ public class DomibusStringUtilImpl implements DomibusStringUtil {
     @Override
     public String sanitizeFileName(String fileName) {
         return fileName.replaceAll(STRING_SANITIZE_REGEX, "_");
+    }
+
+
+    @Override
+    public void validateForbiddenString(String name) {
+        String trimmedName = StringUtils.trim(name);
+        if (!trimmedName.matches(VALID_STRING_PATTERN)) {
+            throw new DomibusServiceExtException(DomibusErrorCode.DOM_001, String.format("forbidden characters found in [%s]", name));
+        }
     }
 }
