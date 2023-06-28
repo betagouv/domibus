@@ -33,8 +33,6 @@ public class FSProcessFileService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSProcessFileService.class);
 
     @Resource(name = PLUGIN_NAME)
-    // EDELIVERY-10980: fix circular dependencies FSProcessFileService -> backendFSPlugin -> FSProcessFileService
-    @Lazy
     protected FSPluginImpl backendFSPlugin;
 
     @Autowired
@@ -81,19 +79,6 @@ public class FSProcessFileService {
             } else {
                 LOG.error("Metadata file is missing for " + processableFile.getName().getURI());
             }
-        }
-    }
-
-    public void renameProcessedFile(FileObject processableFile, String messageId) {
-        final String baseName = processableFile.getName().getBaseName();
-        String newFileName = fsFileNameHelper.deriveFileName(baseName, messageId);
-
-        LOG.debug("Renaming file [{}] to [{}]", baseName, newFileName);
-
-        try {
-            fsFilesManager.renameFile(processableFile, newFileName);
-        } catch (FileSystemException ex) {
-            throw new FSPluginException("Error renaming file [" + processableFile.getName().getURI() + "] to [" + newFileName + "]", ex);
         }
     }
 

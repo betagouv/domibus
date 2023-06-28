@@ -2,6 +2,7 @@ package eu.domibus.plugin.fs;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.vfs.FileObjectDataSource;
@@ -286,5 +287,18 @@ public class FSFilesManager {
         long fileAgeSeconds = (currentMillis - modifiedMillis) / 1000;
 
         return fileAgeSeconds > ageInSeconds;
+    }
+
+    public void renameProcessedFile(FileObject processableFile, String messageId) {
+        final String baseName = processableFile.getName().getBaseName();
+        String newFileName = fsFileNameHelper.deriveFileName(baseName, messageId);
+
+        LOG.debug("Renaming file [{}] to [{}]", baseName, newFileName);
+
+        try {
+            renameFile(processableFile, newFileName);
+        } catch (FileSystemException ex) {
+            throw new FSPluginException("Error renaming file [" + processableFile.getName().getURI() + "] to [" + newFileName + "]", ex);
+        }
     }
 }

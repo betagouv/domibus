@@ -86,9 +86,6 @@ public class FSPluginImplTest {
     private MessageExtService messageExtService;
 
     @Injectable
-    protected FSProcessFileService fsProcessFileService;
-
-    @Injectable
     protected DomainTaskExtExecutor domainTaskExtExecutor;
 
     @Injectable
@@ -769,7 +766,7 @@ public class FSPluginImplTest {
         backendFS.payloadProcessedEvent(event);
 
         new Verifications() {{
-            fsProcessFileService.renameProcessedFile(fileObject, event.getMessageId());
+            fsFilesManager.renameProcessedFile(fileObject, event.getMessageId());
             fsFilesManager.deleteLockFile(fileObject);
         }};
     }

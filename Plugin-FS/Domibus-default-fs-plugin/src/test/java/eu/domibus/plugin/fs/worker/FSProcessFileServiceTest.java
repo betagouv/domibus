@@ -222,7 +222,7 @@ public void tearDown() throws FileSystemException {
 
         try {
             //tested method
-            fsProcessFileService.renameProcessedFile(contentFile, messageId);
+            fsFilesManager.renameProcessedFile(contentFile, messageId);
             Assertions.fail("exception expected");
         } catch (Exception e) {
             Assertions.assertEquals(FSPluginException.class, e.getClass());

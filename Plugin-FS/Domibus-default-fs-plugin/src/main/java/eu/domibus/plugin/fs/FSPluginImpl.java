@@ -93,8 +93,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
     protected final FSSendMessagesService fsSendMessagesService;
 
-    protected final FSProcessFileService fsProcessFileService;
-
     protected final DomainTaskExtExecutor domainTaskExtExecutor;
 
     protected final FSDomainService fsDomainService;
@@ -111,7 +109,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
                         FSFilesManager fsFilesManager,
                         FSPluginProperties fsPluginProperties,
                         FSSendMessagesService fsSendMessagesService,
-                        FSProcessFileService fsProcessFileService,
                         DomainTaskExtExecutor domainTaskExtExecutor,
                         FSDomainService fsDomainService,
                         FSXMLHelper fsxmlHelper,
@@ -125,7 +122,6 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         this.fsFilesManager = fsFilesManager;
         this.fsPluginProperties = fsPluginProperties;
         this.fsSendMessagesService = fsSendMessagesService;
-        this.fsProcessFileService = fsProcessFileService;
         this.domainTaskExtExecutor = domainTaskExtExecutor;
         this.fsDomainService = fsDomainService;
         this.fsxmlHelper = fsxmlHelper;
@@ -358,7 +354,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         LOG.debug("Handling PayloadProcessedEvent [{}]", event);
         try {
             FileObject fileObject = fsFilesManager.getEnsureRootLocation(event.getFileName());
-            fsProcessFileService.renameProcessedFile(fileObject, event.getMessageId());
+            fsFilesManager.renameProcessedFile(fileObject, event.getMessageId());
             fsFilesManager.deleteLockFile(fileObject);
         } catch (FileSystemException e) {
             LOG.error("Error handling PayloadProcessedEvent", e);
