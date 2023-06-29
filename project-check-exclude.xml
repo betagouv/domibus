@@ -29,6 +29,8 @@
         while upgrading to 30.0-jre will cause issues on Wildfly 20.x (EDELIVERY-7423)
         -->
         <cve>CVE-2020-8908</cve>
+        <!-- we don't use com.google.common.io.createTempDir com.google.common.io.FileBackedOutputStream-->
+        <cve>CVE-2023-2976</cve>
     </suppress>
 
     <suppress>
@@ -165,9 +167,18 @@
         <notes><![CDATA[
    file name: spring-boot-autoconfigure-2.6.14.jar
    ]]></notes>
-        <!--Used in testing environment-->
+        <!--Used in swagger environment-->
         <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-autoconfigure@.*$</packageUrl>
         <vulnerabilityName>CVE-2023-20883</vulnerabilityName>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-starter-web-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-web@.*$</packageUrl>
+        <!--Used in testing environment-->
+        <cve>CVE-2023-20883</cve>
     </suppress>
 
     <suppress>
@@ -283,5 +294,22 @@
         -->
         <packageUrl regex="true">^pkg:npm/%40angular%2Fcore@.*$</packageUrl>
         <vulnerabilityName>1088994</vulnerabilityName>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: tomcat-embed-core-9.0.72.jar
+   ]]></notes>
+        <!--Used in testing environment-->
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-core@.*$</packageUrl>
+        <cve>CVE-2023-28709</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: tomcat-embed-websocket-9.0.72.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-websocket@.*$</packageUrl>
+        <!--Used in testing environment-->
+        <cve>CVE-2023-28709</cve>
     </suppress>
 </suppressions>
