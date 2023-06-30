@@ -44,6 +44,7 @@ public class DomibusStringUtilImpl implements DomibusStringUtil {
         String result = str.replaceAll("(\\p{Ll})(\\p{Lu})", "$1 $2");
         return result.substring(0, 1).toUpperCase() + result.substring(1);
     }
+
     @Override
     public boolean isStringLengthLongerThanDefaultMaxLength(String testString) {
         return ((testString != null) && (StringUtils.length(testString) > DEFAULT_MAX_STRING_LENGTH));
@@ -73,7 +74,7 @@ public class DomibusStringUtilImpl implements DomibusStringUtil {
         }
     }
 
-    public void validateMessageId(final String messageId){
+    public void validateMessageId(final String messageId) {
         if (isBlank(messageId)) {
             LOG.debug("Message id is empty: validation skipped");
             return;
@@ -88,7 +89,7 @@ public class DomibusStringUtilImpl implements DomibusStringUtil {
     }
 
 
-    protected void validateMessageIdPattern(String messageId, String elementType){
+    protected void validateMessageIdPattern(String messageId, String elementType) {
         String messageIdPattern = domibusPropertyProvider.getProperty(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN);
         LOG.debug("MessageIdPattern read from file is [{}]", messageIdPattern);
 
