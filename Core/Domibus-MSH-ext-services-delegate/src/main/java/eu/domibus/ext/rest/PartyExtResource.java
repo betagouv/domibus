@@ -1,5 +1,6 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.ext.domain.*;
 import eu.domibus.ext.exceptions.PartyExtServiceException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
@@ -9,7 +10,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,11 +31,18 @@ public class PartyExtResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyExtResource.class);
 
-    @Autowired
+
     PartyExtService partyExtService;
 
-    @Autowired
     ExtExceptionHelper extExceptionHelper;
+
+    DomibusStringUtil domibusStringUtil;
+
+    public PartyExtResource(PartyExtService partyExtService, ExtExceptionHelper extExceptionHelper, DomibusStringUtil domibusStringUtil) {
+        this.partyExtService = partyExtService;
+        this.extExceptionHelper = extExceptionHelper;
+        this.domibusStringUtil = domibusStringUtil;
+    }
 
     @ExceptionHandler(PartyExtServiceException.class)
     public ResponseEntity<ErrorDTO> handlePartyExtServiceException(PartyExtServiceException e) {
@@ -71,6 +78,7 @@ public class PartyExtResource {
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @DeleteMapping
     public String deleteParty(@RequestParam(value = "partyName") @Valid @NotNull String partyName) {
+        domibusStringUtil.validateForbiddenString(partyName);
         partyExtService.deleteParty(partyName);
         return "Party having partyName=[" + partyName + "] has been successfully deleted";
 
@@ -81,6 +89,7 @@ public class PartyExtResource {
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(value = "/{partyName}/certificate")
     public ResponseEntity<Object> getCertificateForParty(@PathVariable(name = "partyName") String partyName) {
+        domibusStringUtil.validateForbiddenString(partyName);
         TrustStoreDTO cert = partyExtService.getPartyCertificateFromTruststore(partyName);
         if (cert == null) {
             return ResponseEntity.notFound().build();

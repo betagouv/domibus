@@ -1,5 +1,6 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.ext.domain.CacheEntryDTO;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.exceptions.CacheExtServiceException;
@@ -36,9 +37,12 @@ public class DistributedCacheExtResource {
 
     private final ExtExceptionHelper extExceptionHelper;
 
-    public DistributedCacheExtResource(DistributedCacheExtService distributedCacheExtService, ExtExceptionHelper extExceptionHelper) {
+    private final DomibusStringUtil domibusStringUtil;
+
+    public DistributedCacheExtResource(DistributedCacheExtService distributedCacheExtService, ExtExceptionHelper extExceptionHelper, DomibusStringUtil domibusStringUtil) {
         this.distributedCacheExtService = distributedCacheExtService;
         this.extExceptionHelper = extExceptionHelper;
+        this.domibusStringUtil = domibusStringUtil;
     }
 
     @ExceptionHandler(CacheExtServiceException.class)
@@ -87,7 +91,8 @@ public class DistributedCacheExtResource {
     public Object getDistributedCacheEntry(@PathVariable(name = "cacheName") String cacheName,
                                            @PathVariable(name = "entryKey") String entryKey) {
         LOG.info("Getting entry key [{}] from cache [{}]", entryKey, cacheName);
-
+        domibusStringUtil.validateForbiddenString(cacheName);
+        domibusStringUtil.validateForbiddenString(entryKey);
         return distributedCacheExtService.getEntryFromCache(cacheName, entryKey);
     }
 
@@ -103,7 +108,7 @@ public class DistributedCacheExtResource {
     public void addDistributedCacheEntry(@PathVariable(name = "cacheName") String cacheName,
                                             @RequestBody CacheEntryDTO cacheEntry) {
         LOG.info("Creating entry in cache [{}]: [{}]", cacheName, cacheEntry);
-
+        domibusStringUtil.validateForbiddenString(cacheName);
         distributedCacheExtService.addEntry(cacheName, cacheEntry.getKey(), cacheEntry.getValue());
     }
 
@@ -119,7 +124,8 @@ public class DistributedCacheExtResource {
     public void deleteDistributedCacheEntry(@PathVariable(name = "cacheName") String cacheName,
                                             @PathVariable(name = "entryKey") String entryKey) {
         LOG.info("Deleting entry key [{}] from cache [{}]", entryKey, cacheName);
-
+        domibusStringUtil.validateForbiddenString(cacheName);
+        domibusStringUtil.validateForbiddenString(entryKey);
         distributedCacheExtService.evictEntryFromCache(cacheName, entryKey);
     }
 
@@ -134,7 +140,7 @@ public class DistributedCacheExtResource {
     @GetMapping(path = "/caches/{cacheName}")
     public List<CacheEntryDTO> getDistributedCacheEntries(@PathVariable(name = "cacheName") String cacheName) {
         LOG.info("Getting all entries from cache [{}]", cacheName);
-
+        domibusStringUtil.validateForbiddenString(cacheName);
         return distributedCacheExtService.getEntriesFromCache(cacheName);
     }
 }

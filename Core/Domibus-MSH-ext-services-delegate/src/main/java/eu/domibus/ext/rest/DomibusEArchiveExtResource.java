@@ -2,6 +2,7 @@ package eu.domibus.ext.rest;
 
 import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.exceptions.DomibusEArchiveExtException;
@@ -43,10 +44,12 @@ public class DomibusEArchiveExtResource {
 
     final DomibusEArchiveExtService domibusEArchiveExtService;
     final ExtExceptionHelper extExceptionHelper;
+    final DomibusStringUtil domibusStringUtil;
 
-    public DomibusEArchiveExtResource(DomibusEArchiveExtService domibusEArchiveExtService, ExtExceptionHelper extExceptionHelper) {
+    public DomibusEArchiveExtResource(DomibusEArchiveExtService domibusEArchiveExtService, ExtExceptionHelper extExceptionHelper,  DomibusStringUtil domibusStringUtil) {
         this.domibusEArchiveExtService = domibusEArchiveExtService;
         this.extExceptionHelper = extExceptionHelper;
+        this.domibusStringUtil = domibusStringUtil;
     }
 
     /**
@@ -258,6 +261,7 @@ public class DomibusEArchiveExtResource {
     ) {
         //not covered
         LOG.info("ReExport batch with ID: [{}].", batchId);
+        domibusStringUtil.validateForbiddenString(batchId);
         try {
             return domibusEArchiveExtService.reExportBatch(batchId);
         } catch (DomibusEArchiveException coreEArchiveException) {
@@ -295,6 +299,7 @@ public class DomibusEArchiveExtResource {
             @Parameter(description = "Set the batch message/error - reason.") @RequestParam(value = "message", required = false) String message) {
         LOG.info("Set client's final status [{}] for batch with ID: [{}] and message [{}].", batchStatus, batchId, message);
         //not covered
+        domibusStringUtil.validateForbiddenString(batchId);
         try {
             return domibusEArchiveExtService.setBatchClientStatus(batchId, batchStatus, message);
         } catch (DomibusEArchiveException coreEArchiveException) {

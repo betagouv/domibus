@@ -1,5 +1,6 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.PartInfoDTO;
@@ -20,7 +21,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,11 +46,17 @@ public class UserMessagePayloadExtResource {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessagePayloadExtResource.class);
 
-    @Autowired
     PayloadExtService payloadExtService;
 
-    @Autowired
     ExtExceptionHelper extExceptionHelper;
+
+    DomibusStringUtil domibusStringUtil;
+
+    public UserMessagePayloadExtResource(PayloadExtService payloadExtService, ExtExceptionHelper extExceptionHelper, DomibusStringUtil domibusStringUtil) {
+        this.payloadExtService = payloadExtService;
+        this.extExceptionHelper = extExceptionHelper;
+        this.domibusStringUtil = domibusStringUtil;
+    }
 
     @ExceptionHandler(DomibusServiceExtException.class)
     public ResponseEntity<ErrorDTO> handleUserMessageExtException(DomibusServiceExtException e) {
@@ -75,6 +81,8 @@ public class UserMessagePayloadExtResource {
     public void downloadPayloadByEntityId(@PathVariable(value = "messageEntityId") Long messageEntityId, @PathVariable(value = "cid") String cid, HttpServletResponse response) {
         LOG.debug("Downloading the payload with cid [{}] for message with id [{}]", cid, messageEntityId);
 
+        domibusStringUtil.validateForbiddenString(cid);
+
         final PartInfoDTO payload = payloadExtService.getPayload(messageEntityId, cid);
         writePayloadToResponse(cid, response, payload);
     }
@@ -85,6 +93,10 @@ public class UserMessagePayloadExtResource {
     public void downloadPayloadByMessageId(@PathVariable(value = "messageId") String messageId, @PathVariable(value = "cid") String cid,
                                            @RequestParam(value = "mshRole", required = false) MSHRole mshRole, HttpServletResponse response) {
         LOG.debug("Downloading the payload with cid [{}] for message with id [{}] and role [{}]", cid, messageId, mshRole);
+
+        domibusStringUtil.validateMessageId(messageId);
+
+        domibusStringUtil.validateForbiddenString(cid);
 
         final PartInfoDTO payload = payloadExtService.getPayload(messageId, mshRole, cid);
         writePayloadToResponse(cid, response, payload);

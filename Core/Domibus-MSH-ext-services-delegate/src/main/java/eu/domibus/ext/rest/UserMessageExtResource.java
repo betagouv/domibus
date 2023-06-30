@@ -1,5 +1,6 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
@@ -14,7 +15,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,11 +34,18 @@ public class UserMessageExtResource {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageExtResource.class);
 
-    @Autowired
     UserMessageExtService userMessageExtService;
 
-    @Autowired
     ExtExceptionHelper extExceptionHelper;
+
+    DomibusStringUtil domibusStringUtil;
+
+    public UserMessageExtResource(UserMessageExtService userMessageExtService, ExtExceptionHelper extExceptionHelper, DomibusStringUtil domibusStringUtil) {
+        this.userMessageExtService = userMessageExtService;
+        this.extExceptionHelper = extExceptionHelper;
+        this.domibusStringUtil = domibusStringUtil;
+    }
+
 
     @ExceptionHandler(UserMessageExtException.class)
     public ResponseEntity<ErrorDTO> handleUserMessageExtException(UserMessageExtException e) {
@@ -59,6 +66,9 @@ public class UserMessageExtResource {
     public UserMessageDTO getUserMessage(@PathVariable(value = "messageId") String messageId,
                                          @RequestParam(value = "mshRole", required = false) MSHRole mshRole) throws MessageNotFoundException {
         LOG.debug("Getting User Message with id = [{}] and mshRole = [{}]", messageId, mshRole);
+
+        domibusStringUtil.validateMessageId(messageId);
+
         return userMessageExtService.getMessage(messageId, mshRole);
     }
 
@@ -68,6 +78,8 @@ public class UserMessageExtResource {
     public ResponseEntity<String> downloadUserMessageEnvelope(@PathVariable(value = "messageId") String messageId,
                                                               @RequestParam(value = "mshRole", required = false) MSHRole mshRole) {
         LOG.debug("Getting User Message Envelope with id = [{}] and mshRole = [{}]", messageId, mshRole);
+
+        domibusStringUtil.validateMessageId(messageId);
 
         String result = userMessageExtService.getUserMessageEnvelope(messageId, mshRole);
 
@@ -80,6 +92,8 @@ public class UserMessageExtResource {
     public ResponseEntity<String> downloadSignalMessageEnvelope(@PathVariable(value = "messageId") String messageId,
                                                                 @RequestParam(value = "mshRole", required = false) MSHRole mshRole) {
         LOG.debug("Getting Signal Message Envelope with id = [{}] and mshRole = [{}]", messageId, mshRole);
+
+        domibusStringUtil.validateMessageId(messageId);
 
         String result = userMessageExtService.getSignalMessageEnvelope(messageId, mshRole);
 

@@ -1,5 +1,6 @@
 package eu.domibus.ext.rest;
 
+import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.MessageAcknowledgementDTO;
 import eu.domibus.ext.domain.MessageAcknowledgementRequestDTO;
@@ -9,7 +10,6 @@ import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,11 +24,17 @@ import java.util.List;
 @Tag(name = "acknowledgement", description = "Domibus Message Acknowledgement API")
 public class MessageAcknowledgementExtResource {
 
-    @Autowired
     MessageAcknowledgeExtService messageAcknowledgeService;
 
-    @Autowired
     ExtExceptionHelper extExceptionHelper;
+
+    DomibusStringUtil domibusStringUtil;
+
+    public MessageAcknowledgementExtResource(MessageAcknowledgeExtService messageAcknowledgeService, ExtExceptionHelper extExceptionHelper, DomibusStringUtil domibusStringUtil) {
+        this.messageAcknowledgeService = messageAcknowledgeService;
+        this.extExceptionHelper = extExceptionHelper;
+        this.domibusStringUtil = domibusStringUtil;
+    }
 
     @ExceptionHandler(MessageAcknowledgeExtException.class)
     public ResponseEntity<ErrorDTO> handleMessageAcknowledgeExtException(MessageAcknowledgeExtException e) {
@@ -72,6 +78,7 @@ public class MessageAcknowledgementExtResource {
     @GetMapping(path = "/{messageId:.+}")
     @ResponseBody
     public List<MessageAcknowledgementDTO> getAcknowledgedMessages(@PathVariable(value = "messageId") String messageId) {
+        domibusStringUtil.validateMessageId(messageId);
         return messageAcknowledgeService.getAcknowledgedMessages(messageId);
     }
 

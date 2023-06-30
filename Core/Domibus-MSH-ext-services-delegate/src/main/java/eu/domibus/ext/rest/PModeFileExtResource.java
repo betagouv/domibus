@@ -1,6 +1,7 @@
 package eu.domibus.ext.rest;
 
 
+import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
 import eu.domibus.ext.domain.ValidationIssueDTO;
@@ -40,9 +41,12 @@ public class PModeFileExtResource {
 
     final ExtExceptionHelper extExceptionHelper;
 
-    public PModeFileExtResource(PModeExtService pModeExtService, ExtExceptionHelper extExceptionHelper) {
+    final DomibusStringUtil domibusStringUtil;
+
+    public PModeFileExtResource(PModeExtService pModeExtService, ExtExceptionHelper extExceptionHelper, DomibusStringUtil domibusStringUtil) {
         this.pModeExtService = pModeExtService;
         this.extExceptionHelper = extExceptionHelper;
+        this.domibusStringUtil = domibusStringUtil;
     }
 
     @ExceptionHandler(PModeExtException.class)
