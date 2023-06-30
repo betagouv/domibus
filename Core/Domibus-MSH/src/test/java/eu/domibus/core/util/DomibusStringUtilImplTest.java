@@ -1,5 +1,7 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.property.DomibusPropertyProvider;
+import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +17,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 @ExtendWith(JMockitExtension.class)
 public class DomibusStringUtilImplTest {
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Tested
     private DomibusStringUtilImpl domibusStringUtil;

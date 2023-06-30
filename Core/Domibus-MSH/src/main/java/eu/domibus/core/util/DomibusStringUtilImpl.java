@@ -69,7 +69,8 @@ public class DomibusStringUtilImpl implements DomibusStringUtil {
     @Override
     public void validateForbiddenString(String name) {
         String trimmedName = StringUtils.trim(name);
-        if (!trimmedName.matches(DOMIBUS_USER_INPUT_BLACK_LIST)) {
+        String blackListInput = domibusPropertyProvider.getProperty(DOMIBUS_USER_INPUT_BLACK_LIST);
+        if (!trimmedName.matches(blackListInput)) {
             throw new DomibusCoreException(DomibusCoreErrorCode.DOM_009, String.format("forbidden characters found in [%s]", name));
         }
     }
