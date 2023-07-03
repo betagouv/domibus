@@ -78,6 +78,24 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
+   file name: http2-common-11.0.12.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty\.http2/http2\-common@.*$</packageUrl>
+        <!-- jetty-server is not used in production - used in tests -->
+        <cve>CVE-2023-26048</cve>
+        <cve>CVE-2023-26049</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: http2-server-11.0.12.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty\.http2/http2\-server@.*$</packageUrl>
+        <!-- jetty-server is not used in production - used in tests -->
+        <cve>CVE-2023-26048</cve>
+        <cve>CVE-2023-26049</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
    file name: cxf-rt-bindings-soap-3.5.5.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.cxf/cxf\-rt\-bindings\-soap@.*$</packageUrl>
@@ -94,6 +112,14 @@
         <cve>CVE-2022-45688</cve>
         <!-- Domibus msh test -->
         <vulnerabilityName>CVE-2023-1370</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: json-unit-core-2.38.0.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/net\.javacrumbs\.json\-unit/json\-unit\-core@.*$</packageUrl>
+        <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
+        <cve>CVE-2022-45688</cve>
     </suppress>
 
     <suppress>
