@@ -300,14 +300,6 @@
         <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
         <cve>CVE-2023-33264</cve>
     </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: hazelcast-all-4.2.7.jar (shaded: org.codehaus.janino:commons-compiler:3.0.11)
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.codehaus\.janino/commons\-compiler@.*$</packageUrl>
-        <!--Hazelcast Management Center is used in a controlled environment so the risk is low-->
-        <cve>CVE-2023-33546</cve>
-    </suppress>
 
     <suppress>
         <!-- snakeyaml is not used in production - used in swagger and tests -->
