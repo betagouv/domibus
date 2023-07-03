@@ -334,6 +334,14 @@
         <!--User supplied input comes only from trusted sources-->
         <cve>CVE-2023-33546</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-all-4.2.7.jar (shaded: org.codehaus.janino:commons-compiler:3.0.11)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.codehaus\.janino/commons\-compiler@.*$</packageUrl>
+        <!--User supplied input comes only from trusted sources-->
+        <cve>CVE-2023-33546</cve>
+    </suppress>
 
     <suppress>
         <!-- snakeyaml is not used in production - used in swagger and tests -->
