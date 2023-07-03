@@ -167,7 +167,7 @@
         <notes><![CDATA[
    file name: spring-boot-autoconfigure-2.6.14.jar
    ]]></notes>
-        <!--Used in swagger environment-->
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
         <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-autoconfigure@.*$</packageUrl>
         <vulnerabilityName>CVE-2023-20883</vulnerabilityName>
     </suppress>
@@ -177,10 +177,17 @@
    file name: spring-boot-starter-web-2.6.14.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-web@.*$</packageUrl>
-        <!--Used in testing environment-->
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
         <cve>CVE-2023-20883</cve>
     </suppress>
-
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
     <suppress>
         <notes><![CDATA[
    file name: hazelcast-all-4.2.7.jar
@@ -234,6 +241,14 @@
         <!-- Domibus does not Woodstox to parse XML data -->
         <cpe>cpe:/a:fasterxml:woodstox</cpe>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: woodstox-core-6.4.0.jar (shaded: com.sun.xml.bind.jaxb:isorelax:20090621)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.sun\.xml\.bind\.jaxb/isorelax@.*$</packageUrl>
+        <!-- In Domibus we do not run the woodstock XML parser on user supplied input -->
+        <cpe>cpe:/a:xml_library_project:xml_library</cpe>
+    </suppress>
 
     <suppress>
         <notes><![CDATA[
@@ -242,6 +257,14 @@
         <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
         <!-- The XML.toJSONObject component of hutool-json is not used by Domibus -->
         <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jackson-databind-2.14.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+        <!-- Serializing Map objects via Jackson is not done on user supplied input -->
+        <cve>CVE-2023-35116</cve>
     </suppress>
 
     <suppress>
@@ -312,4 +335,21 @@
         <!--Used in testing environment-->
         <cve>CVE-2023-28709</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: bcprov-jdk15on-1.68.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bcprov\-jdk15on@.*$</packageUrl>
+        <!-- We're not using the affected functionality-->
+        <vulnerabilityName>CVE-2023-33201</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: bcprov-jdk18on-1.72.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bcprov\-jdk18on@.*$</packageUrl>
+        <!-- We're not using the affected functionality-->
+        <vulnerabilityName>CVE-2023-33201</vulnerabilityName>
+    </suppress>
+
 </suppressions>
