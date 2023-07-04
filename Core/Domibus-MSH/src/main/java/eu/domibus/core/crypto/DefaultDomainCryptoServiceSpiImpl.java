@@ -126,10 +126,23 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public void init() {
         LOG.debug("Initializing the certificate provider for domain [{}]", domain);
 
-        createSecurityProfileAliasConfigurations();
+        try {
+            createSecurityProfileAliasConfigurations();
+        } catch (Exception ex) {
+            LOG.error("Exception while trying to create the security profile alias configurations", ex);
+        }
 
-        initTrustStore();
-        initKeyStore();
+        try {
+            initTrustStore();
+        } catch (Exception ex) {
+            LOG.error("Exception while trying to initialize the domibus truststore", ex);
+        }
+
+        try {
+            initKeyStore();
+        } catch (Exception ex) {
+            LOG.error("Exception while trying to initialize the domibus keystore", ex);
+        }
 
         LOG.debug("Finished initializing the certificate provider for domain [{}]", domain);
     }

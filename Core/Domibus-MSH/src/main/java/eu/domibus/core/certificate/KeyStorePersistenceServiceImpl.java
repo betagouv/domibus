@@ -248,6 +248,12 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
             domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE, type);
             domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION, fileLocation);
         }
+
+        @Override
+        public void updatePassword(String password) {
+            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, password);
+        }
+
     }
 
     class KeyStorePersistenceInfoImpl implements KeystorePersistenceInfo {
@@ -282,5 +288,11 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
             domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE, type);
             domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION, fileLocation);
         }
+
+        @Override
+        public void updatePassword(String password) {
+            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEYSTORE_PASSWORD, password);
+        }
+
     }
 }
