@@ -56,7 +56,7 @@ public class TLSTruststoreResource extends TruststoreResourceBase {
     @PostMapping()
     public String uploadTLSTruststoreFile(@RequestPart("file") MultipartFile file,
                                           @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
-        uploadStore(file, password);
+        uploadStore(file, password, allowChangingDiskStoreProps);
         return "TLS truststore file has been successfully replaced.";
     }
 

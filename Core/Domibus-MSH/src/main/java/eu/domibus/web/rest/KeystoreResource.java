@@ -111,10 +111,11 @@ public class KeystoreResource extends TruststoreResourceBase {
 
     @PostMapping(value = "/save")
     public String uploadKeystoreFile(@RequestPart("file") MultipartFile keystoreFile,
-                                     @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
+                                     @SkipWhiteListed @RequestParam("password") String password,
+                                     @RequestParam("allowChangingDiskStoreProps") Boolean allowChangingDiskStoreProps) throws RequestValidationException {
         LOG.debug("Uploading file [{}] as the keystore for the current domain ", keystoreFile.getName());
 
-        uploadStore(keystoreFile, password);
+        uploadStore(keystoreFile, password, allowChangingDiskStoreProps);
 
         return "Keystore file has been successfully replaced.";
     }

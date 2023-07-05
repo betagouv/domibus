@@ -111,12 +111,18 @@ public class CertificateHelper {
     }
 
     public KeyStoreContentInfo createStoreContentInfo(String storeName, String storeFileName, byte[] storeContent, String storePassword) {
+        return createStoreContentInfo(storeName, storeFileName, storeContent, storePassword, false);
+    }
+
+    public KeyStoreContentInfo createStoreContentInfo(String storeName, String storeFileName, byte[] storeContent, String storePassword, boolean allowChangingDiskStoreProps) {
         if (StringUtils.isNotEmpty(storeFileName)) {
             validateStoreFileName(storeFileName);
         }
         String storeType = getStoreType(storeFileName);
 
-        return createStoreContentInfo(storeName, storeFileName, storeContent, storePassword, storeType);
+        KeyStoreContentInfo res = createStoreContentInfo(storeName, storeFileName, storeContent, storePassword, storeType);
+        res.setAllowChangingDiskStoreProps(allowChangingDiskStoreProps);
+        return res;
     }
 
     public KeyStoreContentInfo createStoreContentInfo(String storeName, String storeFileName, byte[] storeContent, String storePassword, String storeType) {
