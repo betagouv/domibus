@@ -85,7 +85,7 @@ public class TruststoreResourceIT extends AbstractIT {
             MultipartFile multiPartFile = new MockMultipartFile("gateway_truststore2.jks", "gateway_truststore2.jks",
                     "octetstream", IOUtils.toByteArray(resourceAsStream));
 
-            truststoreResource.uploadTruststoreFile(multiPartFile, "test123");
+            truststoreResource.uploadTruststoreFile(multiPartFile, "test123", true);
 
             List<TrustStoreRO> newEntries = truststoreResource.trustStoreEntries();
 
@@ -100,7 +100,7 @@ public class TruststoreResourceIT extends AbstractIT {
         byte[] content = Files.readAllBytes(path);
         MultipartFile multiPartFile = new MockMultipartFile(fileName, fileName, "octetstream", content);
 
-        truststoreResource.uploadTruststoreFile(multiPartFile, "test123");
+        truststoreResource.uploadTruststoreFile(multiPartFile, "test123", true);
 
         List<TrustStoreRO> newEntries = truststoreResource.trustStoreEntries();
 
@@ -115,13 +115,13 @@ public class TruststoreResourceIT extends AbstractIT {
         byte[] content = Files.readAllBytes(path);
         MultipartFile multiPartFile = new MockMultipartFile(fileName, fileName, "octetstream", content);
 
-        truststoreResource.uploadTruststoreFile(multiPartFile, "test123");
+        truststoreResource.uploadTruststoreFile(multiPartFile, "test123", true);
 
         List<TrustStoreRO> newEntries = truststoreResource.trustStoreEntries();
         Assertions.assertEquals(9, newEntries.size());
 
         try {
-            truststoreResource.uploadTruststoreFile(multiPartFile, "test123");
+            truststoreResource.uploadTruststoreFile(multiPartFile, "test123", true);
         } catch (SameResourceCryptoException ex) {
             Assertions.assertTrue(ex.getMessage().contains("[DOM_001]:Current store [domibus.truststore] was not replaced with the content of the file [gateway_truststore2.jks] because they are identical."));
         }
