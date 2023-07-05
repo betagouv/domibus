@@ -515,8 +515,10 @@ public class CertificateServiceImpl implements CertificateService {
                 && StringUtils.equals(storeInfo.getPassword(), persistenceInfo.getPassword());
     }
 
-    protected KeyStore getNewKeystore(String storeType) throws KeyStoreException {
-        return KeyStore.getInstance(storeType);
+    protected KeyStore getNewKeystore(String storeType) throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException {
+        KeyStore instance = KeyStore.getInstance(storeType);
+        instance.load(null, null);
+        return instance;
     }
 
     protected void copyStoreCertificates(KeyStore srcStore, KeyStore destStore) {
@@ -526,6 +528,7 @@ public class CertificateServiceImpl implements CertificateService {
                 final String alias = aliases.nextElement();
                 final X509Certificate certificate = (X509Certificate) srcStore.getCertificate(alias);
                 destStore.setCertificateEntry(alias, certificate);
+                LOG.debug("Copy certificate [{}] named [{}]", certificate, alias);
             }
         } catch (Exception e) {
             throw new DomibusCertificateException("Error while copying certificates from source store", e);
@@ -642,6 +645,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
         try (InputStream contentStream = new ByteArrayInputStream(storeInfo.getContent())) {
             KeyStore keystore = getNewKeystore(storeInfo.getType());
+            LOG.debug("Creating a new store [{}] to load content", storeInfo);
             keystore.load(contentStream, storeInfo.getPassword().toCharArray());
             return keystore;
         } catch (Exception ex) {
