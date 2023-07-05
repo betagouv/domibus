@@ -115,6 +115,9 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
     @Override
     public void saveStore(KeyStoreContentInfo contentInfo, KeystorePersistenceInfo persistenceInfo) {
         saveStore(contentInfo.getContent(), contentInfo.getType(), persistenceInfo);
+        if (!StringUtils.equals(contentInfo.getPassword(), persistenceInfo.getPassword())) {
+            persistenceInfo.updatePassword(contentInfo.getPassword());
+        }
     }
 
     @Override

@@ -71,7 +71,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         String storeFileName = contentInfo.getFileName();
         boolean replaced;
         try {
-            replaced = certificateService.replaceStore(contentInfo, getPersistenceInfo());
+            replaced = certificateService.replaceStore(contentInfo, getPersistenceInfo(), true);
         } catch (CryptoException ex) {
             throw new CryptoException(String.format("Error while replacing the store [%s] with content of the file named [%s].", storeName, storeFileName), ex);
         }

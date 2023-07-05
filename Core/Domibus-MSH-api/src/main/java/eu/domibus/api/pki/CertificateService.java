@@ -116,7 +116,7 @@ public interface CertificateService {
      */
     TrustStoreEntry convertCertificateContent(String certificateContent);
 
-    boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo);
+    boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo, boolean checkEqual);
 
     KeyStore getStore(KeystorePersistenceInfo info);
 
@@ -200,7 +200,5 @@ public interface CertificateService {
      * @return true if they are different
      */
     boolean isStoreChangedOnDisk(KeyStore store, KeystorePersistenceInfo persistenceInfo);
-
-    KeyStore getNewKeystore(String storeType) throws KeyStoreException;
 
 }

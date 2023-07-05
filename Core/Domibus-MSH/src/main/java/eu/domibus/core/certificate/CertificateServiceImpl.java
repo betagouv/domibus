@@ -359,7 +359,7 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     @Override
-    public boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo) {
+    public boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo, boolean checkEqual) {
         String storeName = persistenceInfo.getName();
         KeyStore store = getStore(persistenceInfo);
 
@@ -368,12 +368,20 @@ public class CertificateServiceImpl implements CertificateService {
             storeInfo.setType(certificateHelper.getStoreType(storeInfo.getFileName()));
         }
         try {
-            KeyStore newStore = loadStore(storeInfo);
-            if (securityUtil.areKeystoresIdentical(newStore, store)) {
+            KeyStore uploadedStore = loadStore(storeInfo);
+            if (checkEqual && securityUtil.areKeystoresIdentical(uploadedStore, store)) {
                 LOG.info("Current store [{}] is identical with the new one, so no replacing.", storeName);
                 return false;
             }
-            keystorePersistenceService.saveStore(storeInfo, persistenceInfo);
+
+            if (sameProperties(storeInfo, persistenceInfo) || storeInfo.isAllowChangingDiskStoreProps()) {
+                keystorePersistenceService.saveStore(storeInfo, persistenceInfo);
+            } else {
+                // we need to copy the certificates to a store with the same props as the ones on disk store
+                KeyStore destStore = getNewKeystore(persistenceInfo.getType());
+                copyStoreCertificates(uploadedStore, destStore);
+                keystorePersistenceService.saveStore(destStore, persistenceInfo);
+            }
             LOG.info("Store [{}] successfully replaced with entries [{}].", storeName, getStoreEntries(store));
 
             auditService.addStoreReplacedAudit(storeName);
@@ -502,9 +510,26 @@ public class CertificateServiceImpl implements CertificateService {
         return different;
     }
 
-    @Override
-    public KeyStore getNewKeystore(String storeType) throws KeyStoreException {
+    private boolean sameProperties(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo) {
+        return StringUtils.equals(storeInfo.getType(), persistenceInfo.getType())
+                && StringUtils.equals(storeInfo.getPassword(), persistenceInfo.getPassword());
+    }
+
+    protected KeyStore getNewKeystore(String storeType) throws KeyStoreException {
         return KeyStore.getInstance(storeType);
+    }
+
+    protected void copyStoreCertificates(KeyStore srcStore, KeyStore destStore) {
+        try {
+            final Enumeration<String> aliases = srcStore.aliases();
+            while (aliases.hasMoreElements()) {
+                final String alias = aliases.nextElement();
+                final X509Certificate certificate = (X509Certificate) srcStore.getCertificate(alias);
+                destStore.setCertificateEntry(alias, certificate);
+            }
+        } catch (Exception e) {
+            throw new DomibusCertificateException("Error while copying certificates from source store", e);
+        }
     }
 
 
