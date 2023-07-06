@@ -131,6 +131,7 @@ public class CertificateHelper {
         storeInfo.setContent(storeContent);
         storeInfo.setPassword(storePassword);
         storeInfo.setType(storeType);
+        storeInfo.setAllowChangingDiskStoreProps(allowChangingDiskStoreProps);
 
         return storeInfo;
     }
