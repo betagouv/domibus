@@ -2,7 +2,6 @@ package eu.domibus.ext.rest;
 
 import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.exceptions.DomibusEArchiveExtException;
@@ -49,12 +48,10 @@ public class DomibusEArchiveExtResource {
 
     final DomibusEArchiveExtService domibusEArchiveExtService;
     final ExtExceptionHelper extExceptionHelper;
-    final DomibusStringUtil domibusStringUtil;
 
-    public DomibusEArchiveExtResource(DomibusEArchiveExtService domibusEArchiveExtService, ExtExceptionHelper extExceptionHelper,  DomibusStringUtil domibusStringUtil) {
+    public DomibusEArchiveExtResource(DomibusEArchiveExtService domibusEArchiveExtService, ExtExceptionHelper extExceptionHelper) {
         this.domibusEArchiveExtService = domibusEArchiveExtService;
         this.extExceptionHelper = extExceptionHelper;
-        this.domibusStringUtil = domibusStringUtil;
     }
 
     /**

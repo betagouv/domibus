@@ -1,6 +1,5 @@
 package eu.domibus.ext.rest;
 
-import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
@@ -39,16 +38,13 @@ public class UserMessageExtResource {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageExtResource.class);
 
-    UserMessageExtService userMessageExtService;
+    private final UserMessageExtService userMessageExtService;
 
-    ExtExceptionHelper extExceptionHelper;
+    private final ExtExceptionHelper extExceptionHelper;
 
-    DomibusStringUtil domibusStringUtil;
-
-    public UserMessageExtResource(UserMessageExtService userMessageExtService, ExtExceptionHelper extExceptionHelper, DomibusStringUtil domibusStringUtil) {
+    public UserMessageExtResource(UserMessageExtService userMessageExtService, ExtExceptionHelper extExceptionHelper) {
         this.userMessageExtService = userMessageExtService;
         this.extExceptionHelper = extExceptionHelper;
-        this.domibusStringUtil = domibusStringUtil;
     }
 
 

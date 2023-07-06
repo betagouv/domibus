@@ -27,9 +27,9 @@ import java.util.List;
 @Tag(name = "acknowledgement", description = "Domibus Message Acknowledgement API")
 public class MessageAcknowledgementExtResource {
 
-    MessageAcknowledgeExtService messageAcknowledgeService;
+    private final MessageAcknowledgeExtService messageAcknowledgeService;
 
-    ExtExceptionHelper extExceptionHelper;
+    private final ExtExceptionHelper extExceptionHelper;
 
     public MessageAcknowledgementExtResource(MessageAcknowledgeExtService messageAcknowledgeService, ExtExceptionHelper extExceptionHelper) {
         this.messageAcknowledgeService = messageAcknowledgeService;

@@ -37,9 +37,8 @@ public class PartyExtResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyExtResource.class);
 
 
-    PartyExtService partyExtService;
-
-    ExtExceptionHelper extExceptionHelper;
+    private final PartyExtService partyExtService;
+    private final ExtExceptionHelper extExceptionHelper;
 
     public PartyExtResource(PartyExtService partyExtService, ExtExceptionHelper extExceptionHelper) {
         this.partyExtService = partyExtService;

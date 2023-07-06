@@ -28,9 +28,9 @@ import java.util.List;
 public class DomibusMonitoringExtResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMonitoringExtResource.class);
 
-    DomibusMonitoringExtService domibusMonitoringExtService;
+    private final DomibusMonitoringExtService domibusMonitoringExtService;
 
-    ExtExceptionHelper extExceptionHelper;
+    private final ExtExceptionHelper extExceptionHelper;
 
     public DomibusMonitoringExtResource(DomibusMonitoringExtService domibusMonitoringExtService, ExtExceptionHelper extExceptionHelper) {
         this.domibusMonitoringExtService = domibusMonitoringExtService;

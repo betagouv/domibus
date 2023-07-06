@@ -49,9 +49,9 @@ public class UserMessagePayloadExtResource {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessagePayloadExtResource.class);
 
-    PayloadExtService payloadExtService;
+    private final PayloadExtService payloadExtService;
 
-    ExtExceptionHelper extExceptionHelper;
+    private final ExtExceptionHelper extExceptionHelper;
 
     public UserMessagePayloadExtResource(PayloadExtService payloadExtService, ExtExceptionHelper extExceptionHelper) {
         this.payloadExtService = payloadExtService;

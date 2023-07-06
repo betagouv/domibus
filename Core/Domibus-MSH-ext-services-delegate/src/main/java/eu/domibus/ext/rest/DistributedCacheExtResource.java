@@ -1,6 +1,5 @@
 package eu.domibus.ext.rest;
 
-import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.ext.domain.CacheEntryDTO;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.exceptions.CacheExtServiceException;
@@ -43,12 +42,10 @@ public class DistributedCacheExtResource {
 
     private final ExtExceptionHelper extExceptionHelper;
 
-    private final DomibusStringUtil domibusStringUtil;
 
-    public DistributedCacheExtResource(DistributedCacheExtService distributedCacheExtService, ExtExceptionHelper extExceptionHelper, DomibusStringUtil domibusStringUtil) {
+    public DistributedCacheExtResource(DistributedCacheExtService distributedCacheExtService, ExtExceptionHelper extExceptionHelper) {
         this.distributedCacheExtService = distributedCacheExtService;
         this.extExceptionHelper = extExceptionHelper;
-        this.domibusStringUtil = domibusStringUtil;
     }
 
     @ExceptionHandler(CacheExtServiceException.class)

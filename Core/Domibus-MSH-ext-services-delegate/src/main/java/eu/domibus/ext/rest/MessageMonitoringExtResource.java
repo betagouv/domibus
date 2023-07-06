@@ -42,20 +42,15 @@ public class MessageMonitoringExtResource {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageMonitoringExtResource.class);
 
-    ExtExceptionHelper extExceptionHelper;
-
-    MessageMonitorExtService messageMonitorExtService;
-
-    DateExtService dateExtService;
+    private final ExtExceptionHelper extExceptionHelper;
+    private final MessageMonitorExtService messageMonitorExtService;
+    private final DateExtService dateExtService;
 
     public MessageMonitoringExtResource(ExtExceptionHelper extExceptionHelper, MessageMonitorExtService messageMonitorExtService, DateExtService dateExtService) {
         this.extExceptionHelper = extExceptionHelper;
         this.messageMonitorExtService = messageMonitorExtService;
         this.dateExtService = dateExtService;
     }
-
-
-
 
     @ExceptionHandler(MessageMonitorExtException.class)
     public ResponseEntity<ErrorDTO> handleMessageMonitorExtException(MessageMonitorExtException e) {
