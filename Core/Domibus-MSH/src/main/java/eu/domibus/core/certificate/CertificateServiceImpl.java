@@ -511,8 +511,8 @@ public class CertificateServiceImpl implements CertificateService {
     }
 
     private boolean sameProperties(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo) {
-        return StringUtils.equals(storeInfo.getType(), persistenceInfo.getType())
-                && StringUtils.equals(storeInfo.getPassword(), persistenceInfo.getPassword());
+        return StringUtils.equalsIgnoreCase(storeInfo.getType(), persistenceInfo.getType())
+                && StringUtils.equalsIgnoreCase(storeInfo.getPassword(), persistenceInfo.getPassword());
     }
 
     protected KeyStore getNewKeystore(String storeType) throws KeyStoreException, CertificateException, IOException, NoSuchAlgorithmException {

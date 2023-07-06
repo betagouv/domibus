@@ -107,7 +107,7 @@ public class CertificateHelper {
     }
 
     public KeyStoreContentInfo createStoreContentInfo(String storeName, byte[] storeContent, String storeType, String storePassword) {
-        return createStoreContentInfo(storeName, null, storeContent, storePassword, storeType);
+        return createStoreContentInfo(storeName, null, storeContent, storePassword, storeType, false);
     }
 
     public KeyStoreContentInfo createStoreContentInfo(String storeName, String storeFileName, byte[] storeContent, String storePassword) {
@@ -120,12 +120,11 @@ public class CertificateHelper {
         }
         String storeType = getStoreType(storeFileName);
 
-        KeyStoreContentInfo res = createStoreContentInfo(storeName, storeFileName, storeContent, storePassword, storeType);
-        res.setAllowChangingDiskStoreProps(allowChangingDiskStoreProps);
-        return res;
+        return createStoreContentInfo(storeName, storeFileName, storeContent, storePassword, storeType, allowChangingDiskStoreProps);
     }
 
-    public KeyStoreContentInfo createStoreContentInfo(String storeName, String storeFileName, byte[] storeContent, String storePassword, String storeType) {
+    public KeyStoreContentInfo createStoreContentInfo(String storeName, String storeFileName, byte[] storeContent,
+                                                      String storePassword, String storeType, boolean allowChangingDiskStoreProps) {
         KeyStoreContentInfo storeInfo = new KeyStoreContentInfo();
         storeInfo.setName(storeName);
         storeInfo.setFileName(storeFileName);

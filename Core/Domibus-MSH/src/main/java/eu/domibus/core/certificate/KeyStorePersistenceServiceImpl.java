@@ -109,7 +109,7 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
 
         String fileName = FilenameUtils.getName(storePath);
 
-        return certificateHelper.createStoreContentInfo(storeName, fileName, contentOnDisk, password, storeType);
+        return certificateHelper.createStoreContentInfo(storeName, fileName, contentOnDisk, password, storeType, false);
     }
 
     @Override

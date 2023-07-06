@@ -231,7 +231,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
         @Override
         public void updatePassword(String password) {
-
+            setTlsTrustStorePassword(password);
         }
     }
 }
