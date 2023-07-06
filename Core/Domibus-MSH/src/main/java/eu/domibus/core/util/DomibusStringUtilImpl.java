@@ -1,7 +1,5 @@
 package eu.domibus.core.util;
 
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -9,14 +7,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_USER_INPUT_BLACK_LIST;
-import static eu.domibus.logging.DomibusMessageCode.VALUE_DO_NOT_CONFORM_TO_MESSAGEID_PATTERN;
-import static eu.domibus.logging.DomibusMessageCode.VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.trim;
 
 /**
@@ -66,42 +56,44 @@ public class DomibusStringUtilImpl implements DomibusStringUtil {
     }
 
 
-    @Override
-    public void validateForbiddenString(String name) {
+   /* @Override
+    public boolean isValidString(String name) {
         String trimmedName = StringUtils.trim(name);
         String blackListInput = domibusPropertyProvider.getProperty(DOMIBUS_USER_INPUT_BLACK_LIST);
         if (!trimmedName.matches(blackListInput)) {
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_009, String.format("forbidden characters found in [%s]", name));
+            return false;
         }
+        return true;
     }
 
-    public void validateMessageId(final String messageId) {
+    public boolean isValidMessageId(final String messageId) {
         if (isBlank(messageId)) {
             LOG.debug("Message id is empty: validation skipped");
-            return;
+            return false;
         }
 
         if (isTrimmedStringLengthLongerThanDefaultMaxLength(messageId)) {
             LOG.businessError(VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH, "MessageId", messageId);
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_009, String.format("Message Id [%s] is too long", messageId));
+            return false;
         }
 
-        validateMessageIdPattern(messageId, "eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:MessageId");
+       return validateMessageIdPattern(messageId, "eb:Messaging/eb:UserMessage/eb:MessageInfo/eb:MessageId");
     }
 
 
-    protected void validateMessageIdPattern(String messageId, String elementType) {
+    protected boolean validateMessageIdPattern(String messageId, String elementType) {
         String messageIdPattern = domibusPropertyProvider.getProperty(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN);
         LOG.debug("MessageIdPattern read from file is [{}]", messageIdPattern);
 
         if (isBlank(messageIdPattern)) {
-            return;
+            return false;
         }
         Pattern patternNoControlChar = Pattern.compile(messageIdPattern);
         Matcher m = patternNoControlChar.matcher(messageId);
         if (!m.matches()) {
             LOG.businessError(VALUE_DO_NOT_CONFORM_TO_MESSAGEID_PATTERN, elementType, messageIdPattern, messageId);
-            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_009, String.format("forbidden characters found in message Id[%s]", messageId));
+            return false;
         }
-    }
+        return true;
+    }*/
 }

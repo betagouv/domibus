@@ -22,9 +22,4 @@ public interface DomibusStringUtil {
      * @return sanitized fileName
      */
     String sanitizeFileName(String fileName);
-
-    void validateForbiddenString(String userName);
-
-    void validateMessageId(String messageId);
-
 }

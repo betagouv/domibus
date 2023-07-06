@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import javax.validation.ConstraintViolationException;
 import java.util.stream.Collectors;
 
 /**
@@ -100,6 +101,11 @@ public class ExtExceptionHelper {
     public ResponseEntity<ErrorDTO> handleExtException(AuthenticationException authenticationException) {
         LOG.error("Access denied due to incorrect role:", authenticationException);
         return createResponse(authenticationException.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    public ResponseEntity<ErrorDTO> handleExtException(ConstraintViolationException constraintViolationException) {
+        LOG.error("Invalid path variable:", constraintViolationException);
+        return createResponse(constraintViolationException.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     protected ResponseEntity<ErrorDTO> createResponseFromCoreException(Throwable ex, HttpStatus httpStatus) {

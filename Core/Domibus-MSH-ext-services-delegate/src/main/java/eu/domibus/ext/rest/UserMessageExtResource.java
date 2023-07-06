@@ -17,12 +17,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 /**
  * @author Tiago Miguel
  * @since 3.3.1
  */
+@Validated
 @RestController
 @RequestMapping(value = "/ext/messages/usermessages")
 @OpenAPIDefinition(tags = {
@@ -63,11 +68,9 @@ public class UserMessageExtResource {
     @Operation(summary = "Get user message", description = "Retrieve the user message with the specified message id",
             security = @SecurityRequirement(name = "DomibusBasicAuth"), tags = {"usermessage"})
     @GetMapping(path = "/{messageId:.+}")
-    public UserMessageDTO getUserMessage(@PathVariable(value = "messageId") String messageId,
+    public UserMessageDTO getUserMessage(@Pattern(regexp = "^[\\x20-\\x7E]*$", message="Invalid Message Id") @Size(max = 255) @PathVariable(value = "messageId") String messageId,
                                          @RequestParam(value = "mshRole", required = false) MSHRole mshRole) throws MessageNotFoundException {
         LOG.debug("Getting User Message with id = [{}] and mshRole = [{}]", messageId, mshRole);
-
-        domibusStringUtil.validateMessageId(messageId);
 
         return userMessageExtService.getMessage(messageId, mshRole);
     }
@@ -75,11 +78,9 @@ public class UserMessageExtResource {
     @Operation(summary = "Get user message envelope", description = "Retrieve the user message envelope with the specified message id",
             security = @SecurityRequirement(name = "DomibusBasicAuth"), tags = {"envelope"})
     @GetMapping(path = "/{messageId:.+}/envelope")
-    public ResponseEntity<String> downloadUserMessageEnvelope(@PathVariable(value = "messageId") String messageId,
+    public ResponseEntity<String> downloadUserMessageEnvelope(@Pattern(regexp = "^[\\x20-\\x7E]*$", message="Invalid Message Id") @Size(max = 255) @PathVariable(value = "messageId") String messageId,
                                                               @RequestParam(value = "mshRole", required = false) MSHRole mshRole) {
         LOG.debug("Getting User Message Envelope with id = [{}] and mshRole = [{}]", messageId, mshRole);
-
-        domibusStringUtil.validateMessageId(messageId);
 
         String result = userMessageExtService.getUserMessageEnvelope(messageId, mshRole);
 
@@ -89,11 +90,9 @@ public class UserMessageExtResource {
     @Operation(summary = "Get signal message envelope", description = "Retrieve the signal message envelope with the specified user message id",
             security = @SecurityRequirement(name = "DomibusBasicAuth"), tags = {"signalEnvelope"})
     @GetMapping(path = "/{messageId:.+}/signalEnvelope")
-    public ResponseEntity<String> downloadSignalMessageEnvelope(@PathVariable(value = "messageId") String messageId,
+    public ResponseEntity<String> downloadSignalMessageEnvelope(@Pattern(regexp = "^[\\x20-\\x7E]*$", message="Invalid Message Id") @Size(max = 255) @PathVariable(value = "messageId") String messageId,
                                                                 @RequestParam(value = "mshRole", required = false) MSHRole mshRole) {
         LOG.debug("Getting Signal Message Envelope with id = [{}] and mshRole = [{}]", messageId, mshRole);
-
-        domibusStringUtil.validateMessageId(messageId);
 
         String result = userMessageExtService.getSignalMessageEnvelope(messageId, mshRole);
 

@@ -5,7 +5,6 @@ import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.api.util.MultiPartFileUtil;
 import eu.domibus.api.validators.SkipWhiteListed;
 import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
@@ -28,11 +27,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -46,6 +47,7 @@ import static eu.domibus.ext.rest.TruststoreExtResource.ERROR_MESSAGE_EMPTY_TRUS
  * @author Soumya Chandran
  * @since 5.1
  */
+@Validated
 @RestController
 @RequestMapping(value = "/ext/tlstruststore")
 @SecurityScheme(type = SecuritySchemeType.HTTP, name = "DomibusBasicAuth", scheme = "basic")
@@ -69,14 +71,12 @@ public class TLSTrustStoreExtResource {
 
     final DomibusExtMapper domibusExtMapper;
 
-    final DomibusStringUtil domibusStringUtil;
-
     public TLSTrustStoreExtResource(TLSTrustStoreExtService tlsTruststoreExtService,
                                     ExtExceptionHelper extExceptionHelper,
                                     MultiPartFileUtil multiPartFileUtil,
                                     DomainContextExtService domainContextExtService,
                                     DomibusConfigurationExtService domibusConfigurationExtService,
-                                    SecurityProfileService securityProfileService, DomibusExtMapper domibusExtMapper, DomibusStringUtil domibusStringUtil) {
+                                    SecurityProfileService securityProfileService, DomibusExtMapper domibusExtMapper) {
         this.tlsTruststoreExtService = tlsTruststoreExtService;
         this.extExceptionHelper = extExceptionHelper;
         this.multiPartFileUtil = multiPartFileUtil;
@@ -84,7 +84,6 @@ public class TLSTrustStoreExtResource {
         this.domibusConfigurationExtService = domibusConfigurationExtService;
         this.securityProfileService = securityProfileService;
         this.domibusExtMapper = domibusExtMapper;
-        this.domibusStringUtil = domibusStringUtil;
     }
 
     @ExceptionHandler(CryptoExtException.class)
@@ -145,7 +144,7 @@ public class TLSTrustStoreExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PostMapping(value = "/entries", consumes = {"multipart/form-data"})
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
-                                    @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
+                                    @RequestParam("alias") @NotNull String alias) throws RequestValidationException {
 
         return doAddCertificate(certificateFile, alias);
     }
@@ -154,10 +153,9 @@ public class TLSTrustStoreExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PostMapping(value = "/certificates", consumes = {"multipart/form-data"})
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
-                                    @RequestParam("partyName") @Valid @NotNull String partyName,
-                                    @RequestParam("securityProfile") @Valid @NotNull SecurityProfileDTO securityProfileDTO,
-                                    @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
-        domibusStringUtil.validateForbiddenString(partyName);
+                                    @RequestParam("partyName") @Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$", message="Invalid party Name") @Size(min = 4, max = 255) @NotNull String partyName,
+                                    @RequestParam("securityProfile") @NotNull SecurityProfileDTO securityProfileDTO,
+                                    @RequestParam("certificatePurpose") @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
         SecurityProfile securityProfile = domibusExtMapper.securityProfileDTOToApi(securityProfileDTO);
         CertificatePurpose certificatePurpose = domibusExtMapper.certificatePurposeDTOToApi(certificatePurposeDTO);
         String alias = securityProfileService.getCertificateAliasForPurpose(partyName, securityProfile, certificatePurpose);
@@ -180,19 +178,17 @@ public class TLSTrustStoreExtResource {
     @Operation(summary = "Remove Certificate", description = "Remove Certificate from the TLS truststore",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @DeleteMapping(value = "/entries/{alias:.+}")
-    public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
-        domibusStringUtil.validateForbiddenString(alias);
-        return doRemoveCertificate(alias);
+    public String removeTLSCertificate(@Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$", message="Invalid Alias Name") @Size(min = 4, max = 255) @PathVariable String alias) throws RequestValidationException {
+       return doRemoveCertificate(alias);
     }
 
     @Operation(summary = "Remove Certificate", description = "Remove Certificate from the TLS truststore",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @DeleteMapping(value = "/certificates/{partyName:.+}")
-    public String removeTLSCertificate(@PathVariable String partyName,
-                                       @RequestParam("securityProfile") @Valid @NotNull SecurityProfileDTO securityProfileDTO,
-                                       @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
-        domibusStringUtil.validateForbiddenString(partyName);
-        SecurityProfile securityProfile = domibusExtMapper.securityProfileDTOToApi(securityProfileDTO);
+    public String removeTLSCertificate(@Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$", message="Invalid party Name") @Size(min = 4, max = 255) @PathVariable String partyName,
+                                       @RequestParam("securityProfile") @NotNull SecurityProfileDTO securityProfileDTO,
+                                       @RequestParam("certificatePurpose") @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
+       SecurityProfile securityProfile = domibusExtMapper.securityProfileDTOToApi(securityProfileDTO);
         CertificatePurpose certificatePurpose = domibusExtMapper.certificatePurposeDTOToApi(certificatePurposeDTO);
         String alias = securityProfileService.getCertificateAliasForPurpose(partyName, securityProfile, certificatePurpose);
         return doRemoveCertificate(alias);

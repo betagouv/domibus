@@ -2,7 +2,6 @@ package eu.domibus.ext.rest;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
-import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.FailedMessagesCriteriaRO;
@@ -24,14 +23,18 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
  * @author Cosmin Baciu
  * @since 3.3
  */
+@Validated
 @RestController
 @RequestMapping(value = "/ext/monitoring/messages")
 @Tag(name = "monitoring", description = "Domibus Message Monitoring API")
@@ -45,13 +48,10 @@ public class MessageMonitoringExtResource {
 
     DateExtService dateExtService;
 
-    DomibusStringUtil domibusStringUtil;
-
-    public MessageMonitoringExtResource(ExtExceptionHelper extExceptionHelper, MessageMonitorExtService messageMonitorExtService, DateExtService dateExtService, DomibusStringUtil domibusStringUtil) {
+    public MessageMonitoringExtResource(ExtExceptionHelper extExceptionHelper, MessageMonitorExtService messageMonitorExtService, DateExtService dateExtService) {
         this.extExceptionHelper = extExceptionHelper;
         this.messageMonitorExtService = messageMonitorExtService;
         this.dateExtService = dateExtService;
-        this.domibusStringUtil = domibusStringUtil;
     }
 
 
@@ -76,25 +76,22 @@ public class MessageMonitoringExtResource {
     @Operation(summary = "Get failed message elapsed time", description = "Retrieve the time that a message has been in a SEND_FAILURE status",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(path = "/failed/{messageId:.+}/elapsedtime")
-    public Long getFailedMessageInterval(@PathVariable(value = "messageId") String messageId) {
-        domibusStringUtil.validateMessageId(messageId);
-        return messageMonitorExtService.getFailedMessageInterval(messageId);
+    public Long getFailedMessageInterval(@Pattern(regexp = "^[\\x20-\\x7E]*$", message="Invalid Message Id") @Size(max = 255)  @PathVariable(value = "messageId") String messageId) {
+      return messageMonitorExtService.getFailedMessageInterval(messageId);
     }
 
     @Operation(summary = "Resend failed message", description = "Resend a message which has a SEND_FAILURE status",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PutMapping(path = "/failed/{messageId:.+}/restore")
-    public void restoreFailedMessage(@PathVariable(value = "messageId") String messageId) {
-        domibusStringUtil.validateMessageId(messageId);
-        messageMonitorExtService.restoreFailedMessage(messageId);
+    public void restoreFailedMessage(@Pattern(regexp = "^[\\x20-\\x7E]*$", message="Invalid Message Id") @Size(max = 255) @PathVariable(value = "messageId") String messageId) {
+       messageMonitorExtService.restoreFailedMessage(messageId);
     }
 
     @Operation(summary = "Send enqueued message", description = "Send a message which has a SEND_ENQUEUED status",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PutMapping(path = "/enqueued/{messageId:.+}/send")
-    public void sendEnqueuedMessage(@PathVariable(value = "messageId") String messageId) {
-        domibusStringUtil.validateMessageId(messageId);
-        messageMonitorExtService.sendEnqueuedMessage(messageId);
+    public void sendEnqueuedMessage(@Pattern(regexp = "^[\\x20-\\x7E]*$", message="Invalid Message Id") @Size(max = 255) @PathVariable(value = "messageId") String messageId) {
+      messageMonitorExtService.sendEnqueuedMessage(messageId);
     }
 
     @Operation(summary = "Resend all messages with SEND_FAILURE status within a certain time interval", description = "Resend all messages with SEND_FAILURE status within a certain time interval",
@@ -113,9 +110,8 @@ public class MessageMonitoringExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @ResponseBody
     @DeleteMapping(path = "/failed/{messageId:.+}")
-    public void deleteFailedMessage(@PathVariable(value = "messageId") String messageId) {
-        domibusStringUtil.validateMessageId(messageId);
-        messageMonitorExtService.deleteFailedMessage(messageId);
+    public void deleteFailedMessage(@Pattern(regexp = "^[\\x20-\\x7E]*$", message="Invalid Message Id") @Size(max = 255) @PathVariable(value = "messageId") String messageId) {
+       messageMonitorExtService.deleteFailedMessage(messageId);
     }
 
     @Operation(summary = "Get message attempts",
@@ -126,8 +122,7 @@ public class MessageMonitoringExtResource {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = MessageAttemptDTO.class))))
     })
     @GetMapping(path = "/{messageId:.+}/attempts")
-    public List<MessageAttemptDTO> getMessageAttempts(@PathVariable(value = "messageId") String messageId) {
-        domibusStringUtil.validateMessageId(messageId);
+    public List<MessageAttemptDTO> getMessageAttempts(@Pattern(regexp = "^[\\x20-\\x7E]*$", message="Invalid Message Id") @Size(max = 255) @PathVariable(value = "messageId") String messageId) {
         return messageMonitorExtService.getAttemptsHistory(messageId);
     }
 
@@ -135,10 +130,9 @@ public class MessageMonitoringExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @ResponseBody
     @DeleteMapping(path = "/delete/{messageId:.+}")
-    public void deleteMessage(@PathVariable(value = "messageId") String messageId,
+    public void deleteMessage(@Pattern(regexp = "^[\\x20-\\x7E]*$", message="Invalid Message Id") @Size(max = 255) @PathVariable(value = "messageId") String messageId,
                               @RequestParam(value = "mshRole", required = false) MSHRole mshRole) {
         LOG.info("Delete payload of the message not in final status with message Id [{}] ", messageId);
-        domibusStringUtil.validateMessageId(messageId);
         messageMonitorExtService.deleteMessageNotInFinalStatus(messageId, mshRole);
     }
 
@@ -162,9 +156,8 @@ public class MessageMonitoringExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @ResponseBody
     @DeleteMapping(path = "/finalstatus/delete/{messageId:.+}")
-    public void deleteMessageInFinalStatus(@PathVariable(value = "messageId") String messageId, @RequestParam(value = "mshRole", required = false) MSHRole mshRole) {
+    public void deleteMessageInFinalStatus(@Pattern(regexp = "^[\\x20-\\x7E]*$", message="Invalid Message Id") @Size(min =4, max = 255) @PathVariable(value = "messageId") String messageId, @RequestParam(value = "mshRole", required = false) MSHRole mshRole) {
         LOG.info("Delete payload of the message in final status with message Id [{}] ", messageId);
-        domibusStringUtil.validateMessageId(messageId);
         messageMonitorExtService.deleteMessageInFinalStatus(messageId, mshRole);
     }
 

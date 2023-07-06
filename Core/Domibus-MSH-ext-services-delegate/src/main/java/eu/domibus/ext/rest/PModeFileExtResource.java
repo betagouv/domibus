@@ -1,7 +1,6 @@
 package eu.domibus.ext.rest;
 
 
-import eu.domibus.api.util.DomibusStringUtil;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.PModeArchiveInfoDTO;
 import eu.domibus.ext.domain.ValidationIssueDTO;
@@ -19,10 +18,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
@@ -30,6 +29,7 @@ import java.util.List;
  * @author Catalin Enache
  * @since 4.1.1
  */
+@Validated
 @RestController
 @RequestMapping(value = "/ext/pmode")
 @Tag(name = "pmode", description = "Domibus PMode management API")
@@ -41,12 +41,9 @@ public class PModeFileExtResource {
 
     final ExtExceptionHelper extExceptionHelper;
 
-    final DomibusStringUtil domibusStringUtil;
-
-    public PModeFileExtResource(PModeExtService pModeExtService, ExtExceptionHelper extExceptionHelper, DomibusStringUtil domibusStringUtil) {
+    public PModeFileExtResource(PModeExtService pModeExtService, ExtExceptionHelper extExceptionHelper) {
         this.pModeExtService = pModeExtService;
         this.extExceptionHelper = extExceptionHelper;
-        this.domibusStringUtil = domibusStringUtil;
     }
 
     @ExceptionHandler(PModeExtException.class)
@@ -93,7 +90,7 @@ public class PModeFileExtResource {
     @PostMapping(consumes = {"multipart/form-data"})
     public ValidationResponseDTO uploadPMode(
             @RequestPart("file") MultipartFile pmode,
-            @RequestParam("description") @Valid @NotEmpty String pModeDescription) {
+            @RequestParam("description") @NotEmpty String pModeDescription) {
 
         List<ValidationIssueDTO> pmodeUpdateMessage = pModeExtService.updatePModeFile(pmode, pModeDescription);
 
