@@ -14,6 +14,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.MDCKey;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.MessagingProcessingException;
+import eu.domibus.plugin.fs.FSErrorMessageHelper;
 import eu.domibus.plugin.fs.FSFileNameHelper;
 import eu.domibus.plugin.fs.FSFilesManager;
 import eu.domibus.plugin.fs.exception.FSPluginException;
@@ -49,8 +50,6 @@ public class FSSendMessagesService {
 
     public static final String METADATA_FILE_NAME = "metadata.xml";
     public static final String DEFAULT_DOMAIN = "default";
-    public static final String ERROR_EXTENSION = ".error";
-    private static final String LS = System.lineSeparator();
 
     @Autowired
     protected FSPluginProperties fsPluginProperties;
@@ -83,6 +82,8 @@ public class FSSendMessagesService {
     @Autowired
     protected FSFileNameHelper fsFileNameHelper;
 
+    @Autowired
+    protected FSErrorMessageHelper fsErrorMessageHelper;
 
     protected Map<String, FileInfo> observedFilesInfo = new HashMap<>();
 
@@ -199,89 +200,19 @@ public class FSSendMessagesService {
         try {
             fsProcessFileService.processFile(processableFile, domain);
         } catch (JAXBException ex) {
-            errorMessage = buildErrorMessage("Invalid metadata file: " + ex.toString()).toString();
+            errorMessage = fsErrorMessageHelper.buildErrorMessage("Invalid metadata file: " + ex.toString()).toString();
             LOG.error(errorMessage, ex);
         } catch (MessagingProcessingException | XMLStreamException ex) {
-            errorMessage = buildErrorMessage("Error occurred submitting message to Domibus: " + ex.getMessage()).toString();
+            errorMessage = fsErrorMessageHelper.buildErrorMessage("Error occurred submitting message to Domibus: " + ex.getMessage()).toString();
             LOG.error(errorMessage, ex);
         } catch (RuntimeException | FileSystemException ex) {
-            errorMessage = buildErrorMessage("Error processing file. Skipped it. Error message is: " + ex.getMessage()).toString();
+            errorMessage = fsErrorMessageHelper.buildErrorMessage("Error processing file. Skipped it. Error message is: " + ex.getMessage()).toString();
             LOG.error(errorMessage, ex);
         } finally {
             if (errorMessage != null) {
-                handleSendFailedMessage(processableFile, domain, errorMessage);
+                fsFilesManager.handleSendFailedMessage(processableFile, domain, errorMessage);
             }
         }
-    }
-
-    public void handleSendFailedMessage(FileObject processableFile, String domain, String errorMessage) {
-        if (processableFile == null) {
-            LOG.error("The send failed message file was not found in domain [{}]", domain);
-            return;
-        }
-        try {
-            fsFilesManager.deleteLockFile(processableFile);
-        } catch (FileSystemException e) {
-            LOG.error("Error deleting lock file", e);
-        }
-
-        try (FileObject rootDir = fsFilesManager.setUpFileSystem(domain)) {
-            String baseName = processableFile.getName().getBaseName();
-            String errorFileName = fsFileNameHelper.stripStatusSuffix(baseName) + ERROR_EXTENSION;
-
-            String processableFileMessageURI = processableFile.getParent().getName().getPath();
-            String failedDirectoryLocation = fsFileNameHelper.deriveFailedDirectoryLocation(processableFileMessageURI);
-            FileObject failedDirectory = fsFilesManager.getEnsureChildFolder(rootDir, failedDirectoryLocation);
-
-            try {
-                if (fsPluginProperties.isFailedActionDelete(domain)) {
-                    // Delete
-                    fsFilesManager.deleteFile(processableFile);
-                    LOG.debug("Send failed message file [{}] was deleted", processableFile.getName().getBaseName());
-                } else if (fsPluginProperties.isFailedActionArchive(domain)) {
-                    // Archive
-                    String archivedFileName = fsFileNameHelper.stripStatusSuffix(baseName);
-                    FileObject archivedFile = failedDirectory.resolveFile(archivedFileName);
-                    fsFilesManager.moveFile(processableFile, archivedFile);
-                    LOG.debug("Send failed message file [{}] was archived into [{}]", processableFile, archivedFile.getName().getURI());
-                }
-            } finally {
-                // Create error file
-                fsFilesManager.createFile(failedDirectory, errorFileName, errorMessage);
-            }
-        } catch (IOException e) {
-            throw new FSPluginException("Error handling the send failed message file " + processableFile, e);
-        }
-    }
-
-    public StringBuilder buildErrorMessage(String errorDetail) {
-        return buildErrorMessage(null, errorDetail, null, null, null, null);
-    }
-
-    public StringBuilder buildErrorMessage(String errorCode, String errorDetail, String messageId, String mshRole, String notified, String timestamp) {
-        StringBuilder sb = new StringBuilder();
-        if (errorCode != null) {
-            sb.append("errorCode: ").append(errorCode).append(LS);
-        }
-        sb.append("errorDetail: ").append(errorDetail).append(LS);
-        if (messageId != null) {
-            sb.append("messageInErrorId: ").append(messageId).append(LS);
-        }
-        if (mshRole != null) {
-            sb.append("mshRole: ").append(mshRole).append(LS);
-        } else {
-            sb.append("mshRole: ").append(MSHRole.SENDING).append(LS);
-        }
-        if (notified != null) {
-            sb.append("notified: ").append(notified).append(LS);
-        }
-        if (timestamp != null) {
-            sb.append("timestamp: ").append(timestamp).append(LS);
-        } else {
-            sb.append("timestamp: ").append(LocalDateTime.now()).append(LS);
-        }
-
-        return sb;
     }
 
     protected List<FileObject> filterProcessableFiles(FileObject rootFolder, FileObject[] files, String domain) {

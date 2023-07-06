@@ -91,7 +91,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
 
     protected final FSPluginProperties fsPluginProperties;
 
-    protected final FSSendMessagesService fsSendMessagesService;
+    protected final FSErrorMessageHelper fsErrorMessageHelper;
 
     protected final DomainTaskExtExecutor domainTaskExtExecutor;
 
@@ -108,7 +108,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     public FSPluginImpl(FSMessageTransformer defaultTransformer,
                         FSFilesManager fsFilesManager,
                         FSPluginProperties fsPluginProperties,
-                        FSSendMessagesService fsSendMessagesService,
+                        FSErrorMessageHelper fsErrorMessageHelper,
                         DomainTaskExtExecutor domainTaskExtExecutor,
                         FSDomainService fsDomainService,
                         FSXMLHelper fsxmlHelper,
@@ -121,7 +121,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
         this.defaultTransformer = defaultTransformer;
         this.fsFilesManager = fsFilesManager;
         this.fsPluginProperties = fsPluginProperties;
-        this.fsSendMessagesService = fsSendMessagesService;
+        this.fsErrorMessageHelper = fsErrorMessageHelper;
         this.domainTaskExtExecutor = domainTaskExtExecutor;
         this.fsDomainService = fsDomainService;
         this.fsxmlHelper = fsxmlHelper;
@@ -384,7 +384,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
              FileObject outgoingFolder = fsFilesManager.getEnsureChildFolder(rootDir, FSFilesManager.OUTGOING_FOLDER);
              FileObject targetFileMessage = findMessageFile(outgoingFolder, messageId)) {
 
-            fsSendMessagesService.handleSendFailedMessage(targetFileMessage, domain, getErrorMessage(messageId, MSHRole.SENDING));
+            fsFilesManager.handleSendFailedMessage(targetFileMessage, domain, getErrorMessage(messageId, MSHRole.SENDING));
 
         } catch (IOException | MessageNotFoundException e) {
             throw new FSPluginException("Error handling the send failed message file " + messageId, e);
@@ -406,8 +406,8 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
     }
 
     protected StringBuilder getErrorFileContent(ErrorResult errorResult) {
-
-        return fsSendMessagesService.buildErrorMessage(errorResult.getErrorCode() == null ? null : errorResult.getErrorCode().getErrorCodeName(),
+        return fsErrorMessageHelper.buildErrorMessage(
+                errorResult.getErrorCode() == null ? null : errorResult.getErrorCode().getErrorCodeName(),
                 errorResult.getErrorDetail(),
                 errorResult.getMessageInErrorId(),
                 errorResult.getMshRole() == null ? null : errorResult.getMshRole().toString(),
