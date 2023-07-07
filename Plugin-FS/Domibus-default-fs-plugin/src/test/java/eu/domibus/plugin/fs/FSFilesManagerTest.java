@@ -73,7 +73,7 @@ public class FSFilesManagerTest {
 
         outgoingFolder = rootDir.resolveFile(FSFilesManager.OUTGOING_FOLDER);
         outgoingFolder.createFolder();
-        try (InputStream testMetadata = FSTestHelper.getTestResource(this.getClass(), "testSendMessages_metadata.xml")) {
+        try (InputStream testMetadata = FSTestHelper.getTestResource(this.getClass(), "metadata.xml")) {
             metadataFile = outgoingFolder.resolveFile("metadata.xml");
             metadataFile.createFile();
             FileContent metadataFileContent = metadataFile.getContent();
@@ -81,7 +81,7 @@ public class FSFilesManagerTest {
             metadataFile.close();
         }
 
-        try (InputStream testContent = FSTestHelper.getTestResource(this.getClass(), "testSendMessages_content.xml")) {
+        try (InputStream testContent = FSTestHelper.getTestResource(this.getClass(), "content.xml")) {
             contentFile = outgoingFolder.resolveFile("content.xml");
             contentFile.createFile();
             FileContent contentFileContent = contentFile.getContent();
@@ -147,13 +147,15 @@ public class FSFilesManagerTest {
         FileObject[] files = instance.findAllDescendantFiles(rootDir);
 
         Assertions.assertNotNull(files);
-        Assertions.assertEquals(6, files.length);
+        Assertions.assertEquals(8, files.length);
         Assertions.assertEquals("ram:///FSFilesManagerTest/file1", files[0].getName().getURI());
         Assertions.assertEquals("ram:///FSFilesManagerTest/file2", files[1].getName().getURI());
         Assertions.assertEquals("ram:///FSFilesManagerTest/file3", files[2].getName().getURI());
         Assertions.assertEquals("ram:///FSFilesManagerTest/toberenamed", files[3].getName().getURI());
         Assertions.assertEquals("ram:///FSFilesManagerTest/tobemoved", files[4].getName().getURI());
         Assertions.assertEquals("ram:///FSFilesManagerTest/tobedeleted", files[5].getName().getURI());
+        Assertions.assertEquals("ram:///FSFilesManagerTest/OUT/metadata.xml", files[6].getName().getURI());
+        Assertions.assertEquals("ram:///FSFilesManagerTest/OUT/content.xml", files[7].getName().getURI());
     }
 
     @Test
@@ -370,12 +372,15 @@ public class FSFilesManagerTest {
     public void testHandleSendFailedMessage() throws FileSystemException, FSSetUpException, IOException {
         final String domain = null; //root
         final String errorMessage = "mock error";
-        final FileObject processableFile = metadataFile;
+        final FileObject processableFile = contentFile;
         new Expectations(instance) {{
             instance.setUpFileSystem(domain);
             result = rootDir;
 
-            fsPluginProperties.isFailedActionArchive(domain);
+            instance.getEnsureChildFolder(rootDir, anyString);
+            result = rootDir.resolveFile("testfolder");
+
+            fsPluginProperties.isFailedActionDelete(domain);
             result = true;
         }};
 
