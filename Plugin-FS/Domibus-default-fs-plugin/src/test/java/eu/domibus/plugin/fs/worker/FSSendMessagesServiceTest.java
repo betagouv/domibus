@@ -448,6 +448,8 @@ public class FSSendMessagesServiceTest {
         new Expectations(instance) {{
             fsProcessFileService.processFile(processableFile, domain);
             result = new JAXBException("Invalid metadata file", "DOM_001");
+            fsErrorMessageHelper.buildErrorMessage(anyString);
+            result = new StringBuilder("test");
         }};
 
         instance.processFileSafely(processableFile, domain);
@@ -464,12 +466,14 @@ public class FSSendMessagesServiceTest {
         new Expectations(instance) {{
             fsProcessFileService.processFile(processableFile, domain);
             result = new MessagingProcessingException();
+            fsErrorMessageHelper.buildErrorMessage(anyString);
+            result = new StringBuilder("test");
         }};
 
         instance.processFileSafely(processableFile, domain);
 
         new Verifications() {{
-            fsFilesManager.handleSendFailedMessage(processableFile, domain, withCapture());
+           fsFilesManager.handleSendFailedMessage(processableFile, domain, withCapture());
         }};
     }
 
@@ -480,6 +484,8 @@ public class FSSendMessagesServiceTest {
         new Expectations(instance) {{
             fsProcessFileService.processFile(processableFile, domain);
             result = new RuntimeException();
+            fsErrorMessageHelper.buildErrorMessage(anyString);
+            result = new StringBuilder("test");
         }};
 
         instance.processFileSafely(processableFile, domain);
