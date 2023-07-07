@@ -107,25 +107,31 @@ public class CertificateHelper {
     }
 
     public KeyStoreContentInfo createStoreContentInfo(String storeName, byte[] storeContent, String storeType, String storePassword) {
-        return createStoreContentInfo(storeName, null, storeContent, storePassword, storeType);
+        return createStoreContentInfo(storeName, null, storeContent, storePassword, storeType, false);
     }
 
     public KeyStoreContentInfo createStoreContentInfo(String storeName, String storeFileName, byte[] storeContent, String storePassword) {
+        return createStoreContentInfo(storeName, storeFileName, storeContent, storePassword, false);
+    }
+
+    public KeyStoreContentInfo createStoreContentInfo(String storeName, String storeFileName, byte[] storeContent, String storePassword, boolean allowChangingDiskStoreProps) {
         if (StringUtils.isNotEmpty(storeFileName)) {
             validateStoreFileName(storeFileName);
         }
         String storeType = getStoreType(storeFileName);
 
-        return createStoreContentInfo(storeName, storeFileName, storeContent, storePassword, storeType);
+        return createStoreContentInfo(storeName, storeFileName, storeContent, storePassword, storeType, allowChangingDiskStoreProps);
     }
 
-    public KeyStoreContentInfo createStoreContentInfo(String storeName, String storeFileName, byte[] storeContent, String storePassword, String storeType) {
+    public KeyStoreContentInfo createStoreContentInfo(String storeName, String storeFileName, byte[] storeContent,
+                                                      String storePassword, String storeType, boolean allowChangingDiskStoreProps) {
         KeyStoreContentInfo storeInfo = new KeyStoreContentInfo();
         storeInfo.setName(storeName);
         storeInfo.setFileName(storeFileName);
         storeInfo.setContent(storeContent);
         storeInfo.setPassword(storePassword);
         storeInfo.setType(storeType);
+        storeInfo.setAllowChangingDiskStoreProps(allowChangingDiskStoreProps);
 
         return storeInfo;
     }

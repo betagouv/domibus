@@ -20,6 +20,13 @@
           </span>
         </mat-form-field>
 
+        <div style="color: red; font-weight: bold; margin-top: 15px;">
+           <mat-checkbox name="allowChangingDiskStoreProps" [formControl]="truststoreForm.controls['allowChangingDiskStoreProps']"
+                         [matTooltip]="'Checking this will allow to change disk store properties like type and password, in case they are different!'">
+            Allow Changing Disk Store Properties
+          </mat-checkbox>
+        </div>
+
       </mat-card-content>
     </mat-card>
 

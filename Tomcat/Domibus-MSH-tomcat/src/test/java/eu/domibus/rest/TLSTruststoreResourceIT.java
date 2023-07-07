@@ -115,7 +115,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         String filename = "file";
         MockMultipartFile truststoreFile = new MockMultipartFile("file", filename, "octetstream", content);
         try {
-            tlsTruststoreResource.uploadTLSTruststoreFile(truststoreFile, "");
+            tlsTruststoreResource.uploadTLSTruststoreFile(truststoreFile, "", true);
             Assertions.fail();
         } catch (RequestValidationException ex) {
             Assertions.assertEquals("[DOM_001]:Failed to upload the truststoreFile file since its password was empty.", ex.getMessage());
@@ -128,7 +128,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         String filename = "file.jks";
         MockMultipartFile truststoreFile = new MockMultipartFile("file", filename, "octetstream", content);
         try {
-            tlsTruststoreResource.uploadTLSTruststoreFile(truststoreFile, "test123");
+            tlsTruststoreResource.uploadTLSTruststoreFile(truststoreFile, "test123", true);
             Assertions.fail();
         } catch (CryptoException ex) {
             Assertions.assertTrue(ex.getMessage().contains("[DOM_001]:Error while replacing the store [TLS.truststore] with content of the file named [file.jks]."));
@@ -142,7 +142,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
         try (InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("keystores/gateway_truststore2.jks")) {
             MultipartFile multiPartFile = new MockMultipartFile("gateway_truststore2.jks", "gateway_truststore2.jks",
                     "octetstream", IOUtils.toByteArray(resourceAsStream));
-            tlsTruststoreResource.uploadTLSTruststoreFile(multiPartFile, "test123");
+            tlsTruststoreResource.uploadTLSTruststoreFile(multiPartFile, "test123", true);
 
             List<TrustStoreRO> newEntries = tlsTruststoreResource.getTLSTruststoreEntries();
 
@@ -156,7 +156,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
             MultipartFile multiPartFile = new MockMultipartFile("gateway_truststore.jks", "gateway_truststore.jks",
                     "octetstream", IOUtils.toByteArray(resourceAsStream));
             try {
-                tlsTruststoreResource.uploadTLSTruststoreFile(multiPartFile, "test123");
+                tlsTruststoreResource.uploadTLSTruststoreFile(multiPartFile, "test123", true);
                 Assertions.fail();
             } catch (CryptoException ex) {
                 Assertions.assertTrue(ex.getMessage().contains("[DOM_001]:Current store [TLS.truststore] was not replaced with the content of the file [gateway_truststore.jks] because they are identical."));

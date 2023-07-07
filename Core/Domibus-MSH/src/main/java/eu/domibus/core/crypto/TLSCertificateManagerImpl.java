@@ -71,7 +71,7 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         String storeFileName = contentInfo.getFileName();
         boolean replaced;
         try {
-            replaced = certificateService.replaceStore(contentInfo, getPersistenceInfo());
+            replaced = certificateService.replaceStore(contentInfo, getPersistenceInfo(), true);
         } catch (CryptoException ex) {
             throw new CryptoException(String.format("Error while replacing the store [%s] with content of the file named [%s].", storeName, storeFileName), ex);
         }
@@ -155,7 +155,12 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     void setTlsTrustStoreTypeAndFileLocation(String type, String fileLocation) {
         final String domainCode = getDomainCode();
-        tlsReaderService.updateTlsTrustStoreConfiguration(domainCode, type, fileLocation);
+        tlsReaderService.updateTlsTrustStoreConfiguration(domainCode, type, fileLocation, null);
+    }
+
+    void setTlsTrustStorePassword(String password) {
+        final String domainCode = getDomainCode();
+        tlsReaderService.updateTlsTrustStoreConfiguration(domainCode, null, null, password);
     }
 
     protected Optional<KeyStoreType> getTruststoreParams() {
@@ -222,6 +227,11 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         @Override
         public void updateTypeAndFileLocation(String type, String fileLocation) {
             setTlsTrustStoreTypeAndFileLocation(type, fileLocation);
+        }
+
+        @Override
+        public void updatePassword(String password) {
+            setTlsTrustStorePassword(password);
         }
     }
 }

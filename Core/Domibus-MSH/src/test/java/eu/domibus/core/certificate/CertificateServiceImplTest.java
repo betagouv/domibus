@@ -116,7 +116,6 @@ public class CertificateServiceImplTest {
     SecurityUtilImpl securityUtil;
 
 
-
     PKIUtil pkiUtil = new PKIUtil();
 
     @BeforeEach
@@ -670,14 +669,14 @@ public class CertificateServiceImplTest {
     @Test
     @Disabled("EDELIVERY-6896")
     void serializeCertificateChainIntoPemFormatTest(@Injectable java.security.cert.Certificate certificate,
-                                                           @Injectable PemWriter pw,
-                                                           @Injectable StringWriter sw,
-                                                           @Injectable JcaMiscPEMGenerator jcaMiscPEMGenerator,
-                                                           @Injectable PemObjectGenerator gen
+                                                    @Injectable PemWriter pw,
+                                                    @Injectable StringWriter sw,
+                                                    @Injectable JcaMiscPEMGenerator jcaMiscPEMGenerator,
+                                                    @Injectable PemObjectGenerator gen
     ) throws IOException {
         List<java.security.cert.Certificate> certificates = new ArrayList<>();
         certificates.add(certificate);
-        Assertions.assertThrows(DomibusCertificateException. class,() -> certificateService.serializeCertificateChainIntoPemFormat(certificates));
+        Assertions.assertThrows(DomibusCertificateException.class, () -> certificateService.serializeCertificateChainIntoPemFormat(certificates));
         new Verifications() {{
             pw.writeObject(gen);
             times = 1;
@@ -696,7 +695,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        CryptoException cryptoException = assertThrows(CryptoException.class, () -> certificateService.replaceStore(storeInfo, persistenceInfo));
+        CryptoException cryptoException = assertThrows(CryptoException.class, () -> certificateService.replaceStore(storeInfo, persistenceInfo, true));
         assertThat(cryptoException.getMessage(), containsString("Could not replace store"));
 
 
@@ -720,7 +719,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        Assertions.assertThrows(ConfigurationException. class,() -> certificateService.removeCertificate(persistenceInfo, "alias"));
+        Assertions.assertThrows(ConfigurationException.class, () -> certificateService.removeCertificate(persistenceInfo, "alias"));
     }
 
     @Test
@@ -776,8 +775,8 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        Assertions.assertThrows(ConfigurationException. class,
-        () -> certificateService.doAddCertificate(trustStore, certificate, "alias", true));
+        Assertions.assertThrows(ConfigurationException.class,
+                () -> certificateService.doAddCertificate(trustStore, certificate, "alias", true));
     }
 
     @Test
@@ -792,7 +791,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        Assertions.assertThrows(CryptoException. class,() -> certificateService.replaceStore(storeInfo, persistenceInfo));
+        Assertions.assertThrows(CryptoException.class, () -> certificateService.replaceStore(storeInfo, persistenceInfo, true));
 
         new Verifications() {{
             auditService.addStoreReplacedAudit(anyString);
@@ -812,7 +811,7 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        CryptoException cryptoException = assertThrows(CryptoException.class, () -> certificateService.replaceStore(storeInfo, persistenceInfo));
+        CryptoException cryptoException = assertThrows(CryptoException.class, () -> certificateService.replaceStore(storeInfo, persistenceInfo, true));
         assertThat(cryptoException.getMessage(), containsString("Could not replace store"));
 
         new Verifications() {{
@@ -897,8 +896,8 @@ public class CertificateServiceImplTest {
         }};
 
         // When
-        Assertions.assertThrows(ConfigurationException. class,
-        () -> certificateService.doAddCertificate(trustStore, certificate, "alias", true));
+        Assertions.assertThrows(ConfigurationException.class,
+                () -> certificateService.doAddCertificate(trustStore, certificate, "alias", true));
     }
 
     @Test
@@ -997,7 +996,7 @@ public class CertificateServiceImplTest {
 
     @Test
     void loadStore_throwsExceptionWhenNoKeystoreContentInformationAvailable() {
-        Assertions.assertThrows(NoKeyStoreContentInformationException. class,() -> certificateService.loadStore(null));
+        Assertions.assertThrows(NoKeyStoreContentInformationException.class, () -> certificateService.loadStore(null));
     }
 
     @Test

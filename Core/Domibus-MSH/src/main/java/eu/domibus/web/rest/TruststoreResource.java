@@ -68,10 +68,11 @@ public class TruststoreResource extends TruststoreResourceBase {
 
     @PostMapping(value = "/save")
     public String uploadTruststoreFile(@RequestPart("file") MultipartFile truststoreFile,
-                                       @SkipWhiteListed @RequestParam("password") String password) throws RequestValidationException {
+                                       @SkipWhiteListed @RequestParam("password") String password,
+                                       @RequestParam("allowChangingDiskStoreProps") Boolean allowChangingDiskStoreProps) throws RequestValidationException {
         LOG.debug("Uploading file [{}] as the truststore for the current domain ", truststoreFile.getName());
 
-        uploadStore(truststoreFile, password);
+        uploadStore(truststoreFile, password, allowChangingDiskStoreProps);
 
         return "Truststore file has been successfully replaced.";
     }

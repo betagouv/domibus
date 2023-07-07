@@ -19,10 +19,11 @@ export class TrustStoreUploadComponent {
   @ViewChild('fileInput', {static: false}) fileInput;
 
   @ViewChild('passwordField', {static: false}) passwordField;
-  
+
   constructor(public dialogRef: MatDialogRef<TrustStoreUploadComponent>, private fb: FormBuilder, @Inject(MAT_DIALOG_DATA) public data: any) {
     this.truststoreForm = fb.group({
       'password': new FormControl('', Validators.required),
+      'allowChangingDiskStoreProps': new FormControl(false),
     });
   }
 
@@ -36,9 +37,11 @@ export class TrustStoreUploadComponent {
     }
     const fileToUpload = this.fileInput.nativeElement.files[0];
     const password = this.truststoreForm.get('password').value;
+    const allowChangingDiskStoreProps = this.truststoreForm.get('allowChangingDiskStoreProps').value;
     const result = {
       file: fileToUpload,
-      password: password
+      password: password,
+      allowChangingDiskStoreProps: allowChangingDiskStoreProps
     };
     this.dialogRef.close(result);
   }

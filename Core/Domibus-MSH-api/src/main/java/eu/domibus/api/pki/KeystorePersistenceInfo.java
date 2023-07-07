@@ -44,4 +44,6 @@ public interface KeystorePersistenceInfo {
     String getPassword();
 
     void updateTypeAndFileLocation(String type, String fileLocation);
+
+    void updatePassword(String password);
 }

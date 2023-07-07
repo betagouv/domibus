@@ -109,12 +109,15 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
 
         String fileName = FilenameUtils.getName(storePath);
 
-        return certificateHelper.createStoreContentInfo(storeName, fileName, contentOnDisk, password, storeType);
+        return certificateHelper.createStoreContentInfo(storeName, fileName, contentOnDisk, password, storeType, false);
     }
 
     @Override
     public void saveStore(KeyStoreContentInfo contentInfo, KeystorePersistenceInfo persistenceInfo) {
         saveStore(contentInfo.getContent(), contentInfo.getType(), persistenceInfo);
+        if (!StringUtils.equals(contentInfo.getPassword(), persistenceInfo.getPassword())) {
+            persistenceInfo.updatePassword(contentInfo.getPassword());
+        }
     }
 
     @Override
@@ -248,6 +251,12 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
             domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_TRUSTSTORE_TYPE, type);
             domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_TRUSTSTORE_LOCATION, fileLocation);
         }
+
+        @Override
+        public void updatePassword(String password) {
+            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, password);
+        }
+
     }
 
     class KeyStorePersistenceInfoImpl implements KeystorePersistenceInfo {
@@ -282,5 +291,11 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
             domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE, type);
             domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION, fileLocation);
         }
+
+        @Override
+        public void updatePassword(String password) {
+            domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEYSTORE_PASSWORD, password);
+        }
+
     }
 }

@@ -91,14 +91,15 @@ public abstract class TruststoreResourceBase extends BaseResource {
         return errorHandlerService.createResponse(ex, HttpStatus.BAD_REQUEST);
     }
 
-    protected void uploadStore(MultipartFile truststoreFile, String password) {
+    protected void uploadStore(MultipartFile truststoreFile, String password, Boolean allowChangingDiskStoreProps) {
         byte[] truststoreFileContent = multiPartFileUtil.validateAndGetFileContent(truststoreFile);
 
         if (StringUtils.isBlank(password)) {
             throw new RequestValidationException(ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD);
         }
 
-        KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(getStoreName(), truststoreFile.getOriginalFilename(), truststoreFileContent, password);
+        KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(
+                getStoreName(), truststoreFile.getOriginalFilename(), truststoreFileContent, password, allowChangingDiskStoreProps);
         doUploadStore(storeInfo);
     }
 

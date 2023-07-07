@@ -14,6 +14,8 @@ public class KeyStoreContentInfo {
 
     private String fileName;
 
+    private boolean allowChangingDiskStoreProps;
+
     public String getName() {
         return name;
     }
@@ -52,6 +54,14 @@ public class KeyStoreContentInfo {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public boolean isAllowChangingDiskStoreProps() {
+        return allowChangingDiskStoreProps;
+    }
+
+    public void setAllowChangingDiskStoreProps(boolean allowChangingDiskStoreProps) {
+        this.allowChangingDiskStoreProps = allowChangingDiskStoreProps;
     }
 
     @Override

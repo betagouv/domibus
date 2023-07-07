@@ -64,7 +64,7 @@ public class KeyStoreResourceIT extends AbstractIT {
         byte[] content = Files.readAllBytes(path);
         MultipartFile multiPartFile = new MockMultipartFile(fileName, fileName, "octetstream", content);
 
-        storeResource.uploadKeystoreFile(multiPartFile, "test123");
+        storeResource.uploadKeystoreFile(multiPartFile, "test123", true);
 
         List<TrustStoreRO> newEntries = storeResource.listEntries();
 

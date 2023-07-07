@@ -16,6 +16,7 @@ import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.crypto.spi.*;
+import eu.domibus.core.crypto.spi.model.KeyStoreContentInfoDTO;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -126,10 +127,23 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     public void init() {
         LOG.debug("Initializing the certificate provider for domain [{}]", domain);
 
-        createSecurityProfileAliasConfigurations();
+        try {
+            createSecurityProfileAliasConfigurations();
+        } catch (Exception ex) {
+            LOG.error("Exception while trying to create the security profile alias configurations", ex);
+        }
 
-        initTrustStore();
-        initKeyStore();
+        try {
+            initTrustStore();
+        } catch (Exception ex) {
+            LOG.error("Exception while trying to initialize the domibus truststore", ex);
+        }
+
+        try {
+            initKeyStore();
+        } catch (Exception ex) {
+            LOG.error("Exception while trying to initialize the domibus keystore", ex);
+        }
 
         LOG.debug("Finished initializing the certificate provider for domain [{}]", domain);
     }
@@ -362,16 +376,39 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
     @Override
     public void replaceTrustStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
         executeWithLock(() ->
-                replaceStore(storeContent, storeFileName, storePassword, DOMIBUS_TRUSTSTORE_NAME,
-                        keystorePersistenceService::getTrustStorePersistenceInfo, this::reloadTrustStore, this::validateTrustStoreCertificateTypes)
+                replaceStore(storeContent, storeFileName, storePassword, false, DOMIBUS_TRUSTSTORE_NAME,
+                        keystorePersistenceService::getTrustStorePersistenceInfo, this::reloadTrustStore,
+                        this::validateTrustStoreCertificateTypes, this::getTrustStore)
         );
+    }
+
+    @Override
+    public void replaceTrustStore(KeyStoreContentInfoDTO storeContentInfoDTO) {
+        executeWithLock(() ->
+                replaceStore(storeContentInfoDTO.getContent(), storeContentInfoDTO.getFileName(), storeContentInfoDTO.getPassword(),
+                        storeContentInfoDTO.isAllowChangingDiskStoreProps(), DOMIBUS_TRUSTSTORE_NAME,
+                        keystorePersistenceService::getTrustStorePersistenceInfo, this::reloadTrustStore,
+                        this::validateTrustStoreCertificateTypes, this::getTrustStore)
+        );
+
     }
 
     @Override
     public void replaceKeyStore(byte[] storeContent, String storeFileName, String storePassword) throws CryptoSpiException {
         executeWithLock(() ->
-                replaceStore(storeContent, storeFileName, storePassword, DOMIBUS_KEYSTORE_NAME,
-                        keystorePersistenceService::getKeyStorePersistenceInfo, this::reloadKeyStore, this::validateKeyStoreCertificateTypes)
+                replaceStore(storeContent, storeFileName, storePassword, false, DOMIBUS_KEYSTORE_NAME,
+                        keystorePersistenceService::getKeyStorePersistenceInfo, this::reloadKeyStore,
+                        this::validateKeyStoreCertificateTypes, this::getKeyStore)
+        );
+    }
+
+    @Override
+    public void replaceKeyStore(KeyStoreContentInfoDTO storeContentInfoDTO) {
+        executeWithLock(() ->
+                replaceStore(storeContentInfoDTO.getContent(), storeContentInfoDTO.getFileName(), storeContentInfoDTO.getPassword(),
+                        storeContentInfoDTO.isAllowChangingDiskStoreProps(), DOMIBUS_KEYSTORE_NAME,
+                        keystorePersistenceService::getKeyStorePersistenceInfo, this::reloadKeyStore,
+                        this::validateKeyStoreCertificateTypes, this::getKeyStore)
         );
     }
 
@@ -494,27 +531,26 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         return outcome;
     }
 
-    protected boolean replaceStore(byte[] storeContent, String storeFileName, String storePassword,
+    protected boolean replaceStore(byte[] storeContent, String storeFileName, String storePassword, boolean allowChangingDiskStoreProps,
                                    String storeName, Supplier<KeystorePersistenceInfo> persistenceInfoGetter,
-                                   Runnable storeReloader, Consumer<KeyStore> certificateTypeValidator) throws CryptoSpiException {
-        boolean replaced;
+                                   Runnable storeReloader, Consumer<KeyStore> certificateTypeValidator,
+                                   Supplier<KeyStore> storeGetter) throws CryptoSpiException {
+
+        KeyStoreContentInfo storeContentInfo = certificateHelper.createStoreContentInfo(storeName, storeFileName, storeContent, storePassword, allowChangingDiskStoreProps);
+        final KeyStore newStore = certificateService.loadStore(storeContentInfo);
+        if (securityUtil.areKeystoresIdentical(newStore, storeGetter.get())) {
+            throw new SameResourceCryptoSpiException(storeName, storeFileName,
+                    String.format("Current store [%s] was not replaced with the content of the file [%s] because they are identical.", storeName, storeFileName));
+        }
+        certificateTypeValidator.accept(newStore);
+
         try {
-            KeyStoreContentInfo storeContentInfo = certificateHelper.createStoreContentInfo(storeName, storeFileName, storeContent, storePassword);
             KeystorePersistenceInfo persistenceInfo = persistenceInfoGetter.get();
-
-            final KeyStore newStore = certificateService.loadStore(storeContentInfo);
-            certificateTypeValidator.accept(newStore);
-
-            replaced = certificateService.replaceStore(storeContentInfo, persistenceInfo);
+            certificateService.replaceStore(storeContentInfo, persistenceInfo, false);
         } catch (CryptoException ex) {
             throw new CryptoSpiException(String.format("Error while replacing the store [%s] with content of the file named [%s].", storeName, storeFileName), ex);
         }
 
-        if (!replaced) {
-            throw new SameResourceCryptoSpiException(storeName, storeFileName,
-                    String.format("Current store [%s] was not replaced with the content of the file [%s] because they are identical.",
-                            storeName, storeFileName));
-        }
         storeReloader.run();
         return true;
     }
