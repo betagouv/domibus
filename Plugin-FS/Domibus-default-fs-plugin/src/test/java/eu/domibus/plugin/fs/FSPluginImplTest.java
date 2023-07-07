@@ -672,7 +672,7 @@ public class FSPluginImplTest {
         contentFile.close();
 
         new VerificationsInOrder() {{
-            fsSendMessagesService.handleSendFailedMessage(contentFile, anyString, anyString);
+            fsFilesManager.handleSendFailedMessage(contentFile, anyString, anyString);
         }};
     }
 
@@ -706,7 +706,7 @@ public class FSPluginImplTest {
         contentFile.close();
 
         new VerificationsInOrder() {{
-            fsSendMessagesService.handleSendFailedMessage(contentFile, anyString, anyString);
+            fsFilesManager.handleSendFailedMessage(contentFile, anyString, anyString);
         }};
     }
 
@@ -747,7 +747,7 @@ public class FSPluginImplTest {
         contentFile.close();
 
         new VerificationsInOrder() {{
-            fsSendMessagesService.handleSendFailedMessage(contentFile, anyString, anyString);
+            fsFilesManager.handleSendFailedMessage(contentFile, anyString, anyString);
         }};
     }
 

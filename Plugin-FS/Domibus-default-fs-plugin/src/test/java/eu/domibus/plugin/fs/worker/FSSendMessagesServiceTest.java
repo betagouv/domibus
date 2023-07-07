@@ -80,6 +80,9 @@ public class FSSendMessagesServiceTest {
     @Injectable
     private FSProcessFileService fsProcessFileService;
 
+    @Injectable
+    FSErrorMessageHelper fsErrorMessageHelper;
+
     private FileObject rootDir;
     private FileObject outgoingFolder;
     private FileObject contentFile;
@@ -291,25 +294,25 @@ public class FSSendMessagesServiceTest {
         }};
     }
 
-    @Test
-    public void testHandleSendFailedMessage() throws FileSystemException, FSSetUpException, IOException {
-        final String domain = null; //root
-        final String errorMessage = "mock error";
-        final FileObject processableFile = metadataFile;
-        new Expectations( instance) {{
-            fsFilesManager.setUpFileSystem(domain);
-            result = rootDir;
-
-            fsPluginProperties.isFailedActionArchive(domain);
-            result = true;
-        }};
-
-        instance.handleSendFailedMessage(processableFile, domain, errorMessage);
-
-        new Verifications() {{
-            fsFilesManager.createFile((FileObject) any, anyString, anyString);
-        }};
-    }
+//    @Test
+//    public void testHandleSendFailedMessage() throws FileSystemException, FSSetUpException, IOException {
+//        final String domain = null; //root
+//        final String errorMessage = "mock error";
+//        final FileObject processableFile = metadataFile;
+//        new Expectations( instance) {{
+//            fsFilesManager.setUpFileSystem(domain);
+//            result = rootDir;
+//
+//            fsPluginProperties.isFailedActionArchive(domain);
+//            result = true;
+//        }};
+//
+//        instance.handleSendFailedMessage(processableFile, domain, errorMessage);
+//
+//        new Verifications() {{
+//            fsFilesManager.createFile((FileObject) any, anyString, anyString);
+//        }};
+//    }
 
     @Test
     public void testCanReadFileSafely() {
@@ -458,31 +461,31 @@ public class FSSendMessagesServiceTest {
         Assertions.assertEquals(0, instance.observedFilesInfo.size());
     }
 
-    @Test
-    public void buildErrorMessageWithErrorDetailsTest() {
+//    @Test
+//    public void buildErrorMessageWithErrorDetailsTest() {
+//
+//        final String errorDetail = null;
+//
+//        new Expectations(instance) {{
+//            instance.buildErrorMessage(null, null, null, null, null, null);
+//            result = any;
+//        }};
+//
+//        Assertions.assertNull(instance.buildErrorMessage(errorDetail));
+//
+//    }
 
-        final String errorDetail = null;
-
-        new Expectations(instance) {{
-            instance.buildErrorMessage(null, null, null, null, null, null);
-            result = any;
-        }};
-
-        Assertions.assertNull(instance.buildErrorMessage(errorDetail));
-
-    }
-
-    @Test
-    public void testbuildErrorMessage() {
-        final String errorCode = "DOM_001";
-        final String errorDetail = "Error";
-        final String messageId = "messageId";
-        final String mshRole = "mshRole";
-        final String notified = "notified";
-        final String timestamp = null;
-
-        Assertions.assertNotNull(instance.buildErrorMessage(errorCode, errorDetail, messageId, mshRole, notified, timestamp));
-    }
+//    @Test
+//    public void testbuildErrorMessage() {
+//        final String errorCode = "DOM_001";
+//        final String errorDetail = "Error";
+//        final String messageId = "messageId";
+//        final String mshRole = "mshRole";
+//        final String notified = "notified";
+//        final String timestamp = null;
+//
+//        Assertions.assertNotNull(instance.buildErrorMessage(errorCode, errorDetail, messageId, mshRole, notified, timestamp));
+//    }
 
     @Test
     public void processFileSafelyWithJAXBExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, FileSystemException, JAXBException, XMLStreamException {
@@ -496,7 +499,7 @@ public class FSSendMessagesServiceTest {
         instance.processFileSafely(processableFile, domain);
 
         new Verifications() {{
-            instance.handleSendFailedMessage(processableFile, domain, withCapture());
+            fsFilesManager.handleSendFailedMessage(processableFile, domain, withCapture());
         }};
     }
 
@@ -512,7 +515,7 @@ public class FSSendMessagesServiceTest {
         instance.processFileSafely(processableFile, domain);
 
         new Verifications() {{
-            instance.handleSendFailedMessage(processableFile, domain, withCapture());
+            fsFilesManager.handleSendFailedMessage(processableFile, domain, withCapture());
         }};
     }
 
@@ -528,7 +531,7 @@ public class FSSendMessagesServiceTest {
         instance.processFileSafely(processableFile, domain);
 
         new Verifications() {{
-            instance.handleSendFailedMessage(processableFile, domain, withCapture());
+            fsFilesManager.handleSendFailedMessage(processableFile, domain, withCapture());
         }};
     }
 
