@@ -6,6 +6,7 @@ import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.*;
 import org.junit.jupiter.api.AfterEach;
@@ -15,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.activation.DataHandler;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
@@ -32,6 +35,10 @@ public class FSFilesManagerTest {
 
     private FileObject rootDir;
 
+    private FileObject metadataFile;
+
+    private FileObject outgoingFolder;
+
     @Injectable
     private FileObject mockedRootDir;
 
@@ -39,7 +46,7 @@ public class FSFilesManagerTest {
     protected FSFileNameHelper fsFileNameHelper;
 
     @BeforeEach
-    public void setUp() throws FileSystemException {
+    public void setUp() throws IOException {
         String location = "ram:///FSFilesManagerTest";
         String sampleFolderName = "samplefolder";
 
@@ -60,6 +67,17 @@ public class FSFilesManagerTest {
         rootDir.resolveFile("tobedeleted").createFile();
 
         rootDir.resolveFile("targetfolder1/targetfolder2").createFolder();
+
+        outgoingFolder = rootDir.resolveFile(FSFilesManager.OUTGOING_FOLDER);
+        outgoingFolder.createFolder();
+        try (InputStream testMetadata = FSTestHelper.getTestResource(this.getClass(), "testSendMessages_metadata.xml")) {
+            metadataFile = outgoingFolder.resolveFile("metadata.xml");
+            metadataFile.createFile();
+            FileContent metadataFileContent = metadataFile.getContent();
+            IOUtils.copy(testMetadata, metadataFileContent.getOutputStream());
+            metadataFile.close();
+        }
+
     }
 
     @AfterEach
@@ -223,7 +241,7 @@ public class FSFilesManagerTest {
                              @Mocked final FileObject file2,
                              @Mocked final FileObject file3) throws FileSystemException {
 
-        new Expectations( instance) {{
+        new Expectations(instance) {{
             file2.close();
             result = new FileSystemException("Test-forced exception");
         }};
@@ -315,4 +333,25 @@ public class FSFilesManagerTest {
             lockFile.delete();
         }};
     }
+
+    @Test
+    public void testHandleSendFailedMessage() throws FileSystemException, FSSetUpException, IOException {
+        final String domain = null; //root
+        final String errorMessage = "mock error";
+        final FileObject processableFile = metadataFile;
+        new Expectations(instance) {{
+            instance.setUpFileSystem(domain);
+            result = rootDir;
+
+            fsPluginProperties.isFailedActionArchive(domain);
+            result = true;
+        }};
+
+        instance.handleSendFailedMessage(processableFile, domain, errorMessage);
+
+        new Verifications() {{
+            instance.createFile((FileObject) any, anyString, anyString);
+        }};
+    }
+
 }
