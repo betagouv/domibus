@@ -3,6 +3,7 @@ package eu.domibus.ext.rest;
 import eu.domibus.ext.domain.*;
 import eu.domibus.ext.exceptions.PartyExtServiceException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
+import eu.domibus.ext.rest.validator.ValidString;
 import eu.domibus.ext.services.PartyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -14,9 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -78,7 +76,7 @@ public class PartyExtResource {
              description="Delete a Party based on party name",
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @DeleteMapping
-    public String deleteParty(@RequestParam(value = "partyName") @Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$", message="Invalid party Name")  @Size(min = 4, max = 255) @NotNull String partyName) {
+    public String deleteParty(@RequestParam(value = "partyName") @ValidString String partyName) {
 
         partyExtService.deleteParty(partyName);
         return "Party having partyName=[" + partyName + "] has been successfully deleted";
@@ -89,7 +87,7 @@ public class PartyExtResource {
              description="Get Certificate for a Party based on party name",
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(value = "/{partyName}/certificate")
-    public ResponseEntity<Object> getCertificateForParty(@Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$", message="Invalid party Name") @Size(min = 4, max = 255)  @PathVariable(name = "partyName") String partyName) {
+    public ResponseEntity<Object> getCertificateForParty(@ValidString @PathVariable(name = "partyName") String partyName) {
 
         TrustStoreDTO cert = partyExtService.getPartyCertificateFromTruststore(partyName);
         if (cert == null) {

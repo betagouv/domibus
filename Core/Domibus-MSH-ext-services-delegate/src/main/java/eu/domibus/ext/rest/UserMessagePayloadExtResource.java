@@ -9,6 +9,8 @@ import eu.domibus.ext.exceptions.DomibusErrorCode;
 import eu.domibus.ext.exceptions.DomibusServiceExtException;
 import eu.domibus.ext.exceptions.PayloadExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
+import eu.domibus.ext.rest.validator.ValidMessageId;
+import eu.domibus.ext.rest.validator.ValidString;
 import eu.domibus.ext.services.PayloadExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -28,7 +30,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.activation.DataHandler;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,7 +79,7 @@ public class UserMessagePayloadExtResource {
     @Operation(summary = "Download the UserMessage payload", description = "Download the UserMessage payload with a specific cid",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(path = "ids/{messageEntityId}/payloads/{cid}", produces = MediaType.APPLICATION_XML_VALUE)
-    public void downloadPayloadByEntityId(@PathVariable(value = "messageEntityId") Long messageEntityId,@Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$", message="Invalid cid") @Size(min = 4, max = 255) @PathVariable(value = "cid") String cid, HttpServletResponse response) {
+    public void downloadPayloadByEntityId(@PathVariable(value = "messageEntityId") Long messageEntityId, @ValidString @PathVariable(value = "cid") String cid, HttpServletResponse response) {
         LOG.debug("Downloading the payload with cid [{}] for message with id [{}]", cid, messageEntityId);
 
         final PartInfoDTO payload = payloadExtService.getPayload(messageEntityId, cid);
@@ -88,7 +89,7 @@ public class UserMessagePayloadExtResource {
     @Operation(summary = "Download the UserMessage payload", description = "Download the UserMessage payload with a specific cid",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(path = "{messageId}/payloads/{cid}", produces = MediaType.APPLICATION_XML_VALUE)
-    public void downloadPayloadByMessageId(@Pattern(regexp = "^[\\x20-\\x7E]*$", message="Invalid Message Id") @Size(max = 255) @PathVariable(value = "messageId") String messageId, @Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$", message="Invalid cid") @Size(min = 4, max = 255) @PathVariable(value = "cid") String cid,
+    public void downloadPayloadByMessageId(@ValidMessageId @PathVariable(value = "messageId") String messageId, @ValidString @Size(min = 4, max = 255) @PathVariable(value = "cid") String cid,
                                            @RequestParam(value = "mshRole", required = false) MSHRole mshRole, HttpServletResponse response) {
         LOG.debug("Downloading the payload with cid [{}] for message with id [{}] and role [{}]", cid, messageId, mshRole);
 

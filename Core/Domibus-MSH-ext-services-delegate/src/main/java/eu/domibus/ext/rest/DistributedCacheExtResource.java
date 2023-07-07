@@ -4,6 +4,7 @@ import eu.domibus.ext.domain.CacheEntryDTO;
 import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.exceptions.CacheExtServiceException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
+import eu.domibus.ext.rest.validator.ValidString;
 import eu.domibus.ext.services.DistributedCacheExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -18,9 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -91,8 +90,8 @@ public class DistributedCacheExtResource {
             @ApiResponse(responseCode = "403", description = "Admin role needed")
     })
     @GetMapping(path = "/caches/{cacheName}/{entryKey}")
-    public Object getDistributedCacheEntry(@Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$", message="Invalid Cache Name") @Size(min = 4, max = 255) @PathVariable(name = "cacheName") @Positive String cacheName,
-                                           @Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$", message="Invalid Entry Key Name") @Size(min = 4, max = 255) @PathVariable(name = "entryKey") String entryKey) {
+    public Object getDistributedCacheEntry(@ValidString @PathVariable(name = "cacheName") @Positive String cacheName,
+                                           @ValidString @PathVariable(name = "entryKey") String entryKey) {
         LOG.info("Getting entry key [{}] from cache [{}]", entryKey, cacheName);
 
         return distributedCacheExtService.getEntryFromCache(cacheName, entryKey);
@@ -107,7 +106,7 @@ public class DistributedCacheExtResource {
             @ApiResponse(responseCode = "403", description = "Admin role needed")
     })
     @PostMapping(path = "/caches/{cacheName}")
-    public void addDistributedCacheEntry(@Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$", message="Invalid Cache Name") @Size(min = 4, max = 255) @PathVariable(name = "cacheName") String cacheName,
+    public void addDistributedCacheEntry(@ValidString @PathVariable(name = "cacheName") String cacheName,
                                             @RequestBody CacheEntryDTO cacheEntry) {
         LOG.info("Creating entry in cache [{}]: [{}]", cacheName, cacheEntry);
 
@@ -123,8 +122,8 @@ public class DistributedCacheExtResource {
             @ApiResponse(responseCode = "403", description = "Admin role needed")
     })
     @DeleteMapping(path = "/caches/{cacheName}/{entryKey}")
-    public void deleteDistributedCacheEntry(@Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$", message="Invalid Cache Name") @Size(min = 4, max = 255) @PathVariable(name = "cacheName") String cacheName,
-                                            @Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$", message="Invalid Entry Key Name") @Size(min = 4, max = 255) @PathVariable(name = "entryKey") String entryKey) {
+    public void deleteDistributedCacheEntry(@ValidString @PathVariable(name = "cacheName") String cacheName,
+                                            @ValidString @PathVariable(name = "entryKey") String entryKey) {
         LOG.info("Deleting entry key [{}] from cache [{}]", entryKey, cacheName);
         distributedCacheExtService.evictEntryFromCache(cacheName, entryKey);
     }
@@ -138,7 +137,7 @@ public class DistributedCacheExtResource {
             @ApiResponse(responseCode = "403", description = "Admin role needed")
     })
     @GetMapping(path = "/caches/{cacheName}")
-    public List<CacheEntryDTO> getDistributedCacheEntries(@Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$", message="Invalid Cache Name") @Size(min = 4, max = 255) @PathVariable(name = "cacheName") String cacheName) {
+    public List<CacheEntryDTO> getDistributedCacheEntries( @ValidString @PathVariable(name = "cacheName") String cacheName) {
         LOG.info("Getting all entries from cache [{}]", cacheName);
         return distributedCacheExtService.getEntriesFromCache(cacheName);
     }

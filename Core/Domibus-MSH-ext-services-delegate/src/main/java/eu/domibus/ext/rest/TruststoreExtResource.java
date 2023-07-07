@@ -11,6 +11,7 @@ import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.*;
 import eu.domibus.ext.exceptions.CryptoExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
+import eu.domibus.ext.rest.validator.ValidString;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.TrustStoreExtService;
@@ -32,8 +33,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -142,7 +141,7 @@ public class TruststoreExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PostMapping(value = "/entries", consumes = {"multipart/form-data"})
     public String addCertificate(@RequestPart("file") MultipartFile certificateFile,
-                                 @RequestParam("alias") @NotNull String alias) throws RequestValidationException {
+                                 @RequestParam("alias") @ValidString @NotNull String alias) throws RequestValidationException {
 
         return doAddCertificate(certificateFile, alias);
     }
@@ -151,7 +150,7 @@ public class TruststoreExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PostMapping(value = "/certificates", consumes = {"multipart/form-data"})
     public String addCertificate(@RequestPart("file") MultipartFile certificateFile,
-                                 @RequestParam("partyName") @Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$", message="Invalid party Name") @Size(min = 4, max = 255) @NotNull String partyName,
+                                 @RequestParam("partyName") @ValidString @NotNull String partyName,
                                  @RequestParam("securityProfile") @NotNull SecurityProfileDTO securityProfileDTO,
                                  @RequestParam("certificatePurpose") @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
 
@@ -176,14 +175,14 @@ public class TruststoreExtResource {
     @Operation(summary = "Remove Certificate", description = "Remove Certificate from the truststore",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @DeleteMapping(value = "/entries/{alias:.+}")
-    public String removeCertificate(@Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$", message="Invalid alias Name") @Size(min = 4, max = 255) @PathVariable String alias) throws RequestValidationException {
+    public String removeCertificate(@ValidString @PathVariable String alias) throws RequestValidationException {
         return doRemoveCertificate(alias);
     }
 
     @Operation(summary = "Remove Certificate", description = "Remove Certificate from the truststore",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @DeleteMapping(value = "/certificates/{partyName:.+}")
-    public String removeCertificate(@Pattern(regexp = "^[a-zA-Z0-9\\.@_]*$", message="Invalid party Name") @Size(min = 4, max = 255) @PathVariable String partyName,
+    public String removeCertificate(@ValidString @PathVariable String partyName,
                                     @RequestParam("securityProfile") @NotNull SecurityProfileDTO securityProfileDTO,
                                     @RequestParam("certificatePurpose") @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
         SecurityProfile securityProfile = domibusExtMapper.securityProfileDTOToApi(securityProfileDTO);

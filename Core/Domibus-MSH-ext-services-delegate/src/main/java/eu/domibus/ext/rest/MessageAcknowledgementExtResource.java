@@ -5,6 +5,7 @@ import eu.domibus.ext.domain.MessageAcknowledgementDTO;
 import eu.domibus.ext.domain.MessageAcknowledgementRequestDTO;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
+import eu.domibus.ext.rest.validator.ValidMessageId;
 import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -13,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 import java.util.List;
 
 /**
@@ -77,7 +76,7 @@ public class MessageAcknowledgementExtResource {
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(path = "/{messageId:.+}")
     @ResponseBody
-    public List<MessageAcknowledgementDTO> getAcknowledgedMessages(@Pattern(regexp = "^[\\x20-\\x7E]*$", message="Invalid Message Id") @Size(max = 255) @PathVariable(value = "messageId") String messageId) {
+    public List<MessageAcknowledgementDTO> getAcknowledgedMessages(@ValidMessageId @PathVariable(value = "messageId") String messageId) {
         return messageAcknowledgeService.getAcknowledgedMessages(messageId);
     }
 
