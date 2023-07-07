@@ -65,6 +65,9 @@ public class FSPluginImplTest {
     private FSPluginProperties fsPluginProperties;
 
     @Injectable
+    protected FSErrorMessageHelper fsErrorMessageHelper;
+
+    @Injectable
     private FSMessageTransformer defaultTransformer;
 
     @Injectable
