@@ -7,9 +7,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import static eu.domibus.logging.DomibusMessageCode.VALUE_DO_NOT_CONFORM_TO_MESSAGEID_PATTERN;
 import static eu.domibus.logging.DomibusMessageCode.VALUE_LONGER_THAN_DEFAULT_STRING_LENGTH;
 import static org.apache.commons.lang3.StringUtils.trim;
@@ -29,7 +26,7 @@ public class DomibusStringUtilImpl implements DomibusStringUtil {
     public static final String STRING_SANITIZE_REGEX = "[^\\w@.-]";
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusStringUtilImpl.class);
 
-    protected DomibusPropertyProvider domibusPropertyProvider;
+    protected final  DomibusPropertyProvider domibusPropertyProvider;
 
     public DomibusStringUtilImpl(DomibusPropertyProvider domibusPropertyProvider) {
         this.domibusPropertyProvider = domibusPropertyProvider;
@@ -91,11 +88,11 @@ public class DomibusStringUtilImpl implements DomibusStringUtil {
         LOG.debug("MessageIdPattern read from file is [{}]", messageIdPattern);
 
         if (isBlank(messageIdPattern)) {
+            LOG.debug("No messageIdPattern found.");
             return false;
         }
-        Pattern patternNoControlChar = Pattern.compile(messageIdPattern);
-        Matcher m = patternNoControlChar.matcher(messageId);
-        if (!m.matches()) {
+
+        if (!messageId.matches(messageIdPattern)) {
             LOG.businessError(VALUE_DO_NOT_CONFORM_TO_MESSAGEID_PATTERN, elementType, messageIdPattern, messageId);
             return false;
         }

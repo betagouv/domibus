@@ -75,7 +75,8 @@ public class TLSTrustStoreExtResource {
                                     MultiPartFileUtil multiPartFileUtil,
                                     DomainContextExtService domainContextExtService,
                                     DomibusConfigurationExtService domibusConfigurationExtService,
-                                    SecurityProfileService securityProfileService, DomibusExtMapper domibusExtMapper) {
+                                    SecurityProfileService securityProfileService,
+                                    DomibusExtMapper domibusExtMapper) {
         this.tlsTruststoreExtService = tlsTruststoreExtService;
         this.extExceptionHelper = extExceptionHelper;
         this.multiPartFileUtil = multiPartFileUtil;
