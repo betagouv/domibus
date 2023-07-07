@@ -2,6 +2,7 @@ package eu.domibus.plugin.fs;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import mockit.*;
@@ -36,6 +37,8 @@ public class FSFilesManagerTest {
     private FileObject rootDir;
 
     private FileObject metadataFile;
+
+    private FileObject contentFile;
 
     private FileObject outgoingFolder;
 
@@ -78,6 +81,13 @@ public class FSFilesManagerTest {
             metadataFile.close();
         }
 
+        try (InputStream testContent = FSTestHelper.getTestResource(this.getClass(), "testSendMessages_content.xml")) {
+            contentFile = outgoingFolder.resolveFile("content.xml");
+            contentFile.createFile();
+            FileContent contentFileContent = contentFile.getContent();
+            IOUtils.copy(testContent, contentFileContent.getOutputStream());
+            contentFile.close();
+        }
     }
 
     @AfterEach
@@ -332,6 +342,28 @@ public class FSFilesManagerTest {
         new Verifications() {{
             lockFile.delete();
         }};
+    }
+
+    @Test
+    public void test_renameProcessedFile_Exception(final @Mocked FileObject processableFile) throws Exception {
+        final String messageId = "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
+        final String newFileName = "content_" + messageId + ".xml";
+
+        new Expectations() {{
+            fsFileNameHelper.deriveFileName("content.xml", messageId);
+            result = newFileName;
+
+            instance.renameFile(contentFile, newFileName);
+            result = new FileSystemException("Unable to rename the file");
+        }};
+
+        try {
+            //tested method
+            instance.renameProcessedFile(contentFile, messageId);
+            Assertions.fail("exception expected");
+        } catch (Exception e) {
+            Assertions.assertEquals(FSPluginException.class, e.getClass());
+        }
     }
 
     @Test
