@@ -65,6 +65,9 @@ public class FSPluginImplTest {
     private FSPluginProperties fsPluginProperties;
 
     @Injectable
+    protected FSErrorMessageHelper fsErrorMessageHelper;
+
+    @Injectable
     private FSMessageTransformer defaultTransformer;
 
     @Injectable
@@ -84,9 +87,6 @@ public class FSPluginImplTest {
 
     @Injectable
     private MessageExtService messageExtService;
-
-    @Injectable
-    protected FSProcessFileService fsProcessFileService;
 
     @Injectable
     protected DomainTaskExtExecutor domainTaskExtExecutor;
@@ -675,7 +675,7 @@ public class FSPluginImplTest {
         contentFile.close();
 
         new VerificationsInOrder() {{
-            fsSendMessagesService.handleSendFailedMessage(contentFile, anyString, anyString);
+            fsFilesManager.handleSendFailedMessage(contentFile, anyString, anyString);
         }};
     }
 
@@ -709,7 +709,7 @@ public class FSPluginImplTest {
         contentFile.close();
 
         new VerificationsInOrder() {{
-            fsSendMessagesService.handleSendFailedMessage(contentFile, anyString, anyString);
+            fsFilesManager.handleSendFailedMessage(contentFile, anyString, anyString);
         }};
     }
 
@@ -750,7 +750,7 @@ public class FSPluginImplTest {
         contentFile.close();
 
         new VerificationsInOrder() {{
-            fsSendMessagesService.handleSendFailedMessage(contentFile, anyString, anyString);
+            fsFilesManager.handleSendFailedMessage(contentFile, anyString, anyString);
         }};
     }
 
@@ -769,7 +769,7 @@ public class FSPluginImplTest {
         backendFS.payloadProcessedEvent(event);
 
         new Verifications() {{
-            fsProcessFileService.renameProcessedFile(fileObject, event.getMessageId());
+            fsFilesManager.renameProcessedFile(fileObject, event.getMessageId());
             fsFilesManager.deleteLockFile(fileObject);
         }};
     }

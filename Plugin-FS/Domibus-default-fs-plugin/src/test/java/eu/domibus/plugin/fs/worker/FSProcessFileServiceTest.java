@@ -207,29 +207,6 @@ public void tearDown() throws FileSystemException {
         }};
     }
 
-    @Test
-    public void test_renameProcessedFile_Exception(final @Mocked FileObject processableFile) throws Exception {
-        final String messageId = "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
-        final String newFileName = "content_" + messageId + ".xml";
-
-        new Expectations() {{
-            fsFileNameHelper.deriveFileName("content.xml", messageId);
-            result = newFileName;
-
-            fsFilesManager.renameFile(contentFile, newFileName);
-            result = new FileSystemException("Unable to rename the file");
-        }};
-
-        try {
-            //tested method
-            fsProcessFileService.renameProcessedFile(contentFile, messageId);
-            Assertions.fail("exception expected");
-        } catch (Exception e) {
-            Assertions.assertEquals(FSPluginException.class, e.getClass());
-        }
-    }
-
-
     @Test()
     public void test_processFile_MetaDataException(final @Mocked FileObject processableFile, final @Mocked FileObject metadataFile) throws Exception {
 

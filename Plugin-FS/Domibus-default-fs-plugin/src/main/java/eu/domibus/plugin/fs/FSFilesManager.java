@@ -2,6 +2,7 @@ package eu.domibus.plugin.fs;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import eu.domibus.plugin.fs.vfs.FileObjectDataSource;
@@ -25,7 +26,7 @@ import java.io.OutputStreamWriter;
  */
 @Component
 public class FSFilesManager {
-
+    public static final String ERROR_EXTENSION = ".error";
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FSFilesManager.class);
 
     private static final String FTP_PREFIX = "ftp:";
@@ -286,5 +287,58 @@ public class FSFilesManager {
         long fileAgeSeconds = (currentMillis - modifiedMillis) / 1000;
 
         return fileAgeSeconds > ageInSeconds;
+    }
+
+    public void renameProcessedFile(FileObject processableFile, String messageId) {
+        final String baseName = processableFile.getName().getBaseName();
+        String newFileName = fsFileNameHelper.deriveFileName(baseName, messageId);
+
+        LOG.debug("Renaming file [{}] to [{}]", baseName, newFileName);
+
+        try {
+            renameFile(processableFile, newFileName);
+        } catch (FileSystemException ex) {
+            throw new FSPluginException("Error renaming file [" + processableFile.getName().getURI() + "] to [" + newFileName + "]", ex);
+        }
+    }
+
+    public void handleSendFailedMessage(FileObject processableFile, String domain, String errorMessage) {
+        if (processableFile == null) {
+            LOG.error("The send failed message file was not found in domain [{}]", domain);
+            return;
+        }
+        try {
+            deleteLockFile(processableFile);
+        } catch (FileSystemException e) {
+            LOG.error("Error deleting lock file", e);
+        }
+
+        try (FileObject rootDir = setUpFileSystem(domain)) {
+            String baseName = processableFile.getName().getBaseName();
+            String errorFileName = fsFileNameHelper.stripStatusSuffix(baseName) + ERROR_EXTENSION;
+
+            String processableFileMessageURI = processableFile.getParent().getName().getPath();
+            String failedDirectoryLocation = fsFileNameHelper.deriveFailedDirectoryLocation(processableFileMessageURI);
+            FileObject failedDirectory = getEnsureChildFolder(rootDir, failedDirectoryLocation);
+
+            try {
+                if (fsPluginProperties.isFailedActionDelete(domain)) {
+                    // Delete
+                    deleteFile(processableFile);
+                    LOG.debug("Send failed message file [{}] was deleted", processableFile.getName().getBaseName());
+                } else if (fsPluginProperties.isFailedActionArchive(domain)) {
+                    // Archive
+                    String archivedFileName = fsFileNameHelper.stripStatusSuffix(baseName);
+                    FileObject archivedFile = failedDirectory.resolveFile(archivedFileName);
+                    moveFile(processableFile, archivedFile);
+                    LOG.debug("Send failed message file [{}] was archived into [{}]", processableFile, archivedFile.getName().getURI());
+                }
+            } finally {
+                // Create error file
+                createFile(failedDirectory, errorFileName, errorMessage);
+            }
+        } catch (IOException e) {
+            throw new FSPluginException("Error handling the send failed message file " + processableFile, e);
+        }
     }
 }

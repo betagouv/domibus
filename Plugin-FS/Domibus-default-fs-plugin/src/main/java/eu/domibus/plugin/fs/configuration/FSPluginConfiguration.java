@@ -44,11 +44,12 @@ public class FSPluginConfiguration {
 
     @Bean(PLUGIN_NAME)
     public FSPluginImpl createFSPlugin(FSMessageTransformer defaultTransformer, FSFilesManager fsFilesManager, FSPluginProperties fsPluginProperties,
-                                       FSSendMessagesService fsSendMessagesService, FSProcessFileService fsProcessFileService,
-                                       DomainTaskExtExecutor domainTaskExtExecutor, FSDomainService fsDomainService, FSXMLHelper fsxmlHelper,
+                                       FSErrorMessageHelper fsErrorMessageHelper, DomainTaskExtExecutor domainTaskExtExecutor,
+                                       FSDomainService fsDomainService, FSXMLHelper fsxmlHelper,
                                        FSMimeTypeHelper fsMimeTypeHelper, FSFileNameHelper fsFileNameHelper,
-                                       FSSendMessageListenerContainer fsSendMessageListenerContainer, DomibusPropertyExtService domibusPropertyExtService, FileUtilExtService fileUtilExtService) {
-        FSPluginImpl fsPlugin = new FSPluginImpl(defaultTransformer, fsFilesManager, fsPluginProperties, fsSendMessagesService, fsProcessFileService, domainTaskExtExecutor,
+                                       FSSendMessageListenerContainer fsSendMessageListenerContainer,
+                                       DomibusPropertyExtService domibusPropertyExtService, FileUtilExtService fileUtilExtService) {
+        FSPluginImpl fsPlugin = new FSPluginImpl(defaultTransformer, fsFilesManager, fsPluginProperties, fsErrorMessageHelper, domainTaskExtExecutor,
                 fsDomainService, fsxmlHelper, fsMimeTypeHelper, fsFileNameHelper, fsSendMessageListenerContainer, domibusPropertyExtService, fileUtilExtService);
         return fsPlugin;
     }

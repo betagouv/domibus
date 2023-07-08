@@ -2,10 +2,12 @@ package eu.domibus.plugin.fs;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.*;
 import org.junit.jupiter.api.AfterEach;
@@ -15,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.activation.DataHandler;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
@@ -32,6 +36,12 @@ public class FSFilesManagerTest {
 
     private FileObject rootDir;
 
+    private FileObject metadataFile;
+
+    private FileObject contentFile;
+
+    private FileObject outgoingFolder;
+
     @Injectable
     private FileObject mockedRootDir;
 
@@ -39,7 +49,7 @@ public class FSFilesManagerTest {
     protected FSFileNameHelper fsFileNameHelper;
 
     @BeforeEach
-    public void setUp() throws FileSystemException {
+    public void setUp() throws IOException {
         String location = "ram:///FSFilesManagerTest";
         String sampleFolderName = "samplefolder";
 
@@ -60,6 +70,24 @@ public class FSFilesManagerTest {
         rootDir.resolveFile("tobedeleted").createFile();
 
         rootDir.resolveFile("targetfolder1/targetfolder2").createFolder();
+
+        outgoingFolder = rootDir.resolveFile(FSFilesManager.OUTGOING_FOLDER);
+        outgoingFolder.createFolder();
+        try (InputStream testMetadata = FSTestHelper.getTestResource(this.getClass(), "metadata.xml")) {
+            metadataFile = outgoingFolder.resolveFile("metadata.xml");
+            metadataFile.createFile();
+            FileContent metadataFileContent = metadataFile.getContent();
+            IOUtils.copy(testMetadata, metadataFileContent.getOutputStream());
+            metadataFile.close();
+        }
+
+        try (InputStream testContent = FSTestHelper.getTestResource(this.getClass(), "content.xml")) {
+            contentFile = outgoingFolder.resolveFile("content.xml");
+            contentFile.createFile();
+            FileContent contentFileContent = contentFile.getContent();
+            IOUtils.copy(testContent, contentFileContent.getOutputStream());
+            contentFile.close();
+        }
     }
 
     @AfterEach
@@ -119,13 +147,15 @@ public class FSFilesManagerTest {
         FileObject[] files = instance.findAllDescendantFiles(rootDir);
 
         Assertions.assertNotNull(files);
-        Assertions.assertEquals(6, files.length);
+        Assertions.assertEquals(8, files.length);
         Assertions.assertEquals("ram:///FSFilesManagerTest/file1", files[0].getName().getURI());
         Assertions.assertEquals("ram:///FSFilesManagerTest/file2", files[1].getName().getURI());
         Assertions.assertEquals("ram:///FSFilesManagerTest/file3", files[2].getName().getURI());
         Assertions.assertEquals("ram:///FSFilesManagerTest/toberenamed", files[3].getName().getURI());
         Assertions.assertEquals("ram:///FSFilesManagerTest/tobemoved", files[4].getName().getURI());
         Assertions.assertEquals("ram:///FSFilesManagerTest/tobedeleted", files[5].getName().getURI());
+        Assertions.assertEquals("ram:///FSFilesManagerTest/OUT/metadata.xml", files[6].getName().getURI());
+        Assertions.assertEquals("ram:///FSFilesManagerTest/OUT/content.xml", files[7].getName().getURI());
     }
 
     @Test
@@ -223,7 +253,7 @@ public class FSFilesManagerTest {
                              @Mocked final FileObject file2,
                              @Mocked final FileObject file3) throws FileSystemException {
 
-        new Expectations( instance) {{
+        new Expectations(instance) {{
             file2.close();
             result = new FileSystemException("Test-forced exception");
         }};
@@ -315,4 +345,50 @@ public class FSFilesManagerTest {
             lockFile.delete();
         }};
     }
+
+    @Test
+    public void test_renameProcessedFile_Exception(final @Mocked FileObject processableFile) throws Exception {
+        final String messageId = "3c5558e4-7b6d-11e7-bb31-be2e44b06b34@domibus.eu";
+        final String newFileName = "content_" + messageId + ".xml";
+
+        new Expectations() {{
+            fsFileNameHelper.deriveFileName("content.xml", messageId);
+            result = newFileName;
+
+            instance.renameFile(contentFile, newFileName);
+            result = new FileSystemException("Unable to rename the file");
+        }};
+
+        try {
+            //tested method
+            instance.renameProcessedFile(contentFile, messageId);
+            Assertions.fail("exception expected");
+        } catch (Exception e) {
+            Assertions.assertEquals(FSPluginException.class, e.getClass());
+        }
+    }
+
+    @Test
+    public void testHandleSendFailedMessage() throws FileSystemException, FSSetUpException, IOException {
+        final String domain = null; //root
+        final String errorMessage = "mock error";
+        final FileObject processableFile = contentFile;
+        new Expectations(instance) {{
+            instance.setUpFileSystem(domain);
+            result = rootDir;
+
+            instance.getEnsureChildFolder(rootDir, anyString);
+            result = rootDir.resolveFile("testfolder");
+
+            fsPluginProperties.isFailedActionDelete(domain);
+            result = true;
+        }};
+
+        instance.handleSendFailedMessage(processableFile, domain, errorMessage);
+
+        new Verifications() {{
+            instance.createFile((FileObject) any, anyString, anyString);
+        }};
+    }
+
 }
