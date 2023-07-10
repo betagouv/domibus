@@ -30,7 +30,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.activation.DataHandler;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.constraints.Size;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
@@ -89,7 +88,7 @@ public class UserMessagePayloadExtResource {
     @Operation(summary = "Download the UserMessage payload", description = "Download the UserMessage payload with a specific cid",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(path = "{messageId}/payloads/{cid}", produces = MediaType.APPLICATION_XML_VALUE)
-    public void downloadPayloadByMessageId(@ValidMessageId @PathVariable(value = "messageId") String messageId, @ValidString @Size(min = 4, max = 255) @PathVariable(value = "cid") String cid,
+    public void downloadPayloadByMessageId(@ValidMessageId @PathVariable(value = "messageId") String messageId, @ValidString @PathVariable(value = "cid") String cid,
                                            @RequestParam(value = "mshRole", required = false) MSHRole mshRole, HttpServletResponse response) {
         LOG.debug("Downloading the payload with cid [{}] for message with id [{}] and role [{}]", cid, messageId, mshRole);
 
