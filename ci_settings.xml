@@ -1,0 +1,48 @@
+<settings xmlns="http://maven.apache.org/SETTINGS/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd">
+    <servers>
+        <server>
+            <id>gitlab-maven</id>
+            <configuration>
+                <httpHeaders>
+                    <property>
+                        <name>Job-Token</name>
+                        <value>${CI_JOB_TOKEN}</value>
+                    </property>
+                </httpHeaders>
+            </configuration>
+        </server>
+    </servers>
+
+    <profiles>
+        <profile>
+            <id>gitlab</id>
+            <repositories>
+                <repository>
+                    <id>gitlab-maven</id>
+                    <url>${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/maven</url>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
+
+    <activeProfiles>
+        <!-- The "gitlab" profile below is used to configure custom distribution management repositories above -->
+        <activeProfile>gitlab</activeProfile>
+
+        <!-- Domibus profiles -->
+        <activeProfile>database</activeProfile>
+        <activeProfile>default-plugins</activeProfile>
+        <activeProfile>dependency-license-check</activeProfile>
+        <activeProfile>distribution</activeProfile>
+        <activeProfile>dss-extension</activeProfile>
+        <activeProfile>enforce</activeProfile>
+        <activeProfile>sample-configuration</activeProfile>
+        <activeProfile>swagger</activeProfile>
+        <activeProfile>tomcat</activeProfile>
+        <activeProfile>UI</activeProfile>
+        <activeProfile>weblogic-ecas</activeProfile>
+        <activeProfile>weblogic</activeProfile>
+        <activeProfile>wildfly</activeProfile>
+    </activeProfiles>
+</settings>
