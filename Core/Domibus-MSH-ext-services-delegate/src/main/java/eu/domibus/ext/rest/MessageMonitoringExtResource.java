@@ -9,6 +9,7 @@ import eu.domibus.ext.domain.MessageAttemptDTO;
 import eu.domibus.ext.exceptions.DomibusDateTimeExtException;
 import eu.domibus.ext.exceptions.MessageMonitorExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
+import eu.domibus.ext.rest.validator.ValidMessageId;
 import eu.domibus.ext.services.DateExtService;
 import eu.domibus.ext.services.MessageMonitorExtService;
 import eu.domibus.logging.DomibusLogger;
@@ -22,8 +23,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.List;
  * @author Cosmin Baciu
  * @since 3.3
  */
+@Validated
 @RestController
 @RequestMapping(value = "/ext/monitoring/messages")
 @Tag(name = "monitoring", description = "Domibus Message Monitoring API")
@@ -39,14 +41,15 @@ public class MessageMonitoringExtResource {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageMonitoringExtResource.class);
 
-    @Autowired
-    ExtExceptionHelper extExceptionHelper;
+    private final ExtExceptionHelper extExceptionHelper;
+    private final MessageMonitorExtService messageMonitorExtService;
+    private final DateExtService dateExtService;
 
-    @Autowired
-    MessageMonitorExtService messageMonitorExtService;
-
-    @Autowired
-    DateExtService dateExtService;
+    public MessageMonitoringExtResource(ExtExceptionHelper extExceptionHelper, MessageMonitorExtService messageMonitorExtService, DateExtService dateExtService) {
+        this.extExceptionHelper = extExceptionHelper;
+        this.messageMonitorExtService = messageMonitorExtService;
+        this.dateExtService = dateExtService;
+    }
 
     @ExceptionHandler(MessageMonitorExtException.class)
     public ResponseEntity<ErrorDTO> handleMessageMonitorExtException(MessageMonitorExtException e) {
@@ -67,22 +70,22 @@ public class MessageMonitoringExtResource {
     @Operation(summary = "Get failed message elapsed time", description = "Retrieve the time that a message has been in a SEND_FAILURE status",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(path = "/failed/{messageId:.+}/elapsedtime")
-    public Long getFailedMessageInterval(@PathVariable(value = "messageId") String messageId) {
-        return messageMonitorExtService.getFailedMessageInterval(messageId);
+    public Long getFailedMessageInterval(@ValidMessageId @PathVariable(value = "messageId") String messageId) {
+      return messageMonitorExtService.getFailedMessageInterval(messageId);
     }
 
     @Operation(summary = "Resend failed message", description = "Resend a message which has a SEND_FAILURE status",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PutMapping(path = "/failed/{messageId:.+}/restore")
-    public void restoreFailedMessage(@PathVariable(value = "messageId") String messageId) {
-        messageMonitorExtService.restoreFailedMessage(messageId);
+    public void restoreFailedMessage(@ValidMessageId @PathVariable(value = "messageId") String messageId) {
+       messageMonitorExtService.restoreFailedMessage(messageId);
     }
 
     @Operation(summary = "Send enqueued message", description = "Send a message which has a SEND_ENQUEUED status",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PutMapping(path = "/enqueued/{messageId:.+}/send")
-    public void sendEnqueuedMessage(@PathVariable(value = "messageId") String messageId) {
-        messageMonitorExtService.sendEnqueuedMessage(messageId);
+    public void sendEnqueuedMessage(@ValidMessageId @PathVariable(value = "messageId") String messageId) {
+      messageMonitorExtService.sendEnqueuedMessage(messageId);
     }
 
     @Operation(summary = "Resend all messages with SEND_FAILURE status within a certain time interval", description = "Resend all messages with SEND_FAILURE status within a certain time interval",
@@ -101,8 +104,8 @@ public class MessageMonitoringExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @ResponseBody
     @DeleteMapping(path = "/failed/{messageId:.+}")
-    public void deleteFailedMessage(@PathVariable(value = "messageId") String messageId) {
-        messageMonitorExtService.deleteFailedMessage(messageId);
+    public void deleteFailedMessage(@ValidMessageId @PathVariable(value = "messageId") String messageId) {
+       messageMonitorExtService.deleteFailedMessage(messageId);
     }
 
     @Operation(summary = "Get message attempts",
@@ -113,7 +116,7 @@ public class MessageMonitoringExtResource {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = MessageAttemptDTO.class))))
     })
     @GetMapping(path = "/{messageId:.+}/attempts")
-    public List<MessageAttemptDTO> getMessageAttempts(@PathVariable(value = "messageId") String messageId) {
+    public List<MessageAttemptDTO> getMessageAttempts(@ValidMessageId @PathVariable(value = "messageId") String messageId) {
         return messageMonitorExtService.getAttemptsHistory(messageId);
     }
 
@@ -121,7 +124,7 @@ public class MessageMonitoringExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @ResponseBody
     @DeleteMapping(path = "/delete/{messageId:.+}")
-    public void deleteMessage(@PathVariable(value = "messageId") String messageId,
+    public void deleteMessage(@ValidMessageId @PathVariable(value = "messageId") String messageId,
                               @RequestParam(value = "mshRole", required = false) MSHRole mshRole) {
         LOG.info("Delete payload of the message not in final status with message Id [{}] ", messageId);
         messageMonitorExtService.deleteMessageNotInFinalStatus(messageId, mshRole);
@@ -147,7 +150,7 @@ public class MessageMonitoringExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @ResponseBody
     @DeleteMapping(path = "/finalstatus/delete/{messageId:.+}")
-    public void deleteMessageInFinalStatus(@PathVariable(value = "messageId") String messageId, @RequestParam(value = "mshRole", required = false) MSHRole mshRole) {
+    public void deleteMessageInFinalStatus(@ValidMessageId @PathVariable(value = "messageId") String messageId, @RequestParam(value = "mshRole", required = false) MSHRole mshRole) {
         LOG.info("Delete payload of the message in final status with message Id [{}] ", messageId);
         messageMonitorExtService.deleteMessageInFinalStatus(messageId, mshRole);
     }

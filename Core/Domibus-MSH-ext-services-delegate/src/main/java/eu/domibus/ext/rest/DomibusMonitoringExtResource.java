@@ -10,7 +10,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,11 +28,15 @@ import java.util.List;
 public class DomibusMonitoringExtResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusMonitoringExtResource.class);
 
-    @Autowired
-    DomibusMonitoringExtService domibusMonitoringExtService;
+    private final DomibusMonitoringExtService domibusMonitoringExtService;
 
-    @Autowired
-    ExtExceptionHelper extExceptionHelper;
+    private final ExtExceptionHelper extExceptionHelper;
+
+    public DomibusMonitoringExtResource(DomibusMonitoringExtService domibusMonitoringExtService, ExtExceptionHelper extExceptionHelper) {
+        this.domibusMonitoringExtService = domibusMonitoringExtService;
+        this.extExceptionHelper = extExceptionHelper;
+    }
+
 
     @ExceptionHandler(DomibusMonitoringExtException.class)
     public ResponseEntity<ErrorDTO> handleDomibusMonitoringExtException(DomibusMonitoringExtException e) {

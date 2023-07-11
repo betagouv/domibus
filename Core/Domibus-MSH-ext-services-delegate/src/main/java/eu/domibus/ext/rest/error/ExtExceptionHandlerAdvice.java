@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,6 +62,11 @@ public class ExtExceptionHandlerAdvice extends ResponseEntityExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorDTO> handleAuthenticationException(AuthenticationException e) {
         return extExceptionHelper.handleExtException(e);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<ErrorDTO> handlePathVariableError(final ConstraintViolationException exception) {
+        return extExceptionHelper.handleExtException(exception);
     }
 
     /**

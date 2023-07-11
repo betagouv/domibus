@@ -11,6 +11,7 @@ import eu.domibus.ext.delegate.mapper.DomibusExtMapper;
 import eu.domibus.ext.domain.*;
 import eu.domibus.ext.exceptions.CryptoExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
+import eu.domibus.ext.rest.validator.ValidString;
 import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.ext.services.DomibusConfigurationExtService;
 import eu.domibus.ext.services.TLSTrustStoreExtService;
@@ -27,10 +28,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,6 +46,7 @@ import static eu.domibus.ext.rest.TruststoreExtResource.ERROR_MESSAGE_EMPTY_TRUS
  * @author Soumya Chandran
  * @since 5.1
  */
+@Validated
 @RestController
 @RequestMapping(value = "/ext/tlstruststore")
 @SecurityScheme(type = SecuritySchemeType.HTTP, name = "DomibusBasicAuth", scheme = "basic")
@@ -73,7 +75,8 @@ public class TLSTrustStoreExtResource {
                                     MultiPartFileUtil multiPartFileUtil,
                                     DomainContextExtService domainContextExtService,
                                     DomibusConfigurationExtService domibusConfigurationExtService,
-                                    SecurityProfileService securityProfileService, DomibusExtMapper domibusExtMapper) {
+                                    SecurityProfileService securityProfileService,
+                                    DomibusExtMapper domibusExtMapper) {
         this.tlsTruststoreExtService = tlsTruststoreExtService;
         this.extExceptionHelper = extExceptionHelper;
         this.multiPartFileUtil = multiPartFileUtil;
@@ -141,7 +144,7 @@ public class TLSTrustStoreExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PostMapping(value = "/entries", consumes = {"multipart/form-data"})
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
-                                    @RequestParam("alias") @Valid @NotNull String alias) throws RequestValidationException {
+                                    @RequestParam("alias") @NotNull String alias) throws RequestValidationException {
 
         return doAddCertificate(certificateFile, alias);
     }
@@ -150,9 +153,9 @@ public class TLSTrustStoreExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PostMapping(value = "/certificates", consumes = {"multipart/form-data"})
     public String addTLSCertificate(@RequestPart("file") MultipartFile certificateFile,
-                                    @RequestParam("partyName") @Valid @NotNull String partyName,
-                                    @RequestParam("securityProfile") @Valid @NotNull SecurityProfileDTO securityProfileDTO,
-                                    @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
+                                    @RequestParam("partyName") @ValidString @NotNull String partyName,
+                                    @RequestParam("securityProfile") @NotNull SecurityProfileDTO securityProfileDTO,
+                                    @RequestParam("certificatePurpose") @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
         SecurityProfile securityProfile = domibusExtMapper.securityProfileDTOToApi(securityProfileDTO);
         CertificatePurpose certificatePurpose = domibusExtMapper.certificatePurposeDTOToApi(certificatePurposeDTO);
         String alias = securityProfileService.getCertificateAliasForPurpose(partyName, securityProfile, certificatePurpose);
@@ -175,17 +178,17 @@ public class TLSTrustStoreExtResource {
     @Operation(summary = "Remove Certificate", description = "Remove Certificate from the TLS truststore",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @DeleteMapping(value = "/entries/{alias:.+}")
-    public String removeTLSCertificate(@PathVariable String alias) throws RequestValidationException {
-        return doRemoveCertificate(alias);
+    public String removeTLSCertificate(@ValidString @PathVariable String alias) throws RequestValidationException {
+       return doRemoveCertificate(alias);
     }
 
     @Operation(summary = "Remove Certificate", description = "Remove Certificate from the TLS truststore",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @DeleteMapping(value = "/certificates/{partyName:.+}")
-    public String removeTLSCertificate(@PathVariable String partyName,
-                                       @RequestParam("securityProfile") @Valid @NotNull SecurityProfileDTO securityProfileDTO,
-                                       @RequestParam("certificatePurpose") @Valid @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
-        SecurityProfile securityProfile = domibusExtMapper.securityProfileDTOToApi(securityProfileDTO);
+    public String removeTLSCertificate(@ValidString @PathVariable String partyName,
+                                       @RequestParam("securityProfile") @NotNull SecurityProfileDTO securityProfileDTO,
+                                       @RequestParam("certificatePurpose") @NotNull CertificatePurposeDTO certificatePurposeDTO) throws RequestValidationException {
+       SecurityProfile securityProfile = domibusExtMapper.securityProfileDTOToApi(securityProfileDTO);
         CertificatePurpose certificatePurpose = domibusExtMapper.certificatePurposeDTOToApi(certificatePurposeDTO);
         String alias = securityProfileService.getCertificateAliasForPurpose(partyName, securityProfile, certificatePurpose);
         return doRemoveCertificate(alias);

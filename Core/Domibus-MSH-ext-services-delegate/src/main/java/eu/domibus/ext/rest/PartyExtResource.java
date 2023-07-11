@@ -3,19 +3,18 @@ package eu.domibus.ext.rest;
 import eu.domibus.ext.domain.*;
 import eu.domibus.ext.exceptions.PartyExtServiceException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
+import eu.domibus.ext.rest.validator.ValidString;
 import eu.domibus.ext.services.PartyExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -24,6 +23,10 @@ import java.util.List;
  * @author Catalin Enache
  * @since 4.2
  */
+
+
+
+@Validated
 @RestController
 @RequestMapping(value = "/ext/party")
 @Tag(name = "party", description = "Domibus Party management API")
@@ -31,11 +34,14 @@ public class PartyExtResource {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyExtResource.class);
 
-    @Autowired
-    PartyExtService partyExtService;
 
-    @Autowired
-    ExtExceptionHelper extExceptionHelper;
+    private final PartyExtService partyExtService;
+    private final ExtExceptionHelper extExceptionHelper;
+
+    public PartyExtResource(PartyExtService partyExtService, ExtExceptionHelper extExceptionHelper) {
+        this.partyExtService = partyExtService;
+        this.extExceptionHelper = extExceptionHelper;
+    }
 
     @ExceptionHandler(PartyExtServiceException.class)
     public ResponseEntity<ErrorDTO> handlePartyExtServiceException(PartyExtServiceException e) {
@@ -70,7 +76,8 @@ public class PartyExtResource {
              description="Delete a Party based on party name",
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @DeleteMapping
-    public String deleteParty(@RequestParam(value = "partyName") @Valid @NotNull String partyName) {
+    public String deleteParty(@RequestParam(value = "partyName") @ValidString String partyName) {
+
         partyExtService.deleteParty(partyName);
         return "Party having partyName=[" + partyName + "] has been successfully deleted";
 
@@ -80,7 +87,8 @@ public class PartyExtResource {
              description="Get Certificate for a Party based on party name",
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(value = "/{partyName}/certificate")
-    public ResponseEntity<Object> getCertificateForParty(@PathVariable(name = "partyName") String partyName) {
+    public ResponseEntity<Object> getCertificateForParty(@ValidString @PathVariable(name = "partyName") String partyName) {
+
         TrustStoreDTO cert = partyExtService.getPartyCertificateFromTruststore(partyName);
         if (cert == null) {
             return ResponseEntity.notFound().build();

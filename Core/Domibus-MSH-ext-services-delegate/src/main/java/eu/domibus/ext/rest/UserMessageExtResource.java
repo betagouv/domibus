@@ -5,6 +5,7 @@ import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.UserMessageDTO;
 import eu.domibus.ext.exceptions.UserMessageExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
+import eu.domibus.ext.rest.validator.ValidMessageId;
 import eu.domibus.ext.services.UserMessageExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -14,15 +15,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Tiago Miguel
  * @since 3.3.1
  */
+@Validated
 @RestController
 @RequestMapping(value = "/ext/messages/usermessages")
 @OpenAPIDefinition(tags = {
@@ -34,11 +36,15 @@ public class UserMessageExtResource {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageExtResource.class);
 
-    @Autowired
-    UserMessageExtService userMessageExtService;
+    private final UserMessageExtService userMessageExtService;
 
-    @Autowired
-    ExtExceptionHelper extExceptionHelper;
+    private final ExtExceptionHelper extExceptionHelper;
+
+    public UserMessageExtResource(UserMessageExtService userMessageExtService, ExtExceptionHelper extExceptionHelper) {
+        this.userMessageExtService = userMessageExtService;
+        this.extExceptionHelper = extExceptionHelper;
+    }
+
 
     @ExceptionHandler(UserMessageExtException.class)
     public ResponseEntity<ErrorDTO> handleUserMessageExtException(UserMessageExtException e) {
@@ -56,16 +62,17 @@ public class UserMessageExtResource {
     @Operation(summary = "Get user message", description = "Retrieve the user message with the specified message id",
             security = @SecurityRequirement(name = "DomibusBasicAuth"), tags = {"usermessage"})
     @GetMapping(path = "/{messageId:.+}")
-    public UserMessageDTO getUserMessage(@PathVariable(value = "messageId") String messageId,
+    public UserMessageDTO getUserMessage(@ValidMessageId @PathVariable(value = "messageId") String messageId,
                                          @RequestParam(value = "mshRole", required = false) MSHRole mshRole) throws MessageNotFoundException {
         LOG.debug("Getting User Message with id = [{}] and mshRole = [{}]", messageId, mshRole);
+
         return userMessageExtService.getMessage(messageId, mshRole);
     }
 
     @Operation(summary = "Get user message envelope", description = "Retrieve the user message envelope with the specified message id",
             security = @SecurityRequirement(name = "DomibusBasicAuth"), tags = {"envelope"})
     @GetMapping(path = "/{messageId:.+}/envelope")
-    public ResponseEntity<String> downloadUserMessageEnvelope(@PathVariable(value = "messageId") String messageId,
+    public ResponseEntity<String> downloadUserMessageEnvelope(@ValidMessageId @PathVariable(value = "messageId") String messageId,
                                                               @RequestParam(value = "mshRole", required = false) MSHRole mshRole) {
         LOG.debug("Getting User Message Envelope with id = [{}] and mshRole = [{}]", messageId, mshRole);
 
@@ -77,7 +84,7 @@ public class UserMessageExtResource {
     @Operation(summary = "Get signal message envelope", description = "Retrieve the signal message envelope with the specified user message id",
             security = @SecurityRequirement(name = "DomibusBasicAuth"), tags = {"signalEnvelope"})
     @GetMapping(path = "/{messageId:.+}/signalEnvelope")
-    public ResponseEntity<String> downloadSignalMessageEnvelope(@PathVariable(value = "messageId") String messageId,
+    public ResponseEntity<String> downloadSignalMessageEnvelope(@ValidMessageId @PathVariable(value = "messageId") String messageId,
                                                                 @RequestParam(value = "mshRole", required = false) MSHRole mshRole) {
         LOG.debug("Getting Signal Message Envelope with id = [{}] and mshRole = [{}]", messageId, mshRole);
 

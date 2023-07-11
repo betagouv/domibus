@@ -1,5 +1,7 @@
 package eu.domibus.core.util;
 
+import eu.domibus.api.property.DomibusPropertyProvider;
+import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +17,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 @ExtendWith(JMockitExtension.class)
 public class DomibusStringUtilImplTest {
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Tested
     private DomibusStringUtilImpl domibusStringUtil;
@@ -63,4 +68,26 @@ public class DomibusStringUtilImplTest {
         Assertions.assertNotEquals(unCamelCaseString, camelCaseString);
         Assertions.assertEquals(unCamelCaseString, "Message Id");
     }
+
+    @Test
+    public void isValidString() {
+        String inValidString = "blue-gw";
+        boolean result = domibusStringUtil.isValidString(inValidString);
+        Assertions.assertFalse(result);
+    }
+
+    @Test
+    public void isValidString_ok() {
+        String validString = "blue_gw";
+        boolean result = domibusStringUtil.isValidString(validString);
+        Assertions.assertTrue(result);
+    }
+
+    @Test
+    public void isValidMessageId() {
+        String inValidMessageId = "%26%40%b418de6b-007b-11ee-a142-dc8b286a4853@domibus.eu";
+        boolean result = domibusStringUtil.isValidMessageId(inValidMessageId);
+        Assertions.assertFalse(result);
+    }
 }
+

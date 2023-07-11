@@ -5,12 +5,13 @@ import eu.domibus.ext.domain.MessageAcknowledgementDTO;
 import eu.domibus.ext.domain.MessageAcknowledgementRequestDTO;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
+import eu.domibus.ext.rest.validator.ValidMessageId;
 import eu.domibus.ext.services.MessageAcknowledgeExtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,16 +20,20 @@ import java.util.List;
  * @author migueti, Cosmin Baciu
  * @since 3.3
  */
+@Validated
 @RestController
 @RequestMapping(value = "/ext/messages/acknowledgments")
 @Tag(name = "acknowledgement", description = "Domibus Message Acknowledgement API")
 public class MessageAcknowledgementExtResource {
 
-    @Autowired
-    MessageAcknowledgeExtService messageAcknowledgeService;
+    private final MessageAcknowledgeExtService messageAcknowledgeService;
 
-    @Autowired
-    ExtExceptionHelper extExceptionHelper;
+    private final ExtExceptionHelper extExceptionHelper;
+
+    public MessageAcknowledgementExtResource(MessageAcknowledgeExtService messageAcknowledgeService, ExtExceptionHelper extExceptionHelper) {
+        this.messageAcknowledgeService = messageAcknowledgeService;
+        this.extExceptionHelper = extExceptionHelper;
+    }
 
     @ExceptionHandler(MessageAcknowledgeExtException.class)
     public ResponseEntity<ErrorDTO> handleMessageAcknowledgeExtException(MessageAcknowledgeExtException e) {
@@ -71,7 +76,7 @@ public class MessageAcknowledgementExtResource {
             security = @SecurityRequirement(name ="DomibusBasicAuth"))
     @GetMapping(path = "/{messageId:.+}")
     @ResponseBody
-    public List<MessageAcknowledgementDTO> getAcknowledgedMessages(@PathVariable(value = "messageId") String messageId) {
+    public List<MessageAcknowledgementDTO> getAcknowledgedMessages(@ValidMessageId @PathVariable(value = "messageId") String messageId) {
         return messageAcknowledgeService.getAcknowledgedMessages(messageId);
     }
 

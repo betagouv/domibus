@@ -6,6 +6,7 @@ import eu.domibus.ext.domain.ErrorDTO;
 import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.exceptions.DomibusEArchiveExtException;
 import eu.domibus.ext.rest.error.ExtExceptionHelper;
+import eu.domibus.ext.rest.validator.ValidString;
 import eu.domibus.ext.services.DomibusEArchiveExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -19,6 +20,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -31,6 +33,8 @@ import java.util.List;
  * @author Joze Rihtarsic
  * @since 5.0
  */
+
+@Validated
 @RestController
 @RequestMapping(value = "/ext/archive")
 @SecurityScheme(type = SecuritySchemeType.HTTP, name = "DomibusBasicAuth", scheme = "basic")
@@ -133,7 +137,7 @@ public class DomibusEArchiveExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(path = "/batches/{batchId:.+}", produces = {MediaType.APPLICATION_JSON_VALUE})
     public BatchDTO getExportedBatch(
-            @Parameter(description = "Batch id.") @PathVariable(name = "batchId") String batchId) {
+            @Parameter(description = "Batch id.")  @ValidString @PathVariable(name = "batchId") String batchId) {
         LOG.info("Return exported batch with batchId: [{}].", batchId);
 
         BatchDTO batch = domibusEArchiveExtService.getBatch(batchId);
@@ -162,7 +166,7 @@ public class DomibusEArchiveExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @GetMapping(path = "/batches/exported/{batchId:.+}/messages", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ExportedBatchMessagesResultDTO getBatchMessageIds(
-            @Parameter(description = "Batch id.") @PathVariable(name = "batchId") String batchId,
+            @Parameter(description = "Batch id.")  @ValidString @PathVariable(name = "batchId") String batchId,
             @Parameter(description = "The offset/page of the result list.") @RequestParam(value = "pageStart", defaultValue = "0") Integer pageStart,
             @Parameter(description = "Maximum number of returned records/page size.") @RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize
     ) {
@@ -253,9 +257,7 @@ public class DomibusEArchiveExtResource {
                     " were already exported in a batch identified by the batch id provided as a parameter.",
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PutMapping(path = "/batches/{batchId:.+}/export", produces = {MediaType.APPLICATION_JSON_VALUE})
-    public BatchStatusDTO reExportBatch(
-            @PathVariable(name = "batchId") String batchId
-    ) {
+    public BatchStatusDTO reExportBatch(@ValidString @PathVariable(name = "batchId") String batchId) {
         //not covered
         LOG.info("ReExport batch with ID: [{}].", batchId);
         try {
@@ -290,7 +292,7 @@ public class DomibusEArchiveExtResource {
             security = @SecurityRequirement(name = "DomibusBasicAuth"))
     @PutMapping(path = "/batches/exported/{batchId:.+}/close", produces = {MediaType.APPLICATION_JSON_VALUE})
     public BatchStatusDTO setBatchClientStatus(
-            @Parameter(description = "The batch Id.") @PathVariable(name = "batchId") String batchId,
+            @Parameter(description = "The batch Id.") @ValidString @PathVariable(name = "batchId") String batchId,
             @Parameter(description = "Set the batch archive status.") @RequestParam("status") BatchArchiveStatusType batchStatus,
             @Parameter(description = "Set the batch message/error - reason.") @RequestParam(value = "message", required = false) String message) {
         LOG.info("Set client's final status [{}] for batch with ID: [{}] and message [{}].", batchStatus, batchId, message);
