@@ -1869,8 +1869,8 @@
                                     <rules>
                                         <!-- more rules to be added here -->
                                         <requireMavenVersion>
-                                            <version>[3.1,)</version>
-                                            <level>WARN</level>
+                                            <version>[3.6.3,)</version>
+                                            <level>ERROR</level>
                                         </requireMavenVersion>
                                         <requireJavaVersion>
                                             <version>1.8</version>
