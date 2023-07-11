@@ -68,13 +68,19 @@ public class PluginEventServiceImplTest {
     }
 
     @Test
-    public void enqueueMessageEvent_full(@Injectable AlertEvent alertEvent) {
+    public void enqueueMessageEvent_full() {
         Map<String, String> props = new HashMap<>();
         props.put("Test", "Test");
+        AlertEvent alertEvent = new AlertEvent();
+        alertEvent.setProperties(props);
+        alertEvent.setAlertLevel(AlertLevel.MEDIUM);
+        alertEvent.setEmailBody(EMAIL_BODY_300_LONG);
+        alertEvent.setName("AlertName");
+        alertEvent.setEmailSubject("EmailSubject");
         new Expectations() {{
             domibusPropertyProvider.getBooleanProperty("domibus.alert.active");
             result = true;
-            
+
             alertEvent.getProperties();
             result = props;
 

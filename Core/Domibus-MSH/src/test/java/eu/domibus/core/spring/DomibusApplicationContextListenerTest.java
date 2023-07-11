@@ -17,6 +17,7 @@ import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.core.property.DomibusPropertyValidatorService;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.core.scheduler.DomibusQuartzStarter;
+import eu.domibus.core.user.multitenancy.SuperUserManagementServiceImpl;
 import eu.domibus.core.user.ui.UserManagementServiceImpl;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
@@ -93,6 +94,9 @@ public class DomibusApplicationContextListenerTest {
 
     @Injectable
     BackendConnectorService backendConnectorService;
+
+    @Injectable
+    SuperUserManagementServiceImpl superUserManagementService;
 
     @Injectable
     Endpoint mshEndpoint;

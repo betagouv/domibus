@@ -123,7 +123,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void updateStartDateContinuousArchive() {
 
         Long startMessageDate = 21102610L;
@@ -135,7 +134,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void getStartDateContinuousArchive() {
         Long startDateContinuousArchive = eArchivingService.getStartDateContinuousArchive();
 
@@ -143,7 +141,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void updateStartDateSanityArchive() {
         Long startMessageDate = 102710L;
         eArchivingService.updateStartDateSanityArchive(startMessageDate);
@@ -153,7 +150,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void getStartDateSanityArchive() {
         Long startDateSanityArchive = eArchivingService.getStartDateSanityArchive();
 
@@ -161,14 +157,12 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void getBatchCount() {
         Long batchRequestsCount = eArchivingService.getBatchRequestListCount(new EArchiveBatchFilter());
         Assertions.assertEquals(2, batchRequestsCount.longValue());
     }
 
     @Test
-    @Transactional
     public void getBatchListDefaultFilter() {
         EArchiveBatchFilter filter = new EArchiveBatchFilter();
         List<EArchiveBatchRequestDTO> batchRequestsCount = eArchivingService.getBatchRequestList(filter);
@@ -181,7 +175,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void getBatchListFilterDates() {
         Date currentDate = Calendar.getInstance().getTime();
         EArchiveBatchFilter filter = new EArchiveBatchFilter(null, DateUtils.addDays(currentDate, -40), DateUtils.addDays(currentDate, -20), null, null);
@@ -191,7 +184,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void getBatchListFilterStatus() {
         EArchiveBatchFilter filter = new EArchiveBatchFilter(Collections.singletonList(EArchiveRequestType.CONTINUOUS), null, null, null, null);
         List<EArchiveBatchRequestDTO> batchRequestsCount = eArchivingService.getBatchRequestList(filter);
@@ -201,7 +193,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void getBatchUserMessageListExported() {
         // given
         String batchId = batch1.getBatchId();
@@ -216,7 +207,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
 
 
     @Test
-    @Transactional
     public void getBatchUserMessageListFailed() {
         // given - batch2 has status failed
         String batchId = batch2.getBatchId();
@@ -231,7 +221,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void getNotArchivedMessages() {
         Date currentDate = Calendar.getInstance().getTime();
         Long startDate =  Long.parseLong(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, -30).toInstant(),
@@ -280,24 +269,34 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void testExecuteBatchIsArchived() {
         // given
         List<EArchiveBatchUserMessage> messageList = eArchiveBatchUserMessageDao.getBatchMessageList(batch1.getBatchId(), null, null);
         Assertions.assertEquals(3, messageList.size());
+        for (EArchiveBatchUserMessage eArchiveBatchUserMessage : messageList) {
+            Assertions.assertNull(userMessageLogDao.findByMessageId(eArchiveBatchUserMessage.getMessageId()).getArchived());
+        }
         Assertions.assertNotEquals(EArchiveBatchStatus.ARCHIVED, batch1.getEArchiveBatchStatus());
 
         // when
         eArchivingService.executeBatchIsArchived(batch1, messageList);
 
+        em.flush();
+        em.clear();
+
         //then
         EArchiveBatchEntity batchUpdated = eArchiveBatchDao.findEArchiveBatchByBatchId(batch1.getBatchId());
         // messages and
         Assertions.assertEquals(EArchiveBatchStatus.ARCHIVED, batchUpdated.getEArchiveBatchStatus());
+
+        List<EArchiveBatchUserMessage> messageListFinal = eArchiveBatchUserMessageDao.getBatchMessageList(batch1.getBatchId(), null, null);
+        Assertions.assertEquals(3, messageListFinal.size());
+        for (EArchiveBatchUserMessage eArchiveBatchUserMessage : messageListFinal) {
+            Assertions.assertNotNull(userMessageLogDao.findByMessageId(eArchiveBatchUserMessage.getMessageId()).getArchived());
+        }
     }
 
     @Test
-    @Transactional
     public void testExecuteBatchIsArchivedDelete() {
         // given
         List<EArchiveBatchUserMessage> messageList = eArchiveBatchUserMessageDao.getBatchMessageList(batch1.getBatchId(), null, null);
@@ -324,7 +323,6 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     }
 
     @Test
-    @Transactional
     public void testSetBatchClientStatusFail() {
         // given
         Assertions.assertNotEquals(EArchiveBatchStatus.ARCHIVE_FAILED, batch1.getEArchiveBatchStatus());

@@ -32,6 +32,7 @@ import eu.domibus.test.common.SoapSampleUtil;
 import eu.domibus.test.common.SubmissionUtil;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.apache.neethi.Policy;
+import org.junit.*;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
