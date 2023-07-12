@@ -6,12 +6,12 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageDefaultServiceHelper;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.provider.PModeProvider;
-import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.core.spring.DomibusApplicationContextListener;
 import eu.domibus.core.spring.DomibusRootConfiguration;
 import eu.domibus.logging.DomibusLogger;
@@ -97,7 +97,9 @@ public abstract class AbstractIT {
         copyActiveMQFile(domibusConfigLocation, projectRoot);
         copyKeystores(domibusConfigLocation, projectRoot);
         copyPolicies(domibusConfigLocation, projectRoot);
-        copyDomibusProperties(domibusConfigLocation, projectRoot);
+        copyDomibusProperties(domibusConfigLocation, projectRoot, "domibus.properties");
+        File domains = new File(domibusConfigLocation, DomainService.DOMAINS_HOME);
+        FileUtils.copyDirectory(new File(projectRoot, "../Core/Domibus-MSH-test/src/main/resources/domains"), domains);
 
         FileUtils.deleteDirectory(new File("target/temp"));
 
@@ -139,9 +141,9 @@ public abstract class AbstractIT {
         FileUtils.copyDirectory(policiesDirectory, destPoliciesDirectory);
     }
 
-    private static void copyDomibusProperties(File domibusConfigLocation, File projectRoot) throws IOException {
-        final File domibusPropertiesFile = new File(projectRoot, "../Core/Domibus-MSH-test/src/main/conf/domibus.properties");
-        final File destDomibusPropertiesFile = new File(domibusConfigLocation, "domibus.properties");
+    private static void copyDomibusProperties(File domibusConfigLocation, File projectRoot, String s) throws IOException {
+        final File domibusPropertiesFile = new File(projectRoot, "../Core/Domibus-MSH-test/src/main/conf/" + s);
+        final File destDomibusPropertiesFile = new File(domibusConfigLocation, s);
         FileUtils.copyFile(domibusPropertiesFile, destDomibusPropertiesFile);
     }
 
