@@ -40,7 +40,7 @@ public class PModeFileExtResourceTest {
     ExtExceptionHelper extExceptionHelper;
 
     @Test
-    public void test_downloadPMode(@Mocked ResponseEntity responseEntity) {
+    public void test_downloadPMode() {
         final int pModeId = 1;
 
         final byte[] bytes = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n".getBytes(StandardCharsets.UTF_8);
@@ -63,7 +63,7 @@ public class PModeFileExtResourceTest {
     }
 
     @Test
-    public void test_downloadPMode_NoContent(@Mocked ResponseEntity responseEntity) {
+    public void test_downloadPMode_NoContent() {
         final int pModeId = 1;
 
         final byte[] bytes = "".getBytes(StandardCharsets.UTF_8);
@@ -106,7 +106,7 @@ public class PModeFileExtResourceTest {
     }
 
     @Test
-    public void test_uploadPMode(final @Mocked MultipartFile pModeFile, final @Mocked byte[] bytes) {
+    public void test_uploadPMode(final @Mocked MultipartFile pModeFile) {
         final String description = "test upload";
         final List<String> uploadResult = new ArrayList<>();
 
