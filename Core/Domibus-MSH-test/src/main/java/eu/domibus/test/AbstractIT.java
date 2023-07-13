@@ -98,8 +98,8 @@ public abstract class AbstractIT {
         copyKeystores(domibusConfigLocation, projectRoot);
         copyPolicies(domibusConfigLocation, projectRoot);
         copyDomibusProperties(domibusConfigLocation, projectRoot, "domibus.properties");
-        File domains = new File(domibusConfigLocation, DomainService.DOMAINS_HOME);
-        FileUtils.copyDirectory(new File(projectRoot, "../Core/Domibus-MSH-test/src/main/resources/domains"), domains);
+        File domainsHome = new File(domibusConfigLocation, DomainService.DOMAINS_HOME);
+        FileUtils.copyDirectory(new File(projectRoot, "../Core/Domibus-MSH-test/src/main/resources/domains"), domainsHome);
 
         FileUtils.deleteDirectory(new File("target/temp"));
 

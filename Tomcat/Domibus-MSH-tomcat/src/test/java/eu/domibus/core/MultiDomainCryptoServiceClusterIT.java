@@ -7,8 +7,8 @@ import eu.domibus.core.crypto.spi.CryptoSpiException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.TestPropertySource;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,6 +27,8 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  * @since 5.2
  */
 //@TestPropertySource(properties = {"domibus.deployment.clustered=true"})
+
+@Disabled("EDELIVERY-6896") //// TODO: FGA 2023-07-13 test is passing with domibus.deployment.clustered=false
 public class MultiDomainCryptoServiceClusterIT extends MultiDomainCryptoServiceBase {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MultiDomainCryptoServiceClusterIT.class);

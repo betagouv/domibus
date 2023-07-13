@@ -16,6 +16,7 @@ import eu.domibus.core.crypto.TruststoreDao;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,7 +105,7 @@ public class MultiDomainCryptoServiceBase extends AbstractIT {
         }
     }
 
-    @BeforeEach
+    @AfterEach
     public void doAfter() {
         //restore initial trust store
         if (back != null && location != null) {
