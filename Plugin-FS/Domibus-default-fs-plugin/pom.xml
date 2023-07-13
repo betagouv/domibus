@@ -16,8 +16,7 @@
 
     <properties>
         <test.config.location>${project.build.directory}/test-classes</test.config.location>
-        <test.resources.location>${project.basedir}/../../Core/Domibus-MSH-test/src/main/resources
-        </test.resources.location>
+        <test.resources.location>${project.basedir}/../../Core/Domibus-MSH-test/src/main/resources</test.resources.location>
     </properties>
 
     <dependencies>
@@ -173,6 +172,14 @@
             </resource>
         </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxb2-maven-plugin</artifactId>

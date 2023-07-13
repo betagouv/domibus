@@ -79,7 +79,7 @@ public class RetrieveMessageIT extends AbstractBackendWSIT {
         String filename = "SOAPMessage2.xml";
         String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
         SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
-        SOAPMessage soapResponse = mshWebserviceTest.invoke(soapMessage);
+        mshWebserviceTest.invoke(soapMessage);
 
         waitForMessage(messageId);
 

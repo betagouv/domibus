@@ -137,6 +137,12 @@
             <groupId>eu.domibus</groupId>
             <artifactId>domibus-MSH</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish.jaxb</groupId>
+                    <artifactId>jaxb-runtime</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>eu.domibus</groupId>

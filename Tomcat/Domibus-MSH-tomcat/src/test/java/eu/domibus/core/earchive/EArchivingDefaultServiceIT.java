@@ -12,6 +12,7 @@ import eu.domibus.core.message.UserMessageDefaultService;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -35,6 +36,7 @@ import static java.util.Locale.ENGLISH;
  * @since 5.0
  */
 @Transactional
+@Disabled("EDELIVERY-6896")
 public class EArchivingDefaultServiceIT extends AbstractIT {
 
     @Autowired

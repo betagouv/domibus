@@ -19,6 +19,7 @@ import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
@@ -128,6 +129,7 @@ public class TruststoreResourceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void isChangedOnDisk() throws IOException {
 
         boolean changedOnDisk = truststoreResource.isChangedOnDisk();

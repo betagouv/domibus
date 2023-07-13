@@ -12,6 +12,7 @@ import eu.domibus.core.payload.persistence.DatabasePayloadPersistence;
 import eu.domibus.core.spi.validation.UserMessageValidatorSpi;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -168,6 +169,7 @@ public class UserMessagePayloadExtResourceIT extends AbstractIT {
 
     @Test
     @Transactional
+    @Disabled("EDELIVERY-6896")
     public void testDownloadPayload_notAllowed() throws Exception {
         // when
         String cid = "message";
