@@ -15,4 +15,26 @@
         </insert>
     </changeSet>
 
+    <changeSet author="ionut breaz" id="EDELIVERY-9449">
+        <sql dbms="mysql" endDelimiter="\n//">
+DROP TABLE IF EXISTS TB_PARTY_STATUS;
+//
+        </sql>
+
+        <sql endDelimiter="\n/" dbms="oracle">
+DECLARE
+    table_does_not_exist exception;
+    PRAGMA EXCEPTION_INIT(table_does_not_exist, -942);
+BEGIN
+    BEGIN
+        EXECUTE IMMEDIATE 'DROP TABLE TB_PARTY_STATUS';
+    EXCEPTION
+        WHEN table_does_not_exist THEN
+            DBMS_OUTPUT.PUT_LINE('Cannot drop table TB_PARTY_STATUS: table does not exist');
+    END;
+END;
+/
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
