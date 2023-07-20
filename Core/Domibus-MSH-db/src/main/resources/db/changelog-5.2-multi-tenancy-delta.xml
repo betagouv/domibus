@@ -15,7 +15,7 @@
         </insert>
     </changeSet>
 
-    <changeSet author="ionut breaz" id="EDELIVERY-9449">
+    <changeSet author="ionut breaz" id="EDELIVERY-11607">
         <sql dbms="mysql" endDelimiter="\n//">
 DROP TABLE IF EXISTS TB_PARTY_STATUS;
 //
