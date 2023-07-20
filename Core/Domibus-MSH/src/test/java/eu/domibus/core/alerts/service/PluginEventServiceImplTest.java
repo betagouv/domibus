@@ -10,12 +10,11 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
-import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
+import mockit.integration.junit5.JMockitExtension;
 import javax.jms.Queue;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,10 +50,10 @@ public class PluginEventServiceImplTest {
     @Test
     public void enqueueMessageEvent_empty(@Injectable AlertEvent alertEvent) {
         new Expectations() {{
-            domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
-            result = true;
             alertEvent.getAlertLevel();
             result = null;
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
+            result = true;
         }};
 
         eventService.enqueueMessageEvent(alertEvent);
@@ -68,19 +67,10 @@ public class PluginEventServiceImplTest {
     }
 
     @Test
-    public void enqueueMessageEvent_full() {
+    public void enqueueMessageEvent_full(@Injectable AlertEvent alertEvent) {
         Map<String, String> props = new HashMap<>();
         props.put("Test", "Test");
-        AlertEvent alertEvent = new AlertEvent();
-        alertEvent.setProperties(props);
-        alertEvent.setAlertLevel(AlertLevel.MEDIUM);
-        alertEvent.setEmailBody(EMAIL_BODY_300_LONG);
-        alertEvent.setName("AlertName");
-        alertEvent.setEmailSubject("EmailSubject");
         new Expectations() {{
-            domibusPropertyProvider.getBooleanProperty("domibus.alert.active");
-            result = true;
-
             alertEvent.getProperties();
             result = props;
 
@@ -95,6 +85,8 @@ public class PluginEventServiceImplTest {
 
             alertEvent.getEmailSubject();
             result = "EmailSubject";
+            domibusPropertyProvider.getBooleanProperty(DOMIBUS_ALERT_ACTIVE);
+            result = true;
         }};
 
         eventService.enqueueMessageEvent(alertEvent);
