@@ -191,6 +191,24 @@
 
     <suppress>
         <notes><![CDATA[
+   file name: spring-security-config-5.8.3.jar
+   ]]></notes>
+        <!--Domibus does not use Spring Webflux-->
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-config@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-34034</vulnerabilityName>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-security-web-5.8.3.jar
+   ]]></notes>
+        <!--Domibus does not use Spring Webflux-->
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-web@.*$</packageUrl>
+        <vulnerabilityName>CVE-2023-34034</vulnerabilityName>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
    file name: spring-boot-autoconfigure-2.6.14.jar
    ]]></notes>
         <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
