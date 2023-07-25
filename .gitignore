@@ -40,3 +40,4 @@ cargo
 ## maven-shade-plugin generated files
 dependency-reduced-pom.xml
 /.idea/
+/out/*

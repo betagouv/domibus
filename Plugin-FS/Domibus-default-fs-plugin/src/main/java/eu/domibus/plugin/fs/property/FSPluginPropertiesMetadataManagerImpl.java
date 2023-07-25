@@ -44,6 +44,8 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
 
     public static final String SEND_WORKER_INTERVAL = "fsplugin.messages.send.worker.repeatInterval";
 
+    public static final String SEND_EXCLUDE_REGEX = "fsplugin.messages.send.exclude.regex";
+
     public static final String RECEIVED_PURGE_WORKER_CRONEXPRESSION = "fsplugin.messages.received.purge.worker.cronExpression";
 
     public static final String LOCKS_PURGE_WORKER_CRONEXPRESSION = "fsplugin.messages.locks.purge.worker.cronExpression";
