@@ -38,6 +38,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -177,7 +179,7 @@ public class MshWebServiceTestIT extends AbstractIT {
     }
 
     @Test
-    @Ignore // TODO: FGA 2023-06-22 make other tests fail with UncategorizedJmsException 'Expected Jms Error'
+    @Disabled // TODO: FGA 2023-06-22 make other tests fail with UncategorizedJmsException 'Expected Jms Error'
     public void testAsyncNotifInError() throws Exception {
         Object saveField = ReflectionTestUtils.getField(backendNotificationService, "jmsManager");
         ReflectionTestUtils.setField(backendNotificationService, "jmsManager", new JMSManagerImpl() {

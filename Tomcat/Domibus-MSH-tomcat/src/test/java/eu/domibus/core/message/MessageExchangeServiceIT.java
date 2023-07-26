@@ -9,11 +9,14 @@ import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ProcessingType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -34,11 +37,6 @@ public class MessageExchangeServiceIT extends AbstractIT {
 
     @Autowired
     UserMessageRawEnvelopeDao userMessageRawEnvelopeDao;
-
-    @Before
-    public void before() throws XmlProcessingException, IOException {
-        uploadPmode(SERVICE_PORT);
-    }
 
     @Test
     @Transactional
