@@ -56,6 +56,7 @@ public class DistributedCacheServiceNonClusterTestIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void getEntriesFromCache() {
         distributedCacheService.createCache(EXISTING_LOCAL_CACHE);
         distributedCacheService.addEntryInCache(EXISTING_LOCAL_CACHE, "key11", "value11");

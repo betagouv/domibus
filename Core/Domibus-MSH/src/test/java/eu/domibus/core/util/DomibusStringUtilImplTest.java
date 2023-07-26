@@ -70,8 +70,8 @@ public class DomibusStringUtilImplTest {
     }
 
     @Test
-    public void isValidString() {
-        String inValidString = "blue-gw";
+    public void isValidString_nok() {
+        String inValidString = "blue+gw";
         boolean result = domibusStringUtil.isValidString(inValidString);
         Assertions.assertFalse(result);
     }

@@ -8,7 +8,6 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.api.util.MultiPartFileUtil;
@@ -206,6 +205,7 @@ public class TLSTruststoreResourceIT extends AbstractIT {
             result = mockMvc.perform(multipart(TEST_ENDPOINT_RESOURCE)
                             .file(multiPartFile)
                             .param("password", "test123")
+                            .param("allowChangingDiskStoreProps", "false")
                             .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                             .with(csrf()))
                     .andExpect(status().is2xxSuccessful())

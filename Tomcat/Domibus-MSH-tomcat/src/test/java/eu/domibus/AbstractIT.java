@@ -41,6 +41,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.SocketUtils;
@@ -78,6 +79,7 @@ import static org.awaitility.Awaitility.with;
 @ContextConfiguration(initializers = PropertyOverrideContextInitializer.class,
         classes = {DomibusRootConfiguration.class, DomibusWebConfiguration.class,
                 DomibusMTTestDatasourceConfiguration.class, DomibusTestMocksConfiguration.class})
+@TestPropertySource(properties = {"domibus.deployment.clustered=false"})
 public abstract class AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractIT.class);
@@ -248,7 +250,7 @@ public abstract class AbstractIT {
             try {
                 return userRoleDao.listRoles().size() > 0;
             } catch (Exception e) {
-                LOG.error("Could not get the roles list", e);
+                LOG.warn("Could not get the roles list");
                 return false;
             }
         };
