@@ -238,10 +238,10 @@ public class FSSendMessagesService {
                     && !fsFileNameHelper.isLockFile(fileName)
                     // exclude locked files:
                     && !isLocked(lockedFileNames, fileRelativePath)
-                    // exclude files that are (or could be) in use by other processes:
-                    && canReadFileSafely(file, domain)
                     // exclude files based on send exclude regex
-                    && !isExcludedFile(fileRelativePath, sendExcludeRegexPattern))
+                    && !isExcludedFile(fileRelativePath, sendExcludeRegexPattern)
+                    // exclude files that are (or could be) in use by other processes:
+                    && canReadFileSafely(file, domain))
             {
                 filteredFiles.add(file);
             }
@@ -421,21 +421,20 @@ public class FSSendMessagesService {
         jmsExtService.sendMessageToQueue(jmsMessage, fsPluginSendQueue);
     }
 
-    protected Optional<Pattern> getSendExcludeRegexPattern(String domain) {
+    protected synchronized Optional<Pattern> getSendExcludeRegexPattern(String domain) {
         if (this.sendExcludeRegexPatternCache.containsKey(domain)) {
             return sendExcludeRegexPatternCache.get(domain);
-        } else {
-            String sendExcludeRegex = fsPluginProperties.getSendExcludeRegex(domain);
-            LOG.info("sendExcludeRegex for domain [{}] is [{}]", domain, sendExcludeRegex);
-            Optional<Pattern> result;
-            if (sendExcludeRegex != null && !sendExcludeRegex.equals("")) {
-                result = Optional.of(Pattern.compile(sendExcludeRegex));
-            } else {
-                result = Optional.empty();
-            }
-            sendExcludeRegexPatternCache.put(domain, result);
-            return result;
         }
+        String sendExcludeRegex = fsPluginProperties.getSendExcludeRegex(domain);
+        LOG.info("sendExcludeRegex for domain [{}] is [{}]", domain, sendExcludeRegex);
+        Optional<Pattern> result;
+        if (StringUtils.isNotBlank(sendExcludeRegex)) {
+            result = Optional.of(Pattern.compile(sendExcludeRegex));
+        } else {
+            result = Optional.empty();
+        }
+        sendExcludeRegexPatternCache.put(domain, result);
+        return result;
     }
 
     protected boolean isExcludedFile(Optional<String> relativeFileName, Optional<Pattern> sendExcludeRegexPattern) {
