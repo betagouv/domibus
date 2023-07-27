@@ -425,7 +425,7 @@ public class FSSendMessagesService {
             return sendExcludeRegexPatternCache.get(domain);
         }
         String sendExcludeRegex = fsPluginProperties.getSendExcludeRegex(domain);
-        LOG.info("sendExcludeRegex for domain [{}] is [{}]", domain, sendExcludeRegex);
+        LOG.debug("sendExcludeRegex for domain [{}] is [{}]", domain, sendExcludeRegex);
         Optional<Pattern> result;
         if (StringUtils.isNotBlank(sendExcludeRegex)) {
             result = Optional.of(Pattern.compile(sendExcludeRegex));
