@@ -448,5 +448,4 @@ public class FSSendMessagesService {
         LOG.info("Checking if file is excluded. relativeFileName: [{}] isExcluded: [{}]", relativeFileName, isExcluded);
         return isExcluded;
     }
-
 }
