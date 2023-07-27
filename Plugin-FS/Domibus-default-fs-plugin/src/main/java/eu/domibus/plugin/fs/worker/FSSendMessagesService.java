@@ -241,8 +241,7 @@ public class FSSendMessagesService {
                     // exclude files based on send exclude regex
                     && !isExcludedFile(fileRelativePath, sendExcludeRegexPattern)
                     // exclude files that are (or could be) in use by other processes:
-                    && canReadFileSafely(file, domain))
-            {
+                    && canReadFileSafely(file, domain)) {
                 filteredFiles.add(file);
             }
         }
