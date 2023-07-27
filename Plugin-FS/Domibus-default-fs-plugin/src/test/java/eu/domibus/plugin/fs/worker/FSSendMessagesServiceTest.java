@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import static eu.domibus.plugin.fs.worker.FSSendMessagesService.METADATA_FILE_NAME;
 
@@ -511,6 +512,37 @@ public class FSSendMessagesServiceTest {
         Assertions.assertTrue(instance.isLocked(lockedFileNames, existingFileName));
         Assertions.assertFalse(instance.isLocked(lockedFileNames, nonExistingFileName));
         Assertions.assertFalse(instance.isLocked(lockedFileNames, emptyFileName));
+    }
+
+    @Test
+    public void getSendExcludeRegexPattern() {
+        final String domainA = "DOMAINA";
+        final String domainB = "DOMAINB";
+
+        new Expectations(instance) {{
+            fsPluginProperties.getSendExcludeRegex(domainA);
+            result = ".*ignoreA.*";
+            fsPluginProperties.getSendExcludeRegex(domainB);
+            result = ".*ignoreB.*";
+        }};
+
+        Optional<Pattern> patternA1 = instance.getSendExcludeRegexPattern(domainA);
+        Optional<Pattern> patternA2 = instance.getSendExcludeRegexPattern(domainA);
+        Optional<Pattern> patternB1 = instance.getSendExcludeRegexPattern(domainB);
+        Assertions.assertTrue(patternA1.isPresent());
+        Assertions.assertTrue(patternB1.isPresent());
+        Assertions.assertSame(patternA1, patternA2);
+        Assertions.assertNotSame(patternA1, patternB1);
+    }
+
+    @Test
+    public void isExcludedFile() {
+        Optional<Pattern> excludeTestPattern = Optional.of(Pattern.compile("(?i).*test.*"));
+        Optional<Pattern> noExcludePattern = Optional.empty();
+        Assertions.assertTrue(instance.isExcludedFile(Optional.of("test.txt"), excludeTestPattern));
+        Assertions.assertTrue(instance.isExcludedFile(Optional.of("Test"), excludeTestPattern));
+        Assertions.assertFalse(instance.isExcludedFile(Optional.of("test.txt"), noExcludePattern));
+        Assertions.assertFalse(instance.isExcludedFile(Optional.of("Test"), noExcludePattern));
     }
 
 }
