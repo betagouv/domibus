@@ -84,7 +84,7 @@ public class FSSendMessagesService {
 
     protected Map<String, FileInfo> observedFilesInfo = new HashMap<>();
 
-    protected Map<String, Optional<Pattern>> sendExcludeRegexPatternCache = new HashMap<>();
+    protected final Map<String, Optional<Pattern>> sendExcludeRegexPatternCache = new HashMap<>();
 
     /**
      * Triggering the send messages means that the message files from the OUT directory
@@ -420,10 +420,20 @@ public class FSSendMessagesService {
         jmsExtService.sendMessageToQueue(jmsMessage, fsPluginSendQueue);
     }
 
-    protected synchronized Optional<Pattern> getSendExcludeRegexPattern(String domain) {
+    protected Optional<Pattern> getSendExcludeRegexPattern(String domain) {
         if (this.sendExcludeRegexPatternCache.containsKey(domain)) {
             return sendExcludeRegexPatternCache.get(domain);
         }
+        synchronized (this.sendExcludeRegexPatternCache) {
+            // check again in case the pattern was created by another thread
+            if (this.sendExcludeRegexPatternCache.containsKey(domain)) {
+                return sendExcludeRegexPatternCache.get(domain);
+            }
+            return createSendExcludeRegexPattern(domain);
+        }
+    }
+
+    protected Optional<Pattern> createSendExcludeRegexPattern(String domain) {
         String sendExcludeRegex = fsPluginProperties.getSendExcludeRegex(domain);
         LOG.debug("sendExcludeRegex for domain [{}] is [{}]", domain, sendExcludeRegex);
         Optional<Pattern> result;
