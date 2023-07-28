@@ -47,4 +47,26 @@ public class FileEbms3ServiceUtilImplTest {
         String sanitizedFileName = fileServiceUtil.sanitizeFileName("./../../../../..\\..\\" + BASE_FILE_NAME);
         Assertions.assertEquals(BASE_FILE_NAME, sanitizedFileName);
     }
+
+    @Test
+    public void test_sanitizeFileName_path3() {
+
+        String sanitizedFileName = fileServiceUtil.sanitizeFileName("../../" + BASE_FILE_NAME);
+        Assertions.assertEquals(BASE_FILE_NAME, sanitizedFileName);
+    }
+
+    @Test
+    public void test_sanitizeFileName_path4() {
+
+        String sanitizedFileName = fileServiceUtil.sanitizeFileName("/../../" + BASE_FILE_NAME);
+        Assertions.assertEquals(BASE_FILE_NAME, sanitizedFileName);
+    }
+
+    @Test
+    public void test_sanitizeFileName_path5() {
+
+        String sanitizedFileName = fileServiceUtil.sanitizeFileName("./folder/" + BASE_FILE_NAME);
+        Assertions.assertEquals(BASE_FILE_NAME, sanitizedFileName);
+    }
+
 }
