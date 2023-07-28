@@ -44,6 +44,8 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
 
     public static final String SEND_WORKER_INTERVAL = "fsplugin.messages.send.worker.repeatInterval";
 
+    public static final String SEND_EXCLUDE_REGEX = "fsplugin.messages.send.exclude.regex";
+
     public static final String RECEIVED_PURGE_WORKER_CRONEXPRESSION = "fsplugin.messages.received.purge.worker.cronExpression";
 
     public static final String LOCKS_PURGE_WORKER_CRONEXPRESSION = "fsplugin.messages.locks.purge.worker.cronExpression";
@@ -99,6 +101,7 @@ public class FSPluginPropertiesMetadataManagerImpl implements DomibusPropertyMet
                         new DomibusPropertyMetadataDTO(PASSWORD_ENCRYPTION_ACTIVE, Type.BOOLEAN, Module.FS_PLUGIN, false, Usage.GLOBAL_AND_DOMAIN, false, true, false, false),
                         new DomibusPropertyMetadataDTO(FSPLUGIN_PASSWORD_ENCRYPTION_PROPERTIES, Type.COMMA_SEPARATED_LIST, Module.FS_PLUGIN, false, Usage.DOMAIN, false, true, false, false),
                         new DomibusPropertyMetadataDTO(OUT_QUEUE, Type.JNDI, Module.FS_PLUGIN, false, Usage.GLOBAL, true, true, false, false),
+                        new DomibusPropertyMetadataDTO(SEND_EXCLUDE_REGEX, Type.REGEXP, Module.FS_PLUGIN, false, Usage.DOMAIN, true, true, false, false),
 
                         //writable properties
                         new DomibusPropertyMetadataDTO(MESSAGE_NOTIFICATIONS, Type.COMMA_SEPARATED_LIST, Module.FS_PLUGIN, Usage.GLOBAL),
