@@ -23,9 +23,9 @@
         and keeps the customizations needed by Domibus -->
         <xmlsec.version>2.3.0</xmlsec.version>
         <messaging.saaj.version>1.5.3</messaging.saaj.version>
-        <spring.version>5.3.27</spring.version>
+        <spring.version>5.3.29</spring.version>
         <!-- When upgrading the version, please check the usages, to decide if the exclusion of artifactId spring-expression is still needed -->
-        <spring.security.version>5.8.3</spring.security.version>
+        <spring.security.version>5.8.5</spring.security.version>
         <spring.session.core.version>2.7.0</spring.session.core.version>
         <spring.session.jdbc.version>2.7.0</spring.session.jdbc.version>
         <springdoc.version>1.6.12</springdoc.version>
