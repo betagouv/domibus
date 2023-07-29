@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jms.Queue;
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
