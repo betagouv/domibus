@@ -204,6 +204,11 @@ export class MessageLogComponent extends mix(BaseListComponent)
         width: 155
       },
       {
+        cellTemplate: this.rowWithDateFormatTpl,
+        name: 'Downloaded',
+        width: 155
+      },
+      {
         name: 'AP Role',
         prop: 'mshRole'
       },

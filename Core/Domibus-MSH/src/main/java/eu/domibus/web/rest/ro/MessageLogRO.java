@@ -34,6 +34,8 @@ public class MessageLogRO implements Serializable {
 
     private Date received;
 
+    private Date downloaded;
+
     private int sendAttempts;
 
     private int sendAttemptsMax;
@@ -155,6 +157,10 @@ public class MessageLogRO implements Serializable {
     public void setReceived(Date received) {
         this.received = received;
     }
+
+    public Date getDownloaded() { return downloaded; }
+
+    public void setDownloaded(Date downloaded) { this.downloaded = downloaded; }
 
     public int getSendAttempts() {
         return sendAttempts;

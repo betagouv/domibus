@@ -24,6 +24,7 @@ public class UserMessageLogInfoFilter extends MessageLogInfoFilter {
                 "log.mshRole.role," +
                 "log.deleted," +
                 "log.received," +
+                "log.downloaded," +
                 "log.sendAttempts," +
                 "log.sendAttemptsMax," +
                 "log.nextAttempt," +

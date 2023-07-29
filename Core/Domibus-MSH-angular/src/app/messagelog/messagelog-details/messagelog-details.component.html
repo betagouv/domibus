@@ -27,6 +27,11 @@
       </mat-form-field>
 
       <mat-form-field style="width:100%">
+        <input matInput placeholder="Downloaded" value="{{message.downloaded | domibusDate}}" readonly/>
+      </mat-form-field>
+
+
+      <mat-form-field style="width:100%">
         <input matInput placeholder="AP Role" value="{{message.mshRole}}" readonly/>
       </mat-form-field>
 
