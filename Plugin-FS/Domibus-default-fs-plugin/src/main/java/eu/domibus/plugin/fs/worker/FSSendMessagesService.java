@@ -1,6 +1,5 @@
 package eu.domibus.plugin.fs.worker;
 
-import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.JMSMessageDTOBuilder;
 import eu.domibus.ext.domain.JmsMessageDTO;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
@@ -17,7 +16,6 @@ import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.plugin.fs.FSErrorMessageHelper;
 import eu.domibus.plugin.fs.FSFileNameHelper;
 import eu.domibus.plugin.fs.FSFilesManager;
-import eu.domibus.plugin.fs.exception.FSPluginException;
 import eu.domibus.plugin.fs.exception.FSSetUpException;
 import eu.domibus.plugin.fs.property.FSPluginProperties;
 import org.apache.commons.lang3.StringUtils;
@@ -32,12 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jms.Queue;
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
-import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.time.LocalDateTime;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -86,6 +83,8 @@ public class FSSendMessagesService {
     protected FSErrorMessageHelper fsErrorMessageHelper;
 
     protected Map<String, FileInfo> observedFilesInfo = new HashMap<>();
+
+    protected final Map<String, Optional<Pattern>> sendExcludeRegexPatternCache = new HashMap<>();
 
     /**
      * Triggering the send messages means that the message files from the OUT directory
@@ -225,8 +224,12 @@ public class FSSendMessagesService {
                 .map(fname -> fsFileNameHelper.stripLockSuffix(fname.get()))
                 .collect(Collectors.toList());
 
+
+        Optional<Pattern> sendExcludeRegexPattern = getSendExcludeRegexPattern(domain);
+
         for (FileObject file : files) {
             String fileName = file.getName().getBaseName();
+            Optional<String> fileRelativePath = fsFileNameHelper.getRelativeName(rootFolder, file);
 
             if (!isMetadata(fileName)
                     && !fsFileNameHelper.isAnyState(fileName)
@@ -234,7 +237,9 @@ public class FSSendMessagesService {
                     // exclude lock files:
                     && !fsFileNameHelper.isLockFile(fileName)
                     // exclude locked files:
-                    && !isLocked(lockedFileNames, fsFileNameHelper.getRelativeName(rootFolder, file))
+                    && !isLocked(lockedFileNames, fileRelativePath)
+                    // exclude files based on send exclude regex
+                    && !isExcludedFile(fileRelativePath, sendExcludeRegexPattern)
                     // exclude files that are (or could be) in use by other processes:
                     && canReadFileSafely(file, domain)) {
                 filteredFiles.add(file);
@@ -415,4 +420,40 @@ public class FSSendMessagesService {
         jmsExtService.sendMessageToQueue(jmsMessage, fsPluginSendQueue);
     }
 
+    protected Optional<Pattern> getSendExcludeRegexPattern(String domain) {
+        if (this.sendExcludeRegexPatternCache.containsKey(domain)) {
+            return sendExcludeRegexPatternCache.get(domain);
+        }
+        synchronized (this.sendExcludeRegexPatternCache) {
+            // check again in case the pattern was created by another thread
+            if (this.sendExcludeRegexPatternCache.containsKey(domain)) {
+                return sendExcludeRegexPatternCache.get(domain);
+            }
+            return createSendExcludeRegexPattern(domain);
+        }
+    }
+
+    protected Optional<Pattern> createSendExcludeRegexPattern(String domain) {
+        String sendExcludeRegex = fsPluginProperties.getSendExcludeRegex(domain);
+        LOG.debug("sendExcludeRegex for domain [{}] is [{}]", domain, sendExcludeRegex);
+        Optional<Pattern> result;
+        if (StringUtils.isNotBlank(sendExcludeRegex)) {
+            result = Optional.of(Pattern.compile(sendExcludeRegex));
+        } else {
+            result = Optional.empty();
+        }
+        sendExcludeRegexPatternCache.put(domain, result);
+        return result;
+    }
+
+    protected boolean isExcludedFile(Optional<String> relativeFileName, Optional<Pattern> sendExcludeRegexPattern) {
+        boolean isExcluded;
+        if ((!relativeFileName.isPresent()) || (!sendExcludeRegexPattern.isPresent())) {
+            isExcluded = false;
+        } else {
+            isExcluded = sendExcludeRegexPattern.get().matcher(relativeFileName.get()).find();
+        }
+        LOG.info("Checking if file is excluded. relativeFileName: [{}] isExcluded: [{}]", relativeFileName, isExcluded);
+        return isExcluded;
+    }
 }

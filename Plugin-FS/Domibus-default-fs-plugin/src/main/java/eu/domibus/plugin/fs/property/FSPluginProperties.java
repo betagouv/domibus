@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 import static eu.domibus.plugin.fs.property.FSPluginPropertiesMetadataManagerImpl.*;
-import static eu.domibus.plugin.fs.worker.FSSendMessagesService.DEFAULT_DOMAIN;
 
 /**
  * File System Plugin Properties
@@ -227,6 +226,14 @@ public class FSPluginProperties extends DomibusPropertyExtServiceDelegateAbstrac
      */
     public Integer getSendWorkerInterval(String domain) {
         return getDomainIntegerProperty(domain, SEND_WORKER_INTERVAL);
+    }
+
+    /**
+     * @param domain The domain property qualifier
+     * @return The regex used to exclude files, folders and subfolders when sending messages
+     */
+    public String getSendExcludeRegex(String domain) {
+        return getDomainProperty(domain, SEND_EXCLUDE_REGEX);
     }
 
     /**

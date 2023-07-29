@@ -189,7 +189,7 @@ public class FSPluginImpl extends AbstractBackendConnector<FSMessage, FSMessage>
             throw new FSPluginException("Unable to extract finalRecipient from message " + messageId);
         }
         final String finalRecipientFolder = sanitizeFileName(finalRecipient);
-        final String messageIdFolder = fileUtilExtService.urlEncode(messageId);
+        final String messageIdFolder = fileUtilExtService.sanitizeFileName(messageId);
 
 
         // Persist message
