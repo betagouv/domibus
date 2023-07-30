@@ -1,5 +1,7 @@
 Domibus 5.2
 - Executing keystore operations in cluster mode with database sync and in non-cluster mode with java synchronization mechanism
+Domibus 5.1.1
+- Removed the SQL scripts from the full distributions of Tomcat and Wildfly. The archive with these scripts can be downloaded separately
 Domibus 5.1
 - Files can be sent to WS Plugin as references to the filesystem
 - Improved the self sending mechanism
@@ -33,6 +35,8 @@ Domibus 5.1
 Domibus 5.0.6
 - Add validation to check there is no duplicate dependencies in the distributions (tomcat, weblogic and wildfly)
 - [WSPLUGIN] Distribution files have a wsdl folder with wsdl for the the wsPlugin client and the backend client for the push functionality.
+- Removed the SQL scripts from the full distributions of Tomcat and Wildfly. The archive with these scripts can be downloaded separately
+- Improve error details for following errors: Unable to retrieve OCSP, Path does not chain with any of the trust anchors, The signature or decryption was invalid and WstxUnexpectedCharException
 Domibus 5.0.5
 - Added domain properties domibus.ongoingMessagesSanitizing.* to configure the job searching for messages stuck in ongoing statuses and the resulting email alert
 - Improved upload time for large (MB) pMode files
