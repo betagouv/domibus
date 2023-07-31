@@ -4,6 +4,7 @@ import eu.domibus.api.metrics.MetricsService;
 import eu.domibus.ext.exceptions.DomibusMonitoringExtException;
 import eu.domibus.ext.services.MetricsExtService;
 import org.springframework.stereotype.Service;
+import com.codahale.metrics.MetricRegistry;
 
 /**
  * @author François GAUTIER
@@ -22,7 +23,7 @@ public class MetricsServiceDelegate implements MetricsExtService {
      * {@inheritDoc}
      */
     @Override
-    public Object getMetricRegistry() throws DomibusMonitoringExtException {
+    public MetricRegistry getMetricRegistry() throws DomibusMonitoringExtException {
         return metricsService.getMetricRegistry();
     }
 
