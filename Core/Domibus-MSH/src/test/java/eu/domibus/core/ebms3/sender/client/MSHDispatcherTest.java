@@ -27,10 +27,8 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.neethi.Policy;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.xml.sax.SAXException;
@@ -217,7 +215,7 @@ public class MSHDispatcherTest {
 
     }
 
-    @Ignore //TODO: to be fixed with EDELIVERY-11863
+    @Disabled //TODO: to be fixed with EDELIVERY-11863
     @Test
     public void testDispatch_WSSecurityExceptionDuringDispatch(@Injectable final SOAPMessage requestSoapMessage,
                                                                @Injectable final Policy policy,
@@ -246,15 +244,15 @@ public class MSHDispatcherTest {
 
         try {
             mshDispatcher.dispatch(requestSoapMessage, endPoint, policy, legConfiguration, pModeKey);
-            Assert.fail("Webservice Exception was expected");
+            Assertions.fail("Webservice Exception was expected");
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof EbMS3Exception);
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0103, ((EbMS3Exception) e).getErrorCode());
+            Assertions.assertTrue(e instanceof EbMS3Exception);
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0103, ((EbMS3Exception) e).getErrorCode());
         }
 
     }
 
-    @Ignore //TODO: to be fixed with EDELIVERY-11863
+    @Disabled //TODO: to be fixed with EDELIVERY-11863
     @Test
     public void testDispatch_SoapFaultDuringDispatch(@Injectable final SOAPMessage requestSoapMessage,
                                                      @Injectable final Policy policy,
@@ -283,10 +281,10 @@ public class MSHDispatcherTest {
 
         try {
             mshDispatcher.dispatch(requestSoapMessage, endPoint, policy, legConfiguration, pModeKey);
-            Assert.fail("Webservice Exception was expected");
+            Assertions.fail("Webservice Exception was expected");
         } catch (Exception e) {
-            Assert.assertTrue(e instanceof EbMS3Exception);
-            Assert.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0005, ((EbMS3Exception) e).getErrorCode());
+            Assertions.assertTrue(e instanceof EbMS3Exception);
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0005, ((EbMS3Exception) e).getErrorCode());
         }
 
     }
