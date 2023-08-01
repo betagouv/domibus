@@ -62,9 +62,9 @@ import java.io.*;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import java.util.zip.GZIPInputStream;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MESSAGE_DOWNLOAD_MAX_SIZE;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES;
@@ -483,7 +483,7 @@ public class UserMessageDefaultService implements UserMessageService {
         UserMessageLog userMessageLog = getNonDeletedUserMessageLog(messageId, mshRole);
 
         if (MessageStatus.getNotFinalStates().contains(userMessageLog.getMessageStatus())) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] is not in final state [" + userMessageLog.getMessageStatus().name() + "]");
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_009, MESSAGE + messageId + "] is not in final state [" + userMessageLog.getMessageStatus().name() + "]");
         }
 
         return userMessageLog;
@@ -508,7 +508,7 @@ public class UserMessageDefaultService implements UserMessageService {
         }
 
         if (MessageStatus.getSuccessfulStates().contains(userMessageLog.getMessageStatus())) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]");
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_009, MESSAGE + messageId + "] is in final state [" + userMessageLog.getMessageStatus().name() + "]");
         }
 
         return userMessageLog;
