@@ -11,7 +11,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -22,7 +21,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMAIN_TITLE;
 import static eu.domibus.core.property.DomibusPropertyConfiguration.MULTITENANT_DOMIBUS_PROPERTIES_SUFFIX;
 
 
@@ -69,7 +67,7 @@ public class DomainDaoImpl implements DomainDao {
 
             Domain domain = new Domain();
             domain.setCode(domainCode.toLowerCase());
-            domain.setName(getDomainTitle(domain));
+            domain.setName(domibusPropertyProvider.getDomainTitle(domain));
             domains.add(domain);
 
             LOG.trace("Domain name is valid. Added domain [{}]", domain);
@@ -88,15 +86,7 @@ public class DomainDaoImpl implements DomainDao {
 
     @Override
     public void refreshDomain(Domain domain) {
-        domain.setName(getDomainTitle(domain));
-    }
-
-    protected String getDomainTitle(Domain domain) {
-        String domainTitle = domibusPropertyProvider.getProperty(domain, DOMAIN_TITLE);
-        if (StringUtils.isEmpty(domainTitle)) {
-            domainTitle = domain.getCode();
-        }
-        return domainTitle;
+        domain.setName(domibusPropertyProvider.getDomainTitle(domain));
     }
 
     protected List<String> findAllDomainCodes() {

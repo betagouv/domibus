@@ -182,4 +182,6 @@ public interface DomibusPropertyProvider {
      * @return a list of the individual values being part of the comma-separated value
      */
     List<String> getCommaSeparatedPropertyValues(String propertyName);
+
+    String getDomainTitle(Domain domain);
 }
