@@ -40,8 +40,11 @@ public class DomainDaoImplTest {
         new Expectations() {{
             domibusConfigurationService.isMultiTenantAware();
             result = true;
-            domibusPropertyProvider.getProperty((Domain) any, anyString);
-            returns("zzzdomain", "aaadomain");
+
+            domibusPropertyProvider.getDomainTitle((Domain) any);
+            result = "adomain";
+            domibusPropertyProvider.getDomainTitle((Domain) any);
+            result = "zdomain";
         }};
 
         new Expectations(domainDao) {{
@@ -53,8 +56,8 @@ public class DomainDaoImplTest {
         List<Domain> domains = domainDao.findAll();
 
         assertEquals(2, domains.size());
-        assertEquals("adomain", domains.get(0).getCode());
-        assertEquals("zdomain", domains.get(1).getCode());
+        assertEquals("zdomain", domains.get(0).getCode());
+        assertEquals("adomain", domains.get(1).getCode());
     }
 
     @Test
