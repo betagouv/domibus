@@ -182,5 +182,6 @@
             <artifactId>jmockit</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- End test dependencies -->
     </dependencies>
 </project>

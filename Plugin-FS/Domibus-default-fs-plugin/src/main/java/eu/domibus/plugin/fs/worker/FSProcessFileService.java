@@ -18,6 +18,8 @@ import javax.activation.DataHandler;
 import javax.annotation.Resource;
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,7 +49,7 @@ public class FSProcessFileService {
     @Autowired
     protected FSFileNameHelper fsFileNameHelper;
 
-    public void processFile(FileObject processableFile, String domain) throws FileSystemException, JAXBException, MessagingProcessingException, XMLStreamException {
+    public void processFile(FileObject processableFile, String domain) throws IOException, JAXBException, MessagingProcessingException, XMLStreamException {
         LOG.debug("processFile start for file: {}", processableFile);
 
         try (FileObject metadataFile = fsFilesManager.resolveSibling(processableFile, FSSendMessagesService.METADATA_FILE_NAME)) {
@@ -82,8 +84,23 @@ public class FSProcessFileService {
         }
     }
 
-    protected UserMessage parseMetadata(FileObject metadataFile) throws JAXBException, FileSystemException, XMLStreamException {
-        return fsxmlHelper.parseXML(metadataFile.getContent().getInputStream(), UserMessage.class);
+    public void renameProcessedFile(FileObject processableFile, String messageId) {
+        final String baseName = processableFile.getName().getBaseName();
+        String newFileName = fsFileNameHelper.deriveFileName(baseName, messageId);
+
+        LOG.debug("Renaming file [{}] to [{}]", baseName, newFileName);
+
+        try {
+            fsFilesManager.renameFile(processableFile, newFileName);
+        } catch (FileSystemException ex) {
+            throw new FSPluginException("Error renaming file [" + processableFile.getName().getURI() + "] to [" + newFileName + "]", ex);
+        }
+    }
+
+    protected UserMessage parseMetadata(FileObject metadataFile) throws JAXBException, IOException, XMLStreamException {
+        try(InputStream inputStream = metadataFile.getContent().getInputStream()) {
+            return fsxmlHelper.parseXML(inputStream, UserMessage.class);
+        }
     }
 
 }

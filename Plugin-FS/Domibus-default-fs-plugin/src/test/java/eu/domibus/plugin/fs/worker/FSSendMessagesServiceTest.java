@@ -443,7 +443,7 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
-    public void processFileSafelyWithJAXBExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, FileSystemException, JAXBException, XMLStreamException {
+    public void processFileSafelyWithJAXBExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, IOException, JAXBException, XMLStreamException {
         String domain = "default";
 
         new Expectations(instance) {{
@@ -461,7 +461,7 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
-    public void processFileSafelyWithMessagingProcessingExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, FileSystemException, JAXBException, XMLStreamException {
+    public void processFileSafelyWithMessagingProcessingExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, IOException, JAXBException, XMLStreamException {
         String domain = "default";
 
         new Expectations(instance) {{
@@ -479,7 +479,7 @@ public class FSSendMessagesServiceTest {
     }
 
     @Test
-    public void processFileSafelyWithRuntimeExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, FileSystemException, JAXBException, XMLStreamException {
+    public void processFileSafelyWithRuntimeExceptionTest(@Injectable FileObject processableFile) throws MessagingProcessingException, IOException, JAXBException, XMLStreamException {
         String domain = "default";
 
         new Expectations(instance) {{

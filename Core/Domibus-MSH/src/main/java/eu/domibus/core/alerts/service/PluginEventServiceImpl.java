@@ -37,6 +37,7 @@ public class PluginEventServiceImpl implements PluginEventService {
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 
+
     public PluginEventServiceImpl(JMSManager jmsManager, @Qualifier(ALERT_MESSAGE_QUEUE) Queue alertMessageQueue, DomibusPropertyProvider domibusPropertyProvider) {
         this.jmsManager = jmsManager;
         this.alertMessageQueue = alertMessageQueue;

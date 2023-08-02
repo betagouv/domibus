@@ -14,6 +14,7 @@ import eu.domibus.core.property.DomibusRawPropertyProvider;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.wss4j.common.ext.WSSecurityException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,30 +35,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class MultiDomainCryptoServiceImplTest {
 
     @Tested
-    MultiDomainCryptoServiceImpl mdCryptoService;
+    private MultiDomainCryptoServiceImpl mdCryptoService;
 
     @Injectable
-    DomainCryptoServiceFactory domainCryptoServiceFactory;
+    private DomainCryptoServiceFactory domainCryptoServiceFactory;
 
     @Injectable
     private DomibusLocalCacheService domibusLocalCacheService;
 
     @Injectable
-    CertificateService certificateService;
+    private CertificateService certificateService;
 
     @Injectable
-    CertificateHelper certificateHelper;
+    private CertificateHelper certificateHelper;
 
     @Injectable
-    DomainService domainService;
+    private DomainService domainService;
 
     @Injectable
-    KeystorePersistenceService keystorePersistenceService;
+    private KeystorePersistenceService keystorePersistenceService;
+
+    @Injectable
+    private ObjectProvider<DomibusCryptoType> domibusCryptoTypes;
 
     @Test
     public void getX509Certificates(@Mocked DomainCryptoServiceImpl cryptoService) throws WSSecurityException {
         Domain domain = DomainService.DEFAULT_DOMAIN;
-        X509Certificate[] certs = null;
 
         new Expectations() {{
             domainCryptoServiceFactory.domainCryptoService(domain);
@@ -70,8 +73,7 @@ public class MultiDomainCryptoServiceImplTest {
         DomainCryptoService res2 = mdCryptoService.getDomainCertificateProvider(domain);
         assertEquals(cryptoService, res2);
 
-        new Verifications() {{
-        }};
+        new Verifications() {};
     }
 
     @Test

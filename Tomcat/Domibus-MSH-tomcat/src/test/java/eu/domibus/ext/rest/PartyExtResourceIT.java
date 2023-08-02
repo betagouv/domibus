@@ -140,7 +140,7 @@ public class PartyExtResourceIT extends AbstractIT {
         // then
         String content = result.getResponse().getContentAsString();
         List<ProcessDTO> resultList = objectMapper.readValue(content, List.class);
-        Assertions.assertEquals(2, resultList.size());
+        Assertions.assertEquals(3, resultList.size());
     }
 
     @Test

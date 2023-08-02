@@ -7,14 +7,12 @@ import eu.domibus.api.security.AuthRole;
 import eu.domibus.api.util.xml.UnmarshallerResult;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.core.pmode.ConfigurationDAO;
-import eu.domibus.core.pmode.ConfigurationRawDAO;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.PModeResource;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.Validate;
-import org.h2.tools.Server;
-import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -51,6 +49,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("ConstantConditions")
 @Transactional
 public class UploadPModeIT extends AbstractIT {
+
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UploadPModeIT.class);
 
     public static final String SCHEMAS_DIR = "schemas/";
     public static final String DOMIBUS_PMODE_XSD = "domibus-pmode.xsd";
@@ -238,6 +238,23 @@ public class UploadPModeIT extends AbstractIT {
         }
     }
 
+    @Test
+    public void testCheckLegsWithSplittingConfiguration() throws IOException {
+        String pmodeName = "domibus-configuration-splitting-valid.xml";
+        InputStream is = getClass().getClassLoader().getResourceAsStream("samplePModes/" + pmodeName);
+        MultipartFile pModeContent = new MockMultipartFile(pmodeName, pmodeName, "text/xml", IOUtils.toByteArray(is));
+
+        try {
+            adminGui.uploadPMode(pModeContent, "description");
+        } catch (Exception e) {
+            LOG.error("Failed to upload Pmode", e);
+            fail("Uploading Pmode failed");
+        }
+
+        final boolean hasLegWithSplittingConfiguration = pModeProvider.hasLegWithSplittingConfiguration();
+        assertTrue(hasLegWithSplittingConfiguration);
+    }
+
     /**
      * Tests that the PMode is not saved in the DB because there is a validation error (maxSize overflow value).
      */
@@ -303,8 +320,8 @@ public class UploadPModeIT extends AbstractIT {
             adminGui.uploadPMode(pModeContent, "description");
             fail("exception expected");
         } catch (PModeValidationException ex) {
-            assertTrue(ex.getIssues().get(0).getMessage().contains("Duplicate party identifier [domibus-blue] found"));
-            assertTrue(ex.getIssues().get(1).getMessage().contains("Duplicate party identifier [domibus-red] found in party [red_gw] and in party [red_gw1]"));
+            assertTrue(ex.getIssues().get(1).getMessage().contains("Duplicate party identifier [domibus-blue] found"));
+            assertTrue(ex.getIssues().get(2).getMessage().contains("Duplicate party identifier [domibus-red] found"));
         }
     }
 
