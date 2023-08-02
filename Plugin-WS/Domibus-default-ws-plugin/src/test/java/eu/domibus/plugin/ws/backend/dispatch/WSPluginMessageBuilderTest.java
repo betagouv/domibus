@@ -33,8 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static eu.domibus.plugin.ws.backend.dispatch.WSPluginMessageBuilder.PAYLOAD_NAME;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author François Gautier

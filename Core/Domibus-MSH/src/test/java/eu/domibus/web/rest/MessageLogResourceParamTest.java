@@ -40,7 +40,7 @@ import java.util.*;
 public class MessageLogResourceParamTest {
 
     private static final String CSV_TITLE = "Conversation Id, From Party Id, To Party Id, Original Sender, Final Recipient, ref To Message Id, Message Id, Message Status, Notification Status, " +
-            "MSH Role, Message Type, Deleted, Received, Send Attempts, Send Attempts Max, Next Attempt, Failed, Restored, Message Subtype";
+            "MSH Role, Message Type, Deleted, Received, Downloaded, Send Attempts, Send Attempts Max, Next Attempt, Failed, Restored, Message Subtype";
 
     @Tested
     MessageLogResource messageLogResource;
@@ -117,6 +117,7 @@ public class MessageLogResourceParamTest {
         Assertions.assertEquals(messageLogRO.getNextAttempt(), actualMessageLogRO.getNextAttempt());
         Assertions.assertEquals(messageLogRO.getNotificationStatus(), actualMessageLogRO.getNotificationStatus());
         Assertions.assertEquals(messageLogRO.getReceived(), actualMessageLogRO.getReceived());
+        Assertions.assertEquals(messageLogRO.getDownloaded(), actualMessageLogRO.getDownloaded());
         Assertions.assertEquals(messageLogRO.getSendAttempts(), actualMessageLogRO.getSendAttempts());
         Assertions.assertEquals(messageLogRO.getTestMessage(), actualMessageLogRO.getTestMessage());
     }
@@ -134,7 +135,7 @@ public class MessageLogResourceParamTest {
             csvServiceImpl.exportToCSV(messageList, null, (Map<String, String>) any, (List<String>) any);
             result = CSV_TITLE +
                     "conversationId,fromPartyId,toPartyId,originalSender,finalRecipient,refToMessageId,messageId," + MessageStatus.ACKNOWLEDGED + "," +
-                    NotificationStatus.NOTIFIED + "," + MSHRole.RECEIVING + "," + messageType + "," + date + "," + date + ",1,5," + date + "," +
+                    NotificationStatus.NOTIFIED + "," + MSHRole.RECEIVING + "," + messageType + "," + date + "," + date + "," + date + ",1,5," + date + "," +
                     date + "," + date + "," + testMessage + System.lineSeparator();
         }};
 
@@ -149,7 +150,7 @@ public class MessageLogResourceParamTest {
         Assertions.assertEquals(HttpStatus.OK, csv.getStatusCode());
         Assertions.assertEquals(CSV_TITLE +
                         "conversationId,fromPartyId,toPartyId,originalSender,finalRecipient,refToMessageId,messageId," + MessageStatus.ACKNOWLEDGED + "," + NotificationStatus.NOTIFIED + "," +
-                        MSHRole.RECEIVING + "," + messageType + "," + date + "," + date + ",1,5," + date + "," + date + "," + date + "," + testMessage + System.lineSeparator(),
+                        MSHRole.RECEIVING + "," + messageType + "," + date + "," + date + "," + date + ",1,5," + date + "," + date + "," + date + "," + testMessage + System.lineSeparator(),
                 csv.getBody());
     }
 
@@ -170,6 +171,7 @@ public class MessageLogResourceParamTest {
         messageLogRO.setMessageType(messageType);
         messageLogRO.setDeleted(new Date());
         messageLogRO.setReceived(new Date());
+        messageLogRO.setDownloaded(new Date());
         messageLogRO.setFromPartyId("fromPartyId");
         messageLogRO.setToPartyId("toPartyId");
         messageLogRO.setConversationId("conversationId");
@@ -209,7 +211,7 @@ public class MessageLogResourceParamTest {
     private List<MessageLogInfo> getMessageList(MessageType messageType, Date date, Boolean testMessage) {
         List<MessageLogInfo> result = new ArrayList<>();
         MessageLogInfo messageLog = new MessageLogInfo("messageId", MessageStatus.ACKNOWLEDGED,
-                NotificationStatus.NOTIFIED, MSHRole.RECEIVING, date, date, 1, 5, date, "Europe/Brussels",
+                NotificationStatus.NOTIFIED, MSHRole.RECEIVING, date, date, date, 1, 5, date, "Europe/Brussels",
                 0, "conversationId", "fromPartyId", "toPartyId", "originalSender", "finalRecipient",
                 "refToMessageId", date, date, testMessage, false, false, "action", "serviceType", "serviceValue",
                 "pluginType", 1L, date);
