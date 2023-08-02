@@ -1395,6 +1395,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>${maven-resources-plugin.version}</version>
+                    <configuration>
+                        <nonFilteredFileExtensions>
+                            <nonFilteredFileExtension>jks</nonFilteredFileExtension>
+                        </nonFilteredFileExtensions>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
