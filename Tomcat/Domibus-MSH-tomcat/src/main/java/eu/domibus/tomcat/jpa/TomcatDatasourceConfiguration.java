@@ -3,6 +3,8 @@ package eu.domibus.tomcat.jpa;
 import com.zaxxer.hikari.HikariDataSource;
 import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.jpa.DataSourceType;
+import eu.domibus.core.jpa.TransactionRoutingDataSource;
 import eu.domibus.tomcat.environment.NoH2DatabaseCondition;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +12,9 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 import javax.sql.DataSource;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static org.apache.commons.lang3.time.DateUtils.MILLIS_PER_SECOND;
@@ -22,22 +27,49 @@ import static org.apache.commons.lang3.time.DateUtils.MILLIS_PER_SECOND;
 @Configuration
 public class TomcatDatasourceConfiguration {
 
-    @Bean(name = DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE, destroyMethod = "close")
+    @Bean(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     public DataSource domibusDatasource(DomibusPropertyProvider domibusPropertyProvider) {
-        return getHikariDataSource(domibusPropertyProvider);
+        // this code can be moved in common core module??
+        TransactionRoutingDataSource routingDataSource =
+                new TransactionRoutingDataSource();
+
+        Map<Object, Object> dataSourceMap = new HashMap<>();
+        dataSourceMap.put(
+                DataSourceType.READ_WRITE,
+                readWriteDataSource(domibusPropertyProvider)
+        );
+        dataSourceMap.put(
+                DataSourceType.READ_ONLY,
+                readOnlyDataSource(domibusPropertyProvider)
+        );
+
+        routingDataSource.setTargetDataSources(dataSourceMap);
+        return routingDataSource;
+    }
+
+    @Bean
+    public DataSource readWriteDataSource(DomibusPropertyProvider domibusPropertyProvider) {
+        final String dataSourceURL = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_URL);
+        return getHikariDataSource(domibusPropertyProvider, dataSourceURL);
+    }
+
+    @Bean
+    public DataSource readOnlyDataSource(DomibusPropertyProvider domibusPropertyProvider) {
+        final String dataSourceURL = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_REPLICA_URL);
+        return getHikariDataSource(domibusPropertyProvider, dataSourceURL);
     }
 
     @Bean(name = DataSourceConstants.DOMIBUS_JDBC_QUARTZ_DATA_SOURCE, destroyMethod = "close")
     public DataSource quartzDatasource(DomibusPropertyProvider domibusPropertyProvider) {
-        return getHikariDataSource(domibusPropertyProvider);
+        final String dataSourceURL = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_URL);
+        return getHikariDataSource(domibusPropertyProvider, dataSourceURL);
     }
 
-    private HikariDataSource getHikariDataSource(DomibusPropertyProvider domibusPropertyProvider) {
+    private HikariDataSource getHikariDataSource(DomibusPropertyProvider domibusPropertyProvider, String dataSourceURL) {
         HikariDataSource dataSource = new HikariDataSource();
         final String driverClassName = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_DRIVER_CLASS_NAME);
         dataSource.setDriverClassName(driverClassName);
 
-        final String dataSourceURL = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_URL);
         dataSource.setJdbcUrl(dataSourceURL);
 
         final String user = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_USER);

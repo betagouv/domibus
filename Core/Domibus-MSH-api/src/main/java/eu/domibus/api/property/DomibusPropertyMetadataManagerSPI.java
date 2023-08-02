@@ -313,6 +313,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DATABASE_SCHEMA = "domibus.database.schema";
     String DOMIBUS_DATASOURCE_DRIVER_CLASS_NAME = "domibus.datasource.driverClassName";
     String DOMIBUS_DATASOURCE_URL = "domibus.datasource.url";
+    String DOMIBUS_DATASOURCE_REPLICA_URL = "domibus.datasource.replica.url";
     String DOMIBUS_DATASOURCE_USER = "domibus.datasource.user";
     String DOMIBUS_DATASOURCE_PASSWORD = "domibus.datasource.password";//NOSONAR
     String DOMIBUS_DATASOURCE_MAX_LIFETIME = "domibus.datasource.maxLifetime";

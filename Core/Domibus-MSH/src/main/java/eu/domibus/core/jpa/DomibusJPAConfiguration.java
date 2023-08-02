@@ -61,7 +61,6 @@ public class DomibusJPAConfiguration {
                                                                        Optional<CurrentTenantIdentifierResolver> tenantIdentifierResolver) {
         LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
 
-
         result.setPersistenceUnitName(JPAConstants.PERSISTENCE_UNIT_NAME);
         final String packagesToScanString = domibusPropertyProvider.getProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN);
         if (StringUtils.isNotEmpty(packagesToScanString)) {
