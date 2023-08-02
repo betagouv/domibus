@@ -285,7 +285,9 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         String domainTitle = getProperty(domain, DOMAIN_TITLE);
         if (StringUtils.isEmpty(domainTitle)) {
             domainTitle = domain.getCode();
-        } if ((domainTitle != null) && (StringUtils.length(domainTitle) > DOMAIN_TITLE_MAX_LENGTH)) {
+        }
+        
+        if (StringUtils.length(domainTitle) > DOMAIN_TITLE_MAX_LENGTH) {
             throw new DomibusPropertyException(String.format("Cannot change domain name to [%s] because it is greater than the maximum allowed length [%s].", domainTitle, DOMAIN_TITLE_MAX_LENGTH));
         }
 
