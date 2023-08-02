@@ -30,20 +30,6 @@ import static org.apache.commons.lang3.time.DateUtils.MILLIS_PER_SECOND;
 @Configuration
 public class TomcatDatasourceConfiguration {
 
-    @Bean
-    public BeanPostProcessor dialectProcessor() {
-
-        return new BeanPostProcessor() {
-            @Override
-            public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-                if (bean instanceof HibernateJpaVendorAdapter) {
-                    ((HibernateJpaVendorAdapter) bean).getJpaDialect().setPrepareConnection(false);
-                }
-                return bean;
-            }
-        };
-    }
-
     @Bean(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     public DataSource domibusDatasource(DomibusPropertyProvider domibusPropertyProvider) {
         // this code can be moved in common core module??

@@ -23,6 +23,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -47,7 +48,7 @@ public class DomibusJPAConfiguration {
     public static final String CONFIG_DOMIBUS_ORM = "config/domibus/orm/";
 
     @Bean
-    public JpaVendorAdapter jpaVendorAdapter() {
+    public HibernateJpaVendorAdapter jpaVendorAdapter() {
         return new HibernateJpaVendorAdapter();
     }
 
@@ -68,7 +69,11 @@ public class DomibusJPAConfiguration {
             result.setPackagesToScan(packagesToScan);
         }
         result.setDataSource(dataSource);
-        result.setJpaVendorAdapter(jpaVendorAdapter());
+
+        HibernateJpaVendorAdapter jpaVendorAdapter = jpaVendorAdapter();
+        HibernateJpaDialect jpaDialect = jpaVendorAdapter.getJpaDialect();
+        jpaDialect.setPrepareConnection(false);
+        result.setJpaVendorAdapter(jpaVendorAdapter);
 
         if (singleTenantConnectionProviderImpl.isPresent()) {
             LOG.info("Configuring jpaProperties for single-tenancy");
