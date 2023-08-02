@@ -387,7 +387,8 @@ public class DomibusPropertyProviderImplTest {
             result = domainTitle;
         }};
         try {
-            domibusPropertyProvider.getDomainTitle(domain);
+MyException thrown = Assertions.assertThrows(DomibusPropertyException.class, () -> domibusPropertyProvider.getDomainTitle(domain));
+assertThat(thrown.getMessage(), containsString("Cannot change domain name to [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX] because it is greater than the maximum allowed length [50]"));
             Assertions.fail();
         } catch (DomibusPropertyException propertyException) {
             Assertions.assertTrue(propertyException.getMessage().contains("Cannot change domain name to [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX] because it is greater than the maximum allowed length [50]"));
