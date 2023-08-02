@@ -7,9 +7,12 @@ import eu.domibus.core.jpa.DataSourceType;
 import eu.domibus.core.jpa.TransactionRoutingDataSource;
 import eu.domibus.tomcat.environment.NoH2DatabaseCondition;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.sql.DataSource;
 
@@ -26,6 +29,20 @@ import static org.apache.commons.lang3.time.DateUtils.MILLIS_PER_SECOND;
 @Conditional(NoH2DatabaseCondition.class)
 @Configuration
 public class TomcatDatasourceConfiguration {
+
+    @Bean
+    public BeanPostProcessor dialectProcessor() {
+
+        return new BeanPostProcessor() {
+            @Override
+            public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+                if (bean instanceof HibernateJpaVendorAdapter) {
+                    ((HibernateJpaVendorAdapter) bean).getJpaDialect().setPrepareConnection(false);
+                }
+                return bean;
+            }
+        };
+    }
 
     @Bean(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     public DataSource domibusDatasource(DomibusPropertyProvider domibusPropertyProvider) {
