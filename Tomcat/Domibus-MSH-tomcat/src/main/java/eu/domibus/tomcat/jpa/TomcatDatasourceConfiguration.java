@@ -32,7 +32,6 @@ public class TomcatDatasourceConfiguration {
 
     @Bean(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     public DataSource domibusDatasource(DomibusPropertyProvider domibusPropertyProvider) {
-        // this code can be moved in common core module??
         TransactionRoutingDataSource routingDataSource =
                 new TransactionRoutingDataSource();
 
