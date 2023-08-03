@@ -15,7 +15,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 
 /**
  * @author Ion Perpegel
- * @since 5.1.1
+ * @since 5.2
  *
  * Base data source configuration that routes to either read-only or read-write datasources, depending on the readOnly property of a Transaction
  */

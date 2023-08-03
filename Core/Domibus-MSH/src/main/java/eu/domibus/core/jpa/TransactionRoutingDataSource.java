@@ -6,7 +6,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 /**
  * @author Ion Perpegel
- * @since 5.1.1
+ * @since 5.2
  *
  * Returns the discriminator value that will be used to choose either the read-write or the read-only JDBC DataSource.
  */
