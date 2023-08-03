@@ -3,6 +3,7 @@ package eu.domibus.tomcat.jpa;
 import com.zaxxer.hikari.HikariDataSource;
 import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.core.jpa.BaseDatasourceConfiguration;
 import eu.domibus.core.jpa.DataSourceType;
 import eu.domibus.core.jpa.TransactionRoutingDataSource;
 import eu.domibus.tomcat.environment.NoH2DatabaseCondition;
@@ -28,35 +29,16 @@ import static org.apache.commons.lang3.time.DateUtils.MILLIS_PER_SECOND;
  */
 @Conditional(NoH2DatabaseCondition.class)
 @Configuration
-public class TomcatDatasourceConfiguration {
+public class TomcatDatasourceConfiguration extends BaseDatasourceConfiguration {
 
-    @Bean(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
-    public DataSource domibusDatasource(DomibusPropertyProvider domibusPropertyProvider) {
-        TransactionRoutingDataSource routingDataSource =
-                new TransactionRoutingDataSource();
-
-        Map<Object, Object> dataSourceMap = new HashMap<>();
-        dataSourceMap.put(
-                DataSourceType.READ_WRITE,
-                readWriteDataSource(domibusPropertyProvider)
-        );
-        dataSourceMap.put(
-                DataSourceType.READ_ONLY,
-                readOnlyDataSource(domibusPropertyProvider)
-        );
-
-        routingDataSource.setTargetDataSources(dataSourceMap);
-        return routingDataSource;
-    }
-
-    @Bean
-    public DataSource readWriteDataSource(DomibusPropertyProvider domibusPropertyProvider) {
+    @Override
+    protected DataSource getReadWriteDataSource(DomibusPropertyProvider domibusPropertyProvider) {
         final String dataSourceURL = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_URL);
         return getHikariDataSource(domibusPropertyProvider, dataSourceURL);
     }
 
-    @Bean
-    public DataSource readOnlyDataSource(DomibusPropertyProvider domibusPropertyProvider) {
+    @Override
+    protected DataSource getReadOnlyDataSource(DomibusPropertyProvider domibusPropertyProvider) {
         final String dataSourceURL = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_REPLICA_URL);
         return getHikariDataSource(domibusPropertyProvider, dataSourceURL);
     }
@@ -102,4 +84,5 @@ public class TomcatDatasourceConfiguration {
 
         return dataSource;
     }
+
 }
