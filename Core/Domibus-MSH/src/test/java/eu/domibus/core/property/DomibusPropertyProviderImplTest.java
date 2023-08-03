@@ -8,6 +8,7 @@ import eu.domibus.api.property.DomibusPropertyMetadata;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMAIN_TITLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -127,7 +129,8 @@ public class DomibusPropertyProviderImplTest {
 
     @Test
     void getDomainProperty_NullDomain() {
-        Assertions.assertThrows(DomibusPropertyException. class,() -> domibusPropertyProvider.getProperty(null, propertyName));;
+        Assertions.assertThrows(DomibusPropertyException.class, () -> domibusPropertyProvider.getProperty(null, propertyName));
+        ;
 
         new Verifications() {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
@@ -250,7 +253,7 @@ public class DomibusPropertyProviderImplTest {
 
         // THEN
         DomibusPropertyException exception = Assertions.assertThrows(
-                                DomibusPropertyException.class,
+                DomibusPropertyException.class,
                 () -> {
                     // WHEN
                     domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
@@ -289,7 +292,7 @@ public class DomibusPropertyProviderImplTest {
         // THEN
         Assertions.assertEquals(Collections.emptyList(),
                 result, "Should have returned an empty list when getting the comma separated property " +
-                                "values for a property having a comma separated list type and a null value");
+                        "values for a property having a comma separated list type and a null value");
     }
 
     @Test
@@ -317,7 +320,7 @@ public class DomibusPropertyProviderImplTest {
         // THEN
         Assertions.assertEquals(Collections.emptyList(),
                 result, "Should have returned an empty list when getting the comma separated property " +
-                                "values for a property having a comma separated list type and an empty value");
+                        "values for a property having a comma separated list type and an empty value");
     }
 
     @Test
@@ -345,7 +348,7 @@ public class DomibusPropertyProviderImplTest {
         // THEN
         Assertions.assertEquals(Collections.emptyList(),
                 result, "Should have returned an empty list when getting the comma separated property " +
-                                "values for a property having a comma separated list type and a blank value");
+                        "values for a property having a comma separated list type and a blank value");
     }
 
     @Test
@@ -373,6 +376,17 @@ public class DomibusPropertyProviderImplTest {
         // THEN
         Assertions.assertEquals(Arrays.asList("value1", "value2", "value3", "value4", "value5"),
                 result, "Should have returned a list containing all the individual elements when getting " +
-                                "the comma separated property values for a property having a comma separated list type and a valid value");
+                        "the comma separated property values for a property having a comma separated list type and a valid value");
+    }
+
+    @Test
+    public void getDomainTitle(@Injectable Domain domain) {
+        String domainTitle = StringUtils.repeat("X", 52);
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(domain, DOMAIN_TITLE);
+            result = domainTitle;
+        }};
+        String newDomainTitle = domibusPropertyProvider.getDomainTitle(domain);
+        Assertions.assertEquals(newDomainTitle.length(),50);
     }
 }

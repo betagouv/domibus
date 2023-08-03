@@ -42,6 +42,8 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusPropertyProviderImpl.class);
 
+    public static int DOMAIN_TITLE_MAX_LENGTH = 50;
+
     private final GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     private final PropertyProviderDispatcher propertyProviderDispatcher;
@@ -279,11 +281,16 @@ public class DomibusPropertyProviderImpl implements DomibusPropertyProvider {
         return result;
     }
 
-    private String getDomainTitle(Domain domain) {
+    protected String getDomainTitle(Domain domain) {
         String domainTitle = getProperty(domain, DOMAIN_TITLE);
         if (StringUtils.isEmpty(domainTitle)) {
             domainTitle = domain.getCode();
         }
+        if ((StringUtils.length(domainTitle) > DOMAIN_TITLE_MAX_LENGTH)) {
+            LOG.warn("Cannot change domain title to [{}] because it is greater than the maximum allowed length [{}].", domainTitle, DOMAIN_TITLE_MAX_LENGTH);
+            return StringUtils.left(domainTitle,50);
+        }
+
         return domainTitle;
     }
 
