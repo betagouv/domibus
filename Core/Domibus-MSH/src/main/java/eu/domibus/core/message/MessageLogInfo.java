@@ -28,6 +28,8 @@ public class MessageLogInfo {
 
     private Date received;
 
+    private Date downloaded;
+
     private MSHRole mshRole;
 
     private int sendAttempts;
@@ -115,6 +117,7 @@ public class MessageLogInfo {
                           final MSHRole mshRole,
                           final Date deleted,
                           final Date received,
+                          final Date downloaded,
                           final int sendAttempts,
                           final int sendAttemptsMax,
                           final Date nextAttempt,
@@ -142,6 +145,7 @@ public class MessageLogInfo {
                 originalSender, finalRecipient, refToMessageId, testMessage);
 
         this.messageType = MessageType.USER_MESSAGE;
+        this.downloaded = downloaded;
         this.notificationStatus = notificationStatus;
         this.sendAttempts = sendAttempts;
         this.sendAttemptsMax = sendAttemptsMax;
@@ -174,6 +178,10 @@ public class MessageLogInfo {
 
     public void setReceived(Date received) {
         this.received = received;
+    }
+
+    public void setDownloaded(Date downloaded) {
+        this.downloaded = downloaded;
     }
 
     public void setMshRole(MSHRole mshRole) {
@@ -286,6 +294,10 @@ public class MessageLogInfo {
 
     public Date getReceived() {
         return received;
+    }
+
+    public Date getDownloaded() {
+        return downloaded;
     }
 
     public int getSendAttempts() {
@@ -410,6 +422,7 @@ public class MessageLogInfo {
                 .append(messageStatus, that.messageStatus)
                 .append(notificationStatus, that.notificationStatus)
                 .append(received, that.received)
+                .append(downloaded, that.downloaded)
                 .append(mshRole, that.mshRole)
                 .append(nextAttempt, that.nextAttempt)
                 .append(nextAttemptTimezoneId, that.nextAttemptTimezoneId)
@@ -440,6 +453,7 @@ public class MessageLogInfo {
                 .append(messageStatus)
                 .append(notificationStatus)
                 .append(received)
+                .append(downloaded)
                 .append(mshRole)
                 .append(sendAttempts)
                 .append(sendAttemptsMax)

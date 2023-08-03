@@ -16,8 +16,10 @@ import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.message.Message;
 import org.apache.neethi.Policy;
+import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,8 +61,8 @@ public class MSHDispatcher {
     @Autowired
     protected SecurityProfileService securityProfileService;
 
-    @Timer(clazz = MSHDispatcher.class,value = "dispatch")
-    @Counter(clazz = MSHDispatcher.class,value = "dispatch")
+    @Timer(clazz = MSHDispatcher.class, value = "dispatch")
+    @Counter(clazz = MSHDispatcher.class, value = "dispatch")
     public SOAPMessage dispatch(final SOAPMessage soapMessage, String endpoint, final Policy policy, final LegConfiguration legConfiguration, final String pModeKey) throws EbMS3Exception {
         LOG.debug("Dispatching message to endpoint [{}]", endpoint);
 
@@ -75,8 +77,17 @@ public class MSHDispatcher {
             result = dispatch.invoke(soapMessage);
         } catch (final WebServiceException e) {
             Exception exception = e;
-            if(e.getCause() instanceof ConnectException) {
+            if (e.getCause() instanceof ConnectException) {
                 exception = new WebServiceException("Error dispatching message to [" + endpoint + "]: possible reason is that the receiver is not available", e);
+            }
+            if (e.getCause() instanceof SoapFault &&
+                    e.getCause().getCause() instanceof WSSecurityException) {
+                throw EbMS3ExceptionBuilder.getInstance()
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0103)
+                        .message("Security Error dispatching message to " + endpoint)
+                        .cause(exception)
+                        .mshRole(MSHRole.SENDING)
+                        .build();
             }
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0005)
@@ -97,7 +108,7 @@ public class MSHDispatcher {
         Map<String, List<String>> headers = new HashMap<>();
         headers.put(HEADER_DOMIBUS_MESSAGE_ID, Arrays.asList(userMessage.getMessageId()));
         headers.put(DomainContextProvider.HEADER_DOMIBUS_DOMAIN, Arrays.asList(domain.getCode()));
-        if(legConfiguration.getSplitting() != null && legConfiguration.getSplitting().getCompression()) {
+        if (legConfiguration.getSplitting() != null && legConfiguration.getSplitting().getCompression()) {
             headers.put(HEADER_DOMIBUS_SPLITTING_COMPRESSION, Arrays.asList("true"));
 
         }
@@ -108,7 +119,7 @@ public class MSHDispatcher {
             result = dispatch.invoke(soapMessage);
         } catch (final WebServiceException e) {
             Exception exception = e;
-            if(e.getCause() instanceof ConnectException) {
+            if (e.getCause() instanceof ConnectException) {
                 exception = new WebServiceException("Error dispatching message to [" + endpoint + "]: possible reason is that the receiver is not available", e);
             }
             throw EbMS3ExceptionBuilder.getInstance()

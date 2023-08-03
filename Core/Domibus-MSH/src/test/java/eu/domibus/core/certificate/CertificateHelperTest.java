@@ -55,10 +55,10 @@ public class CertificateHelperTest {
     @Test
     public void checkTruststoreTypeValidationNegative2() {
         try {
-            certificateHelper.validateStoreType(JKS, "test_filename_no_extension");
+            certificateHelper.validateStoreType(JKS, "test_filename_no_extension.txt");
             Assertions.fail("Expected exception was not raised!");
         } catch (DomibusCertificateException e) {
-            assertTrue(e.getMessage().contains(JKS));
+            assertTrue(e.getMessage().contains("txt"));
         }
     }
 

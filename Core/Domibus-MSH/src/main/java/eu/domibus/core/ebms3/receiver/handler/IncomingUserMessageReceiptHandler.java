@@ -118,7 +118,7 @@ public class IncomingUserMessageReceiptHandler implements IncomingMessageHandler
             if(sentUserMessage == null){
                 LOG.error("Couldn't find sent user message with message ID [{}]", messageId);
                 throw EbMS3ExceptionBuilder.getInstance()
-                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0066)
+                        .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
                         .message("Couldn't find sent user message with message ID [" + messageId + "]")
                         .refToMessageId(messageId)
                         .mshRole(MSHRole.SENDING)

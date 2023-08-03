@@ -29,10 +29,9 @@ public class PartitionService {
         this.dateUtil = dateUtil;
     }
 
-
     public Long getExpiredPartitionsHighValue(List<DatabasePartition> partitions, Date expireDate) {
+        Long highValue = partitions.stream().max(Comparator.comparing(DatabasePartition::getHighValue)).get().getHighValue();
         Long expiredHighValue = getPartitionHighValueFromDate(expireDate);
-        Long highValue = partitions.stream().max(Comparator.comparing(DatabasePartition::getHighValue)).map(DatabasePartition::getHighValue).orElse(expiredHighValue);
 
         return java.lang.Math.min(highValue, expiredHighValue);
     }

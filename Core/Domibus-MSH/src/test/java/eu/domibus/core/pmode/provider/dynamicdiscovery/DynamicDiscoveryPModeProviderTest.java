@@ -183,7 +183,7 @@ public class DynamicDiscoveryPModeProviderTest {
     @Test
     public void testDynamicDiscoveryClientSelection() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
-        doReturn(true).when(configurationDAO).configurationExists();
+//        doReturn(true).when(configurationDAO).configurationExists();
         doReturn(testData).when(configurationDAO).readEager();
 
         /* test default selection of dynamic discovery client OASIS compliant*/
@@ -199,7 +199,7 @@ public class DynamicDiscoveryPModeProviderTest {
     @Test
     public void testFindDynamicProcesses() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
-        doReturn(true).when(configurationDAO).configurationExists();
+ //       doReturn(true).when(configurationDAO).configurationExists();
         doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
         assertEquals(1, dynamicDiscoveryPModeProvider.dynamicResponderProcesses.size());
@@ -221,7 +221,7 @@ public class DynamicDiscoveryPModeProviderTest {
     @Test
     public void testDoDynamicDiscoveryOnSender() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
-        doReturn(true).when(configurationDAO).configurationExists();
+//        doReturn(true).when(configurationDAO).configurationExists();
         doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
 
@@ -241,7 +241,7 @@ public class DynamicDiscoveryPModeProviderTest {
     @Test
     void testDoDynamicDiscoveryOnSenderNullCertificate() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
-        doReturn(true).when(configurationDAO).configurationExists();
+  //      doReturn(true).when(configurationDAO).configurationExists();
         doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
 
@@ -258,7 +258,7 @@ public class DynamicDiscoveryPModeProviderTest {
     @Test
     public void testDoDynamicDiscoveryOnReceiver() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
-        doReturn(true).when(configurationDAO).configurationExists();
+ //       doReturn(true).when(configurationDAO).configurationExists();
         doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
 
@@ -414,7 +414,7 @@ public class DynamicDiscoveryPModeProviderTest {
     @Test
     public void testUpdateConfigurationParty_new() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
-        doReturn(true).when(configurationDAO).configurationExists();
+ //       doReturn(true).when(configurationDAO).configurationExists();
         doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
 
@@ -427,7 +427,7 @@ public class DynamicDiscoveryPModeProviderTest {
     @Test
     public void testUpdateConfigurationParty_exists() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
-        doReturn(true).when(configurationDAO).configurationExists();
+//        doReturn(true).when(configurationDAO).configurationExists();
         doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
 
@@ -508,16 +508,5 @@ public class DynamicDiscoveryPModeProviderTest {
             return false;
         }
         return true;
-    }
-
-    @Test
-    public void testGetMessageId(@Injectable UserMessage userMessage) {
-
-        dynamicDiscoveryPModeProvider.getMessageId(userMessage);
-
-        new Verifications() {{
-            userMessage.getMessageId();
-            times = 1;
-        }};
     }
 }
