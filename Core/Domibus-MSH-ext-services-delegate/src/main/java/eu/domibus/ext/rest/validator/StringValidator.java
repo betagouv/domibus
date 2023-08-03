@@ -21,9 +21,9 @@ public class StringValidator implements
         ConstraintValidator<ValidString, String> {
 
 
-    private  DomibusStringUtil domibusStringUtil;
+    private DomibusStringUtil domibusStringUtil;
 
-    private  DomibusPropertyProvider domibusPropertyProvider;
+    private DomibusPropertyProvider domibusPropertyProvider;
 
     public StringValidator() {
 
