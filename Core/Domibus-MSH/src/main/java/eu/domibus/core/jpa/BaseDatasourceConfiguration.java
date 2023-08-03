@@ -2,6 +2,7 @@ package eu.domibus.core.jpa;
 
 import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
+
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATASOURCE_REPLICA_URL;
 
 /**
  * @author Ion Perpegel
@@ -41,10 +44,20 @@ public abstract class BaseDatasourceConfiguration {
                 DataSourceType.READ_WRITE,
                 getReadWriteDataSource(domibusPropertyProvider)
         );
-        dataSourceMap.put(
-                DataSourceType.READ_ONLY,
-                getReadOnlyDataSource(domibusPropertyProvider)
-        );
+
+        final String readOnlyDataSourceUrl = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_REPLICA_URL);
+        if(StringUtils.isNotBlank(readOnlyDataSourceUrl)) {
+            dataSourceMap.put(
+                    DataSourceType.READ_ONLY,
+                    getReadOnlyDataSource(domibusPropertyProvider)
+            );
+        } else {
+            // fallback to one datasource
+            dataSourceMap.put(
+                    DataSourceType.READ_ONLY,
+                    getReadWriteDataSource(domibusPropertyProvider)
+            );
+        }
 
         routingDataSource.setTargetDataSources(dataSourceMap);
         return routingDataSource;
