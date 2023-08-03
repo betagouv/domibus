@@ -1,3 +1,4 @@
+
 package eu.domibus.api.model;
 
 import org.hibernate.HibernateException;

@@ -1,8 +1,8 @@
 package eu.domibus.core.message.retention;
 
 import eu.domibus.api.exceptions.DomibusCoreException;
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.DatabasePartition;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusConfigurationService;
@@ -196,7 +196,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
         LOG.debug("Counting ongoing messages for partition [{}]", partitionName);
         // check for messages that are not in final status
-        int count = userMessageLogDao.countByMessageStatusOnPartition(messageStatuses, partitionName);
+        int count = userMessageLogDao.countMessagesOnPartitionWithStatusNotInList(messageStatuses, partitionName);
         if (count != 0) {
             LOG.warn("There are still [{}] ongoing messages on partition [{}]", count, partitionName);
             return false;
@@ -225,8 +225,14 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
 
     protected boolean checkByMessageStatusAndMpcOnPartition(String mpc, MessageStatus messageStatus, String partitionName) {
         int retention = getRetention(mpc, messageStatus);
-        int count = userMessageLogDao.getMessagesNewerThan(
-                DateUtils.addMinutes(new Date(), retention * -1), mpc, messageStatus, partitionName);
+        int count;
+        if(retention == -1){
+            count = userMessageLogDao.getAllMessagesWithStatus(mpc, messageStatus, partitionName);
+        }
+        else {
+            count = userMessageLogDao.getMessagesNewerThan(
+                    DateUtils.addMinutes(new Date(), retention * -1), mpc, messageStatus, partitionName);
+        }
         if (count != 0) {
             LOG.warn("[{}] [{}] messages newer than retention [{}] on partition [{}]", messageStatus, count, retention, partitionName);
             return false;
@@ -236,7 +242,7 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
     }
 
     protected int getRetention(String mpc, MessageStatus messageStatus) {
-        int retention = -1;
+        int retention;
         switch (messageStatus) {
             case DOWNLOADED:
                 retention = pModeProvider.getRetentionDownloadedByMpcURI(mpc);
@@ -248,11 +254,16 @@ public class MessageRetentionPartitionsService implements MessageRetentionServic
             case SEND_FAILURE:
                 retention = pModeProvider.getRetentionSentByMpcURI(mpc);
                 break;
+            default:
+                retention = -1;
         }
         LOG.debug("Retention value for MPC [{}] and messageStatus [{}] is [{}]", mpc, messageStatus, retention);
         return retention;
     }
 
+    /**
+     * @return maximum retention value configured or -1 if no custom retention is set; retention values set to -1 are ignored
+     */
     protected int getMaxRetention() {
         final List<String> mpcs = pModeProvider.getMpcURIList();
         int maxRetention = -1;

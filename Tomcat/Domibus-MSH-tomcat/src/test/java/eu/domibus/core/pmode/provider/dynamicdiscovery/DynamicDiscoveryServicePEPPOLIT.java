@@ -14,7 +14,6 @@ import network.oxalis.vefa.peppol.common.lang.PeppolLoadingException;
 import network.oxalis.vefa.peppol.common.lang.PeppolParsingException;
 import network.oxalis.vefa.peppol.common.model.*;
 import network.oxalis.vefa.peppol.lookup.api.LookupException;
-import network.oxalis.vefa.peppol.lookup.locator.BusdoxLocator;
 import network.oxalis.vefa.peppol.security.lang.PeppolSecurityException;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
@@ -58,7 +57,7 @@ public class DynamicDiscoveryServicePEPPOLIT extends AbstractIT {
                                                                            DomibusHttpRoutePlanner domibusHttpRoutePlanner,
                                                                            X509CertificateService x509CertificateService,
                                                                            ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators,
-                                                                           ObjectProvider<BusdoxLocator> busdoxLocators,
+                                                                           ObjectProvider<DomibusBusdoxLocator> busdoxLocators,
                                                                            ObjectProvider<DomibusApacheFetcher> domibusApacheFetchers,
                                                                            ObjectProvider<EndpointInfo> endpointInfos,
                                                                            DynamicDiscoveryUtil dynamicDiscoveryUtil) {

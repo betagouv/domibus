@@ -56,8 +56,7 @@
                                     </destinationFile>
                                 </fileSet>
                                 <fileSet>
-                                    <sourceFile>${basedir}/src/main/resources/db/scripts/oracle-VERSION-delete-db.sql
-                                    </sourceFile>
+                                    <sourceFile>${basedir}/src/main/resources/db/scripts/oracle-VERSION-delete-db.sql</sourceFile>
                                     <destinationFile>
                                         ${project.build.directory}/db/scripts/oracle-${project.version}-delete-db.sql
                                     </destinationFile>
@@ -79,12 +78,12 @@
                                     </destinationFile>
                                 </fileSet>
                                 <fileSet>
-                                    <sourceFile>
-                                        ${basedir}/src/main/resources/db/archive/5.0/partitioning/oracle/create-partitions-job-5.0.sql
-                                    </sourceFile>
-                                    <destinationFile>
-                                        ${project.build.directory}/db/scripts/oracle-5.0-create-partitions-job.sql
-                                    </destinationFile>
+                                    <sourceFile>${basedir}/src/main/resources/db/partitioning/oracle/common/oracle-5.0-partition-detail-tables.sql</sourceFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/oracle-5.0-partition-detail-tables.sql</destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>${basedir}/src/main/resources/db/partitioning/oracle/common/oracle-5.0-partition-migration-procedures.sql</sourceFile>
+                                    <destinationFile>${project.build.directory}/db/scripts/oracle-5.0-partition-migration-procedures.sql</destinationFile>
                                 </fileSet>
                                 <fileSet>
                                     <sourceFile>
@@ -92,6 +91,14 @@
                                     </sourceFile>
                                     <destinationFile>
                                         ${project.build.directory}/db/scripts/oracle-5.0-partition-detail-tables.sql
+                                    </destinationFile>
+                                </fileSet>
+                                <fileSet>
+                                    <sourceFile>
+                                        ${basedir}/src/main/resources/db/archive/5.0.5/migration/oracle/oracle-5.0.5-partitioning-fix.ddl
+                                    </sourceFile>
+                                    <destinationFile>
+                                        ${project.build.directory}/sql-scripts/oracle-5.0.5-partitioning-fix.ddl
                                     </destinationFile>
                                 </fileSet>
                             </fileSets>
@@ -126,17 +133,11 @@
                 <version>${liquibase.version}</version>
                 <configuration>
                     <outputFileEncoding>UTF-8</outputFileEncoding>
-                    <expressionVars>
-                        <property>
-                            <!--Override this property with the correct value where migrating to an older version -->
-                            <name>DomibusVersion</name>
-                            <value>${project.version}</value>
-                        </property>
-                        <property>
-                            <name>DomibusBuildTime</name>
-                            <value>${timestamp}</value>
-                        </property>
-                    </expressionVars>
+                    <expressionVariables>
+                        <!--Override this property with the correct value where migrating to an older version -->
+                        <DomibusVersion>${project.version}</DomibusVersion>
+                        <DomibusBuildTime>${timestamp}</DomibusBuildTime>
+                    </expressionVariables>
                 </configuration>
                 <executions>
 
@@ -311,48 +312,6 @@
                     </execution>
                     <!-- 5.1 end here -->
 
-                    <!-- partitioning migration 5.0 to 5.1 starts here -->
-                    <execution>
-                        <id>generate-oracle-partitioning-delta-5.1</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>updateSQL</goal>
-                        </goals>
-                        <configuration>
-                            <changeLogFile>
-                                src/main/resources/db/partitioning/oracle/changelog-partitioning-5.1-delta.xml
-                            </changeLogFile>
-                            <url>
-                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-partitioning-5.1-delta.oracle
-                            </url>
-                            <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-5.0-partitioning-to-5.1-partitioning-migration.ddl
-                            </migrationSqlOutputFile>
-                        </configuration>
-                    </execution>
-                    <!-- partitioning migration 5.0 to 5.1 ends here -->
-
-
-                    <!-- partitioning 5.0 populated table starts here -->
-                    <execution>
-                        <id>generate-oracle-script-partitioning-populated-table-to-5.0</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>updateSQL</goal>
-                        </goals>
-                        <configuration>
-                            <changeLogFile>
-                                src/main/resources/db/archive/5.0/partitioning/oracle/changelog-5.0-partitioning-populated-table.xml
-                            </changeLogFile>
-                            <url>
-                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.0-partitioning-populated-table.oracle
-                            </url>
-                            <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-5.0-partitioning-populated-table.ddl
-                            </migrationSqlOutputFile>
-                        </configuration>
-                    </execution>
-                    <!-- partitioning 5.0 populated table ends here -->
                     <!-- partitioning ends here -->
 
                     <!-- 5.1 starts here -->
@@ -502,6 +461,70 @@
                     </execution>
                     <!-- 5.1 ends here -->
 
+
+                    <!-- partitioning delta from 5.0.4 to 5.0.5 starts here -->
+                    <execution>
+                        <id>generate-oracle-script-partitioning-migration</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/archive/5.0.5/migration/oracle/changelog-partitioning-5.0.5-delta.xml
+                            </changeLogFile>
+                            <url>
+                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-partitioning-5.0.5-delta.oracle
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/oracle-5.0.4-to-5.0.5-partitioning-migration.ddl
+                            </migrationSqlOutputFile>
+                        </configuration>
+                    </execution>
+                    <!-- partitioning delta from 5.0.4 to 5.0.5 ends here -->
+
+                    <!-- delta 5.0.4 to 5.0.5 starts here -->
+                    <execution>
+                        <id>generate-mysql-script-delta-5.0.5</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/archive/5.0.5/migration/oracle/changelog-5.0.5-delta.xml
+                            </changeLogFile>
+                            <url>
+                                offline:mysql?changeLogFile=${project.build.directory}/liquibase/changelog-5.0.5-delta.mysql
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/mysql-5.0.4-to-5.0.5-migration.ddl
+                            </migrationSqlOutputFile>
+                            <expressionVariables>
+                                <DomibusVersion>5.0.5</DomibusVersion>
+                            </expressionVariables>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-oracle-script-delta-5.0.5</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>updateSQL</goal>
+                        </goals>
+                        <configuration>
+                            <changeLogFile>
+                                src/main/resources/db/archive/5.0.5/migration/oracle/changelog-5.0.5-delta.xml
+                            </changeLogFile>
+                            <url>
+                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.0.5-delta.oracle
+                            </url>
+                            <migrationSqlOutputFile>
+                                ${project.build.directory}/sql-scripts/oracle-5.0.4-to-5.0.5-migration-fix.ddl
+                            </migrationSqlOutputFile>
+                        </configuration>
+                    </execution>
+                    <!-- delta 5.0.4 to 5.0.5 ends here -->
+
                     <!-- delta 5.0.2 to 5.1 starts here -->
                     <execution>
                         <id>generate-mysql-script-delta-5.1</id>
@@ -613,6 +636,9 @@
                     </execution>
                     <!-- delta 5.0.2 to 5.1 ends here -->
 
+                    <!-- delta 5.0.3 to 5.0.4 starts here -->
+                    <!-- delta 5.0.3 to 5.0.4 ends here -->
+                    
                     <!-- delta 5.0.1 to 5.0.2 starts here -->
                     <execution>
                         <id>generate-mysql-script-delta-5.0.2</id>
@@ -630,12 +656,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-5.0.1-to-5.0.2-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0.2</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0.2</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -654,12 +677,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/oracle-5.0.1-to-5.0.2-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0.2</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0.2</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <!-- delta 5.0.1 to 5.0.2 ends here -->
@@ -681,12 +701,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-5.0-to-5.0.1-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0.1</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0.1</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -705,12 +722,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/oracle-5.0-to-5.0.1-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0.1</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0.1</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <!-- delta 5.0 to 5.0.1 ends here -->
@@ -732,12 +746,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-4.2.9-to-5.0-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -756,12 +767,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-4.2.9-to-5.0-multi-tenancy-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0</DomibusVersion>
+                            </expressionVariables>
 
                         </configuration>
                     </execution>
@@ -781,12 +789,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/oracle-4.2.9-to-5.0-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -805,12 +810,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/oracle-4.2.9-to-5.0-multi-tenancy-migration.ddl
                             </migrationSqlOutputFile>
-                            <expressionVars>
-                                <property>
-                                    <name>DomibusVersion</name>
-                                    <value>5.0</value>
-                                </property>
-                            </expressionVars>
+                            <expressionVariables>
+                                <DomibusVersion>5.0</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <!-- delta 4.2.9 to 5.0 ends here -->
