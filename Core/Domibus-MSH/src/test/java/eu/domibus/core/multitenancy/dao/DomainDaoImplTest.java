@@ -9,6 +9,7 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMAIN_TITLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(JMockitExtension.class)
@@ -40,17 +42,16 @@ public class DomainDaoImplTest {
         new Expectations() {{
             domibusConfigurationService.isMultiTenantAware();
             result = true;
-
-            domibusPropertyProvider.getDomainTitle((Domain) any);
-            result = "adomain";
-            domibusPropertyProvider.getDomainTitle((Domain) any);
-            result = "zdomain";
         }};
 
         new Expectations(domainDao) {{
             domainDao.findAllDomainCodes();
             result = Arrays.asList("zdomain", "adomain");
             domainDao.checkValidDomain((List<Domain>) any, anyString);
+            domainDao.getDomainTitle((Domain) any);
+            result = "adomain";
+            domainDao.getDomainTitle((Domain) any);
+            result = "zdomain";
         }};
 
         List<Domain> domains = domainDao.findAll();
@@ -137,5 +138,16 @@ public class DomainDaoImplTest {
             assertEquals(ex.getError(), DomibusCoreErrorCode.DOM_001);
             assertEquals(ex.getMessage(), "[DOM_001]:Domain name should not start with a number. Invalid domain name:1domain22");
         }
+    }
+
+    @Test
+    public void getDomainTitle(@Injectable Domain domain) {
+        String domainTitle = StringUtils.repeat("X", 52);
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(domain, DOMAIN_TITLE);
+            result = domainTitle;
+        }};
+        String newDomainTitle = domainDao.getDomainTitle(domain);
+        Assertions.assertEquals(newDomainTitle.length(),50);
     }
 }

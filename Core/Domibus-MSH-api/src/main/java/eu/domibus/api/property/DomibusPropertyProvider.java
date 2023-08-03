@@ -183,5 +183,4 @@ public interface DomibusPropertyProvider {
      */
     List<String> getCommaSeparatedPropertyValues(String propertyName);
 
-    String getDomainTitle(Domain domain);
 }

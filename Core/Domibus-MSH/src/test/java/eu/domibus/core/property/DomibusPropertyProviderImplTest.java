@@ -381,17 +381,12 @@ public class DomibusPropertyProviderImplTest {
 
     @Test
     public void getDomainTitle(@Injectable Domain domain) {
-        String domainTitle = StringUtils.repeat("X", 51);
-        new Expectations(domibusPropertyProvider) {{
+        String domainTitle = StringUtils.repeat("X", 52);
+        new Expectations() {{
             domibusPropertyProvider.getProperty(domain, DOMAIN_TITLE);
             result = domainTitle;
         }};
-        try {
-MyException thrown = Assertions.assertThrows(DomibusPropertyException.class, () -> domibusPropertyProvider.getDomainTitle(domain));
-assertThat(thrown.getMessage(), containsString("Cannot change domain name to [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX] because it is greater than the maximum allowed length [50]"));
-            Assertions.fail();
-        } catch (DomibusPropertyException propertyException) {
-            Assertions.assertTrue(propertyException.getMessage().contains("Cannot change domain name to [XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX] because it is greater than the maximum allowed length [50]"));
-        }
+        String newDomainTitle = domibusPropertyProvider.getDomainTitle(domain);
+        Assertions.assertEquals(newDomainTitle.length(),50);
     }
 }
