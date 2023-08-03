@@ -62,8 +62,7 @@ public class JmsConfiguration {
 
     @Primary
     @Bean
-    JMSManager JMSManager(@Qualifier(ALERT_MESSAGE_QUEUE) Queue alertMessageQueue
-    ) {
+    JMSManager jmsManager(@Qualifier(ALERT_MESSAGE_QUEUE) Queue alertMessageQueue) {
         return new JMSManagerImpl() {
             @Override
             public void convertAndSendToQueue(final Object message, final Queue destination, final String selector) {
@@ -71,11 +70,13 @@ public class JmsConfiguration {
 
                     Consumer<Object> objectConsumer = getConsumer(selector);
                     if (objectConsumer != null) {
+                        LOG.debug("Override jms standard behaviour for destination [{}] and selector [{}]", destination, selector);
                         objectConsumer.accept(message);
                         return;
                     }
 
                 }
+                LOG.debug("No jms override");
                 super.convertAndSendToQueue(message, destination, selector);
 
             }
@@ -84,16 +85,17 @@ public class JmsConfiguration {
 
     private Consumer<Object> getConsumer(String selector) {
         Map<String, Consumer<Object>> map = new HashMap<>();
+        String currentDomainCode = domainContextServiceDelegate.getCurrentDomainSafely().getCode();
         map.put(ALERT_SELECTOR,
-                o -> alertListener.onAlert((Alert) o, domainContextServiceDelegate.getCurrentDomainSafely().getCode()));
+                o -> alertListener.onAlert((Alert) o, currentDomainCode));
         map.put(EventType.QueueSelectors.DEFAULT,
-                o -> defaultEventListener.onEvent((Event) o, domainContextServiceDelegate.getCurrentDomainSafely().getCode()));
+                o -> defaultEventListener.onEvent((Event) o, currentDomainCode));
         map.put(EventType.QueueSelectors.FREQUENCY,
-                o -> frequencyEventListener.onEvent((Event) o, domainContextServiceDelegate.getCurrentDomainSafely().getCode()));
+                o -> frequencyEventListener.onEvent((Event) o, currentDomainCode));
         map.put(EventType.QueueSelectors.REPETITIVE,
-                o -> repetitiveEventListener.onEvent((Event) o, domainContextServiceDelegate.getCurrentDomainSafely().getCode()));
+                o -> repetitiveEventListener.onEvent((Event) o, currentDomainCode));
         map.put(EventType.QueueSelectors.PLUGIN_EVENT,
-                o -> pluginEvenListener.onPluginEvent((Event) o, domainContextServiceDelegate.getCurrentDomainSafely().getCode()));
+                o -> pluginEvenListener.onPluginEvent((Event) o, currentDomainCode));
 
         return map.get(selector);
     }
