@@ -80,7 +80,7 @@ public class DomibusConditionUtil {
                 }
                 return true;
             } catch (final Exception e) {
-                LOG.warn("Could not find table TB_USER_MESSAGE for general schema [{}]",databaseSchema);
+                LOG.warn("Could not find table TB_USER_DOMAIN for general schema [{}]",databaseSchema);
                 return false;
             }
 
