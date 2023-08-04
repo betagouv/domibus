@@ -7,40 +7,50 @@ import org.hibernate.boot.model.relational.Database;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.service.ServiceRegistry;
 import org.hibernate.type.Type;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.Properties;
+import java.util.stream.Stream;
 
-import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// TODO: 14/06/2023 François GAUTIER @RunWith(value = Parameterized.class)
-@Disabled("EDELIVERY-6896")
-public class DomibusDatePrefixedSequenceIdGeneratorGeneratorTest {
-    // TODO: 14/06/2023 François GAUTIER @Parameterized.Parameters(name = "{index}: {0}")
-    // test desc. result local date, sequence
-    public static Collection<Object[]> data() {
-        return asList(new Object[][]{
-                {"Base Integer sequence generator", new Long("210809150000000050"), LocalDateTime.parse("2021-08-09T15:15:30"), Integer.valueOf(50)},
-                {"Base Long sequence generator ", new Long("210809150000000050"), LocalDateTime.parse("2021-08-09T15:15:30"), Long.valueOf(50)},
-                {"Base BigInteger sequence generator ", new Long("210809150000000050"), LocalDateTime.parse("2021-08-09T15:15:30"), BigInteger.valueOf(50)},
-                {"Base BigInteger change hour", new Long("210809170000000050"), LocalDateTime.parse("2021-08-09T17:15:30"), BigInteger.valueOf(50)},
-                {"Base BigInteger change sequence", new Long("210809150000013123"), LocalDateTime.parse("2021-08-09T15:15:30"), BigInteger.valueOf(13123)},
-                {"Base BigInteger change date", new Long("200101150000013123"), LocalDateTime.parse("2020-01-01T15:15:30"), BigInteger.valueOf(13123)},
+class DomibusDatePrefixedSequenceIdGeneratorGeneratorTest {
 
-        });
+    static Stream<Arguments> generateDomibus() {
+        return Stream.of(
+                Arguments.of("Base Integer sequence generator    ", Long.valueOf("210809150000000050"), LocalDateTime.parse("2021-08-09T15:15:30"), 50),
+                Arguments.of("Base Long sequence generator       ", Long.valueOf("210809150000000050"), LocalDateTime.parse("2021-08-09T15:15:30"), 50L),
+                Arguments.of("Base BigInteger sequence generator ", Long.valueOf("210809150000000050"), LocalDateTime.parse("2021-08-09T15:15:30"), BigInteger.valueOf(50)),
+                Arguments.of("Base BigInteger change hour        ", Long.valueOf("210809170000000050"), LocalDateTime.parse("2021-08-09T17:15:30"), BigInteger.valueOf(50)),
+                Arguments.of("Base BigInteger change sequence    ", Long.valueOf("210809150000013123"), LocalDateTime.parse("2021-08-09T15:15:30"), BigInteger.valueOf(13123)),
+                Arguments.of("Base BigInteger change date        ", Long.valueOf("200101150000013123"), LocalDateTime.parse("2020-01-01T15:15:30"), BigInteger.valueOf(13123))
+        );
+    }
+
+    @SuppressWarnings("unused")
+    @ParameterizedTest(name = "[{index}] {0}")
+    @MethodSource
+    void generateDomibus(String testName, Long result, LocalDateTime currentDate, Serializable generatedSequenceObject) {
+        // given
+        Mockito.when(testInstance.generate(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(generatedSequenceObject);
+        Mockito.when(testInstance.getCurrentDate()).thenReturn(currentDate);
+        // when
+        Serializable sequence = testInstance.generateDomibus(ArgumentMatchers.any(), ArgumentMatchers.any());
+        //then
+        assertEquals(result, sequence);
     }
 
     DomibusDatePrefixedSequenceIdGeneratorGenerator testInstance = Mockito.spy(new DomibusDatePrefixedSequenceIdGeneratorGenerator() {
         @Override
-        public void configure(Type type, Properties properties, ServiceRegistry serviceRegistry) throws MappingException {}
+        public void configure(Type type, Properties properties, ServiceRegistry serviceRegistry) throws MappingException {
+        }
 
         @Override
         public Object generatorKey() {
@@ -57,27 +67,4 @@ public class DomibusDatePrefixedSequenceIdGeneratorGeneratorTest {
         }
     });
 
-
-    String testName;
-    Long result;
-    LocalDateTime currentDate;
-    Serializable generatedSequenceObject;
-
-    public DomibusDatePrefixedSequenceIdGeneratorGeneratorTest(String testName, Long result, LocalDateTime currentDate, Serializable generatedSequenceObject) {
-        this.testName = testName;
-        this.result = result;
-        this.currentDate = currentDate;
-        this.generatedSequenceObject = generatedSequenceObject;
-    }
-
-    @Test
-    public void generateDomibus() {
-        // given
-        Mockito.when(testInstance.generate(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(generatedSequenceObject);
-        Mockito.when(testInstance.getCurrentDate()).thenReturn(currentDate);
-        // when
-        Serializable sequence = testInstance.generateDomibus(ArgumentMatchers.any(), ArgumentMatchers.any());
-        //then
-        assertEquals(result, sequence);
-    }
 }
