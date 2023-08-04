@@ -320,7 +320,6 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DATABASE_SCHEMA = "domibus.database.schema";
     String DOMIBUS_DATASOURCE_DRIVER_CLASS_NAME = "domibus.datasource.driverClassName";
     String DOMIBUS_DATASOURCE_URL = "domibus.datasource.url";
-    String DOMIBUS_DATASOURCE_REPLICA_URL = "domibus.datasource.replica.url";
     String DOMIBUS_DATASOURCE_USER = "domibus.datasource.user";
     String DOMIBUS_DATASOURCE_PASSWORD = "domibus.datasource.password";//NOSONAR
     String DOMIBUS_DATASOURCE_MAX_LIFETIME = "domibus.datasource.maxLifetime";
@@ -329,6 +328,17 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_DATASOURCE_IDLE_TIMEOUT = "domibus.datasource.idleTimeout";
     String DOMIBUS_DATASOURCE_MINIMUM_IDLE = "domibus.datasource.minimumIdle";
     String DOMIBUS_DATASOURCE_POOL_NAME = "domibus.datasource.poolName";
+
+    String DOMIBUS_DATASOURCE_REPLICA_DRIVER_CLASS_NAME = "domibus.datasource.replica.driverClassName";
+    String DOMIBUS_DATASOURCE_REPLICA_URL = "domibus.datasource.replica.url";
+    String DOMIBUS_DATASOURCE_REPLICA_USER = "domibus.datasource.replica.user";
+    String DOMIBUS_DATASOURCE_REPLICA_PASSWORD = "domibus.datasource.replica.password";//NOSONAR
+    String DOMIBUS_DATASOURCE_REPLICA_MAX_LIFETIME = "domibus.datasource.replica.maxLifetime";
+    String DOMIBUS_DATASOURCE_REPLICA_MAX_POOL_SIZE = "domibus.datasource.replica.maxPoolSize";
+    String DOMIBUS_DATASOURCE_REPLICA_CONNECTION_TIMEOUT = "domibus.datasource.replica.connectionTimeout";
+    String DOMIBUS_DATASOURCE_REPLICA_IDLE_TIMEOUT = "domibus.datasource.replica.idleTimeout";
+    String DOMIBUS_DATASOURCE_REPLICA_MINIMUM_IDLE = "domibus.datasource.replica.minimumIdle";
+    String DOMIBUS_DATASOURCE_REPLICA_POOL_NAME = "domibus.datasource.replica.poolName";
 
     String DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN = "domibus.entityManagerFactory.packagesToScan";
     String DOMIBUS_ENTITY_MANAGER_FACTORY_JPA_PROPERTY = "domibus.entityManagerFactory.jpaProperty";
