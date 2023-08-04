@@ -16,10 +16,9 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 /**
  * @author Ion Perpegel
  * @since 5.2
- *
+ * <p>
  * Base data source configuration that routes to either read-only or read-write datasources, depending on the readOnly property of a Transaction
  */
-@Configuration
 public abstract class BaseDatasourceConfiguration {
 
     @Bean(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
@@ -38,27 +37,19 @@ public abstract class BaseDatasourceConfiguration {
     }
 
     protected DataSource getActualDatasource(DomibusPropertyProvider domibusPropertyProvider) {
-        TransactionRoutingDataSource routingDataSource =
-                new TransactionRoutingDataSource();
+        TransactionRoutingDataSource routingDataSource = new TransactionRoutingDataSource();
 
         Map<Object, Object> dataSourceMap = new HashMap<>();
-        dataSourceMap.put(
-                DataSourceType.READ_WRITE,
-                getReadWriteDataSource(domibusPropertyProvider)
-        );
+        DataSource readWriteDataSource = getReadWriteDataSource(domibusPropertyProvider);
+        dataSourceMap.put(DataSourceType.READ_WRITE, readWriteDataSource);
 
         final String readOnlyDataSourceUrl = domibusPropertyProvider.getProperty(DOMIBUS_DATASOURCE_REPLICA_URL);
-        if(StringUtils.isNotBlank(readOnlyDataSourceUrl)) {
-            dataSourceMap.put(
-                    DataSourceType.READ_ONLY,
-                    getReadOnlyDataSource(domibusPropertyProvider)
-            );
+        if (StringUtils.isNotBlank(readOnlyDataSourceUrl)) {
+            DataSource readOnlyDataSource = getReadOnlyDataSource(domibusPropertyProvider);
+            dataSourceMap.put(DataSourceType.READ_ONLY, readOnlyDataSource);
         } else {
             // fallback to one datasource
-            dataSourceMap.put(
-                    DataSourceType.READ_ONLY,
-                    getReadWriteDataSource(domibusPropertyProvider)
-            );
+            dataSourceMap.put(DataSourceType.READ_ONLY, readWriteDataSource);
         }
 
         routingDataSource.setTargetDataSources(dataSourceMap);
