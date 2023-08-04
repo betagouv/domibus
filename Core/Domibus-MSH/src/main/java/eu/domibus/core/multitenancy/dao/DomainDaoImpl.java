@@ -37,6 +37,8 @@ public class DomainDaoImpl implements DomainDao {
 
     protected static final String DOMAIN_NAME_REGEX = "^[a-z0-9_]*$";
 
+    public static int DOMAIN_TITLE_MAX_LENGTH = 50;
+
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
     protected final DomibusConfigurationService domibusConfigurationService;
@@ -95,6 +97,10 @@ public class DomainDaoImpl implements DomainDao {
         String domainTitle = domibusPropertyProvider.getProperty(domain, DOMAIN_TITLE);
         if (StringUtils.isEmpty(domainTitle)) {
             domainTitle = domain.getCode();
+        }
+        if ((StringUtils.length(domainTitle) > DOMAIN_TITLE_MAX_LENGTH)) {
+            LOG.warn("Cannot change domain title to [{}] because it is greater than the maximum allowed length [{}].", domainTitle, DOMAIN_TITLE_MAX_LENGTH);
+            return StringUtils.left(domainTitle,50);
         }
         return domainTitle;
     }

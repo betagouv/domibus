@@ -61,8 +61,10 @@ public class DomibusStringUtilImpl implements DomibusStringUtil {
 
     @Override
     public boolean isValidString(String name) {
+        String validStringPattern = domibusPropertyProvider.getProperty(VALID_STRING_REGEX);
+        LOG.debug("validStringPattern read from file is [{}]", validStringPattern);
         String trimmedName = StringUtils.trim(name);
-        if (!trimmedName.matches(VALID_STRING_REGEX)) {
+        if (!trimmedName.matches(validStringPattern)) {
             return false;
         }
         return true;

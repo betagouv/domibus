@@ -1,6 +1,7 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.property.DomibusPropertyProvider;
+import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import static eu.domibus.api.util.DomibusStringUtil.VALID_STRING_REGEX;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -71,6 +73,11 @@ public class DomibusStringUtilImplTest {
 
     @Test
     public void isValidString_nok() {
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(VALID_STRING_REGEX);
+            result = "^[A-Za-z][A-Za-z0-9-_@.]*[A-Za-z0-9]$";
+        }};
+
         String inValidString = "blue+gw";
         boolean result = domibusStringUtil.isValidString(inValidString);
         Assertions.assertFalse(result);
@@ -79,6 +86,11 @@ public class DomibusStringUtilImplTest {
     @Test
     public void isValidString_ok() {
         String validString = "blue_gw";
+        new Expectations() {{
+            domibusPropertyProvider.getProperty(VALID_STRING_REGEX);
+            result = "^[A-Za-z][A-Za-z0-9-_@.]*[A-Za-z0-9]$";
+        }};
+
         boolean result = domibusStringUtil.isValidString(validString);
         Assertions.assertTrue(result);
     }

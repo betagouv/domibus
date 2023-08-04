@@ -519,11 +519,6 @@
         <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bcprov\-jdk18on@.*$</packageUrl>
         <!-- We're not using the affected functionality-->
         <vulnerabilityName>CVE-2023-33201</vulnerabilityName>
-        <!--
-        see EDELIVERY-10956 (vulnerability NPM-1088994 not affecting the project or affecting probability is low because we do not use comments)
-        -->
-        <packageUrl regex="true">^pkg:npm/%40angular%2Fcore@.*$</packageUrl>
-        <vulnerabilityName>1088994</vulnerabilityName>
     </suppress>
     <suppress>
         <notes><![CDATA[
