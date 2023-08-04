@@ -1,6 +1,7 @@
 package eu.domibus.api.util;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_VALID_STRING_PATTERN;
 
 /**
  * @author Soumya Chandran
@@ -8,7 +9,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  */
 public interface DomibusStringUtil {
 
-    String VALID_STRING_REGEX = "^[a-zA-Z0-9\\.@_-]*$";
+    String VALID_STRING_REGEX = DOMIBUS_VALID_STRING_PATTERN;
     String MESSAGE_ID_PATTERN = DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN;
     String unCamelCase(String str);
 
