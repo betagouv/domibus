@@ -5,6 +5,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ws.exception.WSPluginException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,6 +43,7 @@ public class WSBackendMessageLogServiceImpl implements WSBackendMessageLogServic
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<WSBackendMessageLogEntity> findAllWithFilter(String messageId, String originalSender, String finalRecipient, LocalDateTime receivedFrom, LocalDateTime receivedTo, int maxPendingMessagesRetrieveCount) {
         return wsBackendMessageLogDao.findAllFailedWithFilter(messageId, originalSender,
                 finalRecipient, receivedFrom, receivedTo, maxPendingMessagesRetrieveCount);

@@ -71,17 +71,17 @@ public class WebServicePluginImpl implements BackendInterface {
 
     private static final String DUPLICATE_MESSAGE_ID = "Duplicated message found, id [";
 
-    private MessageAcknowledgeExtService messageAcknowledgeExtService;
+    private final MessageAcknowledgeExtService messageAcknowledgeExtService;
 
     protected WebServicePluginExceptionFactory webServicePluginExceptionFactory;
 
     protected WSMessageLogDao wsMessageLogDao;
 
-    private DomainContextExtService domainContextExtService;
+    private final DomainContextExtService domainContextExtService;
 
     protected WSPluginPropertyManager wsPluginPropertyManager;
 
-    private AuthenticationExtService authenticationExtService;
+    private final AuthenticationExtService authenticationExtService;
 
     protected MessageExtService messageExtService;
 
@@ -119,7 +119,6 @@ public class WebServicePluginImpl implements BackendInterface {
     @Override
     public SubmitResponse submitMessage(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
         LOG.debug("Received message");
-
 
         if (ebMSHeaderInfo.getUserMessage().getMessageInfo() == null) {
             MessageInfo messageInfo = new MessageInfo();
@@ -270,7 +269,7 @@ public class WebServicePluginImpl implements BackendInterface {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300) // 5 minutes
+    @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, readOnly = true) // 5 minutes
     public ListPendingMessagesResponse listPendingMessages(final Object listPendingMessagesRequest) {
         DomainDTO domainDTO = domainContextExtService.getCurrentDomainSafely();
         LOG.info("ListPendingMessages for domain [{}]", domainDTO);
