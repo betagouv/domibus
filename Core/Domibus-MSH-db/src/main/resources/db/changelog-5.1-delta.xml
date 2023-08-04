@@ -150,6 +150,9 @@
         <sql dbms="mysql">
             CALL drop_index_if_exists('IDX_SIG_MESS_SIGNAL_MESS_ID', 'TB_SIGNAL_MESSAGE')
         </sql>
+        <sql dbms="mysql">
+            DROP PROCEDURE IF EXISTS drop_index_if_exists
+        </sql>
 
         <!--add column-->
         <addColumn tableName="TB_SIGNAL_MESSAGE">
@@ -214,6 +217,9 @@
         </sql>
         <sql dbms="mysql">
             CALL drop_constraint_if_exists('UK_SIGNAL_MSG_MESSAGE_ID', 'TB_SIGNAL_MESSAGE');
+        </sql>
+        <sql dbms="mysql">
+            DROP PROCEDURE IF EXISTS drop_constraint_if_exists
         </sql>
         <addUniqueConstraint columnNames="SIGNAL_MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE"/>
 
