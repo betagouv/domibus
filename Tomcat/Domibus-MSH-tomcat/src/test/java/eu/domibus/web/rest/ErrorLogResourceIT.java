@@ -23,6 +23,7 @@ import java.util.Date;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
@@ -111,6 +112,29 @@ public class ErrorLogResourceIT extends AbstractIT {
         Assertions.assertEquals(mockMessageId, errorLogResultRO.getErrorLogEntries().get(0).getMessageInErrorId());
         Assertions.assertEquals(MSHRole.SENDING, errorLogResultRO.getErrorLogEntries().get(0).getMshRole());
         Assertions.assertEquals(ErrorCode.EBMS_0004, errorLogResultRO.getErrorLogEntries().get(0).getErrorCode());
+    }
+
+    @Test
+    void getCsv_OK() throws Exception {
+        MvcResult result = mockMvc.perform(get("/rest/errorlogs/csv")
+                        .contentType("text/html; charset=UTF-8")
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf())
+                        .param("orderBy", "timestamp")
+                        .param("asc", "false")
+                        .param("page", "0")
+                        .param("pageSize", "10")
+
+                )
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(header().exists("Content-Disposition"))
+                .andReturn();
+
+
+        // then
+        String csv = result.getResponse().getContentAsString();
+        Assertions.assertNotNull(csv);
+        Assertions.assertTrue(csv.contains(mockMessageId));
     }
 
 }
