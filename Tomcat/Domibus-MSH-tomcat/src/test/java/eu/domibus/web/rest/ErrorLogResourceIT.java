@@ -1,4 +1,4 @@
-package eu.domibus.rest;
+package eu.domibus.web.rest;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.MSHRole;
