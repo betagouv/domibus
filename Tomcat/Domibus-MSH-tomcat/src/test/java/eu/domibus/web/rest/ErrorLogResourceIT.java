@@ -7,20 +7,27 @@ import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.dictionary.MshRoleDao;
-import eu.domibus.web.rest.ErrorLogResource;
 import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
 import eu.domibus.web.rest.ro.ErrorLogResultRO;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.Date;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
 public class ErrorLogResourceIT extends AbstractIT {
+    private MockMvc mockMvc;
 
     @Autowired
     UserMessageDao userMessageDao;
@@ -34,11 +41,18 @@ public class ErrorLogResourceIT extends AbstractIT {
     @Autowired
     MshRoleDao mshRoleDao;
 
-    private String mockMessageId = "9008713e-1912-460c-97b3-40ec12a29f49@domibus.eu";
+    private final String mockMessageId = "9008713e-1912-460c-97b3-40ec12a29f49@domibus.eu";
 
     @BeforeEach
     public void setUp() {
         createEntries();
+        this.mockMvc = MockMvcBuilders.standaloneSetup(errorLogResource)
+                .build();
+    }
+
+    @AfterEach
+    void tearDown() {
+        deleteEntries();
     }
 
     @Test
@@ -68,6 +82,35 @@ public class ErrorLogResourceIT extends AbstractIT {
         logEntry.setTimestamp(new Date());
         logEntry.setUserMessage(userMessageDao.findByEntityId(19700101L));
         errorLogDao.create(logEntry);
+    }
+
+    private void deleteEntries() {
+        errorLogDao.deleteErrorLogsByMessageIdInError(Collections.singletonList(19700101L));
+    }
+
+    @Test
+    void getErrorLog_OK() throws Exception {
+        MvcResult result = mockMvc.perform(get("/rest/errorlogs")
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf())
+                        .param("orderBy", "timestamp")
+                        .param("asc", "false")
+                        .param("page", "0")
+                        .param("pageSize", "10")
+
+                )
+                .andExpect(status().is2xxSuccessful())
+                .andReturn();
+
+        // then
+        String content = result.getResponse().getContentAsString();
+
+        ErrorLogResultRO errorLogResultRO = objectMapper.readValue(content, ErrorLogResultRO.class);
+        Assertions.assertNotNull(errorLogResultRO);
+        Assertions.assertEquals(1, errorLogResultRO.getErrorLogEntries().size());
+        Assertions.assertEquals(mockMessageId, errorLogResultRO.getErrorLogEntries().get(0).getMessageInErrorId());
+        Assertions.assertEquals(MSHRole.SENDING, errorLogResultRO.getErrorLogEntries().get(0).getMshRole());
+        Assertions.assertEquals(ErrorCode.EBMS_0004, errorLogResultRO.getErrorLogEntries().get(0).getErrorCode());
     }
 
 }
