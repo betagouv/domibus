@@ -4,6 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.common.MSHRole;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,7 +29,7 @@ public class MessageResourceIT extends AbstractIT {
     }
 
     @Test
-    void checkCanDownload_existing_message() throws Exception {
+    void checkCanDownload_OK() throws Exception {
         MvcResult result = mockMvc.perform(get("/rest/message/exists")
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf())
@@ -68,7 +69,7 @@ public class MessageResourceIT extends AbstractIT {
     }
 
     @Test
-    void downloadUserMessage() throws Exception {
+    void downloadUserMessage_OK() throws Exception {
         String messageId = "msg_ack_100";
         MvcResult result = mockMvc.perform(get("/rest/message/download")
                         .contentType("text/html; charset=UTF-8")
@@ -87,4 +88,34 @@ public class MessageResourceIT extends AbstractIT {
         String content = result.getResponse().getContentAsString();
         Assertions.assertNotNull(content);
     }
+
+    //TODO IB !!!! not working. I need an envelope for tests
+    @Test
+    @Disabled
+    void downloadEnvelopes_OK() throws Exception {
+        String messageId = "msg_ack_100";
+        MvcResult result = mockMvc.perform(get("/rest/message/envelopes")
+                        .contentType("text/html; charset=UTF-8")
+                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                        .with(csrf())
+                        .param("messageId", messageId)
+                        .param("mshRole", MSHRole.RECEIVING.name())
+
+                )
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(header().string("Content-Disposition", "attachment; filename=message_envelopes_" + messageId + ".zip"))
+                .andExpect(content().contentTypeCompatibleWith("application/zip"))
+                .andReturn();
+
+
+        String content = result.getResponse().getContentAsString();
+        Assertions.assertNotNull(content);
+    }
+
+    //TODO IB !!!! write test for resend
+
+    //TODO IB !!!! write test for restoreSelectedFailedMessages
+
+    //TODO IB !!!! write test for restoreFilteredFailedMessages
+
 }
