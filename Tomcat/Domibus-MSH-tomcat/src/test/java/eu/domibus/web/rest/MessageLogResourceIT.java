@@ -36,7 +36,7 @@ class MessageLogResourceIT extends AbstractIT {
     void tearDown() {
     }
 
-    //TODO IB !!!! need message with log here
+    //TODO needs data
     @Test
     @Disabled
     void getMessageLog() throws Exception {
@@ -59,10 +59,11 @@ class MessageLogResourceIT extends AbstractIT {
 
     //TODO IB !!!! write test for getCsv
     @Test
+    @Disabled
     void getCsv() {
     }
 
-    //TODO IB !!!! we need test messages for this to work. There are none
+    //TODO needs data
     @Test
     @Disabled
     void getLastTestSent_OK() throws Exception {

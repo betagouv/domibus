@@ -89,7 +89,7 @@ public class MessageResourceIT extends AbstractIT {
         Assertions.assertNotNull(content);
     }
 
-    //TODO IB !!!! not working. I need an envelope for tests
+    //TODO needs data
     @Test
     @Disabled
     void downloadEnvelopes_OK() throws Exception {

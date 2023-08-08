@@ -53,7 +53,7 @@ public class ErrorLogResourceIT extends AbstractIT {
 
     @AfterEach
     void tearDown() {
-        deleteEntries();
+        errorLogDao.deleteErrorLogsByMessageIdInError(Collections.singletonList(19700101L));
     }
 
     @Test
@@ -75,20 +75,6 @@ public class ErrorLogResourceIT extends AbstractIT {
         Assertions.assertTrue(csv.contains(mockMessageId));
     }
 
-    private void createEntries() {
-        ErrorLogEntry logEntry = new ErrorLogEntry();
-        logEntry.setMessageInErrorId(mockMessageId);
-        logEntry.setMshRole(mshRoleDao.findOrCreate(MSHRole.SENDING));
-        logEntry.setErrorCode(ErrorCode.EBMS_0004);
-        logEntry.setTimestamp(new Date());
-        logEntry.setUserMessage(userMessageDao.findByEntityId(19700101L));
-        errorLogDao.create(logEntry);
-    }
-
-    private void deleteEntries() {
-        errorLogDao.deleteErrorLogsByMessageIdInError(Collections.singletonList(19700101L));
-    }
-
     @Test
     void getErrorLog_OK() throws Exception {
         MvcResult result = mockMvc.perform(get("/rest/errorlogs")
@@ -103,9 +89,7 @@ public class ErrorLogResourceIT extends AbstractIT {
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
 
-        // then
         String content = result.getResponse().getContentAsString();
-
         ErrorLogResultRO errorLogResultRO = objectMapper.readValue(content, ErrorLogResultRO.class);
         Assertions.assertNotNull(errorLogResultRO);
         Assertions.assertEquals(1, errorLogResultRO.getErrorLogEntries().size());
@@ -130,11 +114,18 @@ public class ErrorLogResourceIT extends AbstractIT {
                 .andExpect(header().exists("Content-Disposition"))
                 .andReturn();
 
-
-        // then
         String csv = result.getResponse().getContentAsString();
         Assertions.assertNotNull(csv);
         Assertions.assertTrue(csv.contains(mockMessageId));
     }
 
+    private void createEntries() {
+        ErrorLogEntry logEntry = new ErrorLogEntry();
+        logEntry.setMessageInErrorId(mockMessageId);
+        logEntry.setMshRole(mshRoleDao.findOrCreate(MSHRole.SENDING));
+        logEntry.setErrorCode(ErrorCode.EBMS_0004);
+        logEntry.setTimestamp(new Date());
+        logEntry.setUserMessage(userMessageDao.findByEntityId(19700101L));
+        errorLogDao.create(logEntry);
+    }
 }
