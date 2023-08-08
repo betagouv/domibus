@@ -902,7 +902,7 @@
             <column name="REF_TO_MESSAGE_ID"/>
         </createIndex>
 
-        <addUniqueConstraint columnNames="SIGNAL_MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="IDX_SIG_MESS_SIGNAL_MESS_ID" tableName="TB_SIGNAL_MESSAGE"/>
+        <addUniqueConstraint columnNames="SIGNAL_MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE"/>
 
         <createTable tableName="TB_SIGNAL_MESSAGE_LOG">
             <column name="ID_PK" type="BIGINT">
@@ -3052,7 +3052,7 @@
     </changeSet>
 
     <changeSet dbms="mysql" author="idragusa" id="EDELIVERY-11509"> <!-- oracle creates index for the unique constraint -->
-        <createIndex indexName="IDX_SIG_MESS_SIGNAL_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
+        <createIndex indexName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE">
             <column name="SIGNAL_MESSAGE_ID"/>
         </createIndex>
     </changeSet>
