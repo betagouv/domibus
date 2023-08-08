@@ -140,7 +140,7 @@ class MessageLogResourceIT extends AbstractIT {
     }
 
     @Test
-    void getLastTestSent_Not_Found() throws Exception {
+    void getLastTestSent_Not_Found() {
         Exception exception = Assertions.assertThrows(Exception.class,
                 () -> mockMvc.perform(get("/rest/messagelog/test/outgoing/latest")
                     .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
@@ -154,7 +154,7 @@ class MessageLogResourceIT extends AbstractIT {
     }
 
     @Test
-    void getLastTestReceived_Not_Found() throws Exception {
+    void getLastTestReceived_Not_Found() {
         Exception exception = Assertions.assertThrows(Exception.class,
                 () -> mockMvc.perform(get("/rest/messagelog/test/incoming/latest")
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
