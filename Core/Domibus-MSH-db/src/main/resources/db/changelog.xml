@@ -3050,12 +3050,4 @@
             CREATE INDEX IDX_USER_LOG_RECEIVED ON TB_USER_MESSAGE_LOG(RECEIVED) REVERSE;
         </sql>
     </changeSet>
-
-<!--    <changeSet dbms="mysql" author="idragusa" id="EDELIVERY-11509"> &lt;!&ndash; oracle creates index for the unique constraint &ndash;&gt;-->
-<!--        <createIndex indexName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE">-->
-<!--            <column name="SIGNAL_MESSAGE_ID"/>-->
-<!--        </createIndex>-->
-<!--    </changeSet>-->
-
-
 </databaseChangeLog>
