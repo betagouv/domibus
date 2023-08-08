@@ -3,8 +3,6 @@ package eu.domibus.web.rest;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.plugin.BackendConnectorService;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
-import eu.domibus.core.message.MessageStatusDao;
-import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.plugin.BackendConnector;
@@ -46,12 +44,6 @@ class MessageLogResourceIT extends AbstractIT {
 
     @Autowired
     private MessageLogResource messageLogResource;
-
-    @Autowired
-    MessageStatusDao messageStatusDao;
-
-    @Autowired
-    MshRoleDao mshRoleDao;
 
     @Autowired
     BackendConnectorProvider backendConnectorProvider;

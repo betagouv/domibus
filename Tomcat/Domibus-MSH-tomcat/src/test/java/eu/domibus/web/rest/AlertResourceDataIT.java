@@ -97,7 +97,7 @@ public class AlertResourceDataIT  extends AbstractIT {
         Assertions.assertTrue(csv.contains("PLUGIN"));
     }
 
-    //TODO IB !!!! processAlerts
+    //TODO IB !!!! add tests processAlerts
 
     private Alert createAlert() {
         Event event = new Event();
