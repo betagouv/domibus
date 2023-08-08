@@ -3051,11 +3051,11 @@
         </sql>
     </changeSet>
 
-    <changeSet dbms="mysql" author="idragusa" id="EDELIVERY-11509"> <!-- oracle creates index for the unique constraint -->
-        <createIndex indexName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE">
-            <column name="SIGNAL_MESSAGE_ID"/>
-        </createIndex>
-    </changeSet>
+<!--    <changeSet dbms="mysql" author="idragusa" id="EDELIVERY-11509"> &lt;!&ndash; oracle creates index for the unique constraint &ndash;&gt;-->
+<!--        <createIndex indexName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE">-->
+<!--            <column name="SIGNAL_MESSAGE_ID"/>-->
+<!--        </createIndex>-->
+<!--    </changeSet>-->
 
 
 </databaseChangeLog>
