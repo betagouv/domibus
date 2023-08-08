@@ -28,6 +28,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * @author Ionut Breaz
+ * @since 5.1
+ */
+
 public class AlertResourceDataIT  extends AbstractIT {
     private MockMvc mockMvc;
 

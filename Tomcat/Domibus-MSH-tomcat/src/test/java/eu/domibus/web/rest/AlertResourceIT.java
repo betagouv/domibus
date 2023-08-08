@@ -22,6 +22,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * @author Ionut Breaz
+ * @since 5.1
+ */
+
 public class AlertResourceIT  extends AbstractIT {
     private MockMvc mockMvc;
 
