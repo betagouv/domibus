@@ -7,6 +7,7 @@ import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.dictionary.MshRoleDao;
+import eu.domibus.test.common.CsvUtil;
 import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
 import eu.domibus.web.rest.ro.ErrorLogResultRO;
 import org.junit.jupiter.api.*;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -41,6 +43,9 @@ public class ErrorLogResourceIT extends AbstractIT {
 
     @Autowired
     MshRoleDao mshRoleDao;
+
+    @Autowired
+    CsvUtil csvUtil;
 
     private final String mockMessageId = "9008713e-1912-460c-97b3-40ec12a29f49@domibus.eu";
 
@@ -116,7 +121,18 @@ public class ErrorLogResourceIT extends AbstractIT {
 
         String csv = result.getResponse().getContentAsString();
         Assertions.assertNotNull(csv);
-        Assertions.assertTrue(csv.contains(mockMessageId));
+
+        List<List<String>> csvRecords = csvUtil.getCsvRecords(csv);
+        Assertions.assertEquals(2, csvRecords.size());
+        List<String> header = csvRecords.get(0);
+        List<String> row = csvRecords.get(1);
+        Assertions.assertEquals("AP Role", header.get(1));
+        Assertions.assertEquals(MSHRole.SENDING.name(), row.get(1));
+        Assertions.assertEquals("Message Id", header.get(2));
+        Assertions.assertEquals(mockMessageId, row.get(2));
+        Assertions.assertEquals("Error Code", header.get(3));
+        Assertions.assertEquals("EBMS_0004", row.get(3));
+
     }
 
     private void createEntries() {

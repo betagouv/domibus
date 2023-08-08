@@ -10,6 +10,7 @@ import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.alerts.model.web.AlertRo;
+import eu.domibus.test.common.CsvUtil;
 import eu.domibus.web.rest.ro.AlertResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -44,6 +45,9 @@ public class AlertResourceDataIT  extends AbstractIT {
 
     @Autowired
     EventDao eventDao;
+
+    @Autowired
+    CsvUtil csvUtil;
 
     Alert newAlert;
 
@@ -99,10 +103,18 @@ public class AlertResourceDataIT  extends AbstractIT {
 
         String csv = result.getResponse().getContentAsString();
         Assertions.assertNotNull(csv);
-        Assertions.assertTrue(csv.contains("PLUGIN"));
-    }
 
-    //TODO IB !!!! add tests processAlerts
+        List<List<String>> csvRecords = csvUtil.getCsvRecords(csv);
+        Assertions.assertEquals(2, csvRecords.size());
+        List<String> header = csvRecords.get(0);
+        List<String> row = csvRecords.get(1);
+        Assertions.assertEquals("Alert Type", header.get(2));
+        Assertions.assertEquals("PLUGIN", row.get(2));
+        Assertions.assertEquals("Alert Level", header.get(3));
+        Assertions.assertEquals("LOW", row.get(3));
+        Assertions.assertEquals("Alert Status", header.get(4));
+        Assertions.assertEquals("SUCCESS", row.get(4));
+    }
 
     private Alert createAlert() {
         Event event = new Event();
