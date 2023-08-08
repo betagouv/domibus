@@ -1,5 +1,6 @@
 package eu.domibus.test;
 
+import eu.domibus.api.datasource.DataSourceConstants;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.multitenancy.Domain;
@@ -10,8 +11,13 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.awaitility.Awaitility;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +37,10 @@ public class DomibusConditionUtil {
     @Autowired
     protected DbSchemaUtil dbSchemaUtil;
 
+    @Qualifier(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
+    @Autowired
+    private DataSource dataSource;
+
     public void waitUntilDatabaseIsInitialized() {
         with().pollInterval(500, TimeUnit.MILLISECONDS).await().atMost(120, TimeUnit.SECONDS).until(databaseIsInitialized());
     }
@@ -39,9 +49,11 @@ public class DomibusConditionUtil {
         return () -> {
             boolean defaultOk = dbSchemaUtil.isDatabaseSchemaForDomainValid(new Domain("default", "default"));
             boolean redOk = dbSchemaUtil.isDatabaseSchemaForDomainValid(new Domain("red", "default"));
-            boolean result = defaultOk && redOk;
+            boolean generalOk = doIsDatabaseGeneralSchemaReady();
+            boolean result = defaultOk && redOk && generalOk;
             String msg =
-                    "default schema is " + getModifier(defaultOk) + " ready. " +
+                    "general schema is " + getModifier(generalOk) + " ready, " +
+                    "default schema is " + getModifier(defaultOk) + " ready, " +
                     "red schema is " + getModifier(redOk) + " ready. ";
             if (!result) {
                 LOG.warn(msg);
@@ -50,6 +62,32 @@ public class DomibusConditionUtil {
             }
             return result;
         };
+    }
+
+    protected Boolean doIsDatabaseGeneralSchemaReady() {
+        String databaseSchema = dbSchemaUtil.getGeneralSchema();
+
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+
+            dbSchemaUtil.setSchema(connection, databaseSchema);
+
+            try {
+                try (final Statement statement = connection.createStatement()) {
+                    String query = "SELECT * FROM TB_USER_DOMAIN";
+                    statement.execute(query);
+                    LOG.trace("Executed statement [{}] for schema [{}]", query, databaseSchema);
+                }
+                return true;
+            } catch (final Exception e) {
+                LOG.warn("Could not find table TB_USER_DOMAIN for general schema [{}]",databaseSchema);
+                return false;
+            }
+
+        } catch (SQLException e) {
+            LOG.warn("Could not create a connection for general schema [{}].", databaseSchema);
+            return false;
+        }
     }
 
     private static String getModifier(boolean redOk) {
