@@ -43,6 +43,7 @@ public class PModeDefaultService implements PModeService {
     PModeValidationHelper pModeValidationHelper;
 
     @Override
+    @Transactional(readOnly = true)
     public LegConfiguration getLegConfiguration(Long messageEntityId) {
         final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
         boolean isPull = mpcService.forcePullOnMpc(userMessage);

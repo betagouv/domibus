@@ -42,17 +42,17 @@ public class PartyResource extends BaseResource {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyResource.class);
     private static final String DELIMITER = ", ";
 
-    private PartyCoreMapper partyCoreMapper;
+    private final PartyCoreMapper partyCoreMapper;
 
-    private PartyService partyService;
+    private final PartyService partyService;
 
-    private CertificateService certificateService;
+    private final CertificateService certificateService;
 
-    private PModeValidationHelper pModeValidationHelper;
+    private final PModeValidationHelper pModeValidationHelper;
 
-    private MultiDomainCryptoService multiDomainCertificateProvider;
+    private final MultiDomainCryptoService multiDomainCertificateProvider;
 
-    private DomainContextProvider domainProvider;
+    private final DomainContextProvider domainProvider;
 
     public PartyResource(PartyCoreMapper partyCoreMapper,
                          PartyService partyService,
