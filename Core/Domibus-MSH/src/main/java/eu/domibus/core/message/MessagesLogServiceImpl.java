@@ -11,6 +11,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -53,6 +54,7 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countMessages(MessageType messageType, Map<String, Object> filters) {
         MessageLogDao dao = getMessageLogDao(messageType);
         return dao.countEntries(filters);
@@ -62,6 +64,7 @@ public class MessagesLogServiceImpl implements MessagesLogService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public MessageLogResultRO countAndFindPaged(MessageType messageType, int from, int max, String column, boolean asc, Map<String, Object> filters) {
         MessageLogResultRO result = new MessageLogResultRO();
 
@@ -79,6 +82,7 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<MessageLogInfo> findAllInfoCSV(MessageType messageType, int max, String orderByColumn, boolean asc, Map<String, Object> filters) {
         MessageLogDao dao = getMessageLogDao(messageType);
         return dao.findAllInfoPaged(0, max, orderByColumn, asc, filters);

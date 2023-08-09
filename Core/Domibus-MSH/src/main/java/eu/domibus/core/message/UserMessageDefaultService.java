@@ -75,6 +75,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  * @since 3.3
  */
 @Service
+// TODO: class too large, too many autowired services; needs splitting
 public class UserMessageDefaultService implements UserMessageService {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultService.class);
@@ -133,16 +134,7 @@ public class UserMessageDefaultService implements UserMessageService {
     private JMSManager jmsManager;
 
     @Autowired
-    PModeServiceHelper pModeServiceHelper;
-
-    @Autowired
     private MessageCoreMapper messageCoreMapper;
-
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
-
-    @Autowired
-    protected UserMessageFactory userMessageFactory;
 
     @Autowired
     private ErrorLogService errorLogService;
@@ -166,9 +158,6 @@ public class UserMessageDefaultService implements UserMessageService {
     protected PartInfoService partInfoService;
 
     @Autowired
-    protected MessagePropertyDao messagePropertyDao;
-
-    @Autowired
     private ReprogrammableService reprogrammableService;
 
     @Autowired
@@ -179,9 +168,6 @@ public class UserMessageDefaultService implements UserMessageService {
 
     @Autowired
     ReceiptDao receiptDao;
-
-    @Autowired
-    private MessagesLogService messagesLogService;
 
     @Autowired
     private FileServiceUtil fileServiceUtil;
@@ -196,6 +182,7 @@ public class UserMessageDefaultService implements UserMessageService {
     protected EntityManager em;
 
     @Override
+    @Transactional(readOnly = true)
     public String getFinalRecipient(String messageId, MSHRole mshRole) {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
@@ -206,6 +193,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public String getOriginalSender(String messageId, MSHRole mshRole) {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
@@ -216,12 +204,14 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<String> getFailedMessages(String finalRecipient, String originalUser) {
         LOG.debug("Provided finalRecipient is [{}]", finalRecipient);
         return userMessageLogDao.findFailedMessages(finalRecipient, originalUser);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Long getFailedMessageElapsedTime(String messageId) {
         final UserMessageLog userMessageLog = getFailedMessage(messageId);
         final Date failedDate = userMessageLog.getFailed();
@@ -229,7 +219,6 @@ public class UserMessageDefaultService implements UserMessageService {
             throw new UserMessageException(DomibusCoreErrorCode.DOM_001, "Could not compute failed elapsed time for message [" + messageId + "]: failed date is empty");
         }
         return System.currentTimeMillis() - failedDate.getTime();
-
     }
 
     @Transactional
@@ -443,17 +432,20 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public eu.domibus.api.usermessage.domain.UserMessage getMessage(String messageId, MSHRole mshRole) {
         final UserMessage userMessageByMessageId = getMessageEntity(messageId, mshRole);
         return messageCoreMapper.userMessageToUserMessageApi(userMessageByMessageId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserMessage getMessageEntity(String messageId, MSHRole role) {
         return userMessageDao.findByMessageId(messageId, role);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserMessage getMessageEntity(Long messageEntityId) {
         return userMessageDao.findByEntityId(messageEntityId);
     }
@@ -526,7 +518,6 @@ public class UserMessageDefaultService implements UserMessageService {
 
         return userMessageLog;
     }
-
 
     @Transactional
     @Override
@@ -697,6 +688,7 @@ public class UserMessageDefaultService implements UserMessageService {
         }
     }
 
+    @Transactional(readOnly = true)
     public void checkCanGetMessageContent(String messageId, MSHRole mshRole) {
         UserMessageLog message = userMessageLogDao.findByMessageId(messageId, mshRole);
         if (message == null) {
@@ -716,6 +708,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public byte[] getMessageAsBytes(String messageId, MSHRole mshRole) throws MessageNotFoundException {
         UserMessage userMessage = getUserMessageById(messageId, mshRole);
         auditService.addMessageDownloadedAudit(messageId, mshRole);
@@ -724,6 +717,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public byte[] getMessageWithAttachmentsAsZip(String messageId, MSHRole mshRole) throws MessageNotFoundException, IOException {
         checkCanGetMessageContent(messageId, mshRole);
         Map<String, InputStream> message = getMessageContentWithAttachments(messageId, mshRole);
@@ -731,6 +725,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public byte[] getMessageEnvelopesAsZip(String messageId, MSHRole mshRole) {
         Map<String, InputStream> envelopes = nonRepudiationService.getMessageEnvelopes(messageId, mshRole);
         if (envelopes.isEmpty()) {
@@ -746,16 +741,19 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public String getUserMessageEnvelope(String userMessageId, MSHRole mshRole) {
         return nonRepudiationService.getUserMessageEnvelope(userMessageId, mshRole);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public String getSignalMessageEnvelope(String userMessageId, MSHRole mshRole) {
         return nonRepudiationService.getSignalMessageEnvelope(userMessageId, mshRole);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserMessage getByMessageId(String messageId) {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
@@ -784,6 +782,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserMessage getByMessageId(String messageId, MSHRole mshRole) throws MessageNotFoundException {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
@@ -793,6 +792,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserMessage getByMessageEntityId(long messageEntityId) throws MessageNotFoundException {
         final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
         if (userMessage == null) {

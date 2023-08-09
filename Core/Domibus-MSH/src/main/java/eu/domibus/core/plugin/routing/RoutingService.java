@@ -74,6 +74,7 @@ public class RoutingService {
         backendFiltersCache.remove(currentDomain);
     }
 
+    @Transactional(readOnly = true)
     public List<BackendFilter> getBackendFiltersWithCache() {
         final Domain currentDomain = domainContextProvider.getCurrentDomain();
         LOG.trace("Get backend filters with cache for domain [{}]", currentDomain);
