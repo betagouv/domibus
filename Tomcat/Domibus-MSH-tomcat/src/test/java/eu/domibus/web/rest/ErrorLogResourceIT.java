@@ -7,7 +7,7 @@ import eu.domibus.core.error.ErrorLogDao;
 import eu.domibus.core.error.ErrorLogEntry;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.dictionary.MshRoleDao;
-import eu.domibus.test.common.CsvUtil;
+import eu.domibus.common.CsvUtil;
 import eu.domibus.web.rest.ro.ErrorLogFilterRequestRO;
 import eu.domibus.web.rest.ro.ErrorLogResultRO;
 import org.junit.jupiter.api.*;
@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -29,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Transactional
-public class ErrorLogResourceIT extends AbstractIT {
+class ErrorLogResourceIT extends AbstractIT {
     private MockMvc mockMvc;
 
     @Autowired
@@ -56,13 +55,8 @@ public class ErrorLogResourceIT extends AbstractIT {
                 .build();
     }
 
-    @AfterEach
-    void tearDown() {
-        errorLogDao.deleteErrorLogsByMessageIdInError(Collections.singletonList(19700101L));
-    }
-
     @Test
-    public void testFindErrorLogEntries() {
+    void testFindErrorLogEntries() {
         ErrorLogFilterRequestRO filters = new ErrorLogFilterRequestRO();
 
         ErrorLogResultRO result = errorLogResource.getErrorLog(filters);
@@ -71,7 +65,7 @@ public class ErrorLogResourceIT extends AbstractIT {
     }
 
     @Test
-    public void testCsv() {
+    void testCsv() {
         ErrorLogFilterRequestRO filters = new ErrorLogFilterRequestRO();
 
         ResponseEntity<String> result = errorLogResource.getCsv(filters);
@@ -132,7 +126,6 @@ public class ErrorLogResourceIT extends AbstractIT {
         Assertions.assertEquals(mockMessageId, row.get(2));
         Assertions.assertEquals("Error Code", header.get(3));
         Assertions.assertEquals("EBMS_0004", row.get(3));
-
     }
 
     private void createEntries() {

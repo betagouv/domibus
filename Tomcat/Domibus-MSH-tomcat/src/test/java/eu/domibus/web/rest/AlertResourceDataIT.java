@@ -10,7 +10,7 @@ import eu.domibus.core.alerts.model.common.EventType;
 import eu.domibus.core.alerts.model.persist.Alert;
 import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.alerts.model.web.AlertRo;
-import eu.domibus.test.common.CsvUtil;
+import eu.domibus.common.CsvUtil;
 import eu.domibus.web.rest.ro.AlertResult;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import javax.transaction.Transactional;
 import java.util.*;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -34,7 +35,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @since 5.1
  */
 
-public class AlertResourceDataIT  extends AbstractIT {
+@Transactional
+class AlertResourceDataIT  extends AbstractIT {
     private MockMvc mockMvc;
 
     @Autowired
@@ -58,15 +60,8 @@ public class AlertResourceDataIT  extends AbstractIT {
         newAlert = createAlert();
     }
 
-    @AfterEach
-    void tearDown() {
-        Set<Event> events = newAlert.getEvents();
-        alertDao.delete(newAlert);
-        eventDao.deleteAll(events);
-    }
-
     @Test
-    public void findAlerts_OK() throws Exception {
+    void findAlerts_OK() throws Exception {
         MvcResult result = mockMvc.perform(get("/rest/alerts")
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf())

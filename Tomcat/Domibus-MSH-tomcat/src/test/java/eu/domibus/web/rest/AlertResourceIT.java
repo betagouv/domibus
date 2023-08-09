@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @since 5.1
  */
 
-public class AlertResourceIT  extends AbstractIT {
+class AlertResourceIT  extends AbstractIT {
     private MockMvc mockMvc;
 
     @Autowired
@@ -43,22 +43,22 @@ public class AlertResourceIT  extends AbstractIT {
     }
 
     @Test
-    public void getAlertTypes_OK() throws Exception {
+    void getAlertTypes_OK() throws Exception {
         checkListResult("/rest/alerts/types", AlertType.values().length - forbiddenAlertTypesExtAuthProvider.size());
     }
 
     @Test
-    public void getAlertLevels_OK() throws Exception {
+    void getAlertLevels_OK() throws Exception {
         checkListResult("/rest/alerts/levels", AlertLevel.values().length);
     }
 
     @Test
-    public void getAlertStatus_OK() throws Exception {
+    void getAlertStatus_OK() throws Exception {
         checkListResult("/rest/alerts/status", AlertStatus.values().length);
     }
 
     @Test
-    public void getAlertParameters_OK() throws Exception {
+    void getAlertParameters_OK() throws Exception {
         MvcResult result = mockMvc.perform(get("/rest/alerts/params")
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf())

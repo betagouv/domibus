@@ -1,4 +1,4 @@
-package eu.domibus.test.common;
+package eu.domibus.common;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
