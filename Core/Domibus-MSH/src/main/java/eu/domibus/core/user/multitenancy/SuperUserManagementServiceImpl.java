@@ -47,6 +47,7 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
      * @return the list of users from the general schema
      */
     @Override
+    @Transactional(readOnly = true)
     public List<eu.domibus.api.user.User> findUsers() {
         LOG.debug("Searching for super users");
         return domainTaskExecutor.submit(() -> super.findUsers(this::getPreferredDomainForUser));
@@ -63,6 +64,7 @@ public class SuperUserManagementServiceImpl extends UserManagementServiceImpl {
      * @return the list of users from the general schema
      */
     @Override
+    @Transactional(readOnly = true)
     public List<eu.domibus.api.user.User> findUsersWithFilters(AuthRole authRole, String userName, String deleted, int page, int pageSize) {
         LOG.debug("Searching for super users");
         return domainTaskExecutor.submit(() -> super.findUsersWithFilters(authRole, userName, deleted, page, pageSize, this::getPreferredDomainForUser));
