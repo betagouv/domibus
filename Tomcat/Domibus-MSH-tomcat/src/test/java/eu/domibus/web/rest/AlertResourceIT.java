@@ -3,7 +3,6 @@ package eu.domibus.web.rest;
 import com.fasterxml.jackson.core.type.TypeReference;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.alerts.AlertLevel;
-import eu.domibus.core.alerts.dao.AlertDao;
 import eu.domibus.core.alerts.model.common.AlertStatus;
 import eu.domibus.core.alerts.model.common.AlertType;
 import org.junit.jupiter.api.Assertions;
@@ -32,9 +31,6 @@ class AlertResourceIT  extends AbstractIT {
 
     @Autowired
     AlertResource alertResource;
-
-    @Autowired
-    AlertDao alertDao;
 
     @BeforeEach
     public void setUp() {

@@ -12,7 +12,6 @@ import eu.domibus.core.alerts.model.persist.Event;
 import eu.domibus.core.alerts.model.web.AlertRo;
 import eu.domibus.common.CsvUtil;
 import eu.domibus.web.rest.ro.AlertResult;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
