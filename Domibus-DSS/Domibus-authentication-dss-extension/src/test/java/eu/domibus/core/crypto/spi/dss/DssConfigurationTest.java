@@ -4,21 +4,20 @@ import eu.domibus.ext.services.*;
 import eu.europa.esig.dss.validation.CertificateVerifier;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Iterator;
 
 @ExtendWith(JMockitExtension.class)
-public class DssConfigurationTest {
+class DssConfigurationTest {
 
     @Injectable
     String dssTlsTrustStorePassword = "pwd";
@@ -57,42 +56,25 @@ public class DssConfigurationTest {
     private DssConfiguration dssConfiguration;
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void mergeCustomTlsTrustStoreWithCacert(
-            @Mocked KeyStore customTlsTrustStore,
-            @Mocked KeyStore cacertTrustStore,
-            @Mocked Enumeration enumeration,
-            @Mocked Certificate cert) throws KeyStoreException {
+    void mergeCustomTlsTrustStoreWithCacert(
+            @Injectable KeyStore customTlsTrustStore,
+            @Injectable KeyStore cacertTrustStore,
+            @Injectable Certificate cert) throws KeyStoreException {
         final String cacertAlias = "cacertAlias";
+
+        String gateway_truststore = getClass().getClassLoader().getResource("gateway_truststore.jks").getPath();
+        ReflectionTestUtils.setField(dssConfiguration, "dssTlsTrustStorePath", gateway_truststore);
         new Expectations(dssConfiguration) {{
-            KeyStore.getInstance("${domibus.dss.ssl.trust.store.type}");
-            result = customTlsTrustStore;
-            new MockUp<FileInputStream>() {
+            new MockUp<KeyStore>() {
                 @Mock
-                void $init(String fileName) {
+                public KeyStore getInstance(String type) {
+                    return customTlsTrustStore;
                 }
-
-                @Mock
-                int read() {
-                    return 123;
-                }
-
-                @Mock
-                public void close() throws IOException {
-                    System.out.println("Closing file input stream");
-                }
-
-                ;
             };
             dssConfiguration.loadCacertTrustStore();
             result = cacertTrustStore;
             cacertTrustStore.aliases();
-            result = enumeration;
-
-            enumeration.hasMoreElements();
-            returns(true, false);
-            enumeration.nextElement();
-            result = cacertAlias;
+            result = getStringEnumeration(cacertAlias);
             cacertTrustStore.getCertificate(cacertAlias);
             result = cert;
         }};
@@ -103,9 +85,26 @@ public class DssConfigurationTest {
         }};
     }
 
+    private static Enumeration<String> getStringEnumeration(String cacertAlias) {
+        Enumeration<String> enumeration = new Enumeration<String>() {
+            final Iterator<String> a = Arrays.asList(cacertAlias).iterator();
+
+            @Override
+            public boolean hasMoreElements() {
+                return a.hasNext();
+            }
+
+            @Override
+            public String nextElement() {
+                return a.next();
+            }
+        };
+        return enumeration;
+    }
+
 
     @Test
-    public void loadCacertTrustStoreFromDefaultLocation(@Mocked KeyStore keyStore) {
+    void loadCacertTrustStoreFromDefaultLocation(@Injectable KeyStore keyStore) {
         final String cacertPath = "";
         ReflectionTestUtils.setField(dssConfiguration, "cacertPath", cacertPath);
         final String cacertType = "cacertType";
@@ -116,7 +115,8 @@ public class DssConfigurationTest {
         new Expectations(dssConfiguration) {{
             dssConfiguration.getJavaHome();
             result = "\\home";
-            dssConfiguration.loadKeystore(anyString, cacertType, cacertPassword);times=1;
+            dssConfiguration.loadKeystore(anyString, cacertType, cacertPassword);
+            times=1;
             result = keyStore;
         }};
         dssConfiguration.loadCacertTrustStore();
@@ -124,7 +124,7 @@ public class DssConfigurationTest {
     }
 
     @Test
-    public void loadCacertTrustStoreFromCustomLocation(@Mocked KeyStore keyStore) {
+    void loadCacertTrustStoreFromCustomLocation(@Injectable KeyStore keyStore) {
 
         final String cacertPath = "cacertPath";
         ReflectionTestUtils.setField(dssConfiguration, cacertPath, cacertPath);
@@ -133,7 +133,8 @@ public class DssConfigurationTest {
         final String cacertPassword = "cacertPassword";
         ReflectionTestUtils.setField(dssConfiguration, cacertPassword, cacertPassword);
         new Expectations(dssConfiguration) {{
-            dssConfiguration.loadKeystore(cacertPath, cacertType, cacertPassword);times=1;
+            dssConfiguration.loadKeystore(cacertPath, cacertType, cacertPassword);
+            times=1;
             result = keyStore;
         }};
         dssConfiguration.loadCacertTrustStore();

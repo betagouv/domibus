@@ -13,23 +13,19 @@ import mockit.Injectable;
 import mockit.Tested;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Ion Perpegel
  * @since 4.2
  */
-// TODO: 14/06/2023 François GAUTIER  @RunWith(Parameterized.class)
-@Disabled("EDELIVERY-6896")
-public class ConnectionMonitoringHelperEnabledPartiesPropertyTest {
+class ConnectionMonitoringHelperEnabledPartiesPropertyTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ConnectionMonitoringHelperEnabledPartiesPropertyTest.class);
 
@@ -58,7 +54,7 @@ public class ConnectionMonitoringHelperEnabledPartiesPropertyTest {
 
         List<Party> knownParties = Arrays.asList(party1, party2, party3);
         List<String> testablePartyIds = Arrays.asList("domibus-blue", "domibus-red");
-        List<String> senderPartyIds = Arrays.asList("domibus-blue");
+        List<String> senderPartyIds = Collections.singletonList("domibus-blue");
 
         new Expectations() {{
             pModeProvider.findAllParties();
@@ -70,46 +66,30 @@ public class ConnectionMonitoringHelperEnabledPartiesPropertyTest {
         }};
     }
 
-  //  @Parameterized.Parameter(0)
-    public String value;
-
-  //  @Parameterized.Parameter(1)
-    public boolean valid;
-
-    //todo fga @Parameterized.Parameters(name = "Test setting propertyValue=\"{0}\"")
-    public static Collection<Object[]> testedValues() {
-        return Arrays.asList(new Object[][]{
-                // invalid values :
-                {"#$%%$^&", false},
-                {"<foo val=“bar” />", false},
-                {"１２３", false},
-                {"domibus-unknowncolor,domibus-blue", false},
-                {"domibus-blue,domibus-red,domibus-green", false},
-                {"domibus-bluish", false},
-                {"domibus-blue2>domibus-red2, domibus-blue>domibus-blue", false},
-                // valid values :
-                {"domibus-blue>domibus-red, domibus-blue>domibus-blue", true},
-                {"domibus-blue>domibus-blue, domibus-blue>domibus-blue", true},
-                {" ,, domibus-blue>domibus-blue  , ", true},
-                {"domibus-blue>Domibus-BLUE", true},
-        });
+    @ParameterizedTest
+    @ValueSource(strings = {"domibus-blue>domibus-red, domibus-blue>domibus-blue",
+            "domibus-blue>domibus-blue, domibus-blue>domibus-blue",
+            " ,, domibus-blue>domibus-blue  , ",
+            "domibus-blue>Domibus-BLUE"})
+    void propertyValueChanged_valid(String value) {
+        connectionMonitoringHelper.validateEnabledPartiesValue(value);
     }
 
-    @Test
-    public void propertyValueChanged() {
+    @ParameterizedTest
+    @ValueSource(strings = {"#$%%$^&",
+            "<foo val=“bar” />",
+            "１２３",
+            "domibus-unknowncolor,domibus-blue",
+            "domibus-blue,domibus-red,domibus-green",
+            "domibus-bluish",
+            "domibus-blue2>domibus-red2, domibus-blue>domibus-blue"})
+    void propertyValueChanged_notValid(String value) {
         try {
             connectionMonitoringHelper.validateEnabledPartiesValue(value);
 
-            if (!valid) {
-                Assertions.fail("[" + value + "] property value shouldn't have been accepted");
-            }
+            Assertions.fail("[" + value + "] property value shouldn't have been accepted");
         } catch (DomibusPropertyException ex) {
-            if (!valid) {
-                LOG.info("Exception thrown as expected when trying to set invalid property value: [{}]", value, ex);
-            } else {
-                LOG.error("Unexpected exception thrown when trying to set valid property value: [{}]", value, ex);
-                Assertions.fail("[" + value + "] property value should have been accepted");
-            }
+            LOG.info("Exception thrown as expected when trying to set invalid property value: [{}]", value, ex);
         }
     }
 }
