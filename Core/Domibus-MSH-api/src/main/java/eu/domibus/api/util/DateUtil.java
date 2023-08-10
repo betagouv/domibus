@@ -60,13 +60,8 @@ public interface DateUtil {
 
     long getDiffMinutesBetweenDates(Date date1, Date date2);
 
-    /**
-     * Parse a string date to an ID_PK
-     *
-     * @param date of format YYYY-MM-dd'T'HH'H' or YYYY-MM-dd with formatter {@link #REST_FORMATTER}
-     * @return date of format YYMMDDHH0000000000
-     */
-    Long getIdPkDateHour(String date);
+    LocalDateTime getLocalDateTime(String date);
+
 
     /**
      * Parse a date to an ID_PK prefix

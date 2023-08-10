@@ -18,9 +18,6 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MIN;
-import static java.time.format.DateTimeFormatter.ofPattern;
-
 /**
  * @author Cosmin Baciu
  * @author Sebastian-Ion TINCU
@@ -114,16 +111,18 @@ public class DateUtilImpl implements DateUtil {
     }
 
     @Override
-    public Long getIdPkDateHour(String date) {
+    public LocalDateTime getLocalDateTime(String date) {
         if (StringUtils.isBlank(date)) {
             throw new DomibusDateTimeException(date, REST_FORMATTER_PATTERNS_MESSAGE);
         }
         try {
             LocalDateTime localDateTime = LocalDateTime.parse(date, REST_FORMATTER);
-            String format = getUtcLocalDateTime(localDateTime).format(ofPattern(DATETIME_FORMAT_DEFAULT));
-            return Long.parseLong(format + MIN);
+            return getUtcLocalDateTime(localDateTime);
         } catch (Exception e) {
             throw new DomibusDateTimeException(date, REST_FORMATTER_PATTERNS_MESSAGE, e);
         }
     }
+
+
+
 }

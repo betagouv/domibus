@@ -3,6 +3,7 @@ package eu.domibus.core.message;
 import com.google.common.collect.Maps;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.TsidUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -12,10 +13,6 @@ import javax.persistence.TypedQuery;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
-
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.*;
-import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.util.Locale.ENGLISH;
 
 /**
  * @author Tiago Miguel
@@ -53,6 +50,9 @@ public abstract class MessageLogInfoFilter {
 
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
+
+    @Autowired
+    TsidUtil tsidUtil;
 
     protected String getHQLKey(String originalColumn) {
         switch (originalColumn) {
@@ -166,12 +166,14 @@ public abstract class MessageLogInfoFilter {
                     LOG.trace(" zonedDateTime is [{}]", zonedDateTime);
                     switch (filter.getKey()) {
                         case "minEntityId":
-                            value = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MIN);
-                            LOG.debug("Turned [{}] into min entityId [{}]", filter.getValue(), (Long)value);
+                            value = tsidUtil.zonedTimeDateToTsid(zonedDateTime);
+//                            value = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MIN);
+                            LOG.debug("Turned [{}] into min entityId [{}]", filter.getValue(), value);
                             break;
                         case "maxEntityId":
-                            value = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
-                            LOG.debug("Turned [{}] into max entityId [{}]", filter.getValue(), (Long)value);
+                            value = tsidUtil.zonedTimeDateToMaxTsid(zonedDateTime);
+//                            value = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+                            LOG.debug("Turned [{}] into max entityId [{}]", filter.getValue(), value);
                             break;
                         default: // includes receivedFrom and receivedTo
                             break;

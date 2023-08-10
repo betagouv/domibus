@@ -103,7 +103,8 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     @Override
     public Long getStartDateContinuousArchive() {
-        return eArchiveBatchUtils.extractDateFromPKUserMessageId(eArchiveBatchStartDao.read(CONTINUOUS_ID).getLastPkUserMessage());
+        final EArchiveBatchStart eArchiveBatchStart = eArchiveBatchStartDao.read(CONTINUOUS_ID);
+        return eArchiveBatchUtils.extractDateFromPKUserMessageId(eArchiveBatchStart.getLastPkUserMessage());
     }
 
     @Override

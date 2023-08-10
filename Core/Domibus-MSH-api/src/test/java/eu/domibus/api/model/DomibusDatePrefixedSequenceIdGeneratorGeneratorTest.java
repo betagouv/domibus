@@ -38,14 +38,9 @@ public class DomibusDatePrefixedSequenceIdGeneratorGeneratorTest {
         });
     }
 
-    DomibusDatePrefixedSequenceIdGeneratorGenerator testInstance = Mockito.spy(new DomibusDatePrefixedSequenceIdGeneratorGenerator() {
+    DatePrefixedGenericSequenceIdGenerator testInstance = Mockito.spy(new DatePrefixedGenericSequenceIdGenerator() {
         @Override
         public void configure(Type type, Properties properties, ServiceRegistry serviceRegistry) throws MappingException {}
-
-        @Override
-        public Object generatorKey() {
-            return null;
-        }
 
         @Override
         public void registerExportables(Database database) {
@@ -74,9 +69,8 @@ public class DomibusDatePrefixedSequenceIdGeneratorGeneratorTest {
     public void generateDomibus() {
         // given
         Mockito.when(testInstance.generate(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(generatedSequenceObject);
-        Mockito.when(testInstance.getCurrentDate()).thenReturn(currentDate);
         // when
-        Serializable sequence = testInstance.generateDomibus(ArgumentMatchers.any(), ArgumentMatchers.any());
+        Serializable sequence = testInstance.generate(ArgumentMatchers.any(), ArgumentMatchers.any());
         //then
         assertEquals(result, sequence);
     }

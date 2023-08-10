@@ -1,5 +1,6 @@
 package eu.domibus.core.converter;
 
+import eu.domibus.api.util.TsidUtil;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.mapper.EventMapperImpl_;
 import eu.domibus.core.earchive.EArchiveBatchUtils;
@@ -30,6 +31,9 @@ public abstract class AbstractMapperTest {
         @Injectable
         private UserMessageLogDao userMessageLogDao;
 
+        @Injectable
+        private TsidUtil tsidUtil;
+
         @Bean
         public EventMapper eventMapper() {
             return new EventMapperImpl_();
@@ -37,7 +41,7 @@ public abstract class AbstractMapperTest {
 
         @Bean
         public EArchiveBatchUtils eArchiveBatchUtils() {
-            return new EArchiveBatchUtils(userMessageLogDao);
+            return new EArchiveBatchUtils(userMessageLogDao, tsidUtil);
         }
 
         @Bean

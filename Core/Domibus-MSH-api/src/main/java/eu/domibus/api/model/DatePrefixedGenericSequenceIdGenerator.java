@@ -1,99 +1,57 @@
 package eu.domibus.api.model;
 
-import eu.domibus.api.property.DataBaseEngine;
-import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.spring.SpringContextProvider;
+import io.hypersistence.tsid.TSID;
 import org.hibernate.HibernateException;
 import org.hibernate.MappingException;
-import org.hibernate.boot.model.relational.Database;
-import org.hibernate.boot.model.relational.SqlStringGenerationContext;
-import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.id.enhanced.TableGenerator;
+import org.hibernate.id.Configurable;
+import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.service.ServiceRegistry;
-import org.hibernate.type.LongType;
 import org.hibernate.type.Type;
-import org.springframework.context.ApplicationContext;
 
 import java.io.Serializable;
 import java.util.Properties;
 
 /**
- * New sequence format generator. The method generates a new sequence using current date and a fixed length (10 digits) increment.
+ * Domibus primary key generator. Generates TSID(Time-Sorted Unique Identifiers (TSID)) primary keys keys.
+ *
+ * <p>
+ * TSID has 2 components:
+ * <ul
+ * <li>
+ * Time component (42 bits). This is the count of milliseconds since 2020-01-01 00:00:00 UTC.
+ * </li>
+ * <li>
+ * Random component (22 bits). The Random component has 2 sub-parts: Node ID (0 to 20 bits) and Counter (2 to 22 bits)
+ * </li>
+ * </ul>
+ * </p>
+ * <p>
+ * For more details see https://github.com/vladmihalcea/hypersistence-tsid for more details.
  *
  * @author François Gautier
+ * @author Cosmin Baciu
  * @since 5.0
  */
-public class DatePrefixedGenericSequenceIdGenerator implements DomibusDatePrefixedSequenceIdGeneratorGenerator {
-
-    public static final String DATA_BASE_ENGINE_IS_UNKNOWN = "DataBaseEngine is unknown [";
-    public static final String POOLED = "pooled";
-    public static final String INITIAL_VALUE = "1000";
-    public static final String INC_PARAM = "50";
-    public static final String TRUE = "true";
-    private final DatePrefixedOracleSequenceIdGenerator datePrefixedOracleSequenceIdGenerator = new DatePrefixedOracleSequenceIdGenerator();
-    private final DatePrefixedMysqlSequenceIdGenerator datePrefixedMysqlSequenceIdGenerator = new DatePrefixedMysqlSequenceIdGenerator();
-    private DataBaseEngine dataBaseEngine = null;
+public class DatePrefixedGenericSequenceIdGenerator implements IdentifierGenerator, Configurable {
 
     @Override
     public void configure(Type type, Properties params,
                           ServiceRegistry serviceRegistry) throws MappingException {
-        params.put(TableGenerator.OPT_PARAM, POOLED);
-        params.put(TableGenerator.INITIAL_PARAM, INITIAL_VALUE);
-        params.put(TableGenerator.INCREMENT_PARAM, INC_PARAM);
-        params.put(TableGenerator.CONFIG_PREFER_SEGMENT_PER_ENTITY, TRUE);
-        datePrefixedOracleSequenceIdGenerator.configure(LongType.INSTANCE, params, serviceRegistry);
-        datePrefixedMysqlSequenceIdGenerator.configure(LongType.INSTANCE, params, serviceRegistry);
-    }
-
-    private void initDbEngine() {
-        if (dataBaseEngine != null) {
-            return;
-        }
-        ApplicationContext applicationContext = SpringContextProvider.getApplicationContext();
-        if (applicationContext == null) {
-            return;
-        }
-        DomibusConfigurationService domibusConfigurationService = applicationContext.getBean(DomibusConfigurationService.class);
-        dataBaseEngine = domibusConfigurationService.getDataBaseEngine();
-    }
-
-    public DomibusDatePrefixedSequenceIdGeneratorGenerator getGenerator() {
-        initDbEngine();
-        if (DataBaseEngine.ORACLE == dataBaseEngine) {
-            return datePrefixedOracleSequenceIdGenerator;
-        }
-        if (DataBaseEngine.MYSQL == dataBaseEngine || DataBaseEngine.H2 == dataBaseEngine) {
-            return datePrefixedMysqlSequenceIdGenerator;
-        }
-        throw new IllegalStateException(DATA_BASE_ENGINE_IS_UNKNOWN + dataBaseEngine + "]");
+        //add initialization logic
     }
 
     /**
-     * @return id of the shape: yyMMddHHDDDDDDDDDD ex: 210809150000000050
+     * Generates a TSID id. Eg: 477188111301737216
+     * It creates a TSID factory for each generation to minimize the risk of collisions
      */
     @Override
-    public Serializable generate(SharedSessionContractImplementor session,
-                                 Object object) throws HibernateException {
-        return getGenerator().generateDomibus(session, object);
+    public Serializable generate(SharedSessionContractImplementor session, Object object) throws HibernateException {
+        TSID.Factory tsidFactory = TSID.Factory.builder()
+                .withRandomFunction(TSID.Factory.THREAD_LOCAL_RANDOM_FUNCTION)
+                .build();
+        final TSID tsid = tsidFactory.generate();
+        final long generatedNumber = tsid.toLong();
+        return generatedNumber;
     }
-
-    @Override
-    public Object generatorKey() {
-        return getGenerator().generatorKey();
-    }
-
-    @Override
-    public void registerExportables(Database database) {
-        datePrefixedOracleSequenceIdGenerator.registerExportables(database);
-        datePrefixedMysqlSequenceIdGenerator.registerExportables(database);
-    }
-
-    @Override
-    public void initialize(SqlStringGenerationContext context) {
-        datePrefixedOracleSequenceIdGenerator.initialize(context);
-        datePrefixedMysqlSequenceIdGenerator.initialize(context);
-    }
-
-
 }

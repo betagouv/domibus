@@ -1,6 +1,7 @@
 package eu.domibus.ext.delegate.services.earchive;
 
 import eu.domibus.api.earchive.*;
+import eu.domibus.api.util.TsidUtil;
 import eu.domibus.ext.delegate.mapper.EArchiveExtMapper;
 import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.services.DomibusEArchiveExtService;
@@ -13,8 +14,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER;
-
 /**
  * @author François Gautier
  * @since 5.0
@@ -25,9 +24,12 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
     private final DomibusEArchiveService domibusEArchiveService;
     private final EArchiveExtMapper eArchiveExtMapper;
 
-    public DomibusEArchiveServiceDelegate(DomibusEArchiveService domibusEArchiveService, EArchiveExtMapper eArchiveExtMapper) {
+    protected TsidUtil tsidUtil;
+
+    public DomibusEArchiveServiceDelegate(DomibusEArchiveService domibusEArchiveService, EArchiveExtMapper eArchiveExtMapper, TsidUtil tsidUtil) {
         this.domibusEArchiveService = domibusEArchiveService;
         this.eArchiveExtMapper = eArchiveExtMapper;
+        this.tsidUtil = tsidUtil;
     }
 
     @Override
@@ -123,17 +125,23 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
 
     @Override
     public List<String> getNotArchivedMessages(NotArchivedMessagesFilterDTO filter, Integer pageStart, Integer pageSize) {
+        final long startMessageId = tsidUtil.dateToTsid(filter.getMessageStartDate());
+        final long endMessageId = tsidUtil.dateToTsid(filter.getMessageEndDate());
+
         return domibusEArchiveService.getNotArchivedMessages(
-                dateToPKUserMessageId(filter.getMessageStartDate()),
-                dateToPKUserMessageId(filter.getMessageEndDate()),
+                startMessageId,
+                endMessageId,
                 pageStart, pageSize);
     }
 
     @Override
     public Long getNotArchivedMessageCount(NotArchivedMessagesFilterDTO filter) {
+        final long startMessageId = tsidUtil.dateToTsid(filter.getMessageStartDate());
+        final long endMessageId = tsidUtil.dateToTsid(filter.getMessageEndDate());
+
         return domibusEArchiveService.getNotArchivedMessagesCount(
-                dateToPKUserMessageId(filter.getMessageStartDate()),
-                dateToPKUserMessageId(filter.getMessageEndDate()));
+                startMessageId,
+                endMessageId);
     }
 
     /**
@@ -186,9 +194,12 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
             filter.getStatuses().forEach(requestedStatusType -> archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.valueOf(requestedStatusType.name())));
         }
 
+        final long startMessageId = tsidUtil.dateToTsid(filter.getMessageStartDate());
+        final long endMessageId = tsidUtil.dateToTsid(filter.getMessageEndDate());
+
         // set filter
-        archiveBatchFilter.setMessageStartId(dateToPKUserMessageId(filter.getMessageStartDate()));
-        archiveBatchFilter.setMessageEndId(dateToPKUserMessageId(filter.getMessageEndDate()));
+        archiveBatchFilter.setMessageStartId(startMessageId);
+        archiveBatchFilter.setMessageEndId(endMessageId);
         archiveBatchFilter.setIncludeReExportedBatches(filter.getIncludeReExportedBatches());
 
         // set pagination
@@ -200,12 +211,8 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
 
     private void setBatchRequestTypes(EArchiveBatchFilter archiveBatchFilter, List<BatchRequestType> requestTypes) {
         requestTypes.forEach(batchRequestType -> archiveBatchFilter.getRequestTypes().add(EArchiveRequestType.valueOf(batchRequestType.name())));
-        if(archiveBatchFilter.getRequestTypes().contains(EArchiveRequestType.CONTINUOUS)) {
+        if (archiveBatchFilter.getRequestTypes().contains(EArchiveRequestType.CONTINUOUS)) {
             archiveBatchFilter.getRequestTypes().add(EArchiveRequestType.SANITIZER);
         }
-    }
-
-    protected Long dateToPKUserMessageId(Long pkUserMessageDate) {
-        return pkUserMessageDate == null ? null : pkUserMessageDate * (MAX_INCREMENT_NUMBER + 1);
     }
 }

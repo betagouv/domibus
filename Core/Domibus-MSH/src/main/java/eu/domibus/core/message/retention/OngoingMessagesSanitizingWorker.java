@@ -7,6 +7,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.api.util.TsidUtil;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
@@ -23,7 +24,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MIN;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /**
@@ -57,6 +57,9 @@ public class OngoingMessagesSanitizingWorker  extends DomibusQuartzJobBean {
     @Autowired
     private DateUtil dateUtil;
 
+    @Autowired
+    TsidUtil tsidUtil;
+
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
         LOG.debug("OngoingMessagesSanitizingWorker to be executed");
@@ -73,8 +76,7 @@ public class OngoingMessagesSanitizingWorker  extends DomibusQuartzJobBean {
         long lastMessageId = Long.MAX_VALUE;
         if(maxRetention > 0) {
             Date lastDateNotBeingProcessed = DateUtils.addMinutes(dateUtil.getUtcDate(), maxRetention * -1);
-            String idPrefix = dateUtil.getIdPkDateHourPrefix(lastDateNotBeingProcessed);
-            lastMessageId = Long.parseLong(idPrefix + MIN);
+            lastMessageId = tsidUtil.dateToTsid(lastDateNotBeingProcessed);
         }
         List<EArchiveBatchUserMessage> messagesNotFinalAsc = userMessageLogDao.findMessagesNotFinalAsc(0, lastMessageId);
         if(messagesNotFinalAsc.isEmpty()){

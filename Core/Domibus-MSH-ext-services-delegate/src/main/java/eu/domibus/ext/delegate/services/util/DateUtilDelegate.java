@@ -2,6 +2,7 @@ package eu.domibus.ext.delegate.services.util;
 
 import eu.domibus.api.exceptions.DomibusDateTimeException;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.api.util.TsidUtil;
 import eu.domibus.ext.exceptions.DomibusDateTimeExtException;
 import eu.domibus.ext.services.DateExtService;
 import org.springframework.stereotype.Service;
@@ -20,8 +21,11 @@ public class DateUtilDelegate implements DateExtService {
 
     private final DateUtil dateUtil;
 
-    public DateUtilDelegate(DateUtil dateUtil) {
+    private final TsidUtil tsidUtil;
+
+    public DateUtilDelegate(DateUtil dateUtil, TsidUtil tsidUtil) {
         this.dateUtil = dateUtil;
+        this.tsidUtil = tsidUtil;
     }
 
     /**
@@ -42,7 +46,8 @@ public class DateUtilDelegate implements DateExtService {
     @Override
     public Long getIdPkDateHour(String date) {
         try {
-            return dateUtil.getIdPkDateHour(date);
+            final LocalDateTime localDateTime = dateUtil.getLocalDateTime(date);
+            return tsidUtil.localDateTimeToTsid(localDateTime);
         } catch (DomibusDateTimeException e) {
             throw new DomibusDateTimeExtException("Could not get IdPK from date [" + date + "]", e);
         }

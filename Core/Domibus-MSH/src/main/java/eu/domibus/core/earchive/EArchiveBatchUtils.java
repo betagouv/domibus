@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive;
 
+import eu.domibus.api.util.TsidUtil;
 import eu.domibus.core.message.UserMessageLogDao;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
@@ -9,8 +10,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER;
-
 /**
  * @author Joze Rihtarsic
  * @since 5.0
@@ -19,8 +18,11 @@ import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerat
 public class EArchiveBatchUtils {
     private final UserMessageLogDao userMessageLogDao;
 
-    public EArchiveBatchUtils(UserMessageLogDao userMessageLogDao) {
+    protected TsidUtil tsidUtil;
+
+    public EArchiveBatchUtils(UserMessageLogDao userMessageLogDao, TsidUtil tsidUtil) {
         this.userMessageLogDao = userMessageLogDao;
+        this.tsidUtil = tsidUtil;
     }
 
     public List<String> getMessageIds(List<EArchiveBatchUserMessage> userMessageDtos) {
@@ -44,11 +46,11 @@ public class EArchiveBatchUtils {
         if (pkUserMessage == null) {
             return null;
         }
-        return pkUserMessage / (MAX_INCREMENT_NUMBER + 1);
+        return tsidUtil.getDateFromTsid(pkUserMessage);
     }
 
-    Long dateToPKUserMessageId(Long pkUserMessageDate) {
-        return pkUserMessageDate == null ? null : pkUserMessageDate * (MAX_INCREMENT_NUMBER + 1);
+    public Long dateToPKUserMessageId(Long pkUserMessageDate) {
+        return tsidUtil.dateToTsid(new Date(pkUserMessageDate));
     }
 
     public int getLastIndex(List<EArchiveBatchUserMessage> batchUserMessages) {
