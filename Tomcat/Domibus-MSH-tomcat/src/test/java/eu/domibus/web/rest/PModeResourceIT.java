@@ -47,6 +47,7 @@ class PModeResourceIT extends AbstractIT {
         // Upload
         InputStream inputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream();
         MockMultipartFile multiPartFile = new MockMultipartFile("file", "pmode1.xml", MimeTypeUtils.APPLICATION_XML_VALUE, IOUtils.toByteArray(inputStream));
+        inputStream.close();
         mockMvc.perform(multipart("/rest/pmode")
                         .file(multiPartFile)
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
@@ -80,6 +81,7 @@ class PModeResourceIT extends AbstractIT {
         String downloadedContent = downloadResult.getResponse().getContentAsString();
         inputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream();
         String pmodeText = IOUtils.toString(inputStream, UTF_8);
+        inputStream.close();
         Assertions.assertEquals(pmodeText, downloadedContent);
     }
 }
