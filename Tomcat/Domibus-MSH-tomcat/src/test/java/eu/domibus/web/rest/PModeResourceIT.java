@@ -57,27 +57,27 @@ class PModeResourceIT extends AbstractIT {
                 .andReturn();
 
         // Get current
-        MvcResult result1 = mockMvc.perform(get("/rest/pmode/current")
+        MvcResult getCurrentResult = mockMvc.perform(get("/rest/pmode/current")
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf())
                 )
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
 
-        String content1 = result1.getResponse().getContentAsString();
-        PModeResponseRO pmodeResponseRO = objectMapper.readValue(content1, PModeResponseRO.class);
+        String getCurrentContent = getCurrentResult.getResponse().getContentAsString();
+        PModeResponseRO pmodeResponseRO = objectMapper.readValue(getCurrentContent, PModeResponseRO.class);
         Assertions.assertTrue(pmodeResponseRO.isCurrent());
         Assertions.assertEquals("testPmode", pmodeResponseRO.getDescription());
 
         // Download
-        MvcResult result2 = mockMvc.perform(get("/rest/pmode/" + pmodeResponseRO.getId())
+        MvcResult downloadResult = mockMvc.perform(get("/rest/pmode/" + pmodeResponseRO.getId())
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf())
                 )
                 .andExpect(status().is2xxSuccessful())
                 .andReturn();
 
-        String downloadedContent = result2.getResponse().getContentAsString();
+        String downloadedContent = downloadResult.getResponse().getContentAsString();
         inputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream();
         String pmodeText = IOUtils.toString(inputStream, UTF_8);
         Assertions.assertEquals(pmodeText, downloadedContent);
