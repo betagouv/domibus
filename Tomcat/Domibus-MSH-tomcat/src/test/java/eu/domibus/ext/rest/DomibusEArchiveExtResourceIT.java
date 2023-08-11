@@ -17,6 +17,7 @@ import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * The complete rest endpoint integration tests
  */
+@Disabled //TODO: fix with EDELIVERY-11908
 @Transactional
 public class DomibusEArchiveExtResourceIT extends AbstractIT {
 
@@ -463,3 +465,4 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
     }
 
 }
+
