@@ -47,6 +47,7 @@ class ErrorLogResourceIT extends AbstractIT {
     CsvUtil csvUtil;
 
     private final String mockMessageId = "9008713e-1912-460c-97b3-40ec12a29f49@domibus.eu";
+    private final ErrorCode mockErrorCode = ErrorCode.EBMS_0048;
 
     @BeforeEach
     public void setUp() {
@@ -79,6 +80,8 @@ class ErrorLogResourceIT extends AbstractIT {
         MvcResult result = mockMvc.perform(get("/rest/errorlogs")
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf())
+                        .param("messageInErrorId", mockMessageId)
+                        .param("errorCode", mockErrorCode.name())
                         .param("orderBy", "timestamp")
                         .param("asc", "false")
                         .param("page", "0")
@@ -94,7 +97,7 @@ class ErrorLogResourceIT extends AbstractIT {
         Assertions.assertEquals(1, errorLogResultRO.getErrorLogEntries().size());
         Assertions.assertEquals(mockMessageId, errorLogResultRO.getErrorLogEntries().get(0).getMessageInErrorId());
         Assertions.assertEquals(MSHRole.SENDING, errorLogResultRO.getErrorLogEntries().get(0).getMshRole());
-        Assertions.assertEquals(ErrorCode.EBMS_0004, errorLogResultRO.getErrorLogEntries().get(0).getErrorCode());
+        Assertions.assertEquals(mockErrorCode, errorLogResultRO.getErrorLogEntries().get(0).getErrorCode());
     }
 
     @Test
@@ -103,6 +106,8 @@ class ErrorLogResourceIT extends AbstractIT {
                         .contentType("text/html; charset=UTF-8")
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
                         .with(csrf())
+                        .param("messageInErrorId", mockMessageId)
+                        .param("errorCode", mockErrorCode.name())
                         .param("orderBy", "timestamp")
                         .param("asc", "false")
                         .param("page", "0")
@@ -125,14 +130,14 @@ class ErrorLogResourceIT extends AbstractIT {
         Assertions.assertEquals("Message Id", header.get(2));
         Assertions.assertEquals(mockMessageId, row.get(2));
         Assertions.assertEquals("Error Code", header.get(3));
-        Assertions.assertEquals("EBMS_0004", row.get(3));
+        Assertions.assertEquals(mockErrorCode.name(), row.get(3));
     }
 
     private void createEntries() {
         ErrorLogEntry logEntry = new ErrorLogEntry();
         logEntry.setMessageInErrorId(mockMessageId);
         logEntry.setMshRole(mshRoleDao.findOrCreate(MSHRole.SENDING));
-        logEntry.setErrorCode(ErrorCode.EBMS_0004);
+        logEntry.setErrorCode(mockErrorCode);
         logEntry.setTimestamp(new Date());
         logEntry.setUserMessage(userMessageDao.findByEntityId(19700101L));
         errorLogDao.create(logEntry);
