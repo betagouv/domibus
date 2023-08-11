@@ -8,6 +8,7 @@ import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.plugin.BackendConnector;
 import eu.domibus.common.CsvUtil;
 import eu.domibus.test.common.SoapSampleUtil;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import javax.transaction.Transactional;
 import javax.xml.soap.SOAPMessage;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -138,7 +140,7 @@ class MessageLogResourceIT extends AbstractIT {
                 )
         );
         Assertions.assertNotNull(exception);
-        Assertions.assertTrue(exception.getCause().getMessage().contains("[DOM_001]:No User message found for party"));
+        assertThat(exception.getCause().getMessage(), CoreMatchers.containsString("[DOM_001]:No User message found for party"));
     }
 
     @Test
