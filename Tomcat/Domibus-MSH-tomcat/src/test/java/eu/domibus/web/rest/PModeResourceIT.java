@@ -45,43 +45,42 @@ class PModeResourceIT extends AbstractIT {
     @Test
     void upload_and_download_OK() throws Exception {
         // Upload
-        InputStream inputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream();
-        MockMultipartFile multiPartFile = new MockMultipartFile("file", "pmode1.xml", MimeTypeUtils.APPLICATION_XML_VALUE, IOUtils.toByteArray(inputStream));
-        inputStream.close();
-        mockMvc.perform(multipart("/rest/pmode")
-                        .file(multiPartFile)
-                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                        .with(csrf())
-                        .param("description", "testPmode")
-                )
-                .andExpect(status().is2xxSuccessful())
-                .andReturn();
+        try(InputStream pmodeInputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream()) {
+            byte[] pmodeByteArray = IOUtils.toByteArray(pmodeInputStream);
+            MockMultipartFile multiPartFile = new MockMultipartFile("file", "pmode1.xml", MimeTypeUtils.APPLICATION_XML_VALUE, pmodeByteArray);
+            mockMvc.perform(multipart("/rest/pmode")
+                            .file(multiPartFile)
+                            .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                            .with(csrf())
+                            .param("description", "testPmode")
+                    )
+                    .andExpect(status().is2xxSuccessful())
+                    .andReturn();
 
-        // Get current
-        MvcResult getCurrentResult = mockMvc.perform(get("/rest/pmode/current")
-                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                        .with(csrf())
-                )
-                .andExpect(status().is2xxSuccessful())
-                .andReturn();
+            // Get current
+            MvcResult getCurrentResult = mockMvc.perform(get("/rest/pmode/current")
+                            .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                            .with(csrf())
+                    )
+                    .andExpect(status().is2xxSuccessful())
+                    .andReturn();
 
-        String getCurrentContent = getCurrentResult.getResponse().getContentAsString();
-        PModeResponseRO pmodeResponseRO = objectMapper.readValue(getCurrentContent, PModeResponseRO.class);
-        Assertions.assertTrue(pmodeResponseRO.isCurrent());
-        Assertions.assertEquals("testPmode", pmodeResponseRO.getDescription());
+            String getCurrentContent = getCurrentResult.getResponse().getContentAsString();
+            PModeResponseRO pmodeResponseRO = objectMapper.readValue(getCurrentContent, PModeResponseRO.class);
+            Assertions.assertTrue(pmodeResponseRO.isCurrent());
+            Assertions.assertEquals("testPmode", pmodeResponseRO.getDescription());
 
-        // Download
-        MvcResult downloadResult = mockMvc.perform(get("/rest/pmode/" + pmodeResponseRO.getId())
-                        .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
-                        .with(csrf())
-                )
-                .andExpect(status().is2xxSuccessful())
-                .andReturn();
+            // Download
+            MvcResult downloadResult = mockMvc.perform(get("/rest/pmode/" + pmodeResponseRO.getId())
+                            .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
+                            .with(csrf())
+                    )
+                    .andExpect(status().is2xxSuccessful())
+                    .andReturn();
 
-        String downloadedContent = downloadResult.getResponse().getContentAsString();
-        inputStream = new ClassPathResource("dataset/pmode/PModeTemplate.xml").getInputStream();
-        String pmodeText = IOUtils.toString(inputStream, UTF_8);
-        inputStream.close();
-        Assertions.assertEquals(pmodeText, downloadedContent);
+            String downloadedContent = downloadResult.getResponse().getContentAsString();
+            String pmodeText = new String(pmodeByteArray, UTF_8);
+            Assertions.assertEquals(pmodeText, downloadedContent);
+        }
     }
 }

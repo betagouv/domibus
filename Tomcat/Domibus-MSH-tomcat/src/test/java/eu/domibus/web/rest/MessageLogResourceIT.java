@@ -38,15 +38,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class MessageLogResourceIT extends AbstractIT {
     private MockMvc mockMvc;
 
-    @Configuration
-    static class ContextConfiguration {
-        @Primary
-        @Bean
-        public BackendConnectorService backendConnectorProvider() {
-            return Mockito.mock(BackendConnectorService.class);
-        }
-    }
-
     @Autowired
     private MessageLogResource messageLogResource;
 

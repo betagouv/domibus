@@ -37,15 +37,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class MessageResourceIT extends AbstractIT {
     private MockMvc mockMvc;
 
-    @Configuration
-    static class ContextConfiguration {
-        @Primary
-        @Bean
-        public BackendConnectorService backendConnectorProvider() {
-            return Mockito.mock(BackendConnectorService.class);
-        }
-    }
-
     @Autowired
     private MessageResource messageResource;
 
@@ -110,8 +101,8 @@ class MessageResourceIT extends AbstractIT {
 
         String content = result.getResponse().getContentAsString();
         Assertions.assertNotNull(content);
-        Assertions.assertTrue(content.contains("[DOM_001]"));
         Assertions.assertTrue(content.contains("No message found for message id"));
+        Assertions.assertTrue(content.contains("[DOM_001]"));
         Assertions.assertTrue(content.contains(nonexistentMessageId));
     }
 
