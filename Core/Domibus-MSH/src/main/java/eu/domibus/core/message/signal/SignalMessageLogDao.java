@@ -1,9 +1,7 @@
 package eu.domibus.core.message.signal;
 
-import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.SignalMessageLog;
 import eu.domibus.core.message.MessageLogDao;
-import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.MessageLogInfoFilter;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
@@ -11,12 +9,8 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Federico Martini

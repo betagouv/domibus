@@ -42,6 +42,7 @@ import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 public class EArchivingJobService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingJobService.class);
+
     private final EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
 
     private final DomibusPropertyProvider domibusPropertyProvider;

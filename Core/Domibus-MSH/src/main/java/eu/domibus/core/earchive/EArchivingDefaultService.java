@@ -124,6 +124,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Long getBatchRequestListCount(EArchiveBatchFilter filter) {
         return eArchiveBatchDao.getBatchRequestListCount(filter);
     }
