@@ -36,7 +36,7 @@ public class MshRoleDao extends BasicDao<MSHRoleEntity> {
         return entity;
     }
 
-    public MSHRoleEntity findByRole(final MSHRole role) {
+    protected MSHRoleEntity findByRole(final MSHRole role) {
         final TypedQuery<MSHRoleEntity> query = this.em.createNamedQuery("MSHRoleEntity.findByValue", MSHRoleEntity.class);
         query.setParameter("ROLE", role);
         return DataAccessUtils.singleResult(query.getResultList());
