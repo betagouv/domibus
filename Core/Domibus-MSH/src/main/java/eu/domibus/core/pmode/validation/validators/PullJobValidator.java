@@ -77,7 +77,7 @@ public class PullJobValidator implements PModeValidator {
     }
 
     protected ValidationIssue createWarning(long interval, LegConfiguration leg) {
-        String message = String.format("Leg [%s] retryTimout [%d min] is inferior to Pull cron job interval [%s]: [%d min]",
+        String message = String.format("Leg [%s] retryTimeout [%d min] is inferior to Pull cron job interval [%s]: [%d min]",
                 leg.getName(),
                 leg.getReceptionAwareness().getRetryTimeout(),
                 DOMIBUS_MSH_PULL_CRON,

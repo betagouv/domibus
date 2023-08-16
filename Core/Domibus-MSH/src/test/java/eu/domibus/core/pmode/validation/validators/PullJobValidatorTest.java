@@ -25,6 +25,7 @@ class PullJobValidatorTest extends AbstractValidatorTest {
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
+
     @Test
     void validate() throws Exception {
         PullJobValidator validator = new PullJobValidator(new PModeValidationHelperImpl(), domibusPropertyProvider);
@@ -37,6 +38,6 @@ class PullJobValidatorTest extends AbstractValidatorTest {
         Configuration configuration = newConfiguration("PullJobConfiguration.json");
         final List<ValidationIssue> results = validator.validate(configuration);
         assertEquals(1, results.size());
-        assertEquals("Leg [leg2] retryTimout [5 min] is inferior to Pull cron job interval [domibus.msh.pull.cron]: [10 min]", results.get(0).getMessage());
+        assertEquals("Leg [leg2] retryTimeout [5 min] is inferior to Pull cron job interval [domibus.msh.pull.cron]: [10 min]", results.get(0).getMessage());
     }
 }
