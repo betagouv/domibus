@@ -72,8 +72,6 @@ public class MessageSubmitterImpl implements MessageSubmitter {
 
     protected final AuthUtils authUtils;
 
-    protected final UserMessageDefaultService userMessageService;
-
     protected final SplitAndJoinConfigurationService splitAndJoinConfigurationService;
 
     protected final PModeDefaultService pModeDefaultService;
@@ -112,7 +110,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
 
     protected final BackendConnectorService backendConnectorService;
 
-    public MessageSubmitterImpl(AuthUtils authUtils, UserMessageDefaultService userMessageService, SplitAndJoinConfigurationService splitAndJoinConfigurationService,
+    public MessageSubmitterImpl(AuthUtils authUtils, SplitAndJoinConfigurationService splitAndJoinConfigurationService,
                                 PModeDefaultService pModeDefaultService, SubmissionAS4Transformer transformer, MessagingService messagingService,
                                 UserMessageLogDefaultService userMessageLogService, PayloadFileStorageProvider storageProvider, ErrorLogService errorLogService,
                                 PModeProvider pModeProvider, MessageIdGenerator messageIdGenerator, BackendMessageValidator backendMessageValidator,
@@ -121,7 +119,6 @@ public class MessageSubmitterImpl implements MessageSubmitter {
                                 UserMessageSecurityService userMessageSecurityService, PartInfoService partInfoService, MessageSubmitterHelper messageSubmitterHelper,
                                 TestMessageValidator testMessageValidator, BackendConnectorService backendConnectorService) {
         this.authUtils = authUtils;
-        this.userMessageService = userMessageService;
         this.splitAndJoinConfigurationService = splitAndJoinConfigurationService;
         this.pModeDefaultService = pModeDefaultService;
         this.transformer = transformer;

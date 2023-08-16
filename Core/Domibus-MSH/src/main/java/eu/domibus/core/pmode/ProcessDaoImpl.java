@@ -38,66 +38,66 @@ public class ProcessDaoImpl extends BasicDao<Process> implements ProcessDao {
         super(Process.class);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<Process> findPullProcessesByMessageContext(final MessageExchangeConfiguration messageExchangeConfiguration) {
-        TypedQuery<Process> processQuery = entityManager.createNamedQuery(RETRIEVE_PULL_PROCESS_FROM_MESSAGE_CONTEXT, Process.class);
-        processQuery.setParameter(LEG, messageExchangeConfiguration.getLeg());
-        processQuery.setParameter(RESPONDER_NAME, messageExchangeConfiguration.getSenderParty());
-        processQuery.setParameter(INITIATOR_NAME, messageExchangeConfiguration.getReceiverParty());
-        processQuery.setParameter(MEP_BINDING, MessageExchangePattern.ONE_WAY_PULL.getUri());
-        return processQuery.getResultList();
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public List<Process> findPullProcessesByMessageContext(final MessageExchangeConfiguration messageExchangeConfiguration) {
+//        TypedQuery<Process> processQuery = entityManager.createNamedQuery(RETRIEVE_PULL_PROCESS_FROM_MESSAGE_CONTEXT, Process.class);
+//        processQuery.setParameter(LEG, messageExchangeConfiguration.getLeg());
+//        processQuery.setParameter(RESPONDER_NAME, messageExchangeConfiguration.getSenderParty());
+//        processQuery.setParameter(INITIATOR_NAME, messageExchangeConfiguration.getReceiverParty());
+//        processQuery.setParameter(MEP_BINDING, MessageExchangePattern.ONE_WAY_PULL.getUri());
+//        return processQuery.getResultList();
+//    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<Process> findPullProcessesByInitiator(final Party party) {
-        TypedQuery<Process> processQuery = entityManager.createNamedQuery(FIND_PULL_PROCESS_TO_INITIATE, Process.class);
-        processQuery.setParameter(MEP_BINDING, MessageExchangePattern.ONE_WAY_PULL.getUri());
-        processQuery.setParameter(INITIATOR, party);
-        return processQuery.getResultList();
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public List<Process> findPullProcessesByInitiator(final Party party) {
+//        TypedQuery<Process> processQuery = entityManager.createNamedQuery(FIND_PULL_PROCESS_TO_INITIATE, Process.class);
+//        processQuery.setParameter(MEP_BINDING, MessageExchangePattern.ONE_WAY_PULL.getUri());
+//        processQuery.setParameter(INITIATOR, party);
+//        return processQuery.getResultList();
+//    }
 
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<Process> findPullProcessByMpc(final String mpc) {
-        TypedQuery<Process> processQuery = entityManager.createNamedQuery(FIND_PULL_PROCESS_FROM_MPC, Process.class);
-        processQuery.setParameter(MEP_BINDING, MessageExchangePattern.ONE_WAY_PULL.getUri());
-        processQuery.setParameter(MPC_NAME, mpc);
-        return processQuery.getResultList();
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public List<Process> findPullProcessByMpc(final String mpc) {
+//        TypedQuery<Process> processQuery = entityManager.createNamedQuery(FIND_PULL_PROCESS_FROM_MPC, Process.class);
+//        processQuery.setParameter(MEP_BINDING, MessageExchangePattern.ONE_WAY_PULL.getUri());
+//        processQuery.setParameter(MPC_NAME, mpc);
+//        return processQuery.getResultList();
+//    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<Process> findPullProcessByLegName(final String legName) {
-        final TypedQuery<Process> processQuery = this.entityManager.createNamedQuery(Process.FIND_PULL_PROCESS_FROM_LEG_NAME, Process.class);
-        processQuery.setParameter("legName", legName);
-        processQuery.setParameter(MEP_BINDING, MessageExchangePattern.ONE_WAY_PULL.getUri());
-        return processQuery.getResultList();
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public List<Process> findPullProcessByLegName(final String legName) {
+//        final TypedQuery<Process> processQuery = this.entityManager.createNamedQuery(Process.FIND_PULL_PROCESS_FROM_LEG_NAME, Process.class);
+//        processQuery.setParameter("legName", legName);
+//        processQuery.setParameter(MEP_BINDING, MessageExchangePattern.ONE_WAY_PULL.getUri());
+//        return processQuery.getResultList();
+//    }
 
-    /**
-     * {@inheritDoc}
-     */
-    public List<Process> findProcessByLegName(String legName) {
-        final TypedQuery<Process> processQuery = this.entityManager.createNamedQuery(Process.FIND_PROCESS_FROM_LEG_NAME, Process.class);
-        processQuery.setParameter("legName", legName);
-        return processQuery.getResultList();
-    }
-
-    @Override
-    public List<Process> findAllProcesses() {
-        return this.entityManager.createNamedQuery(FIND_ALL_PROCESSES, Process.class).getResultList();
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    public List<Process> findProcessByLegName(String legName) {
+//        final TypedQuery<Process> processQuery = this.entityManager.createNamedQuery(Process.FIND_PROCESS_FROM_LEG_NAME, Process.class);
+//        processQuery.setParameter("legName", legName);
+//        return processQuery.getResultList();
+//    }
+//
+//    @Override
+//    public List<Process> findAllProcesses() {
+//        return this.entityManager.createNamedQuery(FIND_ALL_PROCESSES, Process.class).getResultList();
+//    }
 
 
 }

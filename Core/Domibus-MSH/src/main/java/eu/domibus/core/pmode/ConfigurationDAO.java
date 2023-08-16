@@ -29,7 +29,7 @@ public class ConfigurationDAO extends BasicDao<Configuration> {
         return query.getSingleResult() != 0;
     }
 
-    public Configuration read() {
+    protected Configuration read() {
         final TypedQuery<Configuration> query = this.em.createNamedQuery("Configuration.getConfiguration", Configuration.class);
         return query.getSingleResult();
     }
