@@ -64,51 +64,49 @@ public class AS4ReceiptServiceImpl implements AS4ReceiptService {
     protected Templates templates;
     protected byte[] as4ReceiptXslBytes;
 
-    protected final UserMessageHandlerService userMessageHandlerService;
     private final TimestampDateFormatter timestampDateFormatter;
-    protected final UserMessageService userMessageService;
-    private final MessageIdGenerator messageIdGenerator;
-    protected final UserMessageRawEnvelopeDao rawEnvelopeLogDao;
-    private final SignalMessageDao signalMessageDao;
-    protected final MessageGroupDao messageGroupDao;
-    private final UserMessageDao userMessageDao;
-    protected final MessageUtil messageUtil;
-    protected final SoapUtil soapUtil;
-    protected XMLUtil xmlUtil;
-    protected Ebms3Converter ebms3Converter;
-    protected MshRoleDao mshRoleDao;
-    protected MessageStatusDao messageStatusDao;
-    protected ReceiptDao receiptDao;
 
-    public AS4ReceiptServiceImpl(UserMessageHandlerService userMessageHandlerService,
-                                 TimestampDateFormatter timestampDateFormatter,
-                                 UserMessageService userMessageService,
+    private final MessageIdGenerator messageIdGenerator;
+
+    protected final UserMessageRawEnvelopeDao rawEnvelopeLogDao;
+
+    private final SignalMessageDao signalMessageDao;
+
+    private final UserMessageDao userMessageDao;
+
+    protected final MessageUtil messageUtil;
+
+    protected final SoapUtil soapUtil;
+
+    protected final XMLUtil xmlUtil;
+
+    protected  final Ebms3Converter ebms3Converter;
+
+    protected final MshRoleDao mshRoleDao;
+
+    protected final ReceiptDao receiptDao;
+
+    public AS4ReceiptServiceImpl(TimestampDateFormatter timestampDateFormatter,
                                  MessageIdGenerator messageIdGenerator,
                                  UserMessageRawEnvelopeDao rawEnvelopeLogDao,
                                  SignalMessageDao signalMessageDao,
-                                 MessageGroupDao messageGroupDao,
                                  UserMessageDao userMessageDao,
                                  MessageUtil messageUtil,
                                  SoapUtil soapUtil,
                                  XMLUtil xmlUtil,
                                  Ebms3Converter ebms3Converter,
                                  MshRoleDao mshRoleDao,
-                                 MessageStatusDao messageStatusDao,
                                  ReceiptDao receiptDao) {
-        this.userMessageHandlerService = userMessageHandlerService;
         this.timestampDateFormatter = timestampDateFormatter;
-        this.userMessageService = userMessageService;
         this.messageIdGenerator = messageIdGenerator;
         this.rawEnvelopeLogDao = rawEnvelopeLogDao;
         this.signalMessageDao = signalMessageDao;
-        this.messageGroupDao = messageGroupDao;
         this.userMessageDao = userMessageDao;
         this.messageUtil = messageUtil;
         this.soapUtil = soapUtil;
         this.xmlUtil = xmlUtil;
         this.ebms3Converter = ebms3Converter;
         this.mshRoleDao = mshRoleDao;
-        this.messageStatusDao = messageStatusDao;
         this.receiptDao = receiptDao;
     }
 
