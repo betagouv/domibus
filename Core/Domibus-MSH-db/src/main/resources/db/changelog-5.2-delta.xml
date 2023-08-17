@@ -15,14 +15,4 @@
         </insert>
     </changeSet>
 
-    <changeSet author="idragusa" id="EDELIVERY-11509_mysql">
-        <sql dbms="oracle">
-            ALTER INDEX IDX_SIG_MESS_SIGNAL_MESS_ID RENAME TO UK_SIGNAL_MSG_MESSAGE_ID;
-        </sql>
-        <sql dbms="mysql">
-            ALTER TABLE TB_SIGNAL_MESSAGE RENAME INDEX IDX_SIG_MESS_SIGNAL_MESS_ID TO UK_SIGNAL_MSG_MESSAGE_ID;
-        </sql>
-    </changeSet>
-
-
 </databaseChangeLog>

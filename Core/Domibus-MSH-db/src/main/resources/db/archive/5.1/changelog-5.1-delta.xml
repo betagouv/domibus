@@ -176,11 +176,6 @@
                            FROM TB_SIGNAL_MESSAGE_LOG t2
                            WHERE t1.ID_PK = t2.ID_PK )
         </sql>
-        <!--add back updated constraints-->
-        <createIndex indexName="IDX_SIG_MESS_SIGNAL_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
-            <column name="SIGNAL_MESSAGE_ID"/>
-            <column name="MSH_ROLE_ID_FK" />
-        </createIndex>
 
         <!-- drop constraint if exists-->
         <sql dbms="oracle" endDelimiter="\n/">
