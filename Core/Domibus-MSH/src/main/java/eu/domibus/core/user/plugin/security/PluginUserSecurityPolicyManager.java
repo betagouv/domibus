@@ -45,7 +45,6 @@ public class PluginUserSecurityPolicyManager extends UserSecurityPolicyManager<A
     @Autowired
     private DomibusPropertyProvider domibusPropertyProvider;
 
-
     @Override
     protected String getPasswordComplexityPatternProperty() {
         return PASSWORD_COMPLEXITY_PATTERN;

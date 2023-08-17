@@ -61,9 +61,6 @@ public class PluginUserServiceImpl implements PluginUserService {
     @Autowired
     PluginUserPasswordHistoryDao pluginUserPasswordHistoryDao;
 
-    @Autowired
-    private AuthCoreMapper authCoreMapper;
-
     @Override
     @Transactional(readOnly = true)
     public List<AuthenticationEntity> findUsers(AuthType authType, AuthRole authRole, String originalUser, String userName, int page, int pageSize) {

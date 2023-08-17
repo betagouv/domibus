@@ -54,9 +54,6 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
     protected UserDomainService userDomainService;
 
     @Autowired
-    protected DomainService domainService;
-
-    @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
 
     protected abstract String getPasswordComplexityPatternProperty();
@@ -99,6 +96,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         }
     }
 
+    @Transactional(readOnly = true)
     public void validateHistory(final String userName, final String password) throws DomibusCoreException {
         int oldPasswordsToCheck = domibusPropertyProvider.getIntegerProperty(getPasswordHistoryPolicyProperty());
         if (oldPasswordsToCheck == 0) {
@@ -306,6 +304,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         getUserDao().update(users);
     }
 
+    @Transactional(readOnly = true)
     public void validateUniqueUser(String userId) throws UserManagementException {
         if (domibusConfigurationService.isMultiTenantAware()) {
             //check to see if it is a domain user
