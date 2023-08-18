@@ -2,6 +2,7 @@ package eu.domibus.core.pmode.validation;
 
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.common.model.configuration.Process;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.ValidationResponseRO;
 import org.springframework.stereotype.Service;
@@ -26,4 +27,6 @@ public interface PModeValidationHelper {
     PModeValidationException getPModeValidationException(XmlProcessingException e, String message);
 
     ValidationResponseRO getValidationResponse(List<ValidationIssue> pmodeUpdateIssues, String message);
+
+    boolean isPullProcess(Process process);
 }
