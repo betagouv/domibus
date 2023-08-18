@@ -69,7 +69,7 @@ public abstract class PModeProvider {
 
     @Autowired
     protected SignalService signalService;
-    
+
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 
