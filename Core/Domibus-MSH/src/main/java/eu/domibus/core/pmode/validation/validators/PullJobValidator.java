@@ -54,6 +54,7 @@ public class PullJobValidator implements PModeValidator {
         configuration.getBusinessProcesses().getProcesses().stream()
                 .filter(pModeValidationHelper::isPullProcess)
                 .flatMap(process -> process.getLegs().stream())
+                .distinct()
                 .filter(leg -> leg.getReceptionAwareness() != null)
                 .filter(leg -> durationBetweenExecutions > leg.getReceptionAwareness().getRetryTimeout())
                 .forEach(leg -> issues.add(createWarning(durationBetweenExecutions, leg)));
