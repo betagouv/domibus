@@ -252,7 +252,6 @@ public class EArchivingJobService {
         return results;
     }
 
-    // can be read-only?
     public void createEventOnNonFinalMessages(Long lastEntityIdProcessed, Long maxEntityIdToArchived) {
         List<EArchiveBatchUserMessage> messagesNotFinalAsc = userMessageLogDao.findMessagesNotFinalAsc(lastEntityIdProcessed, maxEntityIdToArchived);
 

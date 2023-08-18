@@ -28,19 +28,6 @@ public class SignalMessageLogDao extends MessageLogDao<SignalMessageLog> {
         this.signalMessageLogInfoFilter = signalMessageLogInfoFilter;
     }
 
-//    public SignalMessageLog findByMessageId(String messageId, MSHRole mshRole) {
-//        TypedQuery<SignalMessageLog> query = em.createNamedQuery("SignalMessageLog.findByMessageIdAndRole", SignalMessageLog.class);
-//        query.setParameter("MESSAGE_ID", messageId);
-//        query.setParameter("MSH_ROLE", mshRole);
-//
-//        try {
-//            return query.getSingleResult();
-//        } catch (NoResultException nrEx) {
-//            LOG.debug("Query SignalMessageLog.findByMessageId did not find any result for message with id [" + messageId + "] and MSH role [" + mshRole + "]");
-//            return null;
-//        }
-//    }
-
     @Timer(clazz = SignalMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
     @Counter(clazz = SignalMessageLogDao.class, value = "deleteMessages.deleteMessageLogs")
     public int deleteMessageLogs(List<Long> ids) {

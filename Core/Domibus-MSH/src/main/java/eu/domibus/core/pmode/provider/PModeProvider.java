@@ -67,15 +67,9 @@ public abstract class PModeProvider {
     @Autowired
     protected ConfigurationRawDAO configurationRawDAO;
 
-//    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
-//    protected EntityManager entityManager;
-
     @Autowired
     protected SignalService signalService;
-
-//    @Autowired
-//    protected DomainContextProvider domainContextProvider;
-
+    
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
 

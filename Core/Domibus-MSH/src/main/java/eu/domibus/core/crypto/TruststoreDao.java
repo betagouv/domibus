@@ -19,12 +19,6 @@ public class TruststoreDao extends BasicDao<TruststoreEntity> {
         super(TruststoreEntity.class);
     }
 
-//    public TruststoreEntity findByName(String name) {
-//        TypedQuery<TruststoreEntity> q = em.createNamedQuery("Truststore.findByName", TruststoreEntity.class);
-//        q.setParameter("NAME", name);
-//        return q.getSingleResult();
-//    }
-
     public TruststoreEntity findByNameSafely(String name) {
         TypedQuery<TruststoreEntity> q = em.createNamedQuery("Truststore.findByName", TruststoreEntity.class);
         q.setParameter("NAME", name);
