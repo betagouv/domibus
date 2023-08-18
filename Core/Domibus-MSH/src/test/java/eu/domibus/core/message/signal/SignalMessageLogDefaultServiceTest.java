@@ -9,21 +9,18 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.stream.Stream;
 
 /**
  * @author Tiago Miguel
  * @since 4.0
  */
-// TODO: 14/06/2023 François GAUTIER  @RunWith(Parameterized.class)
-@Disabled("EDELIVERY-6896")
-public class SignalMessageLogDefaultServiceTest {
+@SuppressWarnings("DataFlowIssue")
+class SignalMessageLogDefaultServiceTest {
 
     @Tested
     SignalMessageLogDefaultService signalMessageLogDefaultService;
@@ -37,22 +34,16 @@ public class SignalMessageLogDefaultServiceTest {
     @Injectable
     MshRoleDao mshRoleDao;
 
-  //  @Parameterized.Parameter(0)
-    public String userMessageService;
-
-  //  @Parameterized.Parameter(1)
-    public String userMessageAction;
-
-    //todo fga @Parameterized.Parameters(name = "{index}: usermessageService=\"{0}\" usermessageAction=\"{1}\"")
-    public static Collection<Object[]> values() {
-        return Arrays.asList(new Object[][]{
-                {"service", "action"},
-                {Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION}
-        });
+    static Stream<Arguments> testSave() {
+        return Stream.of(
+                Arguments.of("service", "action"),
+                Arguments.of(Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION)
+        );
     }
 
-    @Test
-    public void testSave() {
+    @ParameterizedTest(name = "[{index}] {0} - {1}")
+    @MethodSource
+    void testSave(String userMessageService, String userMessageAction) {
         final String messageId = "1";
         final String signalMessageId = "signal-" + messageId;
         SignalMessage signalMessage = new SignalMessage();

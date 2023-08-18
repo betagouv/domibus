@@ -10,22 +10,21 @@ import eu.domibus.common.MessageDaoTestUtil;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.rules.SpringMethodRule;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static eu.domibus.api.earchive.EArchiveBatchStatus.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.junit.jupiter.params.provider.Arguments.of;
 
 /**
  * Test filter variations for querying the EArchiveBatchEntities
@@ -35,8 +34,7 @@ import static java.util.Collections.singletonList;
  * @author Joze Rihtarsic
  * @since 5.0
  */
-// TODO: 14/06/2023 François GAUTIER  @RunWith(Parameterized.class)
-@Disabled("EDELIVERY-6896")
+@SuppressWarnings("unused")
 @Transactional
 public class EArchiveBatchDaoBatchFiltersIT extends AbstractIT {
     // test data
@@ -49,24 +47,44 @@ public class EArchiveBatchDaoBatchFiltersIT extends AbstractIT {
     private static final String BATCH_ID_03 = "BATCH_ID_03@" + UUID.randomUUID();
 
     private static final String BATCH_ID_04 = "BATCH_ID_04@" + UUID.randomUUID();
+    public static final EArchiveBatchFilter QUEUED = new EArchiveBatchFilter(singletonList(EArchiveBatchStatus.QUEUED), null, null, null, null, null, null, null, null);
+    public static final EArchiveBatchFilter EXPORTED = new EArchiveBatchFilter(singletonList(EArchiveBatchStatus.EXPORTED), null, null, null, null, null, null, null, null);
+    public static final EArchiveBatchFilter REEXPORTED = new EArchiveBatchFilter(singletonList(EArchiveBatchStatus.EXPORTED), null, null, null, null, null, Boolean.TRUE, null, null);
+    public static final EArchiveBatchFilter BY_TYPE = new EArchiveBatchFilter(singletonList(EArchiveBatchStatus.EXPORTED), singletonList(EArchiveRequestType.MANUAL), null, null, null, null, null, null, null);
+    public static final EArchiveBatchFilter BY_DATE = new EArchiveBatchFilter(null, null, DateUtils.addDays(Calendar.getInstance().getTime(), -28), DateUtils.addDays(Calendar.getInstance().getTime(), -12), null, null, null, null, null);
+    public static final EArchiveBatchFilter ALL = new EArchiveBatchFilter(null, null, null, null, null, null, null, null, null);
+    public static final EArchiveBatchFilter BY_SIZE = new EArchiveBatchFilter(null, null, null, null, null, null, null, null, 2);
+    public static final EArchiveBatchFilter BY_START = new EArchiveBatchFilter(null, null, null, null, null, null, null, 1, 2);
 
     private UserMessageLog uml1;
 
 
-    //todo fga @Parameterized.Parameters(name = "{index}: {0}")
-    // test desc. result batchIds, filter
-    public static Collection<Object[]> data() {
-        return asList(new Object[][]{
-                {"With filter status queued ", singletonList(BATCH_ID_04), 1L, new EArchiveBatchFilter(singletonList(QUEUED), null, null, null, null, null,null,  null, null)},
-                {"With filter status exported ", singletonList(BATCH_ID_02), 1L, new EArchiveBatchFilter(singletonList(EXPORTED), null, null, null, null, null, null, null, null)},
-                {"With filter status exported and reexported ", asList(BATCH_ID_02, BATCH_ID_00 ), 2L, new EArchiveBatchFilter(singletonList(EXPORTED), null, null, null, null, null, Boolean.TRUE, null, null)},
-                {"With filter by type", singletonList(BATCH_ID_02), 1L, new EArchiveBatchFilter(singletonList(EXPORTED), singletonList(EArchiveRequestType.MANUAL), null, null, null, null, null, null, null)},
+    static Stream<Arguments> testGetBatchRequestList() {
+        return Stream.of(
+                of("With filter status queued                  ", singletonList(BATCH_ID_04), QUEUED),
+                of("With filter status exported                ", singletonList(BATCH_ID_02), EXPORTED),
+                of("With filter status exported and reexported ", asList(BATCH_ID_02, BATCH_ID_00), REEXPORTED),
+                of("With filter by type                        ", singletonList(BATCH_ID_02), BY_TYPE),
                 // Note batches are ordered from latest to oldest
-                {"With filter: request date", asList(BATCH_ID_04, BATCH_ID_03, BATCH_ID_02), 3L, new EArchiveBatchFilter(null, null, DateUtils.addDays(Calendar.getInstance().getTime(), -28), DateUtils.addDays(Calendar.getInstance().getTime(), -12), null, null, null, null, null)},
-                {"With filter: get All ", asList(BATCH_ID_04, BATCH_ID_03, BATCH_ID_02, BATCH_ID_01), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, null, null, null)},
-                {"With filter: test page size", asList(BATCH_ID_04, BATCH_ID_03), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, null, null, 2 )},
-                {"With filter: test page start", asList(BATCH_ID_02, BATCH_ID_01), 4L, new EArchiveBatchFilter(null, null, null, null, null, null, null, 1, 2)},
-        });
+                of("With filter: request date                  ", asList(BATCH_ID_04, BATCH_ID_03, BATCH_ID_02), BY_DATE),
+                of("With filter: get All                       ", asList(BATCH_ID_04, BATCH_ID_03, BATCH_ID_02, BATCH_ID_01), ALL),
+                of("With filter: test page size                ", asList(BATCH_ID_04, BATCH_ID_03), BY_SIZE),
+                of("With filter: test page start               ", asList(BATCH_ID_02, BATCH_ID_01), BY_START)
+        );
+    }
+
+    static Stream<Arguments> testGetBatchRequestListCount() {
+        return Stream.of(
+                of("With filter status queued                  ", 1L, QUEUED),
+                of("With filter status exported                ", 1L, EXPORTED),
+                of("With filter status exported and reexported ", 2L, REEXPORTED),
+                of("With filter by type                        ", 1L, BY_TYPE),
+                // Note batches are ordered from latest to oldest
+                of("With filter: request date                  ", 3L, BY_DATE),
+                of("With filter: get All                       ", 4L, ALL),
+                of("With filter: test page size                ", 4L, BY_SIZE),
+                of("With filter: test page start               ", 4L, BY_START)
+        );
     }
 
     @Autowired
@@ -80,17 +98,6 @@ public class EArchiveBatchDaoBatchFiltersIT extends AbstractIT {
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
 
-    String testName;
-    List<String> expectedBatchIds;
-    Long total;
-    EArchiveBatchFilter filter;
-
-    public EArchiveBatchDaoBatchFiltersIT(String testName, List<String> expectedBatchIds, Long total, EArchiveBatchFilter filter) {
-        this.testName = testName;
-        this.expectedBatchIds = expectedBatchIds;
-        this.total = total;
-        this.filter = filter;
-    }
 
     @BeforeEach
     @Transactional
@@ -99,11 +106,11 @@ public class EArchiveBatchDaoBatchFiltersIT extends AbstractIT {
         uml1 = messageDaoTestUtil.createUserMessageLog("uml1-" + UUID.randomUUID(), currentDate);
         // prepare database -> create batches
         // reexported can be null or false
-        create(BATCH_ID_00, DateUtils.addDays(currentDate, -30), 1L, 10L, EArchiveRequestType.CONTINUOUS, EXPORTED, Boolean.TRUE, null);
+        create(BATCH_ID_00, DateUtils.addDays(currentDate, -30), 1L, 10L, EArchiveRequestType.CONTINUOUS, EArchiveBatchStatus.EXPORTED, Boolean.TRUE, null);
         create(BATCH_ID_01, DateUtils.addDays(currentDate, -30), 1L, 10L, EArchiveRequestType.CONTINUOUS, ARCHIVED, Boolean.FALSE, null);
-        create(BATCH_ID_02, DateUtils.addDays(currentDate, -25), 11L, 20L, EArchiveRequestType.MANUAL, EXPORTED, Boolean.FALSE, BATCH_ID_00);
-        create(BATCH_ID_03, DateUtils.addDays(currentDate, -22), 21L, 30L, EArchiveRequestType.MANUAL, EXPIRED,Boolean.FALSE,null);
-        create(BATCH_ID_04, DateUtils.addDays(currentDate, -15), 31L, 40L, EArchiveRequestType.CONTINUOUS, QUEUED,Boolean.FALSE,null);
+        create(BATCH_ID_02, DateUtils.addDays(currentDate, -25), 11L, 20L, EArchiveRequestType.MANUAL, EArchiveBatchStatus.EXPORTED, Boolean.FALSE, BATCH_ID_00);
+        create(BATCH_ID_03, DateUtils.addDays(currentDate, -22), 21L, 30L, EArchiveRequestType.MANUAL, EXPIRED, Boolean.FALSE, null);
+        create(BATCH_ID_04, DateUtils.addDays(currentDate, -15), 31L, 40L, EArchiveRequestType.CONTINUOUS, EArchiveBatchStatus.QUEUED, Boolean.FALSE, null);
     }
 
     private void create(String batchId, Date dateRequested, Long firstPkUserMessage, Long lastPkUserMessage, EArchiveRequestType continuous, EArchiveBatchStatus status, Boolean reexported, String origin) {
@@ -136,8 +143,9 @@ public class EArchiveBatchDaoBatchFiltersIT extends AbstractIT {
         eArchiveBatchDao.update(merge);
     }
 
-    @Test
-    public void testGetBatchRequestList() {
+    @ParameterizedTest(name = "[{index}] {0}")
+    @MethodSource
+    void testGetBatchRequestList(String testName, List<String> expectedBatchIds, EArchiveBatchFilter filter) {
         // given-when
         List<EArchiveBatchEntity> resultList = eArchiveBatchDao.getBatchRequestList(filter);
         // then
@@ -145,8 +153,9 @@ public class EArchiveBatchDaoBatchFiltersIT extends AbstractIT {
         Assertions.assertArrayEquals(expectedBatchIds.toArray(), resultList.stream().map(EArchiveBatchEntity::getBatchId).toArray());
     }
 
-    @Test
-    public void testGetBatchRequestListCount() {
+    @ParameterizedTest(name = "[{index}] {0}")
+    @MethodSource
+    void testGetBatchRequestListCount(String testName, Long total, EArchiveBatchFilter filter) {
         // given-when
         Long count = eArchiveBatchDao.getBatchRequestListCount(filter);
         // then

@@ -19,6 +19,7 @@ import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.PullProcessValidator;
 import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
 import eu.domibus.core.pmode.ProcessTypePartyExtractor;
+import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -55,6 +56,9 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Autowired
     private PullProcessValidator pullProcessValidator;
+
+    @Autowired
+    private PModeValidationHelper pModeValidationHelper;
 
     @Autowired
     FinalRecipientService finalRecipientService;
@@ -135,7 +139,7 @@ public class CachingPModeProvider extends PModeProvider {
     protected List<Process> getAllPullProcesses() {
         final List<Process> processes = getConfiguration().getBusinessProcesses().getProcesses();
         return processes.stream()
-                .filter(this::isPullProcess)
+                .filter(pModeValidationHelper::isPullProcess)
                 .collect(Collectors.toList());
     }
 
@@ -990,7 +994,7 @@ public class CachingPModeProvider extends PModeProvider {
         List<Process> allProcesses = findAllProcesses();
         List<Process> result = new ArrayList<>();
         for (Process process : allProcesses) {
-            boolean pullProcess = isPullProcess(process);
+            boolean pullProcess = pModeValidationHelper.isPullProcess(process);
             if (!pullProcess) {
                 continue;
             }
@@ -1010,13 +1014,6 @@ public class CachingPModeProvider extends PModeProvider {
             result.add(process);
         }
         return result;
-    }
-
-    protected boolean isPullProcess(Process process) {
-        if (process.getMepBinding() == null) {
-            return false;
-        }
-        return StringUtils.equals(MessageExchangePattern.ONE_WAY_PULL.getUri(), process.getMepBinding().getValue());
     }
 
     protected boolean hasLeg(Process process, String legName) {
