@@ -4,22 +4,20 @@ import eu.domibus.core.ssl.offload.SslOffloadService;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.http.Address;
 import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.addressing.EndpointReferenceType;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(JMockitExtension.class)
-@Disabled("EDELIVERY-6896")
 public class DomibusURLConnectionHTTPConduitTest {
 
-    @Injectable
-    private Message message;
+    private Message message = new MessageImpl();
 
     @Injectable
     private HTTPClientPolicy csPolicy;
