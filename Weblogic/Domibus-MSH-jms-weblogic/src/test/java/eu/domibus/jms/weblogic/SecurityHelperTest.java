@@ -22,15 +22,10 @@ public class SecurityHelperTest {
     SecurityHelper securityHelper;
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testGetBootIdentityWithUserAndPasswordProvidedAsSystemVariables() throws Exception {
-        new Expectations(System.class) {{
-            System.getProperty("weblogic.management.username");
-            result = "myusername";
+    public void testGetBootIdentityWithUserAndPasswordProvidedAsSystemVariables() {
+        System.setProperty("weblogic.management.username", "myusername");
 
-            System.getProperty("weblogic.management.password");
-            result = "mypwd";
-        }};
+        System.setProperty("weblogic.management.password", "mypwd");
 
         final Map<String, String> bootIdentity = securityHelper.getBootIdentity();
         assertEquals("myusername", bootIdentity.get("username"));
@@ -38,12 +33,11 @@ public class SecurityHelperTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
+    @Disabled("EDELIVERY-11939")
     public void testGetBootIdentityWithUserAndPasswordFromTheBootFile() throws Exception {
         File bootPropertiesFile = new File(getClass().getClassLoader().getResource("jms/boot.properties").toURI());
         final String bootPropertiesPath = bootPropertiesFile.getAbsolutePath();
-
-        new Expectations(System.class) {{
+        new Expectations() {{
             System.getProperty("weblogic.management.username");
             result = null;
 

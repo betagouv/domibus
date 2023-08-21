@@ -2,7 +2,6 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.multitenancy.Domain;
-import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.CertificateService;
@@ -10,17 +9,16 @@ import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.api.DomainCryptoService;
-import eu.domibus.core.property.DomibusRawPropertyProvider;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.springframework.beans.factory.ObjectProvider;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.ObjectProvider;
 
 import java.security.KeyStoreException;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -31,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @since 4.1
  */
 @ExtendWith(JMockitExtension.class)
-@Disabled("EDELIVERY-6896")
 public class MultiDomainCryptoServiceImplTest {
 
     @Tested
@@ -73,7 +70,8 @@ public class MultiDomainCryptoServiceImplTest {
         DomainCryptoService res2 = mdCryptoService.getDomainCertificateProvider(domain);
         assertEquals(cryptoService, res2);
 
-        new Verifications() {};
+        new Verifications() {
+        };
     }
 
     @Test
@@ -210,7 +208,7 @@ public class MultiDomainCryptoServiceImplTest {
     }
 
     @Test
-    public void addCertificates(@Mocked DomainCryptoServiceImpl cryptoService, @Mocked List<CertificateEntry> certificates) throws KeyStoreException {
+    public void addCertificates(@Mocked DomainCryptoServiceImpl cryptoService) {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         boolean overwrite = true;
 
@@ -218,7 +216,7 @@ public class MultiDomainCryptoServiceImplTest {
             domainCryptoServiceFactory.domainCryptoService(domain);
             result = cryptoService;
         }};
-
+        List<CertificateEntry> certificates = new ArrayList<>();
         mdCryptoService.addCertificate(domain, certificates, overwrite);
 
         new Verifications() {{

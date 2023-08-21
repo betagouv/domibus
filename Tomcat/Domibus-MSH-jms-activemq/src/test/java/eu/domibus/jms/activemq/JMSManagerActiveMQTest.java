@@ -1,7 +1,7 @@
 package eu.domibus.jms.activemq;
 
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.jms.JMSDestinationHelper;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.jms.spi.InternalJMSDestination;
@@ -13,13 +13,11 @@ import mockit.integration.junit5.JMockitExtension;
 import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.apache.activemq.broker.jmx.QueueViewMBean;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.jms.core.JmsOperations;
 
 import javax.management.MBeanServerConnection;
-import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.CompositeDataSupport;
@@ -32,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Cosmin Baciu
  * @since 3.2
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @ExtendWith(JMockitExtension.class)
 public class JMSManagerActiveMQTest {
 
@@ -77,7 +76,7 @@ public class JMSManagerActiveMQTest {
                                     final @Injectable QueueViewMBean queueMbean1,
                                     final @Injectable QueueViewMBean queueMbean2,
                                     final @Injectable InternalJMSDestination internalJmsDestination1,
-                                    final @Injectable InternalJMSDestination internalJmsDestination2) throws Exception {
+                                    final @Injectable InternalJMSDestination internalJmsDestination2) {
         final Map<String, ObjectName> objectNameMap = new HashMap<>();
         objectNameMap.put("queue1", objectName1);
         objectNameMap.put("queue2", objectName2);
@@ -115,8 +114,8 @@ public class JMSManagerActiveMQTest {
 
     @Test
     public void testCreateJmsDestinationSPI(final @Mocked ObjectName objectName,
-                                            final @Injectable QueueViewMBean queueMbean) throws Exception {
-        final Map<String, ObjectName> objectNameMap = new HashMap<>();
+                                            final @Injectable QueueViewMBean queueMbean) {
+        Map<String, ObjectName> objectNameMap = new HashMap<>();
         objectNameMap.put("queue1", objectName);
         new Expectations(jmsManagerActiveMQ) {{
             queueMbean.getName();
@@ -134,29 +133,27 @@ public class JMSManagerActiveMQTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testBrowseMessages(final @Injectable InternalJMSDestination selectedDestination,
-                                   final @Injectable Map<String, InternalJMSDestination> destinationsMap,
                                    final @Injectable QueueViewMBean queueMbean,
-                                   final @Injectable CompositeData[] compositeDatas,
-                                   final @Injectable List<InternalJmsMessage> messageSPIs) throws Exception {
+                                   final @Injectable CompositeData[] compositeDatas) throws Exception {
         final String source = "myqueue";
         final String jmsType = "message";
         final Date fromDate = new Date();
         final Date toDate = new Date();
         final String selectorClause = "mytype = 'message'";
 
+        Map<String, InternalJMSDestination> destinationsMap = new HashMap<>();
+        destinationsMap.put(source, selectedDestination);
+
+        List<InternalJmsMessage> messageSPIs = new ArrayList<>();
         new Expectations(jmsManagerActiveMQ) {{
             jmsManagerActiveMQ.findDestinationsGroupedByFQName();
             result = destinationsMap;
 
-            destinationsMap.get(source);
-            result = selectedDestination;
-
             selectedDestination.getType();
             result = "Queue";
 
-            jmsSelectorUtil.getSelector(withAny(new HashMap<String, Object>()));
+            jmsSelectorUtil.getSelector(withAny(new HashMap<>()));
             result = null;
 
             domibusJMSActiveMQConnectionManager.getQueueViewMBean(source);
@@ -172,7 +169,7 @@ public class JMSManagerActiveMQTest {
         assertEquals(messages, messageSPIs);
 
         new Verifications() {{
-            Map<String, Object> criteria = null;
+            Map<String, Object> criteria;
             jmsSelectorUtil.getSelector(criteria = withCapture());
 
             assertEquals(criteria.get(CRITERIA_JMS_TYPE), jmsType);
@@ -187,17 +184,21 @@ public class JMSManagerActiveMQTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testConvertCompositeData(final @Injectable CompositeData data,
-                                         final @Injectable Map stringProperties,
-                                         final @Injectable Map intProperties,
                                          final @Injectable CompositeDataSupport dataSupport1,
                                          final @Injectable CompositeDataSupport dataSupport2,
-                                         final @Injectable CompositeDataSupport dataSupport3) throws Exception {
+                                         final @Injectable CompositeDataSupport dataSupport3) {
         final String jmsType = "mytype";
         final Date jmsTimestamp = new Date();
         final String jmsId1 = "jmsId1";
         final String textMessage = "textmessage";
+
+
+        Map<String, CompositeDataSupport> stringProperties = new HashMap<>();
+        stringProperties.put("1", dataSupport1);
+        stringProperties.put("2", dataSupport2);
+        Map<String, CompositeDataSupport> intProperties = new HashMap<>();
+        stringProperties.put("3", dataSupport3);
 
         new Expectations(jmsManagerActiveMQ) {
             {
@@ -213,8 +214,7 @@ public class JMSManagerActiveMQTest {
                 jmsManagerActiveMQ.getCompositeValue(data, "Text");
                 result = textMessage;
 
-                Set<String> allPropertyNames = new HashSet<>();
-                allPropertyNames.addAll(Arrays.asList("JMSProp1", "StringProperties", "IntProperties"));
+                Set<String> allPropertyNames = new HashSet<>(Arrays.asList("JMSProp1", "StringProperties", "IntProperties"));
                 data.getCompositeType().keySet();
                 result = allPropertyNames;
 
@@ -241,12 +241,6 @@ public class JMSManagerActiveMQTest {
                 result = "intKey";
                 dataSupport3.get("value");
                 result = 5;
-
-                stringProperties.values();
-                result = Arrays.asList(new CompositeDataSupport[]{dataSupport1, dataSupport2});
-
-                intProperties.values();
-                result = Arrays.asList(new CompositeDataSupport[]{dataSupport3});
             }
         };
 
@@ -268,7 +262,7 @@ public class JMSManagerActiveMQTest {
 
     @Test
     public void testConvertCompositeDataArray(final @Injectable CompositeData data1,
-                                              final @Injectable InternalJmsMessage internalJmsMessage1) throws Exception {
+                                              final @Injectable InternalJmsMessage internalJmsMessage1) {
         CompositeData[] compositeDatas = new CompositeData[]{data1};
 
         new Expectations(jmsManagerActiveMQ) {{
@@ -285,7 +279,7 @@ public class JMSManagerActiveMQTest {
     @Test
     public void testConvertCompositeDataArrayWhenAMessageCannotBeConverted(final @Injectable CompositeData data1,
                                                                            final @Injectable CompositeData data2,
-                                                                           final @Injectable InternalJmsMessage internalJmsMessage1) throws Exception {
+                                                                           final @Injectable InternalJmsMessage internalJmsMessage1) {
         CompositeData[] compositeDatas = new CompositeData[]{data1, data2};
 
         new Expectations(jmsManagerActiveMQ) {{
@@ -316,7 +310,7 @@ public class JMSManagerActiveMQTest {
         jmsManagerActiveMQ.deleteMessages(myqueue, messageIds);
 
         new Verifications() {{
-            String[] capuredMessageIds = null;
+            String[] capuredMessageIds;
             jmsSelectorUtil.getSelector(capuredMessageIds = withCapture());
             assertArrayEquals(capuredMessageIds, messageIds);
 
@@ -339,8 +333,8 @@ public class JMSManagerActiveMQTest {
         jmsManagerActiveMQ.moveMessages(source, destination, messageIds);
 
         new Verifications() {{
-            String[] capuredMessageIds = null;
-            String captureDestination = null;
+            String[] capuredMessageIds;
+            String captureDestination;
             jmsSelectorUtil.getSelector(capuredMessageIds = withCapture());
             assertArrayEquals(capuredMessageIds, messageIds);
 
@@ -366,7 +360,7 @@ public class JMSManagerActiveMQTest {
         jmsManagerActiveMQ.getMessage(myqueue, messageId);
 
         new Verifications() {{
-            String capturedMessageId = null;
+            String capturedMessageId;
             queueMbean.getMessage(capturedMessageId = withCapture());
             assertEquals(messageId, capturedMessageId);
 

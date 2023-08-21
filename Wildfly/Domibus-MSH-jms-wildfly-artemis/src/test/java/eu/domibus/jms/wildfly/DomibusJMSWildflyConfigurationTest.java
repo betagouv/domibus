@@ -2,13 +2,12 @@ package eu.domibus.jms.wildfly;
 
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.jms.spi.helper.PriorityJmsTemplate;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.activemq.artemis.api.core.management.ActiveMQServerControl;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jmx.access.MBeanProxyFactoryBean;
 
 import javax.jms.ConnectionFactory;
@@ -16,7 +15,6 @@ import javax.jms.Session;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import java.lang.management.ManagementFactory;
-import java.net.MalformedURLException;
 
 import static eu.domibus.jms.wildfly.DomibusJMSWildflyConfiguration.MQ_BROKER_NAME;
 
@@ -24,6 +22,7 @@ import static eu.domibus.jms.wildfly.DomibusJMSWildflyConfiguration.MQ_BROKER_NA
  * @author Cosmin Baciu
  * @since 4.2
  */
+@SuppressWarnings("unused")
 @ExtendWith(JMockitExtension.class)
 public class DomibusJMSWildflyConfigurationTest {
 
@@ -31,7 +30,7 @@ public class DomibusJMSWildflyConfigurationTest {
     DomibusJMSWildflyConfiguration domibusJMSWildflyConfiguration;
 
     @Test
-    public void mBeanServerConnectionFactoryBean(@Mocked ManagementFactory managementFactory) throws MalformedURLException {
+    public void mBeanServerConnectionFactoryBean(@Mocked ManagementFactory managementFactory) {
         domibusJMSWildflyConfiguration.mBeanServerConnectionFactoryBean();
 
         new Verifications() {{
@@ -61,9 +60,8 @@ public class DomibusJMSWildflyConfigurationTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void jmsSender(@Injectable ConnectionFactory connectionFactory,
-                          @Mocked JmsTemplate jmsTemplate) {
+                          @Mocked PriorityJmsTemplate jmsTemplate) {
         domibusJMSWildflyConfiguration.jmsSender(connectionFactory);
 
         new Verifications() {{

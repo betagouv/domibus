@@ -4,10 +4,10 @@ import eu.domibus.api.spring.SpringContextProvider;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.core.util.xml.XMLUtilImpl;
 import mockit.Expectations;
+import mockit.Mocked;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.ClassPathResource;
@@ -29,10 +29,10 @@ public class Ebms3ToStringAdapterTest {
     @Tested
     ToStringAdapter toStringAdapter;
 
+    @SuppressWarnings("unused")
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testToStringToNode() throws IOException, TransformerException {
-        new Expectations(SpringContextProvider.class) {{
+    public void testToStringToNode(@Mocked SpringContextProvider springContextProvider) throws IOException, TransformerException {
+        new Expectations() {{
             SpringContextProvider.getApplicationContext().getBean(XMLUtil.BEAN_NAME, XMLUtil.class);
             result = new XMLUtilImpl(null);
         }};

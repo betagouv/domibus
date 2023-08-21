@@ -6,10 +6,10 @@ import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -39,8 +39,8 @@ public class Evict2LCachesCommandTaskTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void execute(@Injectable Map<String, String> properties) {
+    public void execute() {
+        Map<String, String> properties = new HashMap<>();
         evict2LCachesCommandTask.execute(properties);
 
         new FullVerifications() {{

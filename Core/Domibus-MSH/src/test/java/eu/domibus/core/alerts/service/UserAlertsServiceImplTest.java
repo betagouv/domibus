@@ -19,7 +19,6 @@ import eu.domibus.core.user.ui.User;
 import eu.domibus.core.user.ui.UserDao;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -66,8 +65,8 @@ public class UserAlertsServiceImplTest {
     private UserAlertsServiceImpl userAlertsService;
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testSendPasswordExpiredAlerts(@Injectable UserDaoBase<UserEntityBase> dao,
+    public void testSendPasswordExpiredAlerts(@Mocked LocalDate localDate,
+            @Injectable UserDaoBase<UserEntityBase> dao,
                                               @Injectable RepetitiveAlertConfiguration alertConfiguration) {
         final LocalDate today = LocalDate.of(2018, 10, 15);
         final Integer maxPasswordAge = 10;
@@ -85,7 +84,7 @@ public class UserAlertsServiceImplTest {
         final List<User> users = Arrays.asList(user1, user2);
         EventType eventType = EventType.PASSWORD_EXPIRED;
 
-        new Expectations(LocalDate.class) {{
+        new Expectations() {{
             LocalDate.now();
             result = today;
         }};
@@ -117,8 +116,8 @@ public class UserAlertsServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testSendPasswordImminentExpirationAlerts(@Injectable UserDaoBase<UserEntityBase> dao,
+    public void testSendPasswordImminentExpirationAlerts(@Mocked LocalDate localDate,
+                                                         @Injectable UserDaoBase<UserEntityBase> dao,
                                                          @Injectable RepetitiveAlertConfiguration alertConfiguration) {
         final LocalDate today = LocalDate.of(2018, 10, 15);
         final Integer maxPasswordAge = 10;
@@ -137,7 +136,7 @@ public class UserAlertsServiceImplTest {
 
         EventType eventType = EventType.PASSWORD_IMMINENT_EXPIRATION;
 
-        new Expectations(LocalDate.class) {{
+        new Expectations() {{
             LocalDate.now();
             result = today;
         }};

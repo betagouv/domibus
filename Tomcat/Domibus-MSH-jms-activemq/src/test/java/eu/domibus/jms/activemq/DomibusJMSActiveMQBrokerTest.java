@@ -7,7 +7,6 @@ import org.apache.activemq.broker.jmx.QueueViewMBean;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.ObjectProvider;
@@ -15,12 +14,14 @@ import org.springframework.beans.factory.ObjectProvider;
 import javax.management.MBeanServerConnection;
 import javax.management.MBeanServerInvocationHandler;
 import javax.management.ObjectName;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author Sebastian-Ion TINCU
  * @since 5.0.1
  */
+@SuppressWarnings("unused")
 @ExtendWith(JMockitExtension.class)
 public class DomibusJMSActiveMQBrokerTest {
 
@@ -85,14 +86,15 @@ public class DomibusJMSActiveMQBrokerTest {
         boolean master = domibusJMSActiveMQBroker.isMaster();
 
         // THEN
-        Assertions.assertFalse( master, "Should have seen this broker as false when the broker view MBean sees it as a slave");
+        Assertions.assertFalse(master, "Should have seen this broker as false when the broker view MBean sees it as a slave");
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getQueueViewMBean_retrieveByQueueName(@Injectable QueueViewMBean queueViewMBean, @Injectable Map<String, ObjectName> queueMap) {
+    public void getQueueViewMBean_retrieveByQueueName(@Injectable QueueViewMBean queueViewMBean, @Injectable ObjectName objectName) {
         // GIVEN
         final String queueName = "queueName";
+        HashMap<String, ObjectName> queueMap = new HashMap<>();
+        queueMap.put(queueName, objectName);
         new MockUp<DomibusJMSActiveMQBroker>() {
             @Mock
             QueueViewMBean getQueueViewMBean(ObjectName objectName) {
@@ -104,22 +106,18 @@ public class DomibusJMSActiveMQBrokerTest {
                 return queueMap;
             }
         };
-        new Expectations() {{
-            queueMap.get(queueName);
-        }};
 
         // WHEN
         QueueViewMBean result = domibusJMSActiveMQBroker.getQueueViewMBean(queueName);
 
         // THEN
-        Assertions.assertSame( queueViewMBean, result, "Should have returned the correct MBean from the queue map when retrieving it by its queue name");
+        Assertions.assertSame(queueViewMBean, result, "Should have returned the correct MBean from the queue map when retrieving it by its queue name");
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getQueueViewMBean_retrieveByObjectName(@Injectable QueueViewMBean queueViewMBean, @Injectable ObjectName objectName) {
+    public void getQueueViewMBean_retrieveByObjectName(@Mocked MBeanServerInvocationHandler mBeanServerInvocationHandler, @Injectable QueueViewMBean queueViewMBean, @Injectable ObjectName objectName) {
         // GIVEN
-        new Expectations(MBeanServerInvocationHandler.class) {{
+        new Expectations() {{
             MBeanServerInvocationHandler.newProxyInstance(mBeanServerConnection, objectName, QueueViewMBean.class, true);
             result = queueViewMBean;
         }};
@@ -128,7 +126,7 @@ public class DomibusJMSActiveMQBrokerTest {
         QueueViewMBean result = domibusJMSActiveMQBroker.getQueueViewMBean(objectName);
 
         // THEN
-        Assertions.assertSame( queueViewMBean, result, "Should have returned the correct MBean from the queue map when retrieving it by its object name");
+        Assertions.assertSame(queueViewMBean, result, "Should have returned the correct MBean from the queue map when retrieving it by its object name");
     }
 
     @Test
@@ -136,7 +134,6 @@ public class DomibusJMSActiveMQBrokerTest {
         // GIVEN
         Map<String, ObjectName> queueMap = getQueueMap();
         queueMap.put("queueName", objectName);
-        Assertions.assertFalse( queueMap.isEmpty(), "Should have had the queue map already populated");
 
         // WHEN
         domibusJMSActiveMQBroker.getQueueMap();
@@ -154,7 +151,7 @@ public class DomibusJMSActiveMQBrokerTest {
         // GIVEN
         String queueName = "queueName";
         Map<String, ObjectName> queueMap = getQueueMap();
-        Assertions.assertTrue( queueMap.isEmpty(), "Should have had the queue map not already populated");
+        Assertions.assertTrue(queueMap.isEmpty(), "Should have had the queue map not already populated");
         new MockUp<DomibusJMSActiveMQBroker>() {
             @Mock
             QueueViewMBean getQueueViewMBean(ObjectName objectName) {
@@ -163,7 +160,7 @@ public class DomibusJMSActiveMQBrokerTest {
         };
         new Expectations() {{
             brokerViewMBean.getQueues();
-            result = new ObjectName[] { objectName };
+            result = new ObjectName[]{objectName};
 
             queueViewMBean.getName();
             result = queueName;
@@ -174,8 +171,8 @@ public class DomibusJMSActiveMQBrokerTest {
 
         // THEN
         new FullVerifications() {{
-            Assertions.assertSame( queueMap, result, "Should have returned the same queue map");
-            Assertions.assertSame( objectName, result.get(queueName), "Should have populated the queue map");
+            Assertions.assertSame(queueMap, result, "Should have returned the same queue map");
+            Assertions.assertSame(objectName, result.get(queueName), "Should have populated the queue map");
         }};
     }
 
@@ -184,7 +181,6 @@ public class DomibusJMSActiveMQBrokerTest {
         // GIVEN
         Map<String, ObjectName> queueMap = getQueueMap();
         queueMap.put("queueViewMBeanName", objectName);
-        Assertions.assertFalse( queueMap.isEmpty(), "Should have correctly initialized the queue map");
         new Expectations() {{
             mBeanServerConnections.getObject(serviceUrl);
             result = mBeanServerConnection;
@@ -197,9 +193,9 @@ public class DomibusJMSActiveMQBrokerTest {
         domibusJMSActiveMQBroker.refresh();
 
         // THEN
-        Assertions.assertSame( brokerViewMBean, getBrokerViewMBean(), "Should have refreshed the broker view MBean");
-        Assertions.assertSame( mBeanServerConnection, getMBeanServerConnection(), "Should have refreshed the server connection MBean");
-        Assertions.assertTrue( queueMap.isEmpty(), "Should have had the queue map cleared");
+        Assertions.assertSame(brokerViewMBean, getBrokerViewMBean(), "Should have refreshed the broker view MBean");
+        Assertions.assertSame(mBeanServerConnection, getMBeanServerConnection(), "Should have refreshed the server connection MBean");
+        Assertions.assertTrue(queueMap.isEmpty(), "Should have had the queue map cleared");
     }
 
     private Map<String, ObjectName> getQueueMap() throws IllegalAccessException {

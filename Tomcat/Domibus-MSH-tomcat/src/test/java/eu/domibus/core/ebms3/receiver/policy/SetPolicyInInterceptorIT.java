@@ -4,12 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.core.ebms3.receiver.leg.MessageLegConfigurationFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.test.common.SoapSampleUtil;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.binding.soap.Soap11;
 import org.apache.cxf.binding.soap.SoapMessage;
-import org.apache.cxf.message.ExchangeImpl;
-import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.security.SecurityConstants;
@@ -22,15 +17,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.util.TreeSet;
 import java.util.UUID;
 
 
@@ -61,7 +49,7 @@ public class SetPolicyInInterceptorIT extends AbstractIT {
 
         String filename = "SOAPMessage2.xml";
 
-        SoapMessage sm = createSoapMessage(filename, UUID.randomUUID() + "@domibus.eu");
+        SoapMessage sm = soapSampleUtil.createSoapMessage(filename, UUID.randomUUID() + "@domibus.eu");
 
         setPolicyInInterceptorServer.handleMessage(sm);
 
@@ -73,7 +61,7 @@ public class SetPolicyInInterceptorIT extends AbstractIT {
     void testHandleMessageNull() throws IOException {
 
         String filename = "SOAPMessageNoMessaging.xml";
-        SoapMessage sm = createSoapMessage(filename, UUID.randomUUID() + "@domibus.eu");
+        SoapMessage sm = soapSampleUtil.createSoapMessage(filename, UUID.randomUUID() + "@domibus.eu");
 
         // handle message without adding any content
         Assertions.assertThrows(org.apache.cxf.interceptor.Fault. class,() -> setPolicyInInterceptorServer.handleMessage(sm));
@@ -85,7 +73,7 @@ public class SetPolicyInInterceptorIT extends AbstractIT {
     public void testHandleGetVerb() throws IOException {
         HttpServletResponse response = new MockHttpServletResponse();
         String filename = "SOAPMessageNoMessaging.xml";
-        SoapMessage sm = createSoapMessage(filename, UUID.randomUUID() + "@domibus.eu");
+        SoapMessage sm = soapSampleUtil.createSoapMessage(filename, UUID.randomUUID() + "@domibus.eu");
         sm.put("org.apache.cxf.request.method", "GET");
         sm.put(AbstractHTTPDestination.HTTP_RESPONSE, response);
 
@@ -100,24 +88,5 @@ public class SetPolicyInInterceptorIT extends AbstractIT {
         } catch (UnsupportedEncodingException e) {
             Assertions.fail();
         }
-    }
-
-    public SoapMessage createSoapMessage(String filename, String messageId) throws IOException {
-        String datasetString = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("dataset/as4/" + filename), StandardCharsets.UTF_8);
-        datasetString = StringUtils.replace(datasetString, "MESSAGE_ID", messageId);
-        Reader reader = new StringReader(datasetString);
-        XMLStreamReader xmlReader = null;
-        XMLInputFactory factory = XMLInputFactory.newInstance(); // Or newFactory()
-        try {
-            xmlReader = factory.createXMLStreamReader(reader);
-        } catch (XMLStreamException e) {
-            throw new IllegalArgumentException("Could not create XML", e);
-        }
-
-        SoapMessage soapMessage = new SoapMessage(Soap11.getInstance());
-        soapMessage.setContent(XMLStreamReader.class, xmlReader);
-        soapMessage.setInterceptorChain(new PhaseInterceptorChain(new TreeSet<>()));
-        soapMessage.setExchange(new ExchangeImpl());
-        return soapMessage;
     }
 }
