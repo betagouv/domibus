@@ -75,7 +75,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  * @since 3.3
  */
 @Service
-// TODO: class too large, too many autowired services; needs splitting
+// TODO: EDELIVERY-11952 class too large, too many autowired services; needs splitting
 public class UserMessageDefaultService implements UserMessageService {
 
     public static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessageDefaultService.class);
