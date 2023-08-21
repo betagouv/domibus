@@ -135,7 +135,7 @@ public class DomibusMTTestDatasourceConfiguration {
         String sourceScriptPath = scriptDirectory + "/" + scriptName;
         URL resource = this.getClass().getResource(sourceScriptPath);
         if (resource != null) {
-            LOG.info("write script from sourceRes [{}]", resource.getPath());
+            LOG.info("write script from resource [{}]", resource.getPath());
         }
         ClassPathResource sourceRes = new ClassPathResource(sourceScriptPath);
 
