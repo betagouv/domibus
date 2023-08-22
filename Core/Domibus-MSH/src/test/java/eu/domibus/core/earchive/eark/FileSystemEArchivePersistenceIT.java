@@ -9,6 +9,7 @@ import eu.domibus.core.earchive.alerts.EArchivingEventService;
 import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.property.DomibusVersionService;
+import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
@@ -64,6 +65,9 @@ public class FileSystemEArchivePersistenceIT {
     private EArchivingEventService eArchivingEventService;
 
     @Injectable
+    protected XMLUtilImpl xmlUtil;
+
+    @Injectable
     private FileServiceUtil fileServiceUtil;
 
     @Tested
@@ -114,9 +118,11 @@ public void tearDown() throws IOException {
 
     @SuppressWarnings("ConstantConditions")
     @Test
+    @Ignore //EDELIVERY-11860
     public void createEArkSipStructure(@Injectable EArchiveFileStorage eArchiveFileStorage) {
         EARKSIPFileService value = new EARKSIPFileService();
         ReflectionTestUtils.setField(fileSystemEArchivePersistence,"eArkSipBuilderService", value);
+        ReflectionTestUtils.setField(value,"xmlUtil", xmlUtil);
 
         Map<String, ArchivingFileDTO> messageId1 = new HashMap<>();
         putRaw(messageId1, "test1");

@@ -198,7 +198,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
             throw new MessageNotFoundException("Message [" + messageId + "] does not exist");
         }
 
-        return errorsForMessage.stream().map(errorLogEntry -> errorLogService.convert(errorLogEntry)).collect(Collectors.toList());
+        return errorsForMessage.stream().map(errorLogService::convert).collect(Collectors.toList());
     }
 
     @Override

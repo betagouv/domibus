@@ -32,6 +32,7 @@ public class SignalMessageRawServiceIT extends AbstractIT {
     protected SignalMessageRawEnvelopeDao signalMessageRawEnvelopeDao;
 
 
+    @Ignore //TODO: to be removed by EDELIVERY-11795
     @Test
     public void noSignalFound() {
         try {

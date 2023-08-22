@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * @since 4.1.4
  */
 @ExtendWith(JMockitExtension.class)
-public class FileEbms3ServiceUtilImplTest {
+public class FileServiceUtilImplTest {
 
     public static final String BASE_FILE_NAME = "content.xml";
     @Tested

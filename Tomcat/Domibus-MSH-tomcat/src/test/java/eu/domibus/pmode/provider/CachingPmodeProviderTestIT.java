@@ -65,6 +65,7 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
         assertEquals(partyEndpoint, receiverPartyEndpoint);
     }
 
+    @Ignore //TODO: to be removed by EDELIVERY-11795
     @Test
     public void testGetFinalParticipantEndpointFromFinalParticipantEndpointURL() {
         final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());

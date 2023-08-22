@@ -251,4 +251,12 @@ public class DomibusApplicationContextListener {
         }
     }
 
+    UserService getUserService() {
+        if (domibusConfigurationService.isMultiTenantAware()) {
+            return superUserManagementService;
+        } else {
+            return userManagementService;
+        }
+    }
+
 }
