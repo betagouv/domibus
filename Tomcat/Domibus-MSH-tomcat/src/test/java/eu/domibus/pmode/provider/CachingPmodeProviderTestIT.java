@@ -5,22 +5,24 @@ import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusProperty;
-import eu.domibus.common.model.configuration.Process;
-import eu.domibus.common.model.configuration.*;
+import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.common.model.configuration.Mpc;
+import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.core.property.DomibusPropertyResourceHelperImpl;
 import eu.domibus.messaging.XmlProcessingException;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
@@ -65,8 +67,8 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
         assertEquals(partyEndpoint, receiverPartyEndpoint);
     }
 
-    @Ignore //TODO: to be removed by EDELIVERY-11795
     @Test
+    @Disabled("EDELIVERY-11795")
     public void testGetFinalParticipantEndpointFromFinalParticipantEndpointURL() {
         final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
 
