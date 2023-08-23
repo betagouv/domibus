@@ -5,8 +5,8 @@ import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
@@ -38,9 +38,9 @@ public class FileServiceUtilTestIT extends AbstractIT {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
         fileServiceUtil.copyToFile(inputStream, outputFile);
         return outputFile;
-}
+    }
 
-    @Ignore//comment to test the performance
+    @Disabled//comment to test the performance
     @Test
     public void stressTestCopyFile() throws IOException, InterruptedException {
         Runnable copyToFileRunnable = () -> {
