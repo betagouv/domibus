@@ -1,13 +1,9 @@
 package eu.domibus.core.util;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.util.FileServiceUtil;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.junit.jupiter.api.Disabled;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -17,11 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileServiceUtilTestIT extends AbstractIT {
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileServiceUtilTestIT.class);
-
-    @Autowired
-    FileServiceUtil fileServiceUtil;
 
     final File parentDir = new File("target/test");
 
@@ -36,7 +27,7 @@ public class FileServiceUtilTestIT extends AbstractIT {
         final File outputFile = new File(parentDir, "myfile" + System.nanoTime() + ".txt");
 
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
-        fileServiceUtil.copyToFile(inputStream, outputFile);
+        new FileServiceUtilImpl().copyToFile(inputStream, outputFile);
         return outputFile;
     }
 
