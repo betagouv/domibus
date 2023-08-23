@@ -23,10 +23,7 @@ import eu.domibus.core.message.splitandjoin.MessageGroupDao;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.core.util.SoapUtil;
 import eu.domibus.core.util.TimestampDateFormatter;
-import mockit.Expectations;
-import mockit.FullVerifications;
-import mockit.Injectable;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Disabled;
@@ -119,6 +116,9 @@ public class AS4ReceiptServiceImplTest {
             messageFactory.createMessage();
             result = soapResponseMessage;
 
+            userMessage.getMessageId();
+            result = "1234";
+
             soapRequestMessage.getSOAPPart();
             result = soapPart;
 
@@ -145,15 +145,12 @@ public class AS4ReceiptServiceImplTest {
 
         new FullVerifications(as4ReceiptService) {{
             transformer.setParameter(anyString, any);
-            times = 3;
+            times = 4;
 
             transformer.transform(withAny(messageToReceiptTransform), withAny(domResult));
             times = 1;
 
             soapPart.setContent((Source) any);
-            times = 1;
-
-            as4ReceiptService.setMessagingId(soapResponseMessage, userMessage);
             times = 1;
         }};
     }
@@ -214,9 +211,9 @@ public class AS4ReceiptServiceImplTest {
             assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0201, e.getErrorCode());
         }
 
-        new FullVerifications() {{
+        new Verifications() {{
             transformer.setParameter(anyString, any);
-            times = 3;
+            times = 4;
         }};
     }
 
