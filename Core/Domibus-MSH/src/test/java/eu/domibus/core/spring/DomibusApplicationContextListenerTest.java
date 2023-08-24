@@ -28,9 +28,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 
 import javax.xml.ws.Endpoint;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 /**
  * @author Cosmin Baciu
  * @since 4.1.1

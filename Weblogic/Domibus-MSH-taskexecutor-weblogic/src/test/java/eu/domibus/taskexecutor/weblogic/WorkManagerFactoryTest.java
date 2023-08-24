@@ -1,30 +1,22 @@
 package eu.domibus.taskexecutor.weblogic;
 
 import commonj.work.WorkManager;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Cosmin Baciu
  */
+@SuppressWarnings("unused")
 @ExtendWith(JMockitExtension.class)
 public class WorkManagerFactoryTest {
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WorkManagerFactoryTest.class);
 
     @Tested
     WorkManagerFactory workManagerFactory;
@@ -38,7 +30,7 @@ public class WorkManagerFactoryTest {
 
         final WorkManager returnedWorkManager = workManagerFactory.getObject();
         new Verifications() {{
-            assertTrue(workManager == returnedWorkManager);
+            assertSame(workManager, returnedWorkManager);
         }};
     }
 
@@ -55,7 +47,7 @@ public class WorkManagerFactoryTest {
         final WorkManager returnedWorkManager = workManagerFactory.getObject();
         new Verifications() {{
             workManagerFactory.getDefaultWorkManager();
-            assertTrue(workManager == returnedWorkManager);
+            assertSame(workManager, returnedWorkManager);
         }};
     }
 
@@ -78,10 +70,9 @@ public class WorkManagerFactoryTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testLookupWorkManager(final @Injectable WorkManager workManager) throws Exception {
+    public void testLookupWorkManager(@Mocked InitialContext initialContext, final @Injectable WorkManager workManager) throws Exception {
         final String jndiName = "myname";
-        new Expectations(InitialContext.class) {{
+        new Expectations() {{
             InitialContext.doLookup(jndiName);
             result = workManager;
         }};
@@ -89,15 +80,14 @@ public class WorkManagerFactoryTest {
         final WorkManager returnedWorkManager = workManagerFactory.lookupWorkManager(jndiName);
 
         new Verifications() {{
-            assertTrue(workManager == returnedWorkManager);
+            assertSame(workManager, returnedWorkManager);
         }};
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testLookupWorkManagerWhenLookupExceptionIsRaised(final @Injectable WorkManager workManager) throws Exception {
+    public void testLookupWorkManagerWhenLookupExceptionIsRaised(@Mocked InitialContext initialContext, final @Injectable WorkManager workManager) throws Exception {
         final String jndiName = "myname";
-        new Expectations(InitialContext.class) {{
+        new Expectations() {{
             InitialContext.doLookup(jndiName);
             result = new NamingException();
         }};
@@ -105,12 +95,12 @@ public class WorkManagerFactoryTest {
         final WorkManager returnedWorkManager = workManagerFactory.lookupWorkManager(jndiName);
 
         new Verifications() {{
-            assertTrue(null == returnedWorkManager);
+            assertNull(returnedWorkManager);
         }};
     }
 
     @Test
-    public void testGetDefaultWorkManager(final @Injectable WorkManager workManager) throws Exception {
+    public void testGetDefaultWorkManager(final @Injectable WorkManager workManager)  {
         new Expectations(workManagerFactory) {{
             workManagerFactory.lookupWorkManager(WorkManagerFactory.DEFAULT_WORK_MANAGER);
             result = workManager;
@@ -120,12 +110,12 @@ public class WorkManagerFactoryTest {
 
         new Verifications() {{
             workManagerFactory.lookupWorkManager(WorkManagerFactory.DEFAULT_WORK_MANAGER);
-            assertTrue(workManager == returnedWorkManager);
+            assertSame(workManager, returnedWorkManager);
         }};
     }
 
     @Test
-    public void testGetGlobalWorkManager(final @Injectable WorkManager workManager) throws Exception {
+    public void testGetGlobalWorkManager(final @Injectable WorkManager workManager)  {
         final String workManagerJndiName = "myjndi";
         workManagerFactory.setWorkManagerJndiName(workManagerJndiName);
         new Expectations(workManagerFactory) {{
@@ -137,7 +127,7 @@ public class WorkManagerFactoryTest {
 
         new Verifications() {{
             workManagerFactory.lookupWorkManager(workManagerJndiName);
-            assertTrue(workManager == returnedWorkManager);
+            assertSame(workManager, returnedWorkManager);
         }};
     }
 

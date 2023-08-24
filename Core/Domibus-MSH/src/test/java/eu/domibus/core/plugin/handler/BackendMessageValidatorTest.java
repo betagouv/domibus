@@ -79,9 +79,6 @@ public class BackendMessageValidatorTest {
         new Expectations() {{
             domibusPropertyProvider.getProperty(BackendMessageValidator.KEY_MESSAGEID_PATTERN);
             result = MESSAGE_ID_PATTERN;
-
-            userMessageLogDao.getMessageStatus(anyString, (MSHRole) any);
-            result = MessageStatus.NOT_FOUND;
         }};
 
         /*Happy Flow No error should occur*/
@@ -256,9 +253,6 @@ public class BackendMessageValidatorTest {
         new Expectations() {{
             domibusPropertyProvider.getProperty(BackendMessageValidator.KEY_MESSAGEID_PATTERN);
             result = null;
-
-            userMessageLogDao.getMessageStatus(anyString, (MSHRole) any);
-            result = MessageStatus.NOT_FOUND;
         }};
 
         /*If the domibus-configuration file does not have the message id format, then message id pattern validation must be skipped. No exception expected*/

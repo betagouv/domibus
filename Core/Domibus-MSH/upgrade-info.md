@@ -1,6 +1,6 @@
 # Domibus upgrade information
 
-  ## Domibus 5.2 (from 5.1)
+  ## Domibus 5.2 (from 5.1.1)
                 - Run the appropriate DB migration script(mysql-5.1.1-to-5.2-migration.ddl for MySQL or oracle-5.1.1-to-5.2-migration.ddl for Oracle)
                 - For multi-tenancy, run the appropriate DB migration script(mysql-5.1.1-to-5.2-multi-tenancy-migration.ddl for MySQL or oracle-5.1.1-to-5.2-multi-tenancy-migration.ddl for Oracle)
                 - In all eDeliveryAS4Policy xml files, the hardcoded algorithm suite name defined in AsymmetricBinding/Policy/AlgorithSuite/ (e.g Basic128GCMSha256MgfSha256) was replaced with the placeholder: ${algorithmSuitePlaceholder} which will be automatically replaced in code according to the security setup
@@ -47,7 +47,7 @@
                             - general schema: oracle-5.0-to-5.1-multi-tenancy-migration.ddl
                             - domain schemas: oracle-5.0-to-5.1-migration.ddl, oracle-5.1-data-migration.ddl
                         - partitioning the database:
-                              - if your database is not partitioned then run @oracle-5.0.6-partitioning.ddl
+                              - if your database is not partitioned then run @oracle-5.1.1-partitioning.ddl
                   o [MySQL only]
                       The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
                           - the root user, specifying the target databases as part of the command. For example, for single tenancy:

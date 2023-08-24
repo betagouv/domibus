@@ -6,7 +6,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <!-- properties - to be used in column definitions -->
-    <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
+    <include file="../../common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 
     <changeSet author="Razvan Cretu" id="EDELIVERY-9563">
         <createTable tableName="TB_PARTY_STATUS">
@@ -150,6 +150,9 @@
         <sql dbms="mysql">
             CALL drop_index_if_exists('IDX_SIG_MESS_SIGNAL_MESS_ID', 'TB_SIGNAL_MESSAGE')
         </sql>
+        <sql dbms="mysql">
+            DROP PROCEDURE IF EXISTS drop_index_if_exists
+        </sql>
 
         <!--add column-->
         <addColumn tableName="TB_SIGNAL_MESSAGE">
@@ -173,11 +176,6 @@
                            FROM TB_SIGNAL_MESSAGE_LOG t2
                            WHERE t1.ID_PK = t2.ID_PK )
         </sql>
-        <!--add back updated constraints-->
-        <createIndex indexName="IDX_SIG_MESS_SIGNAL_MESS_ID" tableName="TB_SIGNAL_MESSAGE">
-            <column name="SIGNAL_MESSAGE_ID"/>
-            <column name="MSH_ROLE_ID_FK" />
-        </createIndex>
 
         <!-- drop constraint if exists-->
         <sql dbms="oracle" endDelimiter="\n/">
@@ -214,6 +212,9 @@
         </sql>
         <sql dbms="mysql">
             CALL drop_constraint_if_exists('UK_SIGNAL_MSG_MESSAGE_ID', 'TB_SIGNAL_MESSAGE');
+        </sql>
+        <sql dbms="mysql">
+            DROP PROCEDURE IF EXISTS drop_constraint_if_exists
         </sql>
         <addUniqueConstraint columnNames="SIGNAL_MESSAGE_ID, MSH_ROLE_ID_FK" constraintName="UK_SIGNAL_MSG_MESSAGE_ID" tableName="TB_SIGNAL_MESSAGE"/>
 

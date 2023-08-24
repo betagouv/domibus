@@ -2,12 +2,8 @@ package eu.domibus.taskexecutor.wildfly;
 
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -15,12 +11,12 @@ import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Cosmin Baciu
  */
+@SuppressWarnings("unused")
 @ExtendWith(JMockitExtension.class)
 public class DomibusExecutorServiceFactoryTest {
 
@@ -38,7 +34,7 @@ public class DomibusExecutorServiceFactoryTest {
 
         final ManagedExecutorService returnedExecutorService = domibusExecutorServiceFactory.getObject();
         new Verifications() {{
-            assertTrue(managedExecutorService == returnedExecutorService);
+            assertSame(managedExecutorService, returnedExecutorService);
         }};
     }
 
@@ -55,7 +51,7 @@ public class DomibusExecutorServiceFactoryTest {
         final ManagedExecutorService returnedExecutorService = domibusExecutorServiceFactory.getObject();
         new Verifications() {{
             domibusExecutorServiceFactory.getDefaultExecutorService();
-            assertTrue(managedExecutorService == returnedExecutorService);
+            assertSame(managedExecutorService, returnedExecutorService);
         }};
     }
 
@@ -78,10 +74,9 @@ public class DomibusExecutorServiceFactoryTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testLookupExecutorService(final @Injectable ManagedExecutorService managedExecutorService) throws Exception {
+    public void testLookupExecutorService(@Mocked InitialContext initialContext, final @Injectable ManagedExecutorService managedExecutorService) throws Exception {
         final String jndiName = "myname";
-        new Expectations(InitialContext.class) {{
+        new Expectations() {{
             InitialContext.doLookup(jndiName);
             result = managedExecutorService;
         }};
@@ -89,15 +84,14 @@ public class DomibusExecutorServiceFactoryTest {
         final ManagedExecutorService returnedExecutorService = domibusExecutorServiceFactory.lookupExecutorService(jndiName);
 
         new Verifications() {{
-            assertTrue(managedExecutorService == returnedExecutorService);
+            assertSame(managedExecutorService, returnedExecutorService);
         }};
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testLookupWorkManagerWhenLookupExceptionIsRaised(final @Injectable ManagedExecutorService managedExecutorService) throws Exception {
+    public void testLookupWorkManagerWhenLookupExceptionIsRaised(@Mocked InitialContext initialContext, final @Injectable ManagedExecutorService managedExecutorService) throws Exception {
         final String jndiName = "myname";
-        new Expectations(InitialContext.class) {{
+        new Expectations() {{
             InitialContext.doLookup(jndiName);
             result = new NamingException();
         }};
@@ -105,12 +99,12 @@ public class DomibusExecutorServiceFactoryTest {
         final ManagedExecutorService returnedExecutorService = domibusExecutorServiceFactory.lookupExecutorService(jndiName);
 
         new Verifications() {{
-            assertTrue(null == returnedExecutorService);
+            assertNull(returnedExecutorService);
         }};
     }
 
     @Test
-    public void testGetDefaultExecutorService(final @Injectable ManagedExecutorService managedExecutorService) throws Exception {
+    public void testGetDefaultExecutorService(final @Injectable ManagedExecutorService managedExecutorService) {
         new Expectations(domibusExecutorServiceFactory) {{
             domibusExecutorServiceFactory.lookupExecutorService(DomibusExecutorServiceFactory.DEFAULT_EXECUTOR_SERVICE);
             result = managedExecutorService;
@@ -120,12 +114,12 @@ public class DomibusExecutorServiceFactoryTest {
 
         new Verifications() {{
             domibusExecutorServiceFactory.lookupExecutorService(DomibusExecutorServiceFactory.DEFAULT_EXECUTOR_SERVICE);
-            assertTrue(managedExecutorService == returnedExecutorService);
+            assertSame(managedExecutorService, returnedExecutorService);
         }};
     }
 
     @Test
-    public void testGetGlobalWorkManager(final @Injectable ManagedExecutorService managedExecutorService) throws Exception {
+    public void testGetGlobalWorkManager(final @Injectable ManagedExecutorService managedExecutorService) {
         final String executorServiceJndi = "myjndi";
         domibusExecutorServiceFactory.setExecutorServiceJndiName(executorServiceJndi);
         new Expectations(domibusExecutorServiceFactory) {{
@@ -137,7 +131,7 @@ public class DomibusExecutorServiceFactoryTest {
 
         new Verifications() {{
             domibusExecutorServiceFactory.lookupExecutorService(executorServiceJndi);
-            assertTrue(managedExecutorService == returnedExecutorService);
+            assertSame(managedExecutorService, returnedExecutorService);
         }};
     }
 

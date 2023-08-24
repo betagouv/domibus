@@ -80,6 +80,13 @@
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
         </dependency>
+<!--        TEST-->
+        <dependency>
+            <groupId>com.sun.xml.ws</groupId>
+            <artifactId>jaxws-rt</artifactId>
+            <version>2.3.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>
