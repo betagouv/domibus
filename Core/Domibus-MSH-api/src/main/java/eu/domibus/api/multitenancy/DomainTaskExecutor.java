@@ -41,5 +41,5 @@ public interface DomainTaskExecutor {
      */
     void submitLongRunningTask(Runnable task, Domain domain);
 
-    <R> R executeWithLock(Callable<R> task, String syncLockKey, Object javaLockKey, Runnable errorHandler);
+    <R> R executeWithLock(Callable<R> task, String syncLockKey, String javaLockKey, Runnable errorHandler);
 }

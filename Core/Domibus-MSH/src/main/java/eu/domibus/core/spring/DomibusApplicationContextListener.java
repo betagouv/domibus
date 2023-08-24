@@ -47,7 +47,7 @@ public class DomibusApplicationContextListener {
 
     private final static DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusApplicationContextListener.class);
 
-    private static final Object initLock = new Object();
+    private static final String INIT_LOCK = "initLock";
 
     public static final String SYNC_LOCK_KEY = "bootstrap-synchronization.lock";
 
@@ -239,7 +239,7 @@ public class DomibusApplicationContextListener {
             task.run();
             return true;
         };
-        domainTaskExecutor.executeWithLock(wrappedTask, SYNC_LOCK_KEY, initLock, errorHandler);
+        domainTaskExecutor.executeWithLock(wrappedTask, SYNC_LOCK_KEY, INIT_LOCK, errorHandler);
     }
 
 
