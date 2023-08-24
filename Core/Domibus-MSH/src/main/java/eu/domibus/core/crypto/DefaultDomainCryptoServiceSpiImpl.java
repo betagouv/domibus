@@ -66,7 +66,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DefaultDomainCryptoServiceSpiImpl.class);
 
-    private static final Object changeLock = new Object();
+    private static final String CHANGE_LOCK = "changeLock";
 
     private static final String SYNC_LOCK_KEY = "keystore-synchronization.lock";
 
@@ -801,7 +801,7 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private <R> R executeWithLock(Callable<R> task) {
         try {
-            return synchronizationService.execute(task, SYNC_LOCK_KEY, changeLock);
+            return synchronizationService.execute(task, SYNC_LOCK_KEY, CHANGE_LOCK);
         } catch (DomibusSynchronizationException ex) {
             Throwable cause = ExceptionUtils.getRootCause(ex);
             if (cause instanceof CryptoSpiException) {
