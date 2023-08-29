@@ -146,7 +146,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = DuplicateMessageException.class)
     public eu.domibus.common.MessageStatus getStatus(final String messageId) throws DuplicateMessageException {
         try {
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
@@ -189,7 +189,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = {MessageNotFoundException.class, DuplicateMessageException.class})
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) throws MessageNotFoundException, DuplicateMessageException {
         boolean messageExists = false;
         try {
@@ -201,7 +201,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
             LOG.info("Message [" + messageId + "] does not exist");
         }
         List<ErrorLogEntry> errorsForMessage = errorLogService.getErrorsForMessage(messageId);
-        if(!messageExists && CollectionUtils.isEmpty(errorsForMessage)) {
+        if (!messageExists && CollectionUtils.isEmpty(errorsForMessage)) {
             throw new MessageNotFoundException("Message [" + messageId + "] does not exist");
         }
 
@@ -209,7 +209,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = MessageNotFoundException.class)
     public List<? extends ErrorResult> getErrorsForMessage(String messageId, eu.domibus.common.MSHRole mshRole) throws MessageNotFoundException {
         MSHRole role = MSHRole.valueOf(mshRole.name());
         boolean messageExists = false;
