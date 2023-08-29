@@ -26,9 +26,10 @@ export class AlertService {
 
   public success(response: any, duration: number = 5000) {
     let message = this.formatResponse(response);
+    let hasWarnings = response.issues != undefined && response.issues.length > 0;
     this.matSnackBar.openFromComponent(AlertComponent, {
       data: {message: message, service: this},
-      panelClass: 'success',
+      panelClass: hasWarnings ? 'warning' : 'success',
       duration: duration,
       verticalPosition: 'top',
     });
