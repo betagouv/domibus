@@ -2,6 +2,7 @@ package eu.domibus.core.message.signal;
 
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.TsidUtil;
 import eu.domibus.core.message.MessageLogInfoFilterTest;
 import mockit.Expectations;
 import mockit.Injectable;
@@ -37,6 +38,9 @@ public class SignalMessageLogInfoFilterTest {
 
     @Tested
     SignalMessageLogInfoFilter signalMessageLogInfoFilter;
+
+    @Injectable
+    TsidUtil tsidUtil;
 
     private static HashMap<String, Object> filters = new HashMap<>();
 
