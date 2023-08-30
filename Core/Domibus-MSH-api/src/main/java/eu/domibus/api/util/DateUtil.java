@@ -62,11 +62,7 @@ public interface DateUtil {
 
     LocalDateTime getLocalDateTime(String date);
 
+    LocalDateTime convertToLocalDateTime(Date date);
 
-    /**
-     * Parse a date to an ID_PK prefix
-     *
-     * @return string of format YYMMDDHH
-     */
-    String getIdPkDateHourPrefix(Date value);
+    Date convertFromLocalDateTime(LocalDateTime localDateTime);
 }

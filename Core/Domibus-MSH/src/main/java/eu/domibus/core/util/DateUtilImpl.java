@@ -10,12 +10,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -27,13 +25,6 @@ import java.util.concurrent.TimeUnit;
 public class DateUtilImpl implements DateUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DateUtilImpl.class);
-
-    @Override
-    public String getIdPkDateHourPrefix(Date value) {
-        SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return sdf.format(value).substring(0, 8);
-    }
 
     @Override
     public Date fromString(String value) {
@@ -123,6 +114,19 @@ public class DateUtilImpl implements DateUtil {
         }
     }
 
+    @Override
+    public LocalDateTime convertToLocalDateTime(Date date) {
+        if(date == null) {
+            return null;
+        }
+        return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+    }
 
-
+    @Override
+    public Date convertFromLocalDateTime(LocalDateTime localDateTime) {
+        if (localDateTime == null) {
+            return null;
+        }
+        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    }
 }

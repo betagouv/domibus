@@ -70,8 +70,6 @@ public class RequestFilterUtils {
         if (to == null) {
             to = Date.from(java.time.ZonedDateTime.now(ZoneOffset.UTC).toInstant());
         }
-        filters.put(PROPERTY_RECEIVED_FROM, from);
-        filters.put(PROPERTY_RECEIVED_TO, to);
 
         filters.put(PROPERTY_MIN_ENTITY_ID, from);
         filters.put(PROPERTY_MAX_ENTITY_ID, to);

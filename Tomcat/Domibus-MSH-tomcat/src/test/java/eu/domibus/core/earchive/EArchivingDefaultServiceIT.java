@@ -35,7 +35,7 @@ import static java.util.Locale.ENGLISH;
  * @since 5.0
  */
 @Transactional
-@Disabled("EDELIVERY-6896")
+//@Disabled("EDELIVERY-6896")
 public class EArchivingDefaultServiceIT extends AbstractIT {
 
     @Autowired
@@ -83,8 +83,8 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     @BeforeEach
     public void setUp() throws Exception {
         waitUntilDatabaseIsInitialized();
-        Assertions.assertEquals(101000000000000L, ((long) eArchiveBatchStartDao.findByReference(CONTINUOUS_ID).getLastPkUserMessage()));
-        Assertions.assertEquals(101000000000000L, ((long) eArchiveBatchStartDao.findByReference(SANITY_ID).getLastPkUserMessage()));
+        Assertions.assertEquals(0L, ((long) eArchiveBatchStartDao.findByReference(CONTINUOUS_ID).getLastPkUserMessage()));
+        Assertions.assertEquals(0L, ((long) eArchiveBatchStartDao.findByReference(SANITY_ID).getLastPkUserMessage()));
         // prepare
         Date currentDate = Calendar.getInstance().getTime();
         uml1 = messageDaoTestUtil.createUserMessageLog("uml1-" + UUID.randomUUID(), currentDate);
@@ -141,7 +141,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     public void getStartDateContinuousArchive() {
         Long startDateContinuousArchive = eArchivingService.getStartDateContinuousArchive();
 
-        Assertions.assertEquals(10100L, startDateContinuousArchive.longValue());
+        Assertions.assertEquals(0L, startDateContinuousArchive.longValue());
     }
 
     @Test
@@ -157,7 +157,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     public void getStartDateSanityArchive() {
         Long startDateSanityArchive = eArchivingService.getStartDateSanityArchive();
 
-        Assertions.assertEquals(10100L, startDateSanityArchive.longValue());
+        Assertions.assertEquals(0L, startDateSanityArchive.longValue());
     }
 
     @Test
@@ -226,11 +226,9 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
 
     @Test
     public void getNotArchivedMessages() {
-       /* Date currentDate = Calendar.getInstance().getTime();
-        Long startDate =  Long.parseLong(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, -30).toInstant(),
-                ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
-        Long endDate  = Long.parseLong(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, 1).toInstant(),
-                ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+        Date currentDate = Calendar.getInstance().getTime();
+        Long startDate = tsidUtil.zonedTimeDateToMaxTsid(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, -30).toInstant(), ZoneOffset.UTC));
+        Long endDate =tsidUtil.zonedTimeDateToMaxTsid(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, 1).toInstant(), ZoneOffset.UTC));
 
         List<String> messages = eArchivingService.getNotArchivedMessages(startDate,
                 endDate, null, null);
@@ -239,24 +237,22 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         int expectedCount = 8;
         Assertions.assertTrue(expectedCount <= messages.size()); // the db may contain messages from other non-transactional tests
         Assertions.assertTrue(messages.contains(uml1.getUserMessage().getMessageId()));
-        Assertions.assertTrue(messages.contains(uml8_not_archived.getUserMessage().getMessageId()));*/
+        Assertions.assertTrue(messages.contains(uml8_not_archived.getUserMessage().getMessageId()));
     }
 
     @Test
     @Transactional
     public void getNotArchivedMessagesCount() {
-       /* Date currentDate = Calendar.getInstance().getTime();
-        Long startDate =  Long.parseLong(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, -30).toInstant(),
-                ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
-        Long endDate  = Long.parseLong(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, 1).toInstant(),
-                ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+        Date currentDate = Calendar.getInstance().getTime();
+        Long startDate = tsidUtil.zonedTimeDateToMaxTsid(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, -30).toInstant(), ZoneOffset.UTC));
+        Long endDate =tsidUtil.zonedTimeDateToMaxTsid(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, 1).toInstant(), ZoneOffset.UTC));
 
         Long count = eArchivingService.getNotArchivedMessagesCount(startDate,
                 endDate);
 
         // According to the discussion service must return all messages which does not have set archive date!
         int expectedCount = 8;
-        Assertions.assertTrue(expectedCount <= count); // the db may contain messages from other non-transactional tests*/
+        Assertions.assertTrue(expectedCount <= count); // the db may contain messages from other non-transactional tests
     }
 
     @Test

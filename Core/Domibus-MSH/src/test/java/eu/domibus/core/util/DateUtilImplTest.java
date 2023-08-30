@@ -205,21 +205,4 @@ public class DateUtilImplTest {
             //OK
         }*/
     }
-
-
-    @Test
-    public void getIdPkDateHourPrefixTest() {
-        String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
-        final SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT);
-        sdf.setTimeZone(TimeZone.getTimeZone("EST"));
-
-        Date currentDate = dateUtilImpl.getUtcDate();
-        Date newDate = DateUtils.addMinutes(currentDate, 10);
-        Integer partitionNameEES = new Integer(sdf.format(newDate).substring(0, 8));
-
-        Integer partitionNameUTC = new Integer(dateUtilImpl.getIdPkDateHourPrefix(currentDate));
-
-        Assertions.assertTrue(partitionNameUTC - partitionNameEES > 0);
-    }
-
 }
