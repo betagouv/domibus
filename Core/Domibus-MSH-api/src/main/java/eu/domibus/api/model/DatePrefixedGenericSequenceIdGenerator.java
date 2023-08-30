@@ -27,7 +27,7 @@ import java.util.Properties;
  * </ul>
  * </p>
  * <p>
- * For more details see https://github.com/vladmihalcea/hypersistence-tsid for more details.
+ * For more details see https://github.com/vladmihalcea/hypersistence-tsid.
  *
  * @author François Gautier
  * @author Cosmin Baciu

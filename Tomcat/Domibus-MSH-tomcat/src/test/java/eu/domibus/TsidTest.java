@@ -10,6 +10,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.2
+ */
 public class TsidTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TsidTest.class);

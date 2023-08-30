@@ -4,6 +4,10 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.2
+ */
 public interface TsidUtil {
 
     int RANDOM_BITS = 22;

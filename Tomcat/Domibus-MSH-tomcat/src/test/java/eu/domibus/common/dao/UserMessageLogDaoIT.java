@@ -3,6 +3,7 @@ package eu.domibus.common.dao;
 import eu.domibus.AbstractIT;
 import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.api.util.TsidUtil;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.MessageLogInfo;
@@ -15,7 +16,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessagingProcessingException;
 import eu.domibus.test.common.BackendConnectorMock;
-
 import org.junit.jupiter.api.*;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -32,8 +31,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static eu.domibus.api.model.MessageStatus.*;
-import static eu.domibus.api.util.DateUtil.REST_FORMATTER;
-import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.UUID.randomUUID;
 import static org.apache.commons.lang3.StringUtils.equalsAnyIgnoreCase;
 import static org.hamcrest.CoreMatchers.hasItems;
@@ -99,9 +96,12 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Autowired
     PayloadFileStorageProvider payloadFileStorageProvider;
 
+    @Autowired
+    TsidUtil tsidUtil;
+
     @BeforeEach
     public void setup() throws Exception {
-        /*before = dateUtil.fromString("2019-01-01T12:00:00Z");
+        before = dateUtil.fromString("2019-01-01T12:00:00Z");
         Date timeT = dateUtil.fromString("2020-01-01T12:00:00Z");
         after = dateUtil.fromString("2021-01-01T12:00:00Z");
         old = Date.from(before.toInstant().minusSeconds(60 * 60 * 24)); // one day older than "before"
@@ -115,7 +115,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         String messageFourId = "msg4-" + randomUUID();
         msg1 = receiveMessage(messageOneId, timeT, false);
 
-        msg2 = receiveMessage(messageTwoId , timeT, false);
+        msg2 = receiveMessage(messageTwoId, timeT, false);
 
         msg3 = receiveMessage(messageThreeId, old, false);
 
@@ -135,12 +135,11 @@ public class UserMessageLogDaoIT extends AbstractIT {
         sendMessage(waitingForRetryWithProperties, timeT, WAITING_FOR_RETRY, true, null);
         sendMessage(sendFailureWithProperties, timeT, SEND_FAILURE, true, null);
 
-        maxEntityId = Long.parseLong(ZonedDateTime
-                .now(ZoneOffset.UTC)
-                .plusDays(1)
-                .format(ofPattern(DATETIME_FORMAT_DEFAULT, Locale.ENGLISH)) + String.format(NUMBER_FORMAT_DEFAULT, 0));
+        maxEntityId = tsidUtil.zonedTimeDateToMaxTsid(
+                ZonedDateTime.now(ZoneOffset.UTC)
+                        .plusDays(1));
 
-        LOG.putMDC(DomibusLogger.MDC_USER, "test_user");*/
+        LOG.putMDC(DomibusLogger.MDC_USER, "test_user");
     }
 
     private void sendMessage(String messageId, Date timeT, MessageStatus status, boolean hasProperties, Date archivedAndExported) throws MessagingProcessingException {
@@ -151,7 +150,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
         Set<MessageProperty> messageProperties = userMessage.getMessageProperties();
         messageProperties.clear();
-        if(hasProperties){
+        if (hasProperties) {
             MessageProperty messageProperty1 = messageDaoTestUtil.createMessageProperty("originalSender", ORIGINAL_SENDER, "");
             MessageProperty messageProperty2 = messageDaoTestUtil.createMessageProperty("finalRecipient", FINAL_RECIPIENT, "");
             messageProperties.addAll(Arrays.asList(messageProperty1, messageProperty2));
@@ -163,7 +162,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         itTestsService.receiveMessage(messageId);
         UserMessageLog msg = userMessageLogDao.findByMessageId(messageId);
         MessageDaoTestUtil.setUserMessageLogDates(msg, timeT, null);
-        if(isFragment){
+        if (isFragment) {
             msg.getUserMessage().setMessageFragment(true);
         }
         return msg;
@@ -232,6 +231,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
                 .map(UserMessageLogDto::getMessageId)
                 .collect(Collectors.toList()), hasItems(downloadedNoProperties, downloadedWithProperties));
     }
+
     @Test
     public void getDownloadedUserMessagesOlderThan_found_eArchive() {
         List<UserMessageLogDto> downloadedUserMessagesOlderThan =
@@ -297,7 +297,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         final Date now = dateUtil.getUtcDate();
         Assertions.assertTrue(dateUtil.getDiffMinutesBetweenDates(now, retryMessage.getReceived()) < 10,
                 "Should have saved the received date in UTC, irrespective of the application timezone " +
-                                "(difference to UTC current date time less than 10 minutes)");
+                        "(difference to UTC current date time less than 10 minutes)");
     }
 
     private Map<String, String> getProperties(List<UserMessageLogDto> deletedUserMessagesOlderThan, String deletedWithProperties) {
@@ -355,66 +355,81 @@ public class UserMessageLogDaoIT extends AbstractIT {
 
     @Test
     public void findMessagesToDelete() {
-       /* final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
+        final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
         final ZonedDateTime startDate = currentDate.minusDays(1);
         final ZonedDateTime endDate = currentDate.plusDays(1);
         final String finalRecipient = FINAL_RECIPIENT;
 
-        Long idPkStartDate = dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER));
-        Long idPkEndDate = dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER));
+        Long idPkStartDate = tsidUtil.zonedTimeDateToTsid(startDate);
+        Long idPkEndDate = tsidUtil.zonedTimeDateToTsid(endDate);
         List<UserMessageLogDto> message = userMessageLogDao.findMessagesToDeleteNotInFinalStatus(finalRecipient, idPkStartDate, idPkEndDate);
-        assertEquals(3, message.size());*/
+        assertEquals(3, message.size());
     }
 
     @Test
     public void findFailedMessages() {
-    /*    final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
+        final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
         final ZonedDateTime startDate = currentDate.minusDays(1);
         final ZonedDateTime endDate = currentDate.plusDays(1);
         final String finalRecipient = FINAL_RECIPIENT;
 
-        List<String> message = userMessageLogDao.findFailedMessages(finalRecipient, null, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
-        assertEquals(1, message.size());*/
+        Long idPkStartDate = tsidUtil.zonedTimeDateToTsid(startDate);
+        Long idPkEndDate = tsidUtil.zonedTimeDateToTsid(endDate);
+
+        List<String> message = userMessageLogDao.findFailedMessages(finalRecipient, null, idPkStartDate, idPkEndDate);
+        assertEquals(1, message.size());
     }
 
     @Test
     public void findFailedMessages_all() {
-     /*   final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
+        final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
         final ZonedDateTime startDate = currentDate.minusDays(1);
         final ZonedDateTime endDate = currentDate.plusDays(1);
 
-        List<String> message = userMessageLogDao.findFailedMessages(null, null, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
-        assertEquals(2, message.size());*/
+        Long idPkStartDate = tsidUtil.zonedTimeDateToTsid(startDate);
+        Long idPkEndDate = tsidUtil.zonedTimeDateToTsid(endDate);
+
+        List<String> message = userMessageLogDao.findFailedMessages(null, null, idPkStartDate, idPkEndDate);
+        assertEquals(2, message.size());
     }
 
     @Test
     public void findFailedMessages_unknownFinalRecipient() {
-      /*  final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
+        final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
         final ZonedDateTime startDate = currentDate.minusDays(1);
         final ZonedDateTime endDate = currentDate.plusDays(1);
 
-        List<String> message = userMessageLogDao.findFailedMessages("unknown", null, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
-        assertEquals(0, message.size());*/
+        Long idPkStartDate = tsidUtil.zonedTimeDateToTsid(startDate);
+        Long idPkEndDate = tsidUtil.zonedTimeDateToTsid(endDate);
+
+        List<String> message = userMessageLogDao.findFailedMessages("unknown", null, idPkStartDate, idPkEndDate);
+        assertEquals(0, message.size());
     }
 
     @Test
     public void findFailedMessages_originalSender() {
-       /* final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
+        final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
         final ZonedDateTime startDate = currentDate.minusDays(1);
         final ZonedDateTime endDate = currentDate.plusDays(1);
 
-        List<String> message = userMessageLogDao.findFailedMessages(FINAL_RECIPIENT, ORIGINAL_SENDER, dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
-        assertEquals(1, message.size());*/
+        Long idPkStartDate = tsidUtil.zonedTimeDateToTsid(startDate);
+        Long idPkEndDate = tsidUtil.zonedTimeDateToTsid(endDate);
+
+        List<String> message = userMessageLogDao.findFailedMessages(FINAL_RECIPIENT, ORIGINAL_SENDER, idPkStartDate, idPkEndDate);
+        assertEquals(1, message.size());
     }
 
     @Test
     public void findFailedMessages_originalSender_notFound() {
-      /*  final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
+        final ZonedDateTime currentDate = ZonedDateTime.now(ZoneOffset.UTC);
         final ZonedDateTime startDate = currentDate.minusDays(1);
         final ZonedDateTime endDate = currentDate.plusDays(1);
 
-        List<String> message = userMessageLogDao.findFailedMessages(FINAL_RECIPIENT, "notExists", dateUtil.getIdPkDateHour(startDate.format(REST_FORMATTER)), dateUtil.getIdPkDateHour(endDate.format(REST_FORMATTER)));
-        assertEquals(0, message.size());*/
+        Long idPkStartDate = tsidUtil.zonedTimeDateToTsid(startDate);
+        Long idPkEndDate = tsidUtil.zonedTimeDateToTsid(endDate);
+
+        List<String> message = userMessageLogDao.findFailedMessages(FINAL_RECIPIENT, "notExists", idPkStartDate, idPkEndDate);
+        assertEquals(0, message.size());
     }
 
     @Test
@@ -573,6 +588,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
         assertNull(byEntityId.getDownloaded());
         assertNull(byEntityId.getFailed());
     }
+
     @Test
     public void setMessageStatus_ACKNOWLEDGED() {
         userMessageLogDao.setMessageStatus(msg1, ACKNOWLEDGED);
@@ -644,7 +660,7 @@ public class UserMessageLogDaoIT extends AbstractIT {
     @Test
     @Transactional
     public void findMessagesToDeleteInFinalStatus() {
-        /*String originalUser = "pluginUser1";
+        String originalUser = "pluginUser1";
         String originalSender = originalUser;
         String finalRecipient = "pluginUser2";
         String originalSender2 = finalRecipient;
@@ -657,28 +673,26 @@ public class UserMessageLogDaoIT extends AbstractIT {
         messageDaoTestUtil.createUserMessageLog("msg4", new Date(), MSHRole.RECEIVING, RECEIVED_WITH_WARNINGS, finalRecipient, originalSender);
         messageDaoTestUtil.createUserMessageLog("msg5", new Date(), MSHRole.SENDING, SEND_FAILURE, originalSender, finalRecipient);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
         c.add(Calendar.DATE, -1);
-        String sdate = sdf.format(c.getTime());
-        Long startDate = dateUtil.getIdPkDateHour(sdate);
+
+        Long startDate = tsidUtil.dateToTsid(c.getTime());
 
         c.setTime(new Date());
         c.add(Calendar.DATE, 1);
-        String edate = sdf.format(c.getTime());
-        Long endDate = dateUtil.getIdPkDateHour(edate);
+        Long endDate = tsidUtil.dateToTsid(c.getTime());
 
         List<UserMessageLogDto> msgs = userMessageLogDao.findMessagesToDeleteInFinalStatus(originalUser, startDate, endDate);
 
-        assertEquals(2, msgs.size());*/
+        assertEquals(2, msgs.size());
     }
 
 
     @Test
     @Transactional
     public void findMessagesToDeleteNotInFinalStatus() {
-      /*  String originalUser = "pluginUser1";
+        String originalUser = "pluginUser1";
         String originalSender = originalUser;
         String finalRecipient = "pluginUser2";
         String originalSender2 = finalRecipient;
@@ -691,38 +705,35 @@ public class UserMessageLogDaoIT extends AbstractIT {
         messageDaoTestUtil.createUserMessageLog("msg4", new Date(), MSHRole.RECEIVING, RECEIVED_WITH_WARNINGS, finalRecipient, originalSender);
         messageDaoTestUtil.createUserMessageLog("msg5", new Date(), MSHRole.SENDING, SEND_FAILURE, originalSender, finalRecipient);
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Calendar c = Calendar.getInstance();
         c.setTime(new Date());
         c.add(Calendar.DATE, -1);
-        String sdate = sdf.format(c.getTime());
-        Long startDate = dateUtil.getIdPkDateHour(sdate);
+        Long startDate = tsidUtil.dateToTsid(c.getTime());
 
         c.setTime(new Date());
         c.add(Calendar.DATE, 1);
-        String edate = sdf.format(c.getTime());
-        Long endDate = dateUtil.getIdPkDateHour(edate);
+        Long endDate = tsidUtil.dateToTsid(c.getTime());
 
         List<UserMessageLogDto> msgs = userMessageLogDao.findMessagesToDeleteNotInFinalStatus(originalUser, startDate, endDate);
 
-        assertEquals(2, msgs.size());*/
+        assertEquals(2, msgs.size());
     }
-    
+
     @Test
-    public void getMessageStatusById(){
+    public void getMessageStatusById() {
         String messageId = msg1.getUserMessage().getMessageId();
         MessageStatus messageStatus = userMessageLogDao.getMessageStatusById(messageId);
         assertEquals(RECEIVED, messageStatus);
     }
 
     @Test
-    public void findBackendForMessageEntityId(){
+    public void findBackendForMessageEntityId() {
         String backend = userMessageLogDao.findBackendForMessageEntityId(msg1.getUserMessage().getEntityId());
         assertEquals(WS_PLUGIN, backend);
     }
 
     @Test
-    public void deleteMessageLogs(){
+    public void deleteMessageLogs() {
         int nrOfDeletedRows = userMessageLogDao.deleteMessageLogs(Collections.singletonList(msg1.getEntityId()));
         assertEquals(1, nrOfDeletedRows);
     }

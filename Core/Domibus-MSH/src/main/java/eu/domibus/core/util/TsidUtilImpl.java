@@ -9,6 +9,10 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.2
+ */
 @Service
 public class TsidUtilImpl implements TsidUtil {
 

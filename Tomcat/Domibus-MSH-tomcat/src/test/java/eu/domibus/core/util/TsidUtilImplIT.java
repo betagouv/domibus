@@ -15,6 +15,10 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
+/**
+ * @author Cosmin Baciu
+ * @since 5.2
+ */
 public class TsidUtilImplIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(TsidUtilImplIT.class);
