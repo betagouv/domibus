@@ -14,6 +14,7 @@ import eu.domibus.core.message.MessagesLogService;
 import eu.domibus.core.message.testservice.TestService;
 import eu.domibus.core.party.PartyDao;
 import eu.domibus.core.rest.validators.FieldBlacklistValidator;
+import eu.domibus.core.util.DateUtilImpl;
 import eu.domibus.web.rest.ro.MessageLogFilterRequestRO;
 import eu.domibus.web.rest.ro.MessageLogRO;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
@@ -21,12 +22,11 @@ import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.*;
 
@@ -34,10 +34,7 @@ import java.util.*;
  * @author Tiago Miguel
  * @since 3.3
  */
-// TODO: 14/06/2023 François GAUTIER  @RunWith(Parameterized.class)
-
-@Disabled("EDELIVERY-6896")
-public class MessageLogResourceParamTest {
+class MessageLogResourceParamTest {
 
     private static final String CSV_TITLE = "Conversation Id, From Party Id, To Party Id, Original Sender, Final Recipient, ref To Message Id, Message Id, Message Status, Notification Status, " +
             "MSH Role, Message Type, Deleted, Received, Downloaded, Send Attempts, Send Attempts Max, Next Attempt, Failed, Restored, Message Subtype";
@@ -66,32 +63,47 @@ public class MessageLogResourceParamTest {
     @Injectable
     RequestFilterUtils requestFilterUtils;
 
-  //  @Parameterized.Parameter(0)
-    public MessageType messageType;
-
-  //  @Parameterized.Parameter(1)
-    public Boolean testMessage;
-
     @Injectable
     FieldBlacklistValidator fieldBlacklistValidator;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
-    //todo fga @Parameterized.Parameters(name = "{index}: messageType=\"{0}\" testMessage=\"{2}\"")
-    public static Collection<Object[]> values() {
-        return Arrays.asList(new Object[][]{
-                {MessageType.USER_MESSAGE, null},
-                {MessageType.USER_MESSAGE, true},
-                {MessageType.SIGNAL_MESSAGE, null},
-                {MessageType.SIGNAL_MESSAGE, true},
-        });
+    @ParameterizedTest
+    @EnumSource(MessageType.class)
+    void testMessageLog(MessageType messageType) {
+        ReflectionTestUtils.setField(messageLogResource, "requestFilterUtils", new RequestFilterUtils(new DateUtilImpl()));
+
+        getMessageLogExe(messageType, false);
     }
 
-    @Test
-    public void testMessageLog() {
+    @ParameterizedTest
+    @EnumSource(MessageType.class)
+    void testMessageLog_test(MessageType messageType) {
+        ReflectionTestUtils.setField(messageLogResource, "requestFilterUtils", new RequestFilterUtils(new DateUtilImpl()));
+
+        getMessageLogExe(messageType, true);
+    }
+
+    @ParameterizedTest
+    @EnumSource(MessageType.class)
+    void testMessageLogInfoGetCsv(MessageType messageType) throws CsvException {
+        ReflectionTestUtils.setField(messageLogResource, "requestFilterUtils", new RequestFilterUtils(new DateUtilImpl()));
+
+        getCsv(messageType, false);
+    }
+
+    @ParameterizedTest
+    @EnumSource(MessageType.class)
+    void testMessageLogInfoGetCsv_test(MessageType messageType) throws CsvException {
+        ReflectionTestUtils.setField(messageLogResource, "requestFilterUtils", new RequestFilterUtils(new DateUtilImpl()));
+
+        getCsv(messageType, true);
+    }
+
+    private void getMessageLogExe(MessageType messageType, Boolean testMessage1) {
         // Given
-        final MessageLogRO messageLogRO = createMessageLog(messageType, testMessage);
+        final MessageLogRO messageLogRO = createMessageLog(messageType, testMessage1);
         final List<MessageLogRO> resultList = Collections.singletonList(messageLogRO);
         MessageLogResultRO expectedMessageLogResult = new MessageLogResultRO();
         expectedMessageLogResult.setMessageLogEntries(resultList);
@@ -102,7 +114,7 @@ public class MessageLogResourceParamTest {
         }};
 
         // When
-        final MessageLogResultRO messageLogResultRO = getMessageLog(messageType, testMessage);
+        final MessageLogResultRO messageLogResultRO = getMessageLog(messageType, testMessage1);
 
         // Then
         Assertions.assertNotNull(messageLogResultRO);
@@ -122,11 +134,10 @@ public class MessageLogResourceParamTest {
         Assertions.assertEquals(messageLogRO.getTestMessage(), actualMessageLogRO.getTestMessage());
     }
 
-    @Test
-    public void testMessageLogInfoGetCsv() throws CsvException {
+    private void getCsv(final MessageType messageType, final Boolean testMessage) {
         // Given
         Date date = new Date();
-        List<MessageLogInfo> messageList = getMessageList(messageType, date, testMessage);
+        List<MessageLogInfo> messageList = getMessageList(date, testMessage);
 
         new Expectations() {{
             messagesLogService.findAllInfoCSV(messageType, anyInt, "received", true, (HashMap<String, Object>) any);
@@ -157,8 +168,8 @@ public class MessageLogResourceParamTest {
     /**
      * Creates a {@link MessageLogRO} based on <code>messageType</code> and <code>testMessage</code>
      *
-     * @param messageType    Message Type
-     * @param testMessage    Test Message
+     * @param messageType Message Type
+     * @param testMessage Test Message
      * @return <code>MessageLog</code>
      */
     private static MessageLogRO createMessageLog(MessageType messageType, Boolean testMessage) {
@@ -187,7 +198,7 @@ public class MessageLogResourceParamTest {
     /**
      * Gets a MessageLog based on <code>messageType</code> and <code>testMessage</code>
      *
-     * @param messageType    Message Type
+     * @param messageType Message Type
      * @param testMessage Message Subtype
      * @return <code>MessageLogResultRO</code> object
      */
@@ -203,12 +214,11 @@ public class MessageLogResourceParamTest {
     /**
      * Get a MessageLogInfo List based on <code>messageInfo</code>, <code>date</code> and <code>testMessage</code>
      *
-     * @param messageType    Message Type
-     * @param date           Date
+     * @param date        Date
      * @param testMessage test Message
      * @return <code>List</code> of <code>MessageLogInfo</code> objects
      */
-    private List<MessageLogInfo> getMessageList(MessageType messageType, Date date, Boolean testMessage) {
+    private List<MessageLogInfo> getMessageList(Date date, Boolean testMessage) {
         List<MessageLogInfo> result = new ArrayList<>();
         MessageLogInfo messageLog = new MessageLogInfo("messageId", MessageStatus.ACKNOWLEDGED,
                 NotificationStatus.NOTIFIED, MSHRole.RECEIVING, date, date, date, 1, 5, date, "Europe/Brussels",

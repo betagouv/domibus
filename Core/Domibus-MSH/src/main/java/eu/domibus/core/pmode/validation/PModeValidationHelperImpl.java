@@ -1,7 +1,10 @@
 package eu.domibus.core.pmode.validation;
 
+import eu.domibus.api.ebms3.MessageExchangePattern;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.common.model.configuration.Binding;
+import eu.domibus.common.model.configuration.Process;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.XmlProcessingException;
@@ -75,5 +78,14 @@ public class PModeValidationHelperImpl implements PModeValidationHelper {
         }
 
         return new ValidationResponseRO(message, pmodeUpdateIssues);
+    }
+
+    @Override
+    public boolean isPullProcess(Process process) {
+        Binding mepBinding = process.getMepBinding();
+        if (mepBinding == null) {
+            return false;
+        }
+        return StringUtils.equals(MessageExchangePattern.ONE_WAY_PULL.getUri(), mepBinding.getValue());
     }
 }

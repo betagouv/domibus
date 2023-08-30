@@ -23,6 +23,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaDialect;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -47,7 +48,7 @@ public class DomibusJPAConfiguration {
     public static final String CONFIG_DOMIBUS_ORM = "config/domibus/orm/";
 
     @Bean
-    public JpaVendorAdapter jpaVendorAdapter() {
+    public HibernateJpaVendorAdapter jpaVendorAdapter() {
         return new HibernateJpaVendorAdapter();
     }
 
@@ -61,7 +62,6 @@ public class DomibusJPAConfiguration {
                                                                        Optional<CurrentTenantIdentifierResolver> tenantIdentifierResolver) {
         LocalContainerEntityManagerFactoryBean result = new LocalContainerEntityManagerFactoryBean();
 
-
         result.setPersistenceUnitName(JPAConstants.PERSISTENCE_UNIT_NAME);
         final String packagesToScanString = domibusPropertyProvider.getProperty(DOMIBUS_ENTITY_MANAGER_FACTORY_PACKAGES_TO_SCAN);
         if (StringUtils.isNotEmpty(packagesToScanString)) {
@@ -69,7 +69,11 @@ public class DomibusJPAConfiguration {
             result.setPackagesToScan(packagesToScan);
         }
         result.setDataSource(dataSource);
-        result.setJpaVendorAdapter(jpaVendorAdapter());
+
+        HibernateJpaVendorAdapter jpaVendorAdapter = jpaVendorAdapter();
+        HibernateJpaDialect jpaDialect = jpaVendorAdapter.getJpaDialect();
+        jpaDialect.setPrepareConnection(false);
+        result.setJpaVendorAdapter(jpaVendorAdapter);
 
         if (singleTenantConnectionProviderImpl.isPresent()) {
             LOG.info("Configuring jpaProperties for single-tenancy");

@@ -3,6 +3,7 @@ package eu.domibus.core.pmode.provider;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.ebms3.Ebms3Constants;
 import eu.domibus.api.ebms3.MessageExchangePattern;
@@ -16,7 +17,6 @@ import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.ConfigurationException;
@@ -24,11 +24,16 @@ import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.MpcService;
 import eu.domibus.core.message.pull.PullProcessValidator;
 import eu.domibus.core.pmode.*;
+import eu.domibus.core.pmode.validation.PModeValidationHelper;
+import eu.domibus.core.pmode.validation.PModeValidationHelperImpl;
 import eu.domibus.core.pmode.validation.PModeValidationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.PojoInstaciatorUtil;
-import mockit.*;
+import mockit.Expectations;
+import mockit.FullVerifications;
+import mockit.Injectable;
+import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +41,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.jms.Topic;
 import javax.persistence.EntityManager;
@@ -160,6 +166,9 @@ public class CachingPModeProviderTest {
 
     @Injectable
     FinalRecipientService finalRecipientService;
+
+    @Injectable
+    PModeValidationHelper pModeValidationHelper;
 
     public Configuration loadSamplePModeConfiguration(String samplePModeFileRelativeURI) throws JAXBException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         LOG.debug("Inside sample PMode configuration");
@@ -363,6 +372,9 @@ public class CachingPModeProviderTest {
             configurationDAO.readEager();
             result = configuration;
         }};
+
+        ReflectionTestUtils.setField(cachingPModeProvider, "pModeValidationHelper", new PModeValidationHelperImpl());
+
         cachingPModeProvider.init();
 
         List<Process> pullProcessesByInitiator = cachingPModeProvider.findPullProcessesByInitiator(red_gw);
@@ -399,6 +411,9 @@ public class CachingPModeProviderTest {
             configurationDAO.readEager();
             result = configuration;
         }};
+
+        ReflectionTestUtils.setField(cachingPModeProvider, "pModeValidationHelper", new PModeValidationHelperImpl());
+
         cachingPModeProvider.init();
         List<Process> pullProcessesByMpc = cachingPModeProvider.findPullProcessByMpc(mpcName);
         assertEquals(1, pullProcessesByMpc.size());
@@ -406,8 +421,6 @@ public class CachingPModeProviderTest {
         pullProcessesByMpc = cachingPModeProvider.findPullProcessByMpc(emptyMpc);
         assertEquals(1, pullProcessesByMpc.size());
         assertEquals("tc14Process", pullProcessesByMpc.iterator().next().getName());
-
-
     }
 
     @Test

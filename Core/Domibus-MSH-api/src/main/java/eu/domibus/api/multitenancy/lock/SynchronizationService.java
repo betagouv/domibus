@@ -17,7 +17,7 @@ public interface SynchronizationService {
      * @param <T> the type of the returned value of the task itself
      * @return the synchronized wrapper of the original task
      */
-    <T> Callable<T> getSynchronizedCallable(Callable<T> task, String dbLockKey, Object javaLockKey);
+    <T> Callable<T> getSynchronizedCallable(Callable<T> task, String dbLockKey, String javaLockKey);
 
     /**
      * Executes the given task synchronously, with one of the following locking mechanisms:
@@ -30,9 +30,9 @@ public interface SynchronizationService {
      * @param <T> the type of the returned value of the task itself
      * @return the returned value of the task
      */
-    <T> T execute(final Callable<T> task, final String dbLockKey, final Object javaLockKey);
+    <T> T execute(final Callable<T> task, final String dbLockKey, final String javaLockKey);
 
-    void execute(final Runnable task, final String dbLockKey, final Object javaLockKey);
+    void execute(final Runnable task, final String dbLockKey, final String javaLockKey);
 
     void execute(final Runnable task, final String dbLockKey);
 }

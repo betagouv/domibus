@@ -31,13 +31,6 @@ public class PartitionService {
         this.tsidUtil = tsidUtil;
     }
 
-    public Long getExpiredPartitionsHighValue(List<DatabasePartition> partitions, Date expireDate) {
-        Long highValue = partitions.stream().max(Comparator.comparing(DatabasePartition::getHighValue)).get().getHighValue();
-        Long expiredHighValue = getPartitionHighValueFromDate(expireDate);
-
-        return java.lang.Math.min(highValue, expiredHighValue);
-    }
-
     public Long getPartitionHighValueFromDate(Date partitionDate) {
         Long highValue = tsidUtil.dateToTsid(partitionDate);
         LOG.debug("Get partition highValue from date [{}], highValue [{}]", partitionDate, highValue);

@@ -2,8 +2,6 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
 import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
-import eu.domibus.core.alerts.configuration.connectionMonitoring.ConnectionMonitoringModuleConfiguration;
-import eu.domibus.core.alerts.model.common.AlertType;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
@@ -22,8 +20,7 @@ import static eu.domibus.api.model.MSHRole.SENDING;
 import static eu.domibus.api.model.MessageStatus.DELETED;
 import static eu.domibus.api.model.MessageStatus.SEND_ENQUEUED;
 import static eu.domibus.api.model.NotificationStatus.NOTIFIED;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Cosmin Baciu
@@ -31,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
 @ExtendWith(JMockitExtension.class)
-public class UserMessageLogDefaultServiceTest {
+class UserMessageLogDefaultServiceTest {
 
     @Tested
     UserMessageLogDefaultService userMessageLogDefaultService;
@@ -54,9 +51,6 @@ public class UserMessageLogDefaultServiceTest {
     @Injectable
     protected NotificationStatusDao notificationStatusDao;
 
-//    @Injectable
-//    ConnectionMonitoringConfigurationManager connectionMonitoringConfigurationManager;
-
     @Injectable
     EventService eventService;
 
@@ -64,12 +58,12 @@ public class UserMessageLogDefaultServiceTest {
     AlertConfigurationService alertConfigurationService;
 
     @Test
-    public void setSignalMessageAsDeleted_signalIsNull() {
+     void setSignalMessageAsDeleted_signalIsNull() {
         assertFalse(userMessageLogDefaultService.setSignalMessageAsDeleted((SignalMessage) null));
     }
 
     @Test
-    public void setSignalMessageAsDeleted_messageIdIsNull(@Injectable final SignalMessage signalMessage) {
+     void setSignalMessageAsDeleted_messageIdIsNull(@Injectable final SignalMessage signalMessage) {
         new Expectations() {{
             signalMessage.getSignalMessageId();
             result = null;
@@ -82,7 +76,7 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    public void setSignalMessageAsDeleted_messageIdIsBlank(@Injectable final SignalMessage signalMessage) {
+     void setSignalMessageAsDeleted_messageIdIsBlank(@Injectable final SignalMessage signalMessage) {
         new Expectations() {{
             signalMessage.getSignalMessageId();
             result = "";
@@ -95,7 +89,7 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    public void setSignalMessageAsDeleted_ok(@Injectable final SignalMessage signalMessage,
+     void setSignalMessageAsDeleted_ok(@Injectable final SignalMessage signalMessage,
                                              @Injectable final SignalMessageLog signalMessageLog) {
         String messageId = "1";
         final MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
@@ -120,7 +114,7 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    public void testSave() {
+     void testSave() {
         final String messageId = "1";
         final String messageStatus = SEND_ENQUEUED.toString();
         final String notificationStatus = NOTIFIED.toString();
@@ -171,7 +165,7 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    public void testUpdateMessageStatus(@Injectable final UserMessageLog messageLog,
+     void testUpdateMessageStatus(@Injectable final UserMessageLog messageLog,
                                         @Injectable final UserMessage userMessage) {
         final MessageStatus messageStatus = SEND_ENQUEUED;
 
@@ -184,7 +178,7 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    public void testSetMessageAsDeleted(@Injectable final UserMessage userMessage,
+     void testSetMessageAsDeleted(@Injectable final UserMessage userMessage,
                                         @Injectable final UserMessageLog userMessageLog) {
 
         new Expectations() {{
@@ -201,7 +195,7 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    public void testSetMessageAsDownloaded(@Injectable UserMessage userMessage,
+     void testSetMessageAsDownloaded(@Injectable UserMessage userMessage,
                                            @Injectable UserMessageLog userMessageLog) {
 
         userMessageLogDefaultService.setMessageAsDownloaded(userMessage, userMessageLog);
@@ -216,7 +210,7 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    public void testSetMessageAsAcknowledged(@Injectable UserMessage userMessage,
+     void testSetMessageAsAcknowledged(@Injectable UserMessage userMessage,
                                              @Injectable UserMessageLog userMessageLog) {
 
         userMessageLogDefaultService.setMessageAsAcknowledged(userMessage, userMessageLog);
@@ -231,7 +225,7 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    public void testSetMessageAsAckWithWarnings(@Injectable UserMessage userMessage,
+     void testSetMessageAsAckWithWarnings(@Injectable UserMessage userMessage,
                                                 @Injectable UserMessageLog userMessageLog) {
 
         userMessageLogDefaultService.setMessageAsAckWithWarnings(userMessage, userMessageLog);
@@ -247,7 +241,7 @@ public class UserMessageLogDefaultServiceTest {
     }
 
     @Test
-    public void tesSetMessageAsSendFailure(@Injectable UserMessage userMessage,
+    void tesSetMessageAsSendFailure(@Injectable UserMessage userMessage,
                                            @Injectable UserMessageLog userMessageLog) {
 
         userMessageLogDefaultService.setMessageAsSendFailure(userMessage, userMessageLog);
@@ -258,6 +252,48 @@ public class UserMessageLogDefaultServiceTest {
 
             userMessageLogDao.setMessageStatus(userMessageLog, MessageStatus.SEND_FAILURE);
             times = 1;
+        }};
+    }
+
+    @Test
+    void testSave2() {
+        final String messageId = "1";
+        final String messageStatus = MessageStatus.SEND_ENQUEUED.toString();
+        final String notificationStatus = NotificationStatus.NOTIFIED.toString();
+        final String mshRole = MSHRole.SENDING.toString();
+        final Integer maxAttempts = 10;
+        final String mpc = " default";
+        final String backendName = "JMS";
+        final String endpoint = "http://localhost";
+
+        UserMessage userMessage = new UserMessage();
+        userMessage.setMessageId(messageId);
+        userMessage.setTestMessage(true);
+        MessageStatusEntity messageStatusEntity = new MessageStatusEntity();
+        messageStatusEntity.setMessageStatus(MessageStatus.SEND_ENQUEUED);
+        MSHRoleEntity mshRoleEntity = new MSHRoleEntity();
+        NotificationStatusEntity notifStatus = new NotificationStatusEntity();
+        new Expectations() {{
+            messageStatusDao.findOrCreate(MessageStatus.valueOf(messageStatus));
+            result = messageStatusEntity;
+            mshRoleDao.findOrCreate(MSHRole.valueOf(mshRole));
+            result = mshRoleEntity;
+            notificationStatusDao.findOrCreate(NotificationStatus.valueOf(notificationStatus));
+            result = notifStatus;
+        }};
+
+        userMessageLogDefaultService.save(userMessage, messageStatus, notificationStatus, mshRole, maxAttempts, backendName);
+
+        new Verifications() {{
+
+            UserMessageLog userMessageLog;
+            userMessageLogDao.create(userMessageLog = withCapture());
+            assertEquals(messageId, userMessage.getMessageId());
+            assertEquals(MessageStatus.SEND_ENQUEUED, userMessageLog.getMessageStatus());
+            assertEquals(notifStatus, userMessageLog.getNotificationStatus());
+            assertEquals(mshRoleEntity, userMessageLog.getMshRole());
+            assertEquals(maxAttempts.intValue(), userMessageLog.getSendAttemptsMax());
+            assertEquals(backendName, userMessageLog.getBackend());
         }};
     }
 

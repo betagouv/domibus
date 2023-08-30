@@ -2,6 +2,7 @@ package eu.domibus.plugin.ws.webservice.deprecated;
 
 import eu.domibus.plugin.webService.generated.RetrieveMessageFault;
 import eu.domibus.plugin.ws.webservice.WebServiceOperation;
+import eu.domibus.test.common.SoapSampleUtil;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
@@ -10,14 +11,19 @@ import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.message.ExchangeImpl;
+import org.apache.cxf.service.model.BindingOperationInfo;
 import org.apache.cxf.service.model.OperationInfo;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.UnexpectedRollbackException;
 
 import javax.persistence.OptimisticLockException;
+import javax.xml.namespace.QName;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -36,11 +42,21 @@ public class WSPluginFaultOutInterceptorTest {
 
     @Injectable
     private WebServicePluginExceptionFactory webServicePluginExceptionFactory;
+    private final static String messageId = "43bb6883-77d2-4a41-bac4-52a485d50084@domibus.eu";
+
+    private SoapFault soapFault;
+
+    private SoapMessage message;
+
+
+    @BeforeEach
+    void beforeAll() throws Exception {
+        soapFault = new SoapFault("Test", QName.valueOf("TEST"));
+        message = new SoapSampleUtil().createSoapMessage("SOAPMessage2.xml", messageId);
+    }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void handleMessageWithNoException(@Injectable SoapMessage message,
-                                             @Injectable SoapFault soapFault) {
+    public void handleMessageWithNoException() {
         new Expectations(wsPluginFaultOutInterceptor) {{
             wsPluginFaultOutInterceptor.getExceptionContent(message);
             result = null;
@@ -49,13 +65,12 @@ public class WSPluginFaultOutInterceptorTest {
 
         wsPluginFaultOutInterceptor.handleMessage(message);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void handleMessageWithException_forbiddenCode(@Injectable SoapMessage message,
-                                                         @Injectable SoapFault soapFault) {
+    public void handleMessageWithException_forbiddenCode() {
         new Expectations(wsPluginFaultOutInterceptor) {{
             wsPluginFaultOutInterceptor.getExceptionContent(message);
             //result = soapFault throw the exception instead of returning the object
@@ -79,12 +94,12 @@ public class WSPluginFaultOutInterceptorTest {
 
         wsPluginFaultOutInterceptor.handleMessage(message);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
+
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void handleMessageWithException_UnknownMethod(@Injectable SoapMessage message,
-                                                         @Injectable SoapFault soapFault) {
+    public void handleMessageWithException_UnknownMethod() {
         new Expectations(wsPluginFaultOutInterceptor) {{
             wsPluginFaultOutInterceptor.getExceptionContent(message);
             //result = soapFault throw the exception instead of returning the object
@@ -102,13 +117,12 @@ public class WSPluginFaultOutInterceptorTest {
 
         wsPluginFaultOutInterceptor.handleMessage(message);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void handleMessageWithException_RETRIEVE_MESSAGE(@Injectable SoapMessage message,
-                                                         @Injectable SoapFault soapFault) {
+    public void handleMessageWithException_RETRIEVE_MESSAGE() {
         new Expectations(wsPluginFaultOutInterceptor) {{
             wsPluginFaultOutInterceptor.getExceptionContent(message);
             //result = soapFault throw the exception instead of returning the object
@@ -129,14 +143,15 @@ public class WSPluginFaultOutInterceptorTest {
 
         wsPluginFaultOutInterceptor.handleMessage(message);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void soapFaultHasForbiddenCode(@Injectable SoapFault soapFault) {
-        new Expectations(){{
-            soapFault.getCode();
+    public void soapFaultHasForbiddenCode(@Injectable org.apache.cxf.common.i18n.Message message) {
+        ReflectionTestUtils.setField(soapFault, "message", message);
+        new Expectations() {{
+            message.getCode();
             result = "TEST";
         }};
         boolean result = wsPluginFaultOutInterceptor.soapFaultHasForbiddenCode(soapFault);
@@ -145,10 +160,10 @@ public class WSPluginFaultOutInterceptorTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void soapFaultHasForbiddenCode_XML_STREAM_EXC(@Injectable SoapFault soapFault) {
-        new Expectations(){{
-            soapFault.getCode();
+    public void soapFaultHasForbiddenCode_XML_STREAM_EXC(@Injectable org.apache.cxf.common.i18n.Message message) {
+        ReflectionTestUtils.setField(soapFault, "message", message);
+        new Expectations() {{
+            message.getCode();
             result = "XML_STREAM_EXC";
         }};
         boolean result = wsPluginFaultOutInterceptor.soapFaultHasForbiddenCode(soapFault);
@@ -157,10 +172,10 @@ public class WSPluginFaultOutInterceptorTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void soapFaultHasForbiddenCode_XML_WRITE_EXC(@Injectable SoapFault soapFault) {
-        new Expectations(){{
-            soapFault.getCode();
+    public void soapFaultHasForbiddenCode_XML_WRITE_EXC(@Injectable org.apache.cxf.common.i18n.Message message) {
+        ReflectionTestUtils.setField(soapFault, "message", message);
+        new Expectations() {{
+            message.getCode();
             result = "XML_WRITE_EXC";
         }};
         boolean result = wsPluginFaultOutInterceptor.soapFaultHasForbiddenCode(soapFault);
@@ -169,9 +184,8 @@ public class WSPluginFaultOutInterceptorTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void handleRetrieveMessage(@Injectable SoapMessage message,
-                                      @Injectable UnexpectedRollbackException cause) {
+    public void handleRetrieveMessage() {
+        UnexpectedRollbackException cause = new UnexpectedRollbackException("TEST");
         Exception exception = new Exception(cause);
 
         new Expectations(wsPluginFaultOutInterceptor) {{
@@ -181,12 +195,13 @@ public class WSPluginFaultOutInterceptorTest {
 
         wsPluginFaultOutInterceptor.handleRetrieveMessage(message, exception);
 
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
-    //    @Test (temporarily commented out to pass bamboo, but treat it with EDELIVERY-9783)
-    public void handleRetrieveMessageUnexpectedRollbackException(@Injectable SoapMessage message,
-                                                                 @Injectable Exception exception,
+    @Test
+    @Disabled("temporarily commented out to pass bamboo, but treat it with EDELIVERY-9783")
+    public void handleRetrieveMessageUnexpectedRollbackException(@Injectable Exception exception,
                                                                  @Injectable UnexpectedRollbackException cause) {
 
         String errorMessage = "customMessage";
@@ -221,28 +236,26 @@ public class WSPluginFaultOutInterceptorTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getRetrieveMessageErrorMessage(@Injectable UnexpectedRollbackException unexpectedRollbackException) {
+    public void getRetrieveMessageErrorMessage() {
         String messageId = "123";
+        UnexpectedRollbackException unexpectedRollbackException = new UnexpectedRollbackException("TEST", new OptimisticLockException());
 
-        new Expectations() {{
-            unexpectedRollbackException.contains(OptimisticLockException.class);
-            result = true;
-        }};
 
         String retrieveMessageErrorMessage = wsPluginFaultOutInterceptor.getRetrieveMessageErrorMessage(unexpectedRollbackException, messageId);
         assertTrue(retrieveMessageErrorMessage.contains("An attempt was made to download message"));
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getMethodName(@Injectable SoapMessage message,
-                              @Injectable OperationInfo operationInfo) {
+    public void getMethodName(@Injectable BindingOperationInfo bindingOperationInfo, @Injectable OperationInfo operationInfo) {
         String methodName = "myMethodName";
 
+        ExchangeImpl e = new ExchangeImpl();
+        message.setExchange(e);
+        ReflectionTestUtils.setField(e, "bindingOp", bindingOperationInfo);
         new Expectations() {{
-            message.getExchange().getBindingOperationInfo().getOperationInfo();
+            bindingOperationInfo.getOperationInfo();
             result = operationInfo;
 
             operationInfo.getInputName();
@@ -251,70 +264,51 @@ public class WSPluginFaultOutInterceptorTest {
 
         String result = wsPluginFaultOutInterceptor.getMethodName(message);
         Assertions.assertEquals(methodName, result);
-        new FullVerifications() {};
+        new FullVerifications() {
+        };
     }
+
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getMethodName_exchangeNull(@Injectable SoapMessage message,
-                              @Injectable OperationInfo operationInfo) {
-        String methodName = "myMethodName";
+    public void getMethodName_exchangeNull(@Injectable OperationInfo operationInfo) {
+        message.setExchange(null);
+
+        String result = wsPluginFaultOutInterceptor.getMethodName(message);
+        Assertions.assertNull(result);
+    }
+
+    @Test
+    public void getMethodName_bindingOperationInfoNull(@Injectable OperationInfo operationInfo) {
+        String result = wsPluginFaultOutInterceptor.getMethodName(message);
+        Assertions.assertNull(result);
+    }
+
+    @Test
+    public void getMethodName_operationInfoNull(@Injectable BindingOperationInfo bindingOperationInfo) {
+        ExchangeImpl e = new ExchangeImpl();
+        message.setExchange(e);
+        ReflectionTestUtils.setField(e, "bindingOp", bindingOperationInfo);
 
         new Expectations() {{
-            message.getExchange();
+            bindingOperationInfo.getOperationInfo();
             result = null;
         }};
 
         String result = wsPluginFaultOutInterceptor.getMethodName(message);
-        Assertions.assertNull(methodName, result);
-        new FullVerifications() {};
-    }
-    @Test
-    @Disabled("EDELIVERY-6896")
-    public void getMethodName_bindingOperationInfoNull(@Injectable SoapMessage message,
-                              @Injectable OperationInfo operationInfo) {
-        String methodName = "myMethodName";
-
-        new Expectations() {{
-            message.getExchange().getBindingOperationInfo();
-            result = null;
-        }};
-
-        String result = wsPluginFaultOutInterceptor.getMethodName(message);
-        Assertions.assertNull(methodName, result);
-        new FullVerifications() {};
+        Assertions.assertNull(result);
+        new FullVerifications() {
+        };
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getMethodName_operationInfoNull(@Injectable SoapMessage message,
-                              @Injectable OperationInfo operationInfo) {
-        String methodName = "myMethodName";
+    public void getExceptionContent() {
+        Exception exception = new Exception();
 
-        new Expectations() {{
-            message.getExchange().getBindingOperationInfo().getOperationInfo();
-            result = null;
-        }};
-
-        String result = wsPluginFaultOutInterceptor.getMethodName(message);
-        Assertions.assertNull(methodName, result);
-        new FullVerifications() {};
-    }
-
-    @Test
-    @Disabled("EDELIVERY-6896")
-    public void getExceptionContent(@Injectable SoapMessage message,
-                                    @Injectable Exception exception) {
-
-        new Expectations(){{
-            message.getContent(Exception.class);
-            //result = soapFault throw the exception instead of returning the object
-            returns(exception, null);
-            times = 1;
-        }};
+        message.setContent(Exception.class, exception);
 
         Exception exceptionContent = wsPluginFaultOutInterceptor.getExceptionContent(message);
 
         assertEquals(exception, exceptionContent);
-        new FullVerifications(){};
+        new FullVerifications() {
+        };
     }
 }

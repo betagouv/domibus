@@ -1,0 +1,55 @@
+{
+  "businessProcesses": {
+    "processes": [
+      {
+        "name": "TestProcess_pull",
+        "mepBinding": {
+          "name": "pull",
+          "value": "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull"
+        },
+        "legs" : [
+          {
+            "name": "leg1",
+            "receptionAwareness": {
+              "retryTimeout" : 12
+            }
+          },
+          {
+            "name": "leg2",
+            "receptionAwareness": {
+              "retryTimeout" : 5
+            }
+          }
+        ]
+      },
+      {
+        "name": "TestProcess_pull2",
+        "mepBinding": {
+          "name": "pull",
+          "value": "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pull"
+        },
+        "legs" : [
+          {
+            "name": "leg1",
+            "receptionAwareness": {
+              "retryTimeout" : 12
+            }
+          },
+          {
+            "name": "leg2",
+            "receptionAwareness": {
+              "retryTimeout" : 5
+            }
+          }
+        ]
+      },
+      {
+        "name": "TestProcess_push",
+        "mepBinding": {
+          "name": "pushAndPush",
+          "value": "http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/pushAndPush"
+        }
+      }
+    ]
+  }
+}

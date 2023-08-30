@@ -9,6 +9,7 @@ import eu.domibus.api.model.participant.FinalRecipientEntity;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
+import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
@@ -19,12 +20,14 @@ import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.pull.PullProcessValidator;
 import eu.domibus.core.pmode.ProcessPartyExtractorProvider;
 import eu.domibus.core.pmode.ProcessTypePartyExtractor;
+import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -55,6 +58,9 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Autowired
     private PullProcessValidator pullProcessValidator;
+
+    @Autowired
+    private PModeValidationHelper pModeValidationHelper;
 
     @Autowired
     FinalRecipientService finalRecipientService;
@@ -134,7 +140,7 @@ public class CachingPModeProvider extends PModeProvider {
     protected List<Process> getAllPullProcesses() {
         final List<Process> processes = getConfiguration().getBusinessProcesses().getProcesses();
         return processes.stream()
-                .filter(this::isPullProcess)
+                .filter(pModeValidationHelper::isPullProcess)
                 .collect(Collectors.toList());
     }
 
@@ -722,12 +728,17 @@ public class CachingPModeProvider extends PModeProvider {
 
     @Override
     public String getReceiverPartyEndpoint(Party receiverParty, String finalRecipient) {
-        String finalRecipientAPUrl = finalRecipientService.getEndpointURL(finalRecipient);
-        if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
-            LOG.debug("Determined from cache the endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
-            return finalRecipientAPUrl;
-        }
+        final boolean useDynamicDiscovery = BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY));
+        if (useDynamicDiscovery) {
+            //try to get the party URL from the cached final participant URLs
+            String finalRecipientAPUrl = finalRecipientService.getEndpointURL(finalRecipient);
 
+            if (StringUtils.isNotBlank(finalRecipientAPUrl)) {
+                LOG.debug("Determined from cache the endpoint URL [{}] for party [{}] and final recipient [{}]", finalRecipientAPUrl, receiverParty.getName(), finalRecipient);
+                return finalRecipientAPUrl;
+            }
+        }
+        //in case of dynamic discovery, we default to the endpoint from the PMode which is added dynamically at runtime
         final String receiverPartyEndpoint = receiverParty.getEndpoint();
         LOG.debug("Determined from PMode the endpoint URL [{}] for party [{}]", receiverPartyEndpoint, receiverParty.getName());
         return receiverPartyEndpoint;
@@ -989,7 +1000,7 @@ public class CachingPModeProvider extends PModeProvider {
         List<Process> allProcesses = findAllProcesses();
         List<Process> result = new ArrayList<>();
         for (Process process : allProcesses) {
-            boolean pullProcess = isPullProcess(process);
+            boolean pullProcess = pModeValidationHelper.isPullProcess(process);
             if (!pullProcess) {
                 continue;
             }
@@ -1009,13 +1020,6 @@ public class CachingPModeProvider extends PModeProvider {
             result.add(process);
         }
         return result;
-    }
-
-    protected boolean isPullProcess(Process process) {
-        if (process.getMepBinding() == null) {
-            return false;
-        }
-        return StringUtils.equals(MessageExchangePattern.ONE_WAY_PULL.getUri(), process.getMepBinding().getValue());
     }
 
     protected boolean hasLeg(Process process, String legName) {

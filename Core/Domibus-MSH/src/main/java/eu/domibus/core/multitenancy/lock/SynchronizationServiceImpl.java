@@ -8,7 +8,9 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Executes a task with a lock (either a db lock for cluster deployment or a simple java lock otherwise)
@@ -19,6 +21,8 @@ import java.util.concurrent.Callable;
 @Service
 public class SynchronizationServiceImpl implements SynchronizationService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SynchronizationServiceImpl.class);
+
+    private final Map<String, Object> locks = new ConcurrentHashMap<>();
 
     private final DomibusConfigurationService domibusConfigurationService;
 
@@ -31,7 +35,7 @@ public class SynchronizationServiceImpl implements SynchronizationService {
     }
 
     @Override
-    public <T> Callable<T> getSynchronizedCallable(Callable<T> task, String dbLockKey, Object javaLockKey) {
+    public <T> Callable<T> getSynchronizedCallable(Callable<T> task, String dbLockKey, String javaLockKey) {
         Callable<T> synchronizedRunnable;
         if (domibusConfigurationService.isClusterDeployment()) {
             synchronizedRunnable = dbClusterSynchronizedRunnableFactory.synchronizedCallable(task, dbLockKey);
@@ -42,7 +46,7 @@ public class SynchronizationServiceImpl implements SynchronizationService {
     }
 
     @Override
-    public <T> T execute(Callable<T> task, String dbLockKey, Object javaLockKey) {
+    public <T> T execute(Callable<T> task, String dbLockKey, String javaLockKey) {
         Callable<T> synchronizedRunnable = getSynchronizedCallable(task, dbLockKey, javaLockKey);
         try {
             return synchronizedRunnable.call();
@@ -52,7 +56,7 @@ public class SynchronizationServiceImpl implements SynchronizationService {
     }
 
     @Override
-    public void execute(Runnable task, String dbLockKey, Object javaLockKey) {
+    public void execute(Runnable task, String dbLockKey, String javaLockKey) {
         Callable<Boolean> synchronizedRunnable = getSynchronizedCallable(() -> {
             task.run();
             return true;
@@ -71,10 +75,10 @@ public class SynchronizationServiceImpl implements SynchronizationService {
         execute(task, dbLockKey, null);
     }
 
-    private <T> Callable<T> javaSyncCallable(Callable<T> task, Object javaLockKey) {
+    private <T> Callable<T> javaSyncCallable(Callable<T> task, String javaLockKey) {
         return () -> {
             if (javaLockKey != null) {
-                synchronized (javaLockKey) {
+                synchronized (locks.computeIfAbsent(javaLockKey, k -> new Object())) {
                     return executeTask(task);
                 }
             } else {

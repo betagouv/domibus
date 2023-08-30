@@ -1,4 +1,4 @@
-package eu.domibus.rest;
+package eu.domibus.web.rest;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.api.crypto.SameResourceCryptoException;
@@ -14,7 +14,6 @@ import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import eu.domibus.web.rest.TruststoreResource;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;

@@ -1,13 +1,12 @@
 package eu.domibus.jms.activemq;
 
+import eu.domibus.jms.spi.helper.PriorityJmsTemplate;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jmx.access.MBeanProxyFactoryBean;
 import org.springframework.jmx.support.MBeanServerConnectionFactoryBean;
 
@@ -77,9 +76,8 @@ public class DomibusJMSActiveMQConfigurationTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void jmsSender(@Injectable ConnectionFactory connectionFactory,
-                          @Mocked JmsTemplate jmsTemplate) {
+                          @Mocked PriorityJmsTemplate jmsTemplate) {
         domibusJMSActiveMQConfiguration.jmsSender(connectionFactory);
 
         new Verifications() {{

@@ -19,10 +19,10 @@ import org.springframework.core.io.InputStreamSource;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import javax.sql.DataSource;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.TimeZone;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DATABASE_GENERAL_SCHEMA;
@@ -133,12 +133,22 @@ public class DomibusMTTestDatasourceConfiguration {
 
     private String writeScriptFromClasspathToLocalDirectory(String scriptName, String scriptDirectory) {
         String sourceScriptPath = scriptDirectory + "/" + scriptName;
+        URL resource = this.getClass().getResource(sourceScriptPath);
+        if (resource != null) {
+            LOG.info("write script from resource [{}]", resource.getPath());
+        }
         ClassPathResource sourceRes = new ClassPathResource(sourceScriptPath);
 
+        try {
+            LOG.info("write script from sourceRes [{}]", sourceRes.getURL());
+        } catch (IOException e) {
+            LOG.error("resource not found [{}]", sourceScriptPath);
+        }
         return writeScript(scriptName, sourceRes);
     }
 
     private static String writeScript(String scriptName, InputStreamSource sourceRes) {
+
         final File testSqlScriptsDirectory = new File("target/test-sql-scripts");
         final File domibusScript = new File(testSqlScriptsDirectory, scriptName);
         String scriptFullPath = null;

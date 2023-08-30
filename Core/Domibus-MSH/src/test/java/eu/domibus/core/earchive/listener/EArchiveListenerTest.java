@@ -16,7 +16,6 @@ import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -115,7 +114,6 @@ public class EArchiveListenerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void onMessage_noMessages(@Injectable Message message,
                                      @Injectable EArchiveBatchEntity eArchiveBatch,
                                      @Injectable DomibusEARKSIPResult domibusEARKSIPResult) {
@@ -123,7 +121,7 @@ public class EArchiveListenerTest {
 
         Long lastUserMessageEntityId = 220511080000001204L;
 
-        new Expectations(eArchiveListener) {{
+        new Expectations() {{
             databaseUtil.getDatabaseUserName();
             result = "unitTest";
 
@@ -151,17 +149,14 @@ public class EArchiveListenerTest {
             eArchiveBatch.getRequestType();
             result = EArchiveRequestType.CONTINUOUS;
 
-            eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
+            eArchiveBatchUtils.getMessageStartDate(null, 0);
             result = firstUserMessageEntityId;
 
-            eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
+            eArchiveBatchUtils.getLastIndex(null);
+            result = 100;
+
+            eArchiveBatchUtils.getMessageStartDate(null, 100);
             result = lastUserMessageEntityId;
-
-            userMessageLogDao.findByEntityId(firstUserMessageEntityId).getReceived();
-            result = new Date();
-
-            userMessageLogDao.findByEntityId(lastUserMessageEntityId).getReceived();
-            result = new Date();
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
             result = true;
@@ -196,7 +191,6 @@ public class EArchiveListenerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void onMessage_ok(@Injectable Message message,
                              @Injectable EArchiveBatchEntity eArchiveBatch,
                              @Injectable DomibusEARKSIPResult domibusEARKSIPResult) {
@@ -235,13 +229,16 @@ public class EArchiveListenerTest {
             eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
             result = firstUserMessageEntityId;
 
-            eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
+            eArchiveBatchUtils.getLastIndex(batchUserMessages);
+            result = 100;
+
+            eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 100);
             result = lastUserMessageEntityId;
 
-            userMessageLogDao.findByEntityId(firstUserMessageEntityId).getReceived();
+            eArchiveBatchUtils.getBatchMessageDate(firstUserMessageEntityId);
             result = new Date();
 
-            userMessageLogDao.findByEntityId(lastUserMessageEntityId).getReceived();
+            eArchiveBatchUtils.getBatchMessageDate(lastUserMessageEntityId);
             result = new Date();
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);

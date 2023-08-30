@@ -3,10 +3,9 @@ package eu.domibus.core.crypto.spi.dss;
 import eu.europa.esig.dss.detailedreport.jaxb.XmlDetailedReport;
 import eu.europa.esig.dss.validation.reports.CertificateReports;
 import mockit.Expectations;
-import mockit.Mocked;
+import mockit.Injectable;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -24,12 +23,11 @@ import java.util.List;
  * @since 4.1
  */
 @ExtendWith(JMockitExtension.class)
-public class ValidationReportTest {
+class ValidationReportTest {
 
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void isValidNoConfiguredConstraints(@Mocked CertificateReports certificateReports) throws JAXBException {
+    void isValidNoConfiguredConstraints(@Injectable CertificateReports certificateReports) throws JAXBException {
         final XmlDetailedReport detailedReport = getXmlDetailedReport();
 
         new Expectations() {{
@@ -37,11 +35,12 @@ public class ValidationReportTest {
             result = detailedReport;
         }};
         ValidationReport validationReport = new ValidationReport();
-        Assertions.assertThrows(IllegalStateException.class, () -> validationReport.extractInvalidConstraints(certificateReports, new ArrayList<>()));
+        List<ConstraintInternal> constraints = new ArrayList<>();
+        Assertions.assertThrows(IllegalStateException.class, () -> validationReport.extractInvalidConstraints(certificateReports, constraints));
     }
 
     @Test
-    public void isValidDetailReportCertificateIsNull(@Mocked CertificateReports certificateReports) {
+    void isValidDetailReportCertificateIsNull(@Injectable CertificateReports certificateReports) {
         ValidationReport validationReport = new ValidationReport();
         final List<ConstraintInternal> constraints = new ArrayList<>();
         constraints.add(new ConstraintInternal("BBB_XCV_CCCBB", "OK"));
@@ -54,8 +53,7 @@ public class ValidationReportTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void isValidAnchorAndValidityDate(@Mocked CertificateReports certificateReports) throws JAXBException {
+    void isValidAnchorAndValidityDate(@Injectable CertificateReports certificateReports) throws JAXBException {
         final XmlDetailedReport detailedReport = getXmlDetailedReport();
         new Expectations() {{
             certificateReports.getDetailedReportJaxb();
@@ -69,8 +67,7 @@ public class ValidationReportTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void isValidOneConstraintIsWrong(@Mocked CertificateReports certificateReports) throws JAXBException {
+    void isValidOneConstraintIsWrong(@Injectable CertificateReports certificateReports) throws JAXBException {
 
         final XmlDetailedReport detailedReport = getXmlDetailedReport();
 
@@ -90,7 +87,7 @@ public class ValidationReportTest {
         InputStream xmlStream = getClass().getClassLoader().getResourceAsStream("Validation-report-sample.xml");
         JAXBContext jaxbContext = JAXBContext.newInstance(XmlDetailedReport.class);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        JAXBElement<XmlDetailedReport> customer = (JAXBElement<XmlDetailedReport>) unmarshaller.unmarshal(new StreamSource(xmlStream), XmlDetailedReport.class);
+        JAXBElement<XmlDetailedReport> customer = unmarshaller.unmarshal(new StreamSource(xmlStream), XmlDetailedReport.class);
         return customer.getValue();
     }
 
