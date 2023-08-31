@@ -146,7 +146,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
-    @Transactional(readOnly = true, rollbackFor = DuplicateMessageException.class)
+    @Transactional(readOnly = true, rollbackFor = DuplicateMessageException.class) // rollback transaction in case of exception: this avoids overriding our exception with a framework one
     public eu.domibus.common.MessageStatus getStatus(final String messageId) throws DuplicateMessageException {
         try {
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageId);
@@ -189,7 +189,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
-    @Transactional(readOnly = true, rollbackFor = {MessageNotFoundException.class, DuplicateMessageException.class})
+    @Transactional(readOnly = true, rollbackFor = {MessageNotFoundException.class, DuplicateMessageException.class}) // rollback transaction in case of exception: this avoids overriding our exception with a framework one
     public List<? extends ErrorResult> getErrorsForMessage(final String messageId) throws MessageNotFoundException, DuplicateMessageException {
         boolean messageExists = false;
         try {
@@ -209,7 +209,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
-    @Transactional(readOnly = true, rollbackFor = MessageNotFoundException.class)
+    @Transactional(readOnly = true, rollbackFor = MessageNotFoundException.class) // rollback transaction in case of exception: this avoids overriding our exception with a framework one
     public List<? extends ErrorResult> getErrorsForMessage(String messageId, eu.domibus.common.MSHRole mshRole) throws MessageNotFoundException {
         MSHRole role = MSHRole.valueOf(mshRole.name());
         boolean messageExists = false;
