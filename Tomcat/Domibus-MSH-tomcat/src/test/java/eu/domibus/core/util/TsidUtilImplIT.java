@@ -54,6 +54,17 @@ public class TsidUtilImplIT extends AbstractIT {
     }
 
     @Test
+    public void getZonedTimeDateFromTsid2020_01_01() {
+        final LocalDateTime localDateTime = LocalDateTime.of(2020, 1, 1, 0, 0, 0);
+        final ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneOffset.UTC);
+        final long tsid = tsidUtil.zonedTimeDateToTsid(zonedDateTime);
+
+        final long dateFromTsid = tsidUtil.getDateFromTsid(0);
+        final LocalDateTime extractedLocalDateTimeFromTsid = dateUtil.convertToLocalDateTime(new Date(dateFromTsid));
+        Assertions.assertEquals(localDateTime, extractedLocalDateTimeFromTsid);
+    }
+
+    @Test
     public void getDateFromTsid() {
         final LocalDateTime localDateTime = LocalDateTime.of(2023, 3, 5, 0, 0, 0);
         final Date initialDate = dateUtil.convertFromLocalDateTime(localDateTime);

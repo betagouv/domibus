@@ -6,6 +6,7 @@ import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.TsidUtil;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageDaoTestUtil;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -66,6 +68,9 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     TsidUtil tsidUtil;
 
     @Autowired
+    DateUtil dateUtil;
+
+    @Autowired
     protected PlatformTransactionManager transactionManager;
 
 
@@ -83,8 +88,8 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     @BeforeEach
     public void setUp() throws Exception {
         waitUntilDatabaseIsInitialized();
-        Assertions.assertEquals(0L, ((long) eArchiveBatchStartDao.findByReference(CONTINUOUS_ID).getLastPkUserMessage()));
-        Assertions.assertEquals(0L, ((long) eArchiveBatchStartDao.findByReference(SANITY_ID).getLastPkUserMessage()));
+        Assertions.assertEquals(0L, ((long) eArchiveBatchStartDao.read(CONTINUOUS_ID).getLastPkUserMessage()));
+        Assertions.assertEquals(0L, ((long) eArchiveBatchStartDao.read(SANITY_ID).getLastPkUserMessage()));
         // prepare
         Date currentDate = Calendar.getInstance().getTime();
         uml1 = messageDaoTestUtil.createUserMessageLog("uml1-" + UUID.randomUUID(), currentDate);
@@ -141,7 +146,10 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     public void getStartDateContinuousArchive() {
         Long startDateContinuousArchive = eArchivingService.getStartDateContinuousArchive();
 
-        Assertions.assertEquals(0L, startDateContinuousArchive.longValue());
+        //2020-01-01T00:00:00.000Z
+        final LocalDateTime localDateTime = LocalDateTime.of(2020, 1, 1, 0, 0, 0);
+        final Date epochSecond2020_01_01 = dateUtil.convertFromLocalDateTime(localDateTime);
+        Assertions.assertEquals(epochSecond2020_01_01.getTime(), startDateContinuousArchive.longValue());
     }
 
     @Test
@@ -157,7 +165,10 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     public void getStartDateSanityArchive() {
         Long startDateSanityArchive = eArchivingService.getStartDateSanityArchive();
 
-        Assertions.assertEquals(0L, startDateSanityArchive.longValue());
+        //2020-01-01T00:00:00.000Z
+        final LocalDateTime localDateTime = LocalDateTime.of(2020, 1, 1, 0, 0, 0);
+        final Date epochSecond2020_01_01 = dateUtil.convertFromLocalDateTime(localDateTime);
+        Assertions.assertEquals(epochSecond2020_01_01.getTime(), startDateSanityArchive.longValue());
     }
 
     @Test

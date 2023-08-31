@@ -6,14 +6,12 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.ProcessDaoImpl;
-import org.junit.jupiter.api.Assertions;
+import org.h2.tools.Server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.sql.SQLException;
 import java.util.List;
@@ -22,9 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
- * PartyDaoConfig is commented out because it was causing issues when running the tests locally.
- * To reproduce the issue, uncomment the configuration and the autowire of PartyDao and run tests on the package {@link eu.domibus.core}
- *
  * @author Thomas Dussart
  * @since 4.0
  */
@@ -45,17 +40,14 @@ public class PartyDaoIT extends AbstractIT {
 
     @Transactional
     @BeforeEach
-    public void initParty() {
-        partyDao = new PartyDao();
-        ReflectionTestUtils.setField(partyDao, null, em, EntityManager.class);
-
+    public void initParty() throws SQLException {
         Party party = new Party();
         party.setName("P1");
         Identifier id = new Identifier();
         id.setPartyId("P1 party id");
         party.getIdentifiers().add(id);
 
-        em.persist(party);
+        partyDao.create(party);
 
         Process process = new Process();
         process.setName("PR1");
@@ -69,7 +61,7 @@ public class PartyDaoIT extends AbstractIT {
 
         process.addResponder(party);
 
-        em.persist(party);
+        partyDao.create(party);
 
         party = new Party();
         party.setName("P3");
@@ -77,9 +69,9 @@ public class PartyDaoIT extends AbstractIT {
         id.setPartyId("P3 party id");
         party.getIdentifiers().add(id);
 
-        em.persist(party);
+        partyDao.create(party);
 
-        em.persist(process);
+        processDao.create(process);
     }
 
     @Transactional
@@ -100,11 +92,11 @@ public class PartyDaoIT extends AbstractIT {
         assertNotNull(parties.get(2).getModifiedBy());
     }
 
-    @Transactional
+//    @Transactional
     @Test
     public void testFindById() {
         // When
-        Party findById = partyDao.findById("P1 party id");
+        Party findById = partyDao.findByPartyName("P1");
 
         // Then
         assertNotNull(findById);
