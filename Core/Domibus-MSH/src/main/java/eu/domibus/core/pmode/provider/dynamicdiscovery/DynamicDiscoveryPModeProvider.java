@@ -1,15 +1,19 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.model.Property;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.pki.SecurityProfileService;
+import eu.domibus.api.pmode.PModeService;
+import eu.domibus.api.security.CertificatePurpose;
+import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.exception.ConfigurationException;
@@ -30,8 +34,8 @@ import javax.naming.InvalidNameException;
 import java.security.cert.X509Certificate;
 import java.util.*;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.api.cache.DomibusLocalCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 /* This class is used for dynamic discovery of the parties participating in a message exchange.
  *
@@ -86,6 +90,12 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
     @Autowired
     protected DomibusLocalCacheService domibusLocalCacheService;
+
+    @Autowired
+    protected SecurityProfileService securityProfileService;
+
+    @Autowired
+    protected PModeService pModeService;
 
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicResponderProcesses;
     protected Collection<eu.domibus.common.model.configuration.Process> dynamicInitiatorProcesses;
@@ -236,8 +246,10 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
     public void lookupAndUpdateConfigurationForToPartyId(String cacheKey, UserMessage userMessage, Collection<eu.domibus.common.model.configuration.Process> candidates) throws EbMS3Exception {
         EndpointInfo endpointInfo = lookupByFinalRecipient(userMessage);
         LOG.debug("Found endpoint. Configure PMode and truststore!");
+
         PartyId toPartyId = updateToParty(userMessage, endpointInfo.getCertificate());
         cachedToPartyId.put(cacheKey, toPartyId);
+
         Party configurationParty = updateConfigurationParty(toPartyId.getValue(), toPartyId.getType(), endpointInfo.getAddress());
         updateResponderPartiesInPmode(candidates, configurationParty);
 
@@ -245,6 +257,45 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         final String finalRecipientValue = finalRecipient.getValue();
         final String receiverURL = endpointInfo.getAddress();
         setReceiverPartyEndpoint(finalRecipientValue, receiverURL);
+
+        addCertificatesReceivedFromSmp(userMessage, endpointInfo);
+    }
+
+    private void addCertificatesReceivedFromSmp(UserMessage userMessage, EndpointInfo endpointInfo) throws EbMS3Exception {
+        String pModeKey = findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
+        LOG.debug("PMode found [{}]", pModeKey);
+        LegConfiguration legConfiguration = getLegConfiguration(pModeKey);
+        LOG.info("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
+
+        X509Certificate certificate;
+        String cn;
+        try {
+            certificate = endpointInfo.getCertificate();
+            //parse certificate for common name = toPartyId
+            cn = certificateService.extractCommonName(certificate);
+            LOG.debug("Extracted the common name [{}]", cn);
+        } catch (final InvalidNameException e) {
+            LOG.error("Error while extracting CommonName from certificate", e);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
+                    .message("Error while extracting CommonName from certificate")
+                    .refToMessageId(userMessage.getMessageId())
+                    .cause(e)
+                    .build();
+        }
+        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
+        addCertificate(cn, securityProfile, CertificatePurpose.SIGN, certificate);
+        addCertificate(cn, securityProfile, CertificatePurpose.ENCRYPT, certificate);
+    }
+
+    private void addCertificate(String cn, SecurityProfile securityProfile, CertificatePurpose certificatePurpose, final X509Certificate certificate) {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+
+        String alias = securityProfileService.getCertificateAliasForPurpose(cn, securityProfile, certificatePurpose);
+        boolean added = multiDomainCertificateProvider.addCertificate(currentDomain, certificate, alias, true);
+        if (added) {
+            LOG.debug("Added public certificate [{}] with alias [{}] to the truststore for domain [{}]", certificate, cn, currentDomain);
+        }
     }
 
     /**
@@ -436,11 +487,6 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             userMessage.getPartyInfo().getTo().setToRole(partyRole);
         }
 
-        Domain currentDomain = domainProvider.getCurrentDomain();
-        boolean added = multiDomainCertificateProvider.addCertificate(currentDomain, certificate, cn, true);
-        if (added) {
-            LOG.debug("Added public certificate [{}] with alias [{}] to the truststore for domain [{}]", certificate, cn, currentDomain);
-        }
         return receiverParty;
     }
 
@@ -524,5 +570,4 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         }
         return null;
     }
-
 }
