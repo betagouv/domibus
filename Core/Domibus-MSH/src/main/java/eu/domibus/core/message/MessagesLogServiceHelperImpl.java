@@ -5,6 +5,7 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -26,6 +27,7 @@ public class MessagesLogServiceHelperImpl implements MessagesLogServiceHelper {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long calculateNumberOfMessages(MessageLogDaoBase dao, Map<String, Object> filters, MessageLogResultRO result) {
         long count;
         boolean isEstimated;

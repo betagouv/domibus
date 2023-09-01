@@ -44,12 +44,9 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
 
     protected final EventService eventService;
 
-    private final AlertConfigurationService alertConfigurationService;
-
     public UserMessageLogDefaultService(UserMessageLogDao userMessageLogDao, SignalMessageLogDao signalMessageLogDao,
                                         BackendNotificationService backendNotificationService, MessageStatusDao messageStatusDao, MshRoleDao mshRoleDao,
-                                        NotificationStatusDao notificationStatusDao, EventService eventService,
-                                        AlertConfigurationService alertConfigurationService) {
+                                        NotificationStatusDao notificationStatusDao, EventService eventService) {
         this.userMessageLogDao = userMessageLogDao;
         this.signalMessageLogDao = signalMessageLogDao;
         this.backendNotificationService = backendNotificationService;
@@ -57,7 +54,6 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
         this.mshRoleDao = mshRoleDao;
         this.notificationStatusDao = notificationStatusDao;
         this.eventService = eventService;
-        this.alertConfigurationService = alertConfigurationService;
     }
 
     public UserMessageLog findById(Long entityId) {
@@ -154,26 +150,31 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public MessageStatus getMessageStatus(String messageId, MSHRole mshRole) {
         return userMessageLogDao.getMessageStatus(messageId, mshRole);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public MessageStatus getMessageStatusById(String messageId) {
         return userMessageLogDao.getMessageStatusById(messageId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public MessageStatus getMessageStatus(final Long messageEntityId) {
         return userMessageLogDao.getMessageStatus(messageEntityId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserMessageLog findByMessageId(String messageId) {
         return userMessageLogDao.findByMessageId(messageId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
         return userMessageLogDao.findByMessageId(messageId, mshRole);
     }

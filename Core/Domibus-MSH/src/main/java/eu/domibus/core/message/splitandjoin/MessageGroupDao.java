@@ -47,7 +47,7 @@ public class MessageGroupDao extends BasicDao<MessageGroupEntity> {
         return DataAccessUtils.singleResult(namedQuery.getResultList());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public MessageGroupEntity findByGroupIdWithMessageHeader(String groupId) {
         final TypedQuery<MessageGroupEntity> namedQuery = em.createNamedQuery("MessageGroupEntity.findByGroupIdWithMessageHeader", MessageGroupEntity.class);
         namedQuery.setParameter("GROUP_ID", groupId);

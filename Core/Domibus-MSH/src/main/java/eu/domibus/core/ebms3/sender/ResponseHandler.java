@@ -37,12 +37,18 @@ public class ResponseHandler {
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(ResponseHandler.class);
 
     private final SignalMessageLogDefaultService signalMessageLogDefaultService;
+
     private final NonRepudiationService nonRepudiationService;
+
     private final SignalMessageDao signalMessageDao;
+
     protected final MessageUtil messageUtil;
     private final ErrorLogService errorLogService;
+
     protected final Ebms3Converter ebms3Converter;
+
     protected final UserMessageDao userMessageDao;
+
     protected final MshRoleDao mshRoleDao;
 
     public ResponseHandler(SignalMessageLogDefaultService signalMessageLogDefaultService,

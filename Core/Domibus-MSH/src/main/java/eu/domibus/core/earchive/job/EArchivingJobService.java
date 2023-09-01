@@ -42,6 +42,7 @@ import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 public class EArchivingJobService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(EArchivingJobService.class);
+
     private final EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
 
     private final DomibusPropertyProvider domibusPropertyProvider;
@@ -200,7 +201,6 @@ public class EArchivingJobService {
         return getMaxRetryTimeOutFiltered(mpcs, allLegConfigurations);
     }
 
-
     protected int getMaxRetryTimeOutFiltered(List<String> mpcs, LegConfigurationPerMpc legConfigurationPerMpc) {
         int maxRetryTimeOut = 0;
         for (Map.Entry<String, List<LegConfiguration>> legConfigPerMpcs : legConfigurationPerMpc.entrySet()) {
@@ -231,6 +231,7 @@ public class EArchivingJobService {
         return Arrays.stream(StringUtils.split(mpcs, ',')).map(StringUtils::trim).collect(toList());
     }
 
+    @Transactional(readOnly = true)
     public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int batchMaxSize, int batchPayloadMaxSize) {
         List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(lastUserMessageLogId, maxEntityIdToArchived, batchMaxSize);
         if (batchPayloadMaxSize == 0) {

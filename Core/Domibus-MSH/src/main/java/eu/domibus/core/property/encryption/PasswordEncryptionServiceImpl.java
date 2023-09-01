@@ -59,9 +59,6 @@ public class PasswordEncryptionServiceImpl implements PasswordEncryptionService 
     protected DomibusConfigurationService domibusConfigurationService;
 
     @Autowired
-    protected DomibusRawPropertyProvider domibusRawPropertyProvider;
-
-    @Autowired
     protected PasswordEncryptionDao passwordEncryptionDao;
 
     @Autowired

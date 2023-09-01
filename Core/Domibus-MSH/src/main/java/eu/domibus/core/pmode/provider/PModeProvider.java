@@ -67,14 +67,8 @@ public abstract class PModeProvider {
     @Autowired
     protected ConfigurationRawDAO configurationRawDAO;
 
-    @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
-    protected EntityManager entityManager;
-
     @Autowired
     protected SignalService signalService;
-
-    @Autowired
-    protected DomainContextProvider domainContextProvider;
 
     @Autowired
     protected DomibusPropertyProvider domibusPropertyProvider;
@@ -103,6 +97,7 @@ public abstract class PModeProvider {
 
     public abstract boolean hasLegWithSplittingConfiguration();
 
+    @Transactional(readOnly = true)
     public byte[] getPModeFile(long id) {
         final ConfigurationRaw rawConfiguration = getRawConfiguration(id);
         if (rawConfiguration == null) {
@@ -118,10 +113,12 @@ public abstract class PModeProvider {
         return new byte[0];
     }
 
+    @Transactional(readOnly = true)
     public ConfigurationRaw getRawConfiguration(long id) {
         return this.configurationRawDAO.getConfigurationRaw(id);
     }
 
+    @Transactional(readOnly = true)
     public PModeArchiveInfo getCurrentPmode() {
         final ConfigurationRaw currentRawConfiguration = this.configurationRawDAO.getCurrentRawConfiguration();
         if (currentRawConfiguration != null) {
@@ -140,6 +137,7 @@ public abstract class PModeProvider {
         configurationRawDAO.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public List<PModeArchiveInfo> getRawConfigurationList() {
         return this.configurationRawDAO.getDetailedConfigurationRaw();
     }

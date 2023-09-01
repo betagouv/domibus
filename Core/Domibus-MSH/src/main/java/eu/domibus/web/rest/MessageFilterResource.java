@@ -34,7 +34,7 @@ public class MessageFilterResource extends BaseResource {
     private final RoutingService routingService;
 
     private final BackendFilterCoreMapper backendFilterCoreMapper;
-    private DomainContextProvider domainContextProvider;
+    private final DomainContextProvider domainContextProvider;
 
     public MessageFilterResource(RoutingService routingService,
                                  BackendFilterCoreMapper backendFilterCoreMapper,

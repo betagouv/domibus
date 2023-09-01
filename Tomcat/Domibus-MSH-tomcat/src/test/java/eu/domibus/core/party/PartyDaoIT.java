@@ -5,8 +5,6 @@ import eu.domibus.common.model.configuration.Identifier;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.core.pmode.ConfigurationDAO;
-import eu.domibus.core.pmode.ProcessDaoImpl;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +34,6 @@ public class PartyDaoIT extends AbstractIT {
 
     @Autowired
     private PartyDao partyDao;
-
-    @Autowired
-    private ProcessDaoImpl processDao;
 
     @Autowired
     ConfigurationDAO configurationDAO;

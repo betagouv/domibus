@@ -15,6 +15,7 @@ public class SignalMessageRawService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SignalMessageRawService.class);
 
     protected SignalMessageDao signalMessageDao;
+
     protected SignalMessageRawEnvelopeDao signalMessageRawEnvelopeDao;
 
     public SignalMessageRawService(SignalMessageDao signalMessageDao, SignalMessageRawEnvelopeDao signalMessageRawEnvelopeDao) {
