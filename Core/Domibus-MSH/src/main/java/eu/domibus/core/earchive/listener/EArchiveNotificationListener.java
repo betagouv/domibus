@@ -6,9 +6,9 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.archive.client.api.ArchiveWebhookApi;
 import eu.domibus.archive.client.model.BatchNotification;
-import eu.domibus.core.earchive.EArchiveBatchEntity;
-import eu.domibus.core.earchive.EArchiveBatchUserMessage;
-import eu.domibus.core.earchive.EArchiveBatchUtils;
+import eu.domibus.api.earchive.EArchiveBatchEntity;
+import eu.domibus.api.earchive.EArchiveBatchUserMessage;
+import eu.domibus.api.earchive.EArchiveBatchUtil;
 import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -50,7 +50,7 @@ public class EArchiveNotificationListener implements MessageListener {
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 
-    private final EArchiveBatchUtils eArchiveBatchUtils;
+    private final EArchiveBatchUtil eArchiveBatchUtil;
 
     private final ObjectProvider<ArchiveWebhookApi> archiveWebhookApiProvider;
 
@@ -59,13 +59,13 @@ public class EArchiveNotificationListener implements MessageListener {
             EArchivingDefaultService eArchiveService,
             JmsUtil jmsUtil,
             DomibusPropertyProvider domibusPropertyProvider,
-            EArchiveBatchUtils eArchiveBatchUtils,
+            EArchiveBatchUtil eArchiveBatchUtil,
             ObjectProvider<ArchiveWebhookApi> archiveWebhookApiProvider) {
         this.databaseUtil = databaseUtil;
         this.eArchiveService = eArchiveService;
         this.jmsUtil = jmsUtil;
         this.domibusPropertyProvider = domibusPropertyProvider;
-        this.eArchiveBatchUtils = eArchiveBatchUtils;
+        this.eArchiveBatchUtil = eArchiveBatchUtil;
         this.archiveWebhookApiProvider = archiveWebhookApiProvider;
     }
 
@@ -145,11 +145,11 @@ public class EArchiveNotificationListener implements MessageListener {
             return;
         }
         List<EArchiveBatchUserMessage> batchUserMessages = eArchiveBatch.geteArchiveBatchUserMessages();
-        Long firstUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
-        Long lastUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
+        Long firstUserMessageEntityId = eArchiveBatchUtil.getMessageStartDate(batchUserMessages, 0);
+        Long lastUserMessageEntityId = eArchiveBatchUtil.getMessageStartDate(batchUserMessages, eArchiveBatchUtil.getLastIndex(batchUserMessages));
 
-        Date messageStartDate = eArchiveBatchUtils.getBatchMessageDate(firstUserMessageEntityId);
-        Date messageEndDate = eArchiveBatchUtils.getBatchMessageDate(lastUserMessageEntityId);
+        Date messageStartDate = eArchiveBatchUtil.getBatchMessageDate(firstUserMessageEntityId);
+        Date messageEndDate = eArchiveBatchUtil.getBatchMessageDate(lastUserMessageEntityId);
         if (messageStartDate != null && messageEndDate != null) {
             batchNotification.setMessageStartDate(OffsetDateTime.ofInstant(messageStartDate.toInstant(), ZoneOffset.UTC));
             batchNotification.setMessageEndDate(OffsetDateTime.ofInstant(messageEndDate.toInstant(), ZoneOffset.UTC));

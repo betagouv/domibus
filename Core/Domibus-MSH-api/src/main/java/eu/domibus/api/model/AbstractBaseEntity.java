@@ -17,13 +17,14 @@ public abstract class AbstractBaseEntity extends AbstractBaseAuditEntity {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(AbstractBaseEntity.class);
 
     public static final String DOMIBUS_SCALABLE_SEQUENCE="DOMIBUS_SCALABLE_SEQUENCE";
+    public static final String DATE_PREFIXED_SEQUENCE_ID_GENERATOR = "eu.domibus.api.model.DatePrefixedGenericSequenceIdGenerator";
 
     @XmlTransient
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = DOMIBUS_SCALABLE_SEQUENCE)
     @GenericGenerator(
             name = DOMIBUS_SCALABLE_SEQUENCE,
-            strategy = "eu.domibus.api.model.DatePrefixedGenericSequenceIdGenerator")
+            strategy = DATE_PREFIXED_SEQUENCE_ID_GENERATOR)
     @Column(name = "ID_PK")
     private long entityId;
 

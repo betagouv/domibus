@@ -2,10 +2,7 @@ package eu.domibus.core.earchive;
 
 import com.codahale.metrics.MetricRegistry;
 import eu.domibus.AbstractIT;
-import eu.domibus.api.earchive.EArchiveBatchFilter;
-import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
-import eu.domibus.api.earchive.EArchiveBatchStatus;
-import eu.domibus.api.earchive.EArchiveRequestType;
+import eu.domibus.api.earchive.*;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.property.DomibusPropertyProvider;

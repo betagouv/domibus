@@ -1,16 +1,14 @@
 package eu.domibus.core.util;
 
-import eu.domibus.api.exceptions.DomibusDateTimeException;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
-import org.apache.commons.lang3.time.DateUtils;
+import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.*;
 import java.util.Date;
 import java.util.TimeZone;
@@ -145,64 +143,8 @@ public class DateUtilImplTest {
 
     @Test
     public void getIdPkDateHour() {
-        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Brussels"));
-        /*long idPkDateHour = dateUtilImpl.getIdPkDateHour("2022-01-01T10H");
-
-        Assertions.assertEquals(220101090000000000L, idPkDateHour);*/
-    }
-
-    @Test
-    public void getIdPkDateHour_utc() {
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-       /* long idPkDateHour = dateUtilImpl.getIdPkDateHour("2022-01-01T10H");
-
-        Assertions.assertEquals(220101100000000000L, idPkDateHour);*/
-    }
-
-    @Test
-    public void getIdPkDateHour_nok() {
-       /* try {
-            dateUtilImpl.getIdPkDateHour("2022-01-01T");
-            Assertions.fail();
-        } catch (DomibusDateTimeException e) {
-            //OK
-        }*/
-    }
-
-    @Test
-    public void getIdPkDateHour_onlyDate_Utc() {
-        /*TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-        long idPkDateHour = dateUtilImpl.getIdPkDateHour("2022-01-01");
-
-        Assertions.assertEquals(220101000000000000L, idPkDateHour);*/
-    }
-
-
-    @Test
-    public void getIdPkDateHour_onlyDate() {
-/*        TimeZone.setDefault(TimeZone.getTimeZone("Europe/Brussels"));
-        long idPkDateHour = dateUtilImpl.getIdPkDateHour("2022-01-01");
-
-        Assertions.assertEquals(211231230000000000L, idPkDateHour);*/
-    }
-
-    @Test
-    public void getIdPkDateHour_notACorrectDate() {
-     /*   try {
-            dateUtilImpl.getIdPkDateHour("2022-99-99T10H");
-            Assertions.fail();
-        } catch (DomibusDateTimeException e) {
-            //OK
-        }*/
-    }
-
-    @Test
-    public void getIdPkDateHour_empty() {
-       /* try {
-            dateUtilImpl.getIdPkDateHour("");
-            Assertions.fail();
-        } catch (DomibusDateTimeException e) {
-            //OK
-        }*/
+        LocalDateTime idPkDateHour = dateUtilImpl.getLocalDateTimeFromDateWithHour(22010110L);
+        final LocalDateTime expectedLocalDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0);
+        Assert.assertEquals(expectedLocalDateTime, idPkDateHour);
     }
 }

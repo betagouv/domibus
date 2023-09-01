@@ -13,11 +13,14 @@ import java.util.Date;
  * @author Cosmin Baciu
  * @since 5.2
  */
-@Service
+@Service(TsidUtil.BEAN_NAME)
 public class TsidUtilImpl implements TsidUtil {
 
     @Override
-    public long zonedTimeDateToTsid(ZonedDateTime zonedDateTime) {
+    public Long zonedTimeDateToTsid(ZonedDateTime zonedDateTime) {
+        if (zonedDateTime == null) {
+            return null;
+        }
         return epochMilliToTsid(zonedDateTime.toInstant().toEpochMilli());
     }
 
@@ -26,28 +29,44 @@ public class TsidUtilImpl implements TsidUtil {
     }
 
     @Override
-    public long getDateFromTsid(long tsid) {
+    public Long getDateFromTsid(Long tsid) {
+        if (tsid == null) {
+            return null;
+        }
         return (tsid >> RANDOM_BITS) + TSID.TSID_EPOCH;
     }
 
     @Override
-    public long dateToTsid(Date date) {
+    public Long dateToTsid(Date date) {
+        if (date == null) {
+            return null;
+        }
         return epochMilliToTsid(date.getTime());
     }
 
     @Override
-    public long dateToTsid(long date) {
+    public Long dateToTsid(Long date) {
+        if (date == null) {
+            return null;
+        }
         return epochMilliToTsid(date);
     }
 
     @Override
-    public long zonedTimeDateToMaxTsid(ZonedDateTime zonedDateTime) {
+    public Long zonedTimeDateToMaxTsid(ZonedDateTime zonedDateTime) {
+        if (zonedDateTime == null) {
+            return null;
+        }
+
         final long dateToTsid = zonedTimeDateToTsid(zonedDateTime);
         return dateToTsid + TsidUtil.RANDOM_MAX_VALUE;
     }
 
     @Override
-    public long localDateTimeToTsid(LocalDateTime localDateTime) {
+    public Long localDateTimeToTsid(LocalDateTime localDateTime) {
+        if (localDateTime == null) {
+            return null;
+        }
         final Date date = Date.from(localDateTime.atZone(ZoneOffset.UTC).toInstant());
         return dateToTsid(date);
     }

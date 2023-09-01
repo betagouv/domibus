@@ -1,9 +1,7 @@
 package eu.domibus.core.earchive.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.domibus.api.earchive.DomibusEArchiveException;
-import eu.domibus.api.earchive.EArchiveBatchStatus;
-import eu.domibus.api.earchive.EArchiveRequestType;
+import eu.domibus.api.earchive.*;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.*;
@@ -51,7 +49,7 @@ public class EArchiveListenerTest {
     private ObjectMapper jsonMapper;
 
     @Injectable
-    private EArchiveBatchUtils eArchiveBatchUtils;
+    private EArchiveBatchUtil eArchiveBatchUtil;
 
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -149,13 +147,13 @@ public class EArchiveListenerTest {
             eArchiveBatch.getRequestType();
             result = EArchiveRequestType.CONTINUOUS;
 
-            eArchiveBatchUtils.getMessageStartDate(null, 0);
+            eArchiveBatchUtil.getMessageStartDate(null, 0);
             result = firstUserMessageEntityId;
 
-            eArchiveBatchUtils.getLastIndex(null);
+            eArchiveBatchUtil.getLastIndex(null);
             result = 100;
 
-            eArchiveBatchUtils.getMessageStartDate(null, 100);
+            eArchiveBatchUtil.getMessageStartDate(null, 100);
             result = lastUserMessageEntityId;
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
@@ -177,7 +175,7 @@ public class EArchiveListenerTest {
             eArchivingDefaultService.setStatus(eArchiveBatch, EArchiveBatchStatus.STARTED);
             times = 1;
 
-            eArchiveBatchUtils.getMessageIds((List<EArchiveBatchUserMessage>) any);
+            eArchiveBatchUtil.getMessageIds((List<EArchiveBatchUserMessage>) any);
             times = 1;
 
             eArchiveBatch.setManifestChecksum("sha256:test");
@@ -226,19 +224,19 @@ public class EArchiveListenerTest {
             domibusEARKSIPResult.getManifestChecksum();
             result = "sha256:test";
 
-            eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
+            eArchiveBatchUtil.getMessageStartDate(batchUserMessages, 0);
             result = firstUserMessageEntityId;
 
-            eArchiveBatchUtils.getLastIndex(batchUserMessages);
+            eArchiveBatchUtil.getLastIndex(batchUserMessages);
             result = 100;
 
-            eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 100);
+            eArchiveBatchUtil.getMessageStartDate(batchUserMessages, 100);
             result = lastUserMessageEntityId;
 
-            eArchiveBatchUtils.getBatchMessageDate(firstUserMessageEntityId);
+            eArchiveBatchUtil.getBatchMessageDate(firstUserMessageEntityId);
             result = new Date();
 
-            eArchiveBatchUtils.getBatchMessageDate(lastUserMessageEntityId);
+            eArchiveBatchUtil.getBatchMessageDate(lastUserMessageEntityId);
             result = new Date();
 
             domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
@@ -261,7 +259,7 @@ public class EArchiveListenerTest {
             eArchivingDefaultService.executeBatchIsExported(((EArchiveBatchEntity) any), (List<EArchiveBatchUserMessage>) any);
             times = 1;
 
-            eArchiveBatchUtils.getMessageIds((List<EArchiveBatchUserMessage>) any);
+            eArchiveBatchUtil.getMessageIds((List<EArchiveBatchUserMessage>) any);
             times = 1;
 
             eArchiveBatch.setManifestChecksum("sha256:test");

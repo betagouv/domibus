@@ -167,12 +167,10 @@ public abstract class MessageLogInfoFilter {
                     switch (filter.getKey()) {
                         case "minEntityId":
                             value = tsidUtil.zonedTimeDateToTsid(zonedDateTime);
-//                            value = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MIN);
                             LOG.debug("Turned [{}] into min entityId [{}]", filter.getValue(), value);
                             break;
                         case "maxEntityId":
                             value = tsidUtil.zonedTimeDateToMaxTsid(zonedDateTime);
-//                            value = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
                             LOG.debug("Turned [{}] into max entityId [{}]", filter.getValue(), value);
                             break;
                         default: // includes receivedFrom and receivedTo

@@ -1,5 +1,6 @@
 package eu.domibus.core.earchive;
 
+import eu.domibus.api.earchive.EArchiveBatchEntity;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.earchive.EArchiveRequestType;
 

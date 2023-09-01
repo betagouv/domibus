@@ -1,7 +1,7 @@
 package eu.domibus.core.earchive.eark;
 
 import eu.domibus.core.earchive.BatchEArchiveDTO;
-import eu.domibus.core.earchive.EArchiveBatchUserMessage;
+import eu.domibus.api.earchive.EArchiveBatchUserMessage;
 
 import java.util.Date;
 import java.util.List;

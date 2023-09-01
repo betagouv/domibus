@@ -12,7 +12,7 @@ import eu.domibus.common.model.configuration.ReceptionAwareness;
 import eu.domibus.core.earchive.EArchiveBatchDao;
 import eu.domibus.core.earchive.EArchiveBatchStartDao;
 import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
-import eu.domibus.core.earchive.EArchiveBatchUtils;
+import eu.domibus.api.earchive.EArchiveBatchUtil;
 import eu.domibus.core.earchive.alerts.EArchivingEventService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
@@ -68,7 +68,7 @@ public class EArchivingJobServiceTest {
     @Injectable
     private ObjectMapper domibusJsonMapper;
     @Injectable
-    private EArchiveBatchUtils eArchiveBatchUtils;
+    private EArchiveBatchUtil eArchiveBatchUtil;
     @Injectable
     private UserMessageLogDao userMessageLogDao;
     @Injectable

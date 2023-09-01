@@ -59,7 +59,7 @@ public class TsidUtilImplIT extends AbstractIT {
         final ZonedDateTime zonedDateTime = localDateTime.atZone(ZoneOffset.UTC);
         final long tsid = tsidUtil.zonedTimeDateToTsid(zonedDateTime);
 
-        final long dateFromTsid = tsidUtil.getDateFromTsid(0);
+        final long dateFromTsid = tsidUtil.getDateFromTsid(0L);
         final LocalDateTime extractedLocalDateTimeFromTsid = dateUtil.convertToLocalDateTime(new Date(dateFromTsid));
         Assertions.assertEquals(localDateTime, extractedLocalDateTimeFromTsid);
     }

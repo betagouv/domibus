@@ -3,6 +3,7 @@ package eu.domibus.api.util;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.SignStyle;
 import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.Locale;
@@ -37,6 +38,26 @@ public interface DateUtil {
             .parseDefaulting(ChronoField.MILLI_OF_SECOND, 0)
             .toFormatter(Locale.ENGLISH);
 
+    DateTimeFormatter YEAR4DIGITS_ISO_LOCAL_DATE_WITH_NO_SEPARATORS = new DateTimeFormatterBuilder()
+            .appendValue(ChronoField.YEAR, 4, 4, SignStyle.EXCEEDS_PAD)
+            .appendValue(ChronoField.MONTH_OF_YEAR, 2)
+            .appendValue(ChronoField.DAY_OF_MONTH, 2)
+            .toFormatter();
+
+    DateTimeFormatter REST_FORMATTER_FOR_DATE_WITH_HOUR_NO_SEPARATORS = new DateTimeFormatterBuilder()
+            .parseCaseInsensitive()
+            .append(YEAR4DIGITS_ISO_LOCAL_DATE_WITH_NO_SEPARATORS)
+
+            .optionalStart()
+            .appendValue(HOUR_OF_DAY, 2)
+            .optionalEnd()
+
+            .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+            .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+            .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+            .parseDefaulting(ChronoField.MILLI_OF_SECOND, 0)
+            .toFormatter(Locale.ENGLISH);
+
     Date fromString(String value);
 
     Date getStartOfDay();
@@ -62,7 +83,17 @@ public interface DateUtil {
 
     LocalDateTime getLocalDateTime(String date);
 
+    /**
+     * Converts a date containing an hour to a local date time
+     *
+     * @param dateWithHour in a format yyMMddHH
+     * @return
+     */
+    LocalDateTime getLocalDateTimeFromDateWithHour(Long dateWithHour);
+
     LocalDateTime convertToLocalDateTime(Date date);
 
     Date convertFromLocalDateTime(LocalDateTime localDateTime);
+
+    String getIdPkDateHourPrefix(Date value);
 }

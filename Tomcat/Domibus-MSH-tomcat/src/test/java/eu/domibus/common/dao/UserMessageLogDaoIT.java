@@ -5,7 +5,7 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.TsidUtil;
 import eu.domibus.common.MessageDaoTestUtil;
-import eu.domibus.core.earchive.EArchiveBatchUserMessage;
+import eu.domibus.api.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.MessageLogInfo;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.MpcDao;

@@ -1,8 +1,6 @@
 package eu.domibus.core.earchive;
 
-import eu.domibus.api.earchive.EArchiveBatchFilter;
-import eu.domibus.api.earchive.EArchiveBatchStatus;
-import eu.domibus.api.earchive.EArchiveRequestType;
+import eu.domibus.api.earchive.*;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.util.QueryUtil;

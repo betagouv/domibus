@@ -1,11 +1,8 @@
 package eu.domibus.core.earchive.job;
 
 import com.fasterxml.uuid.NoArgGenerator;
-import eu.domibus.api.earchive.DomibusEArchiveException;
-import eu.domibus.api.earchive.EArchiveBatchStatus;
-import eu.domibus.api.earchive.EArchiveRequestType;
+import eu.domibus.api.earchive.*;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.TsidUtil;
@@ -29,7 +26,6 @@ import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.util.Locale.ENGLISH;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 

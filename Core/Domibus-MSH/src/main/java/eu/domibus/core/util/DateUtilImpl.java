@@ -10,10 +10,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -115,6 +117,21 @@ public class DateUtilImpl implements DateUtil {
     }
 
     @Override
+    public LocalDateTime getLocalDateTimeFromDateWithHour(Long dateWithHour) {
+        if (dateWithHour == null) {
+            throw new DomibusDateTimeException(DATETIME_FORMAT_DEFAULT);
+        }
+        try {
+            //we add 20 as prefix to have 4 digits for the year eg 22 becomes 2022
+            final String dateWithHourAndFullYear = "20" + dateWithHour;
+            LocalDateTime localDateTime = LocalDateTime.parse(dateWithHourAndFullYear, REST_FORMATTER_FOR_DATE_WITH_HOUR_NO_SEPARATORS);
+            return localDateTime.atZone(ZoneOffset.UTC).toLocalDateTime();
+        } catch (Exception e) {
+            throw new DomibusDateTimeException(dateWithHour + "", DATETIME_FORMAT_DEFAULT, e);
+        }
+    }
+
+    @Override
     public LocalDateTime convertToLocalDateTime(Date date) {
         if(date == null) {
             return null;
@@ -128,5 +145,12 @@ public class DateUtilImpl implements DateUtil {
             return null;
         }
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    }
+
+    @Override
+    public String getIdPkDateHourPrefix(Date value) {
+        SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return sdf.format(value).substring(0, 8);
     }
 }

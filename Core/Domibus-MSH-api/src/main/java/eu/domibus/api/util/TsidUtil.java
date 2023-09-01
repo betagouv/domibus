@@ -10,6 +10,8 @@ import java.util.Date;
  */
 public interface TsidUtil {
 
+    String BEAN_NAME = "domibusTsidUtil";
+
     int RANDOM_BITS = 22;
 
     /**
@@ -17,15 +19,15 @@ public interface TsidUtil {
      */
     long RANDOM_MAX_VALUE = 4194303;
 
-    long zonedTimeDateToTsid(ZonedDateTime zonedDateTime);
+    Long zonedTimeDateToTsid(ZonedDateTime zonedDateTime);
 
-    long getDateFromTsid(long tsid);
+    Long getDateFromTsid(Long tsid);
 
-    long dateToTsid(Date date);
+    Long dateToTsid(Date date);
 
-    long localDateTimeToTsid(LocalDateTime date);
+    Long localDateTimeToTsid(LocalDateTime date);
 
-    long dateToTsid(long date);
+    Long dateToTsid(Long date);
 
-    long zonedTimeDateToMaxTsid(ZonedDateTime zonedDateTime);
+    Long zonedTimeDateToMaxTsid(ZonedDateTime zonedDateTime);
 }

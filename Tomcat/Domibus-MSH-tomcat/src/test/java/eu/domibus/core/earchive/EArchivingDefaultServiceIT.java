@@ -1,10 +1,7 @@
 package eu.domibus.core.earchive;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.earchive.EArchiveBatchFilter;
-import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
-import eu.domibus.api.earchive.EArchiveBatchStatus;
-import eu.domibus.api.earchive.EArchiveRequestType;
+import eu.domibus.api.earchive.*;
 import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.TsidUtil;
@@ -14,7 +11,6 @@ import eu.domibus.core.message.UserMessageDefaultService;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -30,14 +26,12 @@ import java.util.*;
 import static eu.domibus.core.earchive.EArchivingDefaultService.CONTINUOUS_ID;
 import static eu.domibus.core.earchive.EArchivingDefaultService.SANITY_ID;
 import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.util.Locale.ENGLISH;
 
 /**
  * @author François Gautier
  * @since 5.0
  */
 @Transactional
-//@Disabled("EDELIVERY-6896")
 public class EArchivingDefaultServiceIT extends AbstractIT {
 
     @Autowired
@@ -53,7 +47,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
 
     @Autowired
-    EArchiveBatchUtils eArchiveBatchUtils;
+    EArchiveBatchUtil eArchiveBatchUtil;
 
     @Autowired
     MessageDaoTestUtil messageDaoTestUtil;
@@ -137,7 +131,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         Long startMessageDate = 21102610L;
         eArchivingService.updateStartDateContinuousArchive(startMessageDate);
 
-        Assertions.assertEquals(eArchiveBatchUtils.dateToPKUserMessageId(startMessageDate),
+        Assertions.assertEquals(eArchiveBatchUtil.dateToPKUserMessageId(startMessageDate),
                 eArchiveBatchStartDao.findByReference(CONTINUOUS_ID).getLastPkUserMessage());
 
     }
@@ -147,17 +141,15 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         Long startDateContinuousArchive = eArchivingService.getStartDateContinuousArchive();
 
         //2020-01-01T00:00:00.000Z
-        final LocalDateTime localDateTime = LocalDateTime.of(2020, 1, 1, 0, 0, 0);
-        final Date epochSecond2020_01_01 = dateUtil.convertFromLocalDateTime(localDateTime);
-        Assertions.assertEquals(epochSecond2020_01_01.getTime(), startDateContinuousArchive.longValue());
+        Assertions.assertEquals(20010100L, startDateContinuousArchive.longValue());
     }
 
     @Test
     public void updateStartDateSanityArchive() {
-        Long startMessageDate = 102710L;
+        Long startMessageDate = 10071000L;
         eArchivingService.updateStartDateSanityArchive(startMessageDate);
 
-        Assertions.assertEquals(eArchiveBatchUtils.dateToPKUserMessageId(startMessageDate),
+        Assertions.assertEquals(eArchiveBatchUtil.dateToPKUserMessageId(startMessageDate),
                 eArchiveBatchStartDao.findByReference(SANITY_ID).getLastPkUserMessage());
     }
 
@@ -166,9 +158,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         Long startDateSanityArchive = eArchivingService.getStartDateSanityArchive();
 
         //2020-01-01T00:00:00.000Z
-        final LocalDateTime localDateTime = LocalDateTime.of(2020, 1, 1, 0, 0, 0);
-        final Date epochSecond2020_01_01 = dateUtil.convertFromLocalDateTime(localDateTime);
-        Assertions.assertEquals(epochSecond2020_01_01.getTime(), startDateSanityArchive.longValue());
+        Assertions.assertEquals(20010100L, startDateSanityArchive.longValue());
     }
 
     @Test

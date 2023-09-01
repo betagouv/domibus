@@ -4,7 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.util.FileServiceUtil;
 import eu.domibus.core.earchive.BatchEArchiveDTO;
 import eu.domibus.core.earchive.BatchEArchiveDTOBuilder;
-import eu.domibus.core.earchive.EArchiveBatchUserMessage;
+import eu.domibus.api.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.earchive.alerts.EArchivingEventService;
 import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
