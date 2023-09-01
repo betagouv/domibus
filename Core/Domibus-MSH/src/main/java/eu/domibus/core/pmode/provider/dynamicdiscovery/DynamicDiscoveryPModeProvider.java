@@ -280,6 +280,15 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         }
     }
 
+    /**
+     * Method adds certificate to the store. Currently, it is not possible to move this method to CertificateService since
+     * MultiDomainCryptoService contains a bean of type CertificateService which would cause a circular dependency
+     *
+     * @param cn - the certificate's common name
+     * @param securityProfile - the security profile, null if security profiles are not defined
+     * @param certificatePurpose - purpose of the certificate sign/encrypt
+     * @param certificate - the certificate which is added to the store
+     */
     private void addCertificate(String cn, SecurityProfile securityProfile, CertificatePurpose certificatePurpose, final X509Certificate certificate) {
         Domain currentDomain = domainProvider.getCurrentDomain();
 
