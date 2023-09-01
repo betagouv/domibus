@@ -265,24 +265,10 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         String pModeKey = findUserMessageExchangeContext(userMessage, MSHRole.SENDING).getPmodeKey();
         LOG.debug("PMode found [{}]", pModeKey);
         LegConfiguration legConfiguration = getLegConfiguration(pModeKey);
-        LOG.info("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
+        LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
 
-        X509Certificate certificate;
-        String cn;
-        try {
-            certificate = endpointInfo.getCertificate();
-            //parse certificate for common name = toPartyId
-            cn = certificateService.extractCommonName(certificate);
-            LOG.debug("Extracted the common name [{}]", cn);
-        } catch (final InvalidNameException e) {
-            LOG.error("Error while extracting CommonName from certificate", e);
-            throw EbMS3ExceptionBuilder.getInstance()
-                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0003)
-                    .message("Error while extracting CommonName from certificate")
-                    .refToMessageId(userMessage.getMessageId())
-                    .cause(e)
-                    .build();
-        }
+        X509Certificate certificate = endpointInfo.getCertificate();
+        String cn = extractCNFromCertificate(userMessage, certificate);
         SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
 
         if (securityProfile != null) {
@@ -463,7 +449,7 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         }
     }
 
-    protected PartyId updateToParty(UserMessage userMessage, final X509Certificate certificate) throws EbMS3Exception {
+    private String extractCNFromCertificate(UserMessage userMessage, final X509Certificate certificate) throws EbMS3Exception {
         String cn;
         try {
             //parse certificate for common name = toPartyId
@@ -478,6 +464,12 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
                     .cause(e)
                     .build();
         }
+        return cn;
+    }
+
+    protected PartyId updateToParty(UserMessage userMessage, final X509Certificate certificate) throws EbMS3Exception {
+        String cn = extractCNFromCertificate(userMessage, certificate);
+
         //set toPartyId in UserMessage
         String type = dynamicDiscoveryService.getPartyIdType();
         LOG.debug("Set DDC value to TO PartyId: Value: [{}], type: [{}].", cn, type);
