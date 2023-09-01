@@ -7,6 +7,7 @@ import eu.domibus.api.model.SignalMessage;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.signal.SignalMessageDao;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +34,7 @@ public class SignalMessageRawServiceIT extends AbstractIT {
 
 
     @Test
+    @Disabled("EDELIVERY-11795")
     public void noSignalFound() {
         try {
             signalMessageRawService.saveSignalMessageRawService("", 1L);

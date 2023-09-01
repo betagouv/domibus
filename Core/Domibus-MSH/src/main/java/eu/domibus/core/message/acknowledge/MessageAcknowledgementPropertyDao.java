@@ -12,8 +12,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class MessageAcknowledgementPropertyDao extends BasicDao<MessageAcknowledgementProperty> {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MessageAcknowledgementPropertyDao.class);
-
     public MessageAcknowledgementPropertyDao() {
         super(MessageAcknowledgementProperty.class);
     }

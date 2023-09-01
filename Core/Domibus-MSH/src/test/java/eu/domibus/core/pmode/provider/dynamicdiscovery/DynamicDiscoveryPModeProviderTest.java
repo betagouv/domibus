@@ -29,6 +29,7 @@ import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
 import eu.domibus.core.pmode.provider.FinalRecipientService;
+import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.core.util.xml.XMLUtilImpl;
@@ -61,7 +62,7 @@ import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFr
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SuppressWarnings("ResultOfMethodCallIgnored")
+@SuppressWarnings({"ResultOfMethodCallIgnored", "SameParameterValue"})
 @ExtendWith(MockitoExtension.class)
 public class DynamicDiscoveryPModeProviderTest {
 
@@ -138,6 +139,9 @@ public class DynamicDiscoveryPModeProviderTest {
     private X509CertificateService x509CertificateService;
     private AutoCloseable closeable;
 
+    @Mock
+    private PModeValidationHelper pModeValidationHelper;
+
     @BeforeEach
     public void init() {
         closeable = MockitoAnnotations.openMocks(this);
@@ -197,7 +201,6 @@ public class DynamicDiscoveryPModeProviderTest {
     @Test
     public void testFindDynamicProcesses() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
- //       doReturn(true).when(configurationDAO).configurationExists();
         doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
         assertEquals(1, dynamicDiscoveryPModeProvider.dynamicResponderProcesses.size());
@@ -219,7 +222,6 @@ public class DynamicDiscoveryPModeProviderTest {
     @Test
     public void testDoDynamicDiscoveryOnSender() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
-//        doReturn(true).when(configurationDAO).configurationExists();
         doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
 
@@ -243,7 +245,6 @@ public class DynamicDiscoveryPModeProviderTest {
     @Test
     void testDoDynamicDiscoveryOnSenderNullCertificate() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
-  //      doReturn(true).when(configurationDAO).configurationExists();
         doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
 
@@ -260,7 +261,6 @@ public class DynamicDiscoveryPModeProviderTest {
     @Test
     public void testDoDynamicDiscoveryOnReceiver() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
- //       doReturn(true).when(configurationDAO).configurationExists();
         doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
 
@@ -373,7 +373,6 @@ public class DynamicDiscoveryPModeProviderTest {
         assertEquals(2, result.size());
 
         for (Process process : result) {
-//            assertTrue(process.isDynamicInitiator());
             assertTrue(process.isDynamicResponder());
         }
     }
@@ -416,7 +415,6 @@ public class DynamicDiscoveryPModeProviderTest {
     @Test
     public void testUpdateConfigurationParty_new() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
- //       doReturn(true).when(configurationDAO).configurationExists();
         doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
 
@@ -429,7 +427,6 @@ public class DynamicDiscoveryPModeProviderTest {
     @Test
     public void testUpdateConfigurationParty_exists() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
-//        doReturn(true).when(configurationDAO).configurationExists();
         doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
 

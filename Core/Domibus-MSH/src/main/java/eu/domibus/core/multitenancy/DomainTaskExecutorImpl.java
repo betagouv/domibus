@@ -106,7 +106,7 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     }
 
     @Override
-    public <T> T executeWithLock(final Callable<T> task, final String dbLockKey, final Object javaLockKey, final Runnable errorHandler) {
+    public <T> T executeWithLock(final Callable<T> task, final String dbLockKey, final String javaLockKey, final Runnable errorHandler) {
         Callable<T> synchronizedCallable = synchronizationService.getSynchronizedCallable(task, dbLockKey, javaLockKey);
         Callable<T> setMDCContextTaskRunnable = new SetMDCContextTaskRunnable<T>(synchronizedCallable, errorHandler);
         final Callable<T> clearDomainRunnable = new ClearDomainRunnable<T>(domainContextProvider, setMDCContextTaskRunnable);

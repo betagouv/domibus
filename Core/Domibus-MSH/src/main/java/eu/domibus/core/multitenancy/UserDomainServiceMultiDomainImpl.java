@@ -13,6 +13,7 @@ import eu.domibus.web.security.DomibusUserDetailsImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 
@@ -44,6 +45,7 @@ import java.util.ArrayList;
      */
     @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.USER_DOMAIN_CACHE, key = "#userName")
     @Override
+    @Transactional(readOnly = true)
     public String getDomainForUser(String userName) {
         LOG.debug("Searching domain for user named [{}]", userName);
         String domain = domainTaskExecutor.submit(() -> userDomainDao.findDomain(userName));
@@ -59,6 +61,7 @@ import java.util.ArrayList;
      */
     @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = DomibusLocalCacheService.PREFERRED_USER_DOMAIN_CACHE, key = "#user", unless="#result == null")
     @Override
+    @Transactional(readOnly = true)
     public String getPreferredDomainForUser(String user) {
         LOG.debug("Searching preferred domain for user [{}]", user);
         String domain = domainTaskExecutor.submit(() -> userDomainDao.findPreferredDomain(user));

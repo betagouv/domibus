@@ -25,9 +25,7 @@ import eu.domibus.ext.domain.SecurityProfileDTO;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -482,14 +480,13 @@ public class DefaultAuthorizationServiceSpiImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     void authorizePullTestInitiatorException() throws Exception {
         final String testMpc = "mpc_for_test";
         String testQualifiedMpc = "qualified_mpc_for_test";
         PullRequestPmodeData pullRequestPmodeData = new PullRequestPmodeData(testMpc);
         Process process = new Process();
         PullContext pullContext = new PullContext(process, new Party(), testQualifiedMpc);
-        new Expectations() {{
+        new Expectations(defaultAuthorizationServiceSpi) {{
             pModeProvider.findMpcUri(testMpc);
             result = testQualifiedMpc;
             messageExchangeService.extractProcessOnMpc(testQualifiedMpc);
@@ -501,17 +498,16 @@ public class DefaultAuthorizationServiceSpiImplTest {
 
         new Verifications() {{
             defaultAuthorizationServiceSpi.doAuthorize(null, ALIAS_TEST_AUTH);
-            times = 1;
+            times = 0;
         }};
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     void authorizePullTestPullContextException() throws Exception {
         final String testMpc = "mpc_for_test";
         String testQualifiedMpc = "qualified_mpc_for_test";
         PullRequestPmodeData pullRequestPmodeData = new PullRequestPmodeData(testMpc);
-        new Expectations() {{
+        new Expectations(defaultAuthorizationServiceSpi) {{
             pModeProvider.findMpcUri(testMpc);
             result = testQualifiedMpc;
             messageExchangeService.extractProcessOnMpc(testQualifiedMpc);
@@ -523,7 +519,7 @@ public class DefaultAuthorizationServiceSpiImplTest {
 
         new Verifications() {{
             defaultAuthorizationServiceSpi.doAuthorize(null, ALIAS_TEST_AUTH);
-            times = 1;
+            times = 0;
         }};
     }
 

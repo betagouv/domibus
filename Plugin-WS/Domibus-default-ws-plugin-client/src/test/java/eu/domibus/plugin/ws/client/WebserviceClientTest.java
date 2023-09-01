@@ -25,7 +25,6 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Created by muellers on 7/1/16.
  */
-@Disabled("EDELIVERY-6896")
 public class WebserviceClientTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(WebserviceClientTest.class);
@@ -82,7 +81,7 @@ public class WebserviceClientTest {
     }
 
     @AfterEach
-public void cleanUp() throws Exception {
+    public void cleanUp() throws Exception {
         ListPendingMessagesResponse listPendingMessagesResponse = webServicePluginInterface.listPendingMessages(new ListPendingMessagesRequest());
 
         sleep(2000);

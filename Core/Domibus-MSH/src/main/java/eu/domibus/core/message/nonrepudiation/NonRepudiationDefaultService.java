@@ -1,5 +1,7 @@
 package eu.domibus.core.message.nonrepudiation;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.RawEnvelopeDto;
@@ -14,7 +16,9 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.soap.SOAPMessage;
 import javax.xml.transform.TransformerException;
@@ -56,7 +60,6 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
 
     @Autowired
     private AuditService auditService;
-
 
     @Autowired
     protected SignalMessageRawService signalMessageRawService;
@@ -125,10 +128,13 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
             signalMessageRawService.saveSignalMessageRawService(rawXMLMessage, signalMessageEntityId);
         } catch (TransformerException e) {
             LOG.warn("Unable to log the raw message XML due to: ", e);
+        } catch (DataIntegrityViolationException e) {
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_001, "Error saving the signal raw message with id [" + signalMessageEntityId + "]", e);
         }
     }
 
     @Override
+    @Transactional(readOnly = true)
     public String getUserMessageEnvelope(String messageId, MSHRole mshRole) {
         UserMessage userMessage = getUserMessageById(messageId, mshRole);
 
@@ -144,6 +150,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public String getSignalMessageEnvelope(String userMessageId, MSHRole mshRole) {
         RawEnvelopeDto rawEnvelopeDto = signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId(userMessageId, mshRole);
         if (rawEnvelopeDto == null) {
@@ -160,6 +167,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, InputStream> getMessageEnvelopes(String messageId, MSHRole mshRole) {
         Map<String, InputStream> result = new HashMap<>();
 

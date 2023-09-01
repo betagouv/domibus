@@ -37,6 +37,7 @@ public class BackendFilterDao extends BasicDao<BackendFilterEntity> {
         super.deleteAll(filters);
     }
 
+    @Transactional(readOnly = true)
     public List<BackendFilterEntity> findAll() {
         final TypedQuery<BackendFilterEntity> query = em.createNamedQuery("BackendFilter.findEntriesOrderedByPriority", BackendFilterEntity.class);
         try {

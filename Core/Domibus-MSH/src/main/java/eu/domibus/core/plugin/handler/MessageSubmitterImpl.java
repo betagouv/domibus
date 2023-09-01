@@ -45,6 +45,7 @@ import eu.domibus.plugin.ProcessingType;
 import eu.domibus.plugin.Submission;
 import eu.domibus.plugin.handler.MessageSubmitter;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,8 +72,6 @@ public class MessageSubmitterImpl implements MessageSubmitter {
     private static final String TO_STR = "] to [";
 
     protected final AuthUtils authUtils;
-
-    protected final UserMessageDefaultService userMessageService;
 
     protected final SplitAndJoinConfigurationService splitAndJoinConfigurationService;
 
@@ -112,7 +111,7 @@ public class MessageSubmitterImpl implements MessageSubmitter {
 
     protected final BackendConnectorService backendConnectorService;
 
-    public MessageSubmitterImpl(AuthUtils authUtils, UserMessageDefaultService userMessageService, SplitAndJoinConfigurationService splitAndJoinConfigurationService,
+    public MessageSubmitterImpl(AuthUtils authUtils, SplitAndJoinConfigurationService splitAndJoinConfigurationService,
                                 PModeDefaultService pModeDefaultService, SubmissionAS4Transformer transformer, MessagingService messagingService,
                                 UserMessageLogDefaultService userMessageLogService, PayloadFileStorageProvider storageProvider, ErrorLogService errorLogService,
                                 PModeProvider pModeProvider, MessageIdGenerator messageIdGenerator, BackendMessageValidator backendMessageValidator,
@@ -121,7 +120,6 @@ public class MessageSubmitterImpl implements MessageSubmitter {
                                 UserMessageSecurityService userMessageSecurityService, PartInfoService partInfoService, MessageSubmitterHelper messageSubmitterHelper,
                                 TestMessageValidator testMessageValidator, BackendConnectorService backendConnectorService) {
         this.authUtils = authUtils;
-        this.userMessageService = userMessageService;
         this.splitAndJoinConfigurationService = splitAndJoinConfigurationService;
         this.pModeDefaultService = pModeDefaultService;
         this.transformer = transformer;
@@ -378,6 +376,15 @@ public class MessageSubmitterImpl implements MessageSubmitter {
             throw EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0010)
                     .message(e.getMessage())
+                    .refToMessageId(messageId)
+                    .cause(e)
+                    .mshRole(MSHRole.SENDING)
+                    .build();
+        } catch (DataIntegrityViolationException e) {
+            LOG.error("Could not persist message [{}]", messageId, e);
+            throw EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0004)
+                    .message("Could not persist message [" + messageId + "]. It could be that you are submitting a message with an id which already exists.")
                     .refToMessageId(messageId)
                     .cause(e)
                     .mshRole(MSHRole.SENDING)

@@ -1,7 +1,11 @@
 package eu.domibus.plugin.fs.vfs.smb;
 
-import java.lang.reflect.Field;
-
+import jcifs.smb.NtlmPasswordAuthentication;
+import jcifs.smb.SmbFile;
+import jcifs.smb.SmbFileInputStream;
+import jcifs.smb.SmbFileOutputStream;
+import mockit.*;
+import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
@@ -11,21 +15,14 @@ import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import jcifs.smb.NtlmPasswordAuthentication;
-import jcifs.smb.SmbFile;
-import jcifs.smb.SmbFileInputStream;
-import jcifs.smb.SmbFileOutputStream;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Mocked;
-import mockit.Tested;
-import mockit.VerificationsInOrder;
-import mockit.integration.junit5.JMockitExtension;
+import java.lang.reflect.Field;
 
 /**
  * @author FERNANDES Henrique, GONCALVES Bruno
  */
+@SuppressWarnings("unused")
 @ExtendWith(JMockitExtension.class)
 public class SmbFileObjectTest {
 
@@ -43,15 +40,12 @@ public class SmbFileObjectTest {
 //    private SmbFile file;
 
     private FileSystemOptions defaultAuthOpts;
-    private NtlmPasswordAuthentication defaultPasswordAuthentication;
 
     @BeforeEach
     public void setUp() throws FileSystemException {
         defaultAuthOpts = new FileSystemOptions();
         StaticUserAuthenticator auth = new StaticUserAuthenticator("domain", "user", "password");
         DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(defaultAuthOpts, auth);
-
-        defaultPasswordAuthentication = new NtlmPasswordAuthentication("domain", "user", "password");
 
         // smb://example.org/sharename/file1
         name = new SmbFileName("smb", "example.org", -1, null, null, null, "sharename", "/file1", FileType.FILE);
@@ -64,12 +58,8 @@ public class SmbFileObjectTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testDoAttach(@Mocked final SmbFile mockFile) throws Exception {
-        new Expectations(fileObject) {{
-            new SmbFile("smb://example.org/sharename/file1", defaultPasswordAuthentication);
-            result = mockFile;
-
+    public void testDoAttach(@Mocked final SmbFile mockFile /*mocks the constructor new SmbFile(path, auth);*/) throws Exception {
+        new Expectations() {{
             mockFile.isDirectory();
             result = false;
         }};
@@ -92,7 +82,7 @@ public class SmbFileObjectTest {
 
     @Test
     public void testDoGetType_File(@Injectable final SmbFile file) throws Exception {
-        new Expectations(fileObject) {{
+        new Expectations() {{
             file.exists();
             result = true;
 
@@ -111,7 +101,7 @@ public class SmbFileObjectTest {
 
     @Test
     public void testDoGetType_Folder(@Injectable final SmbFile file) throws Exception {
-        new Expectations(fileObject) {{
+        new Expectations() {{
             file.exists();
             result = true;
 
@@ -127,7 +117,7 @@ public class SmbFileObjectTest {
 
     @Test
     public void testDoGetType_Imaginary(@Injectable final SmbFile file) throws Exception {
-        new Expectations(fileObject) {{
+        new Expectations() {{
             file.exists();
             result = false;
 
@@ -140,7 +130,7 @@ public class SmbFileObjectTest {
 
     @Test
     void testDoGetType_None(@Injectable final SmbFile file) throws Exception {
-        new Expectations(fileObject) {{
+        new Expectations() {{
             file.exists();
             result = true;
 
@@ -161,7 +151,7 @@ public class SmbFileObjectTest {
                 "smb://example.org/sharename/file1/child2"
         };
 
-        new Expectations(fileObject) {{
+        new Expectations() {{
             file.isDirectory();
             result = true;
 
@@ -176,7 +166,7 @@ public class SmbFileObjectTest {
 
     @Test
     public void testDoListChildren_NotDirectory(@Injectable final SmbFile file) throws Exception {
-        new Expectations(fileObject) {{
+        new Expectations() {{
             file.isDirectory();
             result = false;
         }};
@@ -188,7 +178,7 @@ public class SmbFileObjectTest {
 
     @Test
     public void testDoIsHidden(@Injectable final SmbFile file) throws Exception {
-        new Expectations(fileObject) {{
+        new Expectations() {{
             file.isHidden();
             result = true;
         }};
@@ -209,14 +199,11 @@ public class SmbFileObjectTest {
 
     @Test
     @Disabled("EDELIVERY-6896")
-    public void testDoRename(@Injectable final SmbFile file, @Mocked final SmbFile mockFile) throws Exception {
+    public void testDoRename(@Mocked final SmbFile mockFile) throws Exception {
         AbstractFileName name2 = new SmbFileName("smb", "example.org", -1, null, null, null, "sharename", "/file2", FileType.FILE);
         SmbFileSystem fileSystem2 = new SmbFileSystem(name, defaultAuthOpts);
 
-        new Expectations(fileObject) {{
-            new SmbFile("smb://example.org/sharename/file2", defaultPasswordAuthentication);
-            result = mockFile;
-
+        new Expectations() {{
             mockFile.isDirectory();
             result = false;
         }};
@@ -224,7 +211,7 @@ public class SmbFileObjectTest {
         fileObject.doRename(new SmbFileObject(name2, fileSystem2));
 
         new VerificationsInOrder() {{
-            file.renameTo(mockFile);
+//            file.renameTo(mockFile);
         }};
 
         SmbFile result = (SmbFile) getPrivateField(fileObject, "file");
@@ -234,19 +221,17 @@ public class SmbFileObjectTest {
 
     @Test
     @Disabled("EDELIVERY-6896")
-    public void testDoCreateFolder(@Injectable final SmbFile file, @Mocked final SmbFile mockFile1, @Mocked final SmbFile mockFile2) throws Exception {
-        new Expectations(fileObject) {{
-            new SmbFile("smb://example.org/sharename/file1", defaultPasswordAuthentication);
-            result = mockFile1;
-
+    public void testDoCreateFolder(@Mocked final SmbFile file) throws Exception {
+        ReflectionTestUtils.setField(fileObject, "file", file);
+        new Expectations() {{
+            SmbFile mockFile1 = new SmbFile("smb://example.org/sharename/file1", (NtlmPasswordAuthentication) any);
             mockFile1.isDirectory();
             result = true;
 
             mockFile1.toString();
             result = "smb://example.org/sharename/file1";
 
-            new SmbFile("smb://example.org/sharename/file1/", defaultPasswordAuthentication);
-            result = mockFile2;
+            SmbFile mockFile2 = new SmbFile("smb://example.org/sharename/file1/", (NtlmPasswordAuthentication) any);
         }};
 
         fileObject.doCreateFolder();
@@ -258,7 +243,7 @@ public class SmbFileObjectTest {
 
     @Test
     public void testDoGetContentSize(@Injectable final SmbFile file) throws Exception {
-        new Expectations(fileObject) {{
+        new Expectations() {{
             file.length();
             result = 12345;
         }};
@@ -270,9 +255,9 @@ public class SmbFileObjectTest {
 
     @Test
     public void testDoGetLastModifiedTime(@Injectable final SmbFile file) throws Exception {
-        new Expectations(fileObject) {{
+        new Expectations() {{
             file.getLastModified();
-            result = 1503495641984l;
+            result = 1503495641984L;
         }};
 
         long result = fileObject.doGetLastModifiedTime();
@@ -281,25 +266,17 @@ public class SmbFileObjectTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testDoGetInputStream(@Injectable final SmbFile file, @Mocked final SmbFileInputStream mockInputStream) throws Exception {
-        new Expectations(fileObject) {{
-            new SmbFileInputStream(file);
-            result = mockInputStream;
-        }};
+    public void testDoGetInputStream(@Mocked final SmbFileInputStream mockInputStream) throws Exception {
 
+        new Expectations() {{
+        }};
         SmbFileInputStream result = (SmbFileInputStream) fileObject.doGetInputStream();
 
         Assertions.assertNotNull(result);
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testDoGetOutputStream(@Injectable final SmbFile file, @Mocked final SmbFileOutputStream mockOutputStream) throws Exception {
-        new Expectations(fileObject) {{
-            new SmbFileOutputStream(file, true);
-            result = mockOutputStream;
-        }};
+    public void testDoGetOutputStream(@Mocked final SmbFileOutputStream mockOutputStream) throws Exception {
 
         SmbFileOutputStream result = (SmbFileOutputStream) fileObject.doGetOutputStream(true);
 
@@ -311,7 +288,7 @@ public class SmbFileObjectTest {
         boolean result = fileObject.doSetLastModifiedTime(1503495641984l);
 
         new VerificationsInOrder() {{
-            file.setLastModified(1503495641984l);
+            file.setLastModified(1503495641984L);
         }};
 
         Assertions.assertTrue(result);

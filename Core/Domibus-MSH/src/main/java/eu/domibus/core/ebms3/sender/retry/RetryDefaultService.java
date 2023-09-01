@@ -114,6 +114,7 @@ public class RetryDefaultService implements RetryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Long> getMessagesNotAlreadyScheduled() {
         List<Long> result = new ArrayList<>();
 
@@ -123,7 +124,6 @@ public class RetryDefaultService implements RetryService {
         LOG.trace("maxRetryTimeout [{}] retryTimeoutDelay [{}]", maxRetryTimeout, retryTimeoutDelay);
         long minEntityId = createMinEntityId(maxRetryTimeout + retryTimeoutDelay);
         long maxEntityId = getCurrentTimeMaxEntityId();
-
 
         LOG.trace("minEntityId [{}] maxEntityId [{}]", minEntityId, maxEntityId);
         final List<Long> messageEntityIdsToSend = userMessageLogDao.findRetryMessages(minEntityId, maxEntityId);

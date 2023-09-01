@@ -237,6 +237,18 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.sun.xml.messaging.saaj</groupId>
+            <artifactId>saaj-impl</artifactId>
+            <version>${messaging.saaj.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>${jaxb-impl.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <!-- needed for jdk11 -->
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>

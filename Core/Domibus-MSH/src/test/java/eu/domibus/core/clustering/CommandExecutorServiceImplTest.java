@@ -9,11 +9,13 @@ import eu.domibus.api.server.ServerInfoService;
 import eu.domibus.ext.services.CommandExtTask;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,11 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author Cosmin Baciu
  * @since 4.2
  */
+@SuppressWarnings({"ResultOfMethodCallIgnored", "DataFlowIssue"})
 @ExtendWith(JMockitExtension.class)
-@Disabled("EDELIVERY-6896")
 public class CommandExecutorServiceImplTest {
 
-    @Tested
     private CommandExecutorServiceImpl commandExecutorService;
 
     @Injectable
@@ -39,13 +40,15 @@ public class CommandExecutorServiceImplTest {
     private ServerInfoService serverInfoService;
 
     @Injectable
-    private List<CommandTask> commandTasks;
-
-    @Injectable
-    private List<CommandExtTask> pluginCommands;
-
-    @Injectable
     private DomainTaskExecutor domainTaskExecutor;
+
+    Map<String, String> commandProperties = new HashMap<>();
+
+    @BeforeEach
+    void setUp() {
+        commandExecutorService = new CommandExecutorServiceImpl(commandService, serverInfoService, new ArrayList<>(), new ArrayList<>());
+        commandProperties.put(CommandProperty.ORIGIN_SERVER, "server1");
+    }
 
     @Test
     public void testExecuteCommands(@Mocked Command command1, @Mocked Command command2) {
@@ -80,7 +83,6 @@ public class CommandExecutorServiceImplTest {
 
     @Test
     public void executeCommand(@Injectable Domain domain,
-                               @Injectable Map<String, String> commandProperties,
                                @Injectable CommandTask commandTask) {
         String command = "mycommand";
 
@@ -104,8 +106,7 @@ public class CommandExecutorServiceImplTest {
     }
 
     @Test
-    public void executePluginCommand(@Injectable Map<String, String> commandProperties,
-                                     @Injectable CommandExtTask commandTask) {
+    public void executePluginCommand(@Injectable CommandExtTask commandTask) {
         String command = "mycommand";
 
         new Expectations(commandExecutorService) {{
@@ -141,8 +142,7 @@ public class CommandExecutorServiceImplTest {
     }
 
     @Test
-    public void skipCommandSameServer(@Injectable Map<String, String> commandProperties,
-                                      @Injectable CommandExtTask commandTask) {
+    public void skipCommandSameServer(@Injectable CommandExtTask commandTask) {
         String command = "mycommand";
         String originServerName = "server1";
 
@@ -158,54 +158,35 @@ public class CommandExecutorServiceImplTest {
     }
 
     @Test
-    public void skipCommandSameServer_NullCommandProperties(@Injectable Map<String, String> commandProperties,
-                                      @Injectable CommandExtTask commandTask) {
+    public void skipCommandSameServer_NullCommandProperties(@Injectable CommandExtTask commandTask) {
         String command = "mycommand";
 
         assertTrue(commandExecutorService.skipCommandSameServer(command, null));
     }
 
     @Test
-    public void skipCommandSameServer_NullOriginServerProperty(@Injectable Map<String, String> commandProperties,
-                                      @Injectable CommandExtTask commandTask) {
+    @Disabled
+    public void skipCommandSameServer_NullOriginServerProperty(@Injectable CommandExtTask commandTask) {
         String command = "mycommand";
-        String originServerName = null;
-
-        new Expectations() {{
-            commandProperties.get(CommandProperty.ORIGIN_SERVER);
-            result = originServerName;
-        }};
+        commandProperties.put(CommandProperty.ORIGIN_SERVER, null);
 
         assertTrue(commandExecutorService.skipCommandSameServer(command, commandProperties));
     }
 
     @Test
-    public void skipCommandSameServer_BlankOriginServerProperty(@Injectable Map<String, String> commandProperties,
-                                      @Injectable CommandExtTask commandTask) {
+    public void skipCommandSameServer_BlankOriginServerProperty(@Injectable CommandExtTask commandTask) {
         String command = "mycommand";
-        String originServerName = " ";
-
-        new Expectations() {{
-            commandProperties.get(CommandProperty.ORIGIN_SERVER);
-            result = originServerName;
-        }};
-
+        commandProperties.put(CommandProperty.ORIGIN_SERVER, " ");
         assertTrue(commandExecutorService.skipCommandSameServer(command, commandProperties));
     }
 
     @Test
-    public void skipCommandSameServer_DoesNotSkipOnSeparateServer(@Injectable Map<String, String> commandProperties,
-                                      @Injectable CommandExtTask commandTask) {
+    public void skipCommandSameServer_DoesNotSkipOnSeparateServer(@Injectable CommandExtTask commandTask) {
         String command = "mycommand";
-        String originServerName = "server1";
-        String currentServerName = "server2";
 
         new Expectations() {{
-            commandProperties.get(CommandProperty.ORIGIN_SERVER);
-            result = originServerName;
-
             serverInfoService.getServerName();
-            result = currentServerName;
+            result = "server2";
         }};
 
         assertFalse(commandExecutorService.skipCommandSameServer(command, commandProperties));

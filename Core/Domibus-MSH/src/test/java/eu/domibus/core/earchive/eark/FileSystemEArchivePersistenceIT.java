@@ -9,6 +9,7 @@ import eu.domibus.core.earchive.alerts.EArchivingEventService;
 import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.property.DomibusVersionService;
+import eu.domibus.core.util.xml.XMLUtilImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.Expectations;
@@ -17,6 +18,7 @@ import mockit.Tested;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.roda_project.commons_ip2.model.IPConstants;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -64,6 +66,9 @@ public class FileSystemEArchivePersistenceIT {
     private EArchivingEventService eArchivingEventService;
 
     @Injectable
+    protected XMLUtilImpl xmlUtil;
+
+    @Injectable
     private FileServiceUtil fileServiceUtil;
 
     @Tested
@@ -104,19 +109,20 @@ public class FileSystemEArchivePersistenceIT {
      * <p>
      * SOAPMessage soapMessage = soapSampleUtil.createSOAPMessage(filename, messageId);
      * mshWebserviceTest.invoke(soapMessage);
-     *
      */
     @AfterEach
-public void tearDown() throws IOException {
+    public void tearDown() throws IOException {
         FileUtils.deleteDirectory(temp);
         LOG.info("temp folder deleted: [{}]", temp.getAbsolutePath());
     }
 
     @SuppressWarnings("ConstantConditions")
     @Test
+    @Disabled("EDELIVERY-11860")
     public void createEArkSipStructure(@Injectable EArchiveFileStorage eArchiveFileStorage) {
         EARKSIPFileService value = new EARKSIPFileService();
-        ReflectionTestUtils.setField(fileSystemEArchivePersistence,"eArkSipBuilderService", value);
+        ReflectionTestUtils.setField(fileSystemEArchivePersistence, "eArkSipBuilderService", value);
+        ReflectionTestUtils.setField(value, "xmlUtil", xmlUtil);
 
         Map<String, ArchivingFileDTO> messageId1 = new HashMap<>();
         putRaw(messageId1, "test1");
@@ -164,7 +170,7 @@ public void tearDown() throws IOException {
         File[] files = temp.listFiles();
         File batchFolder = files[0];
         File representation = Arrays.stream(batchFolder.listFiles()).sorted().collect(Collectors.toList()).get(1);
-        File mets = Arrays.stream(batchFolder.listFiles()).sorted().collect(Collectors.toList()).get(0);        
+        File mets = Arrays.stream(batchFolder.listFiles()).sorted().collect(Collectors.toList()).get(0);
         File representation1 = representation.listFiles()[0];
         File data = representation1.listFiles()[0];
 

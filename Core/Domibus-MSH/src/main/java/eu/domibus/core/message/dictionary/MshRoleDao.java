@@ -12,6 +12,10 @@ import javax.transaction.Transactional;
 /**
  * @author Cosmin Baciu
  * @since 5.0
+ *
+ * @implNote This DAO class works with {@link MSHRoleEntity}, which is a static dictionary
+ * based on the {@link MSHRole} enum: no new values are expected to be added at runtime;
+ * therefore, {@code MshRoleDao} can be used directly, without subclassing {@link AbstractDictionaryService}.
  */
 @Repository
 public class MshRoleDao extends BasicDao<MSHRoleEntity> {
@@ -22,7 +26,7 @@ public class MshRoleDao extends BasicDao<MSHRoleEntity> {
 
     @Transactional
     public MSHRoleEntity findOrCreate(final MSHRole role) {
-        if(role == null) {
+        if (role == null) {
             return null;
         }
 
@@ -36,7 +40,7 @@ public class MshRoleDao extends BasicDao<MSHRoleEntity> {
         return entity;
     }
 
-    public MSHRoleEntity findByRole(final MSHRole role) {
+    protected MSHRoleEntity findByRole(final MSHRole role) {
         final TypedQuery<MSHRoleEntity> query = this.em.createNamedQuery("MSHRoleEntity.findByValue", MSHRoleEntity.class);
         query.setParameter("ROLE", role);
         return DataAccessUtils.singleResult(query.getResultList());

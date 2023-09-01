@@ -22,23 +22,15 @@ import eu.domibus.logging.DomibusLogger;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.time.DateUtils;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.core.Is;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatcher;
-import org.mockito.internal.matchers.GreaterThan;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -271,20 +263,31 @@ public class CertificateServiceImplTest {
         assertFalse(certificateValid);
     }
 
+    private static Enumeration<String> getStringEnumeration(String... array) {
+        Enumeration<String> enumeration = new Enumeration<String>() {
+            final Iterator<String> a = Arrays.asList(array).iterator();
+
+            @Override
+            public boolean hasMoreElements() {
+                return a.hasNext();
+            }
+
+            @Override
+            public String nextElement() {
+                return a.next();
+            }
+        };
+        return enumeration;
+    }
+
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testGetTrustStoreEntries(@Mocked final KeyStore trustStore,
-                                         @Mocked final Enumeration<String> aliasEnum,
                                          @Mocked final X509Certificate blueCertificate,
                                          @Mocked final X509Certificate redCertificate) throws KeyStoreException {
         final Date validFrom = Date.from(ZonedDateTime.now(ZoneOffset.UTC).toInstant());
         final Date validUntil = Date.from(ZonedDateTime.now(ZoneOffset.UTC).plusDays(10).toInstant());
+        Enumeration<String> aliasEnum = getStringEnumeration("blue_gw", "red_gw");
         new Expectations() {{
-            aliasEnum.hasMoreElements();
-            returns(true, true, false);
-            aliasEnum.nextElement();
-            returns("blue_gw", "red_gw");
-
             trustStore.aliases();
             result = aliasEnum;
 
@@ -462,28 +465,19 @@ public class CertificateServiceImplTest {
 
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void extractCertificateFromKeyStore(@Injectable final KeyStore keyStore,
-                                               @Injectable final Enumeration<String> aliases,
                                                @Injectable final X509Certificate x509Certificate) throws KeyStoreException, ParseException {
         final String keystoreAlias = "keystoreAlias";
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
         final Date notBefore = format.parse("2017/02/20");
         final Date notAfter = format.parse("2017/04/20");
 
+        Enumeration<String> aliases = getStringEnumeration(keystoreAlias);
+
         new Expectations() {{
 
             keyStore.aliases();
             result = aliases;
-
-            aliases.hasMoreElements();
-            times = 2;
-            result = true;
-            result = false;
-
-            aliases.nextElement();
-            times = 1;
-            result = keystoreAlias;
 
             keyStore.getCertificate(keystoreAlias);
             result = x509Certificate;

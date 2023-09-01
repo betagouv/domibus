@@ -1,17 +1,14 @@
 package eu.domibus.core.crypto.spi.dss;
 
 import eu.domibus.ext.services.DomibusPropertyExtService;
-import eu.europa.esig.dss.spi.x509.KeyStoreCertificateSource;
 import eu.europa.esig.dss.tsl.source.TLSource;
 import mockit.Expectations;
-import mockit.Mocked;
+import mockit.Injectable;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,25 +20,23 @@ import static eu.domibus.core.crypto.spi.dss.DssExtensionPropertyManager.*;
  * @since 4.1
  */
 @ExtendWith(JMockitExtension.class)
-public class CustomTrustedListPropertyMapperTest {
+class CustomTrustedListPropertyMapperTest {
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void map(
-            @Mocked DomibusPropertyExtService domibusPropertyExtService, @Mocked KeyStoreCertificateSource keyStoreCertificateSource) throws IOException {
+    void map(@Injectable DomibusPropertyExtService domibusPropertyExtService) {
         String list1 = "list1";
         String list2 = "list2";
         List<String> customListSuffixes = new ArrayList<>(Arrays.asList(list1, list2));
         List<String> customTrustedListProperties = new ArrayList<>(Arrays.asList("url", "code"));
-        String keystorePath = "C:\\pki\\test.jks";
+        String keystorePath = getClass().getClassLoader().getResource("gateway_keystore.jks").getPath();
         String keystoreType = "JKS";
-        String keystorePasswd = "localdemo";
+        String keystorePasswd = "test123";
         String customList1Url = "firstUrl";
         String customList1Code = "CX";
         String customList2Url = "secondUrl";
         String customList2Code = "CUST";
         CustomTrustedListPropertyMapper customTrustedListPropertyMapper = new CustomTrustedListPropertyMapper(domibusPropertyExtService);
-        new Expectations(customTrustedListPropertyMapper) {{
+        new Expectations() {{
 
             domibusPropertyExtService.getNestedProperties(CUSTOM_TRUSTED_LISTS_PREFIX);
             result = customListSuffixes;

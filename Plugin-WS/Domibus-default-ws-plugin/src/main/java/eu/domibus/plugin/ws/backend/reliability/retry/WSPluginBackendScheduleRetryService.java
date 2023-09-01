@@ -52,6 +52,7 @@ public class WSPluginBackendScheduleRetryService {
         this.wsPluginSendQueue = wsPluginSendQueue;
     }
 
+    @Transactional(readOnly = true)
     public List<WSBackendMessageLogEntity> getMessagesNotAlreadyScheduled() {
         List<WSBackendMessageLogEntity> result = new ArrayList<>();
 
