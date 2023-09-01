@@ -3,6 +3,7 @@ package eu.domibus.ext.delegate.mapper;
 import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.spring.SpringContextProvider;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.TsidUtil;
 import eu.domibus.ext.domain.archive.BatchDTO;
 import eu.domibus.ext.domain.archive.BatchRequestType;
@@ -14,6 +15,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import java.util.Arrays;
+import java.util.Date;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -49,6 +51,12 @@ public interface EArchiveExtMapper {
     @Named("messageIdToDate")
     default Long messageIdToMessageDateHour(Long messageId) {
         TsidUtil tsidUtil = SpringContextProvider.getApplicationContext().getBean(TsidUtil.BEAN_NAME, TsidUtil.class);
-        return messageId == null ? null : tsidUtil.getDateFromTsid(messageId);
+        if(messageId == null) {
+            return null;
+        }
+        final Long dateFromTsid = tsidUtil.getDateFromTsid(messageId);
+        DateUtil dateUtil = SpringContextProvider.getApplicationContext().getBean(DateUtil.BEAN_NAME, DateUtil.class);
+        final String idPkDateHourPrefix = dateUtil.getIdPkDateHourPrefix(new Date(dateFromTsid));
+        return Long.valueOf(idPkDateHourPrefix);
     }
 }

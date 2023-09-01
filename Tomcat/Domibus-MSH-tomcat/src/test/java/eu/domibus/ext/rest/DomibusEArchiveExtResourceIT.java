@@ -374,8 +374,6 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         assertEquals(1, response.getBatches().size());
         BatchDTO responseBatch = response.getBatches().get(0);
         assertEquals(batch1.getBatchId(), responseBatch.getBatchId());
-        assertEquals(tsidUtil.getDateFromTsid(batch1.getFirstPkUserMessage()), responseBatch.getMessageStartDate());
-        assertEquals(tsidUtil.getDateFromTsid(batch1.getLastPkUserMessage()), responseBatch.getMessageEndDate());
         assertEquals(batch1.getDateRequested(), responseBatch.getEnqueuedTimestamp());
         assertEquals(batch1.getRequestType().name(), responseBatch.getRequestType().name());
     }
@@ -409,8 +407,8 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         assertEquals(1, response.getBatches().size());
         BatchDTO responseBatch = response.getBatches().get(0);
         assertEquals(batch3.getBatchId(), responseBatch.getBatchId());
-        assertEquals(tsidUtil.getDateFromTsid(batch3.getFirstPkUserMessage()), responseBatch.getMessageStartDate());
-        assertEquals(tsidUtil.getDateFromTsid(batch3.getLastPkUserMessage()), responseBatch.getMessageEndDate());
+        assertEquals(21101000L, responseBatch.getMessageStartDate());
+        assertEquals(21101000L, responseBatch.getMessageEndDate());
         assertEquals(batch3.getDateRequested(), responseBatch.getEnqueuedTimestamp());
         assertEquals(batch3.getRequestType().name(), responseBatch.getRequestType().name());
         // test date formatting

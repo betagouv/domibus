@@ -17,6 +17,8 @@ import static java.time.temporal.ChronoField.HOUR_OF_DAY;
  */
 public interface DateUtil {
 
+    String BEAN_NAME = "domibusDateUtil";
+
     DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
     String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
 
@@ -95,5 +97,10 @@ public interface DateUtil {
 
     Date convertFromLocalDateTime(LocalDateTime localDateTime);
 
+    /**
+     * Converts a date to the format yyMMddHH
+     * @param value
+     * @return
+     */
     String getIdPkDateHourPrefix(Date value);
 }

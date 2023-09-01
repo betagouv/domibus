@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
  * @author Sebastian-Ion TINCU
  * @since 3.3
  */
-@Component
+@Component(DateUtil.BEAN_NAME)
 public class DateUtilImpl implements DateUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DateUtilImpl.class);
