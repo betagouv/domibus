@@ -284,14 +284,24 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
                     .build();
         }
         SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
-        addCertificate(cn, securityProfile, CertificatePurpose.SIGN, certificate);
-        addCertificate(cn, securityProfile, CertificatePurpose.ENCRYPT, certificate);
+
+        if (securityProfile != null) {
+            addCertificate(cn, securityProfile, CertificatePurpose.SIGN, certificate);
+            addCertificate(cn, securityProfile, CertificatePurpose.ENCRYPT, certificate);
+        } else {
+            //legacy alias
+            addCertificate(cn, null, null, certificate);
+        }
     }
 
     private void addCertificate(String cn, SecurityProfile securityProfile, CertificatePurpose certificatePurpose, final X509Certificate certificate) {
         Domain currentDomain = domainProvider.getCurrentDomain();
 
-        String alias = securityProfileService.getCertificateAliasForPurpose(cn, securityProfile, certificatePurpose);
+        String alias = cn;
+        if (securityProfile != null) {
+            alias = securityProfileService.getCertificateAliasForPurpose(cn, securityProfile, certificatePurpose);
+        }
+
         boolean added = multiDomainCertificateProvider.addCertificate(currentDomain, certificate, alias, true);
         if (added) {
             LOG.debug("Added public certificate [{}] with alias [{}] to the truststore for domain [{}]", certificate, cn, currentDomain);
