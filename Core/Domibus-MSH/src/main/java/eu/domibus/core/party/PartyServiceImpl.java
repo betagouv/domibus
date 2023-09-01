@@ -30,6 +30,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
@@ -50,6 +51,7 @@ import static java.util.stream.Collectors.*;
  * @since 4.0
  */
 @Service
+// TODO class too large, better to split it
 public class PartyServiceImpl implements PartyService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(PartyServiceImpl.class);
@@ -85,6 +87,7 @@ public class PartyServiceImpl implements PartyService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public List<Party> getParties(final String name,
                                   final String endPoint,
                                   final String partyId,
@@ -112,6 +115,7 @@ public class PartyServiceImpl implements PartyService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public String getGatewayPartyIdentifier() {
         String result = null;
         eu.domibus.common.model.configuration.Party gatewayParty = pModeProvider.getGatewayParty();
@@ -123,6 +127,7 @@ public class PartyServiceImpl implements PartyService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<String> getGatewayPartyIdentifiers() {
         String result = null;
         eu.domibus.common.model.configuration.Party gatewayParty = pModeProvider.getGatewayParty();
@@ -207,7 +212,6 @@ public class PartyServiceImpl implements PartyService {
             party.getProcessesWithPartyAsResponder().forEach(process -> LOG.debug("[{}]", process));
         }
     }
-
 
     protected void linkProcessWithPartyAsInitiator(final Map<String, Party> partyMapByName, final List<Process> allProcesses) {
         allProcesses.forEach(
@@ -481,7 +485,6 @@ public class PartyServiceImpl implements PartyService {
         return result;
     }
 
-
     protected void validatePartyCertificates(Map<String, String> partyToCertificateMap) {
         int maxSize = domibusPropertyProvider.getIntegerProperty(DOMIBUS_FILE_UPLOAD_MAX_SIZE);
 
@@ -579,6 +582,7 @@ public class PartyServiceImpl implements PartyService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<eu.domibus.api.process.Process> getAllProcesses() {
         //Retrieve all processes, needed in UI console to be able to check
         List<eu.domibus.common.model.configuration.Process> allProcesses;
@@ -646,7 +650,6 @@ public class PartyServiceImpl implements PartyService {
 
         parties.getParty().add(configParty);
     }
-
 
     /**
      * Make the links between current Party and Processes (Initator and Responder)
@@ -754,6 +757,7 @@ public class PartyServiceImpl implements PartyService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<String> findPushToPartyNamesForTest() {
         String selfParty = getGatewayPartyIdentifier();
         List<MessageExchangePattern> meps = getPushMeps();
@@ -761,6 +765,7 @@ public class PartyServiceImpl implements PartyService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<String> findPushFromPartyNamesForTest() {
         String selfParty = getGatewayPartyIdentifier();
         List<MessageExchangePattern> meps = getPushMeps();

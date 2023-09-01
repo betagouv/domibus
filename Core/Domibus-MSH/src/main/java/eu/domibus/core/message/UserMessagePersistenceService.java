@@ -20,15 +20,23 @@ public class UserMessagePersistenceService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(UserMessagePersistenceService.class);
 
     protected MessagingService messagingService;
+
     protected UserMessageLogDefaultService userMessageLogService;
+
     protected UserMessageRawEnvelopeDao rawEnvelopeLogDao;
+
     protected SignalMessageDao signalMessageDao;
+
     protected SignalMessageLogDao signalMessageLogDao;
+
     protected MessageStatusDao messageStatusDao;
+
     protected MshRoleDao mshRoleDao;
     protected ReceiptDao receiptDao;
 
-    public UserMessagePersistenceService(MessagingService messagingService, UserMessageLogDefaultService userMessageLogService, UserMessageRawEnvelopeDao rawEnvelopeLogDao, SignalMessageDao signalMessageDao, SignalMessageLogDao signalMessageLogDao, MessageStatusDao messageStatusDao, MshRoleDao mshRoleDao, ReceiptDao receiptDao) {
+    public UserMessagePersistenceService(MessagingService messagingService, UserMessageLogDefaultService userMessageLogService, UserMessageRawEnvelopeDao rawEnvelopeLogDao,
+                                         SignalMessageDao signalMessageDao, SignalMessageLogDao signalMessageLogDao, MessageStatusDao messageStatusDao,
+                                         MshRoleDao mshRoleDao, ReceiptDao receiptDao) {
         this.messagingService = messagingService;
         this.userMessageLogService = userMessageLogService;
         this.rawEnvelopeLogDao = rawEnvelopeLogDao;
@@ -40,7 +48,8 @@ public class UserMessagePersistenceService {
     }
 
     @Transactional
-    public void saveIncomingMessage(UserMessage userMessage, List<PartInfo> partInfoList, NotificationStatus notificationStatus, String backendName, UserMessageRaw userMessageRaw, SignalMessageResult signalMessageResult, Runnable notifyBackend) {
+    public void saveIncomingMessage(UserMessage userMessage, List<PartInfo> partInfoList, NotificationStatus notificationStatus, String backendName,
+                                    UserMessageRaw userMessageRaw, SignalMessageResult signalMessageResult, Runnable notifyBackend) {
         messagingService.saveUserMessageAndPayloads(userMessage, partInfoList);
         LOG.putMDC(DomibusLogger.MDC_MESSAGE_ENTITY_ID, String.valueOf(userMessage.getEntityId()));
 

@@ -43,7 +43,7 @@ public class NotificationStatusDao extends BasicDao<NotificationStatusEntity> {
         return entity;
     }
 
-    public NotificationStatusEntity findByStatus(final NotificationStatus notificationStatus) {
+    protected NotificationStatusEntity findByStatus(final NotificationStatus notificationStatus) {
         TypedQuery<NotificationStatusEntity> query = em.createNamedQuery("NotificationStatusEntity.findByStatus", NotificationStatusEntity.class);
         query.setParameter("NOTIFICATION_STATUS", notificationStatus);
         return DataAccessUtils.singleResult(query.getResultList());

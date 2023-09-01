@@ -108,6 +108,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Long getStartDateContinuousArchive() {
         final EArchiveBatchStart eArchiveBatchStart = eArchiveBatchStartDao.read(CONTINUOUS_ID);
         final Long lastPkUserMessage = eArchiveBatchStart.getLastPkUserMessage();
@@ -115,6 +116,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Long getStartDateSanityArchive() {
         final EArchiveBatchStart eArchiveBatchStart = eArchiveBatchStartDao.read(SANITY_ID);
         final Long lastPkUserMessage = eArchiveBatchStart.getLastPkUserMessage();
@@ -138,12 +140,13 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Long getBatchRequestListCount(EArchiveBatchFilter filter) {
         return eArchiveBatchDao.getBatchRequestListCount(filter);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<EArchiveBatchRequestDTO> getBatchRequestList(EArchiveBatchFilter filter) {
 
         Boolean returnMessages = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVE_REST_API_RETURN_MESSAGES);
@@ -159,6 +162,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<String> getExportedBatchUserMessageList(String batchId, Integer pageStart, Integer pageSize) {
         EArchiveBatchEntity batch = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
         if (batch == null) {
@@ -173,6 +177,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Long getExportedBatchUserMessageListCount(String batchId) {
         EArchiveBatchEntity batch = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
         if (batch == null) {
@@ -188,6 +193,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<String> getNotArchivedMessages(Long startMessageId, Long endMessageId, Integer pageStart, Integer pageSize) {
         if (startMessageId == null) {
             startMessageId = 0L;
@@ -197,6 +203,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Long getNotArchivedMessagesCount(Long startMessageId, Long endMessageId) {
         if (startMessageId == null) {
             startMessageId = 0L;
@@ -212,6 +219,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public EArchiveBatchRequestDTO getBatch(String batchId) {
         EArchiveBatchEntity copyBatch = eArchiveBatchDao.findEArchiveBatchByBatchId(batchId);
         return eArchiveBatchMapper.eArchiveBatchRequestEntityToDto(copyBatch);
@@ -242,7 +250,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         return eArchiveBatchMapper.eArchiveBatchRequestEntityToDto(result);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Timer(clazz = EArchivingDefaultService.class, value = "earchive1_getEArchiveBatch")
     @Counter(clazz = EArchivingDefaultService.class, value = "earchive1_getEArchiveBatch")
     public EArchiveBatchEntity getEArchiveBatch(long entityId, boolean fetchEarchiveBatchUm) {

@@ -22,18 +22,19 @@ public class ConfigurationDAO extends BasicDao<Configuration> {
     }
 
 
+    @Transactional(readOnly = true)
     public boolean configurationExists() {
         final TypedQuery<Long> query = this.em.createNamedQuery("Configuration.count", Long.class);
 
         return query.getSingleResult() != 0;
     }
 
-    public Configuration read() {
+    protected Configuration read() {
         final TypedQuery<Configuration> query = this.em.createNamedQuery("Configuration.getConfiguration", Configuration.class);
         return query.getSingleResult();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Configuration readEager() {
         final TypedQuery<Configuration> query = this.em.createNamedQuery("Configuration.getConfiguration", Configuration.class);
 

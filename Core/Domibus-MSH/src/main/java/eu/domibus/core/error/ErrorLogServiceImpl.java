@@ -101,22 +101,26 @@ public class ErrorLogServiceImpl implements ErrorLogService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ErrorLogEntry> findPaged(final int from, final int max, final String sortColumn, final boolean asc, final Map<String, Object> filters) {
         return errorLogDao.findPaged(from, max, sortColumn, asc, filters);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<? extends ErrorResult> getErrors(String messageId, MSHRole mshRole) {
         List<ErrorLogEntry> errorsForMessage = errorLogDao.getErrorsForMessage(messageId, mshRole);
         return errorsForMessage.stream().map(this::convert).collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ErrorLogEntry> getErrorsForMessage(String messageId, MSHRole role) {
         return errorLogDao.getErrorsForMessage(messageId, role);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ErrorLogEntry> getErrorsForMessage(String messageId) {
         return errorLogDao.getErrorsForMessage(messageId);
     }
@@ -135,6 +139,7 @@ public class ErrorLogServiceImpl implements ErrorLogService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countEntries(Map<String, Object> filters) {
         return errorLogDao.countEntries(filters);
     }

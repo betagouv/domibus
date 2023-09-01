@@ -1,6 +1,5 @@
 package eu.domibus.core.user.ui;
 
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.UserDomainService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
@@ -70,7 +69,7 @@ public class UserManagementServiceImpl implements UserService {
     protected AuthUtils authUtils;
 
     @Autowired
-    private UserFilteringDao listDao;
+    private UserFilteringDao userFilteringDao;
 
     @Autowired
     protected DomibusConfigurationService domibusConfigurationService;
@@ -94,6 +93,7 @@ public class UserManagementServiceImpl implements UserService {
      * {@inheritDoc}
      */
     @Override
+    @Transactional(readOnly = true)
     public List<eu.domibus.api.user.UserRole> findUserRoles() {
         LOG.debug("Retrieving user roles");
         List<UserRole> userRolesEntities = userRoleDao.listRoles();
@@ -262,6 +262,7 @@ public class UserManagementServiceImpl implements UserService {
      * @param pageSize page size.
      */
     @Override
+    @Transactional(readOnly = true)
     public List<eu.domibus.api.user.User> findUsersWithFilters(AuthRole authRole, String userName, String deleted, int page, int pageSize) {
         return findUsersWithFilters(authRole, userName, deleted, page, pageSize, this::getDomainForUser);
     }
@@ -271,15 +272,16 @@ public class UserManagementServiceImpl implements UserService {
 
         LOG.debug("Retrieving console users");
         Map<String, Object> filters = createFilterMap(userName, deleted, authRole);
-        List<User> users = listDao.findPaged(page * pageSize, pageSize, "entityId", true, filters);
+        List<User> users = userFilteringDao.findPaged(page * pageSize, pageSize, "entityId", true, filters);
         List<eu.domibus.api.user.User> finalUsers = prepareUsers(getDomainForUserFn, users);
         return finalUsers;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public long countUsers(AuthRole authRole, String userName, String deleted) {
         Map<String, Object> filters = createFilterMap(userName, deleted, authRole);
-        return listDao.countEntries(filters);
+        return userFilteringDao.countEntries(filters);
     }
 
     @Override

@@ -72,9 +72,9 @@ public class CachingPModeProvider extends PModeProvider {
     private ProcessPartyExtractorProvider processPartyExtractorProvider;
 
     //pull processes cache.
-    private Map<Party, List<Process>> pullProcessesByInitiatorCache = new HashMap<>();
+    private final Map<Party, List<Process>> pullProcessesByInitiatorCache = new HashMap<>();
 
-    private Map<String, List<Process>> pullProcessByMpcCache = new HashMap<>();
+    private final Map<String, List<Process>> pullProcessByMpcCache = new HashMap<>();
 
     private final Object configurationLock;
 
@@ -83,6 +83,7 @@ public class CachingPModeProvider extends PModeProvider {
         configurationLock = ConfigurationLockContainer.getForDomain(domain);
     }
 
+    @Transactional(readOnly = true)
     public Configuration getConfiguration() {
         if (this.configuration == null) {
             synchronized (configurationLock) {
