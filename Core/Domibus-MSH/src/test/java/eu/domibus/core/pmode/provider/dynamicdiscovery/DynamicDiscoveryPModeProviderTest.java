@@ -22,6 +22,7 @@ import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.certificate.crl.CRLServiceImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.message.MessageExchangeConfiguration;
 import eu.domibus.core.message.dictionary.PartyIdDictionaryService;
 import eu.domibus.core.message.dictionary.PartyRoleDictionaryService;
 import eu.domibus.core.participant.FinalRecipientDao;
@@ -86,6 +87,8 @@ public class DynamicDiscoveryPModeProviderTest {
     private static final String ALIAS_CN_NOT_AVAILABLE = "cn_not_available";
     private static final String CERT_PASSWORD = "1234";
 
+    private static final String TEST_AGREEMENT_NAME = "agreementName";
+    private static final String TEST_LEG_NAME = "testLegtestAction";
     private static final String TEST_ACTION_VALUE = "testAction";
     private static final String TEST_SERVICE_VALUE = "serviceValue";
     private static final String TEST_SERVICE_TYPE = "serviceType";
@@ -230,9 +233,13 @@ public class DynamicDiscoveryPModeProviderTest {
 
         UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());
         doReturn(userMessage.getPartyInfo().getTo().getToPartyId()).when(partyIdDictionaryService).findOrCreateParty(any(), any());
-        dynamicDiscoveryPModeProvider.doDynamicDiscovery(userMessage, MSHRole.SENDING);
 
-        assertEquals(2, dynamicDiscoveryPModeProvider.getConfiguration().getBusinessProcesses().getParties().size());
+        MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration(TEST_AGREEMENT_NAME, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, TEST_SERVICE_VALUE, TEST_ACTION_VALUE, TEST_LEG_NAME);
+        DynamicDiscoveryPModeProvider spyDynamicDiscoveryPModeProvider =  Mockito.spy(dynamicDiscoveryPModeProvider);
+        doReturn(messageExchangeConfiguration).when(spyDynamicDiscoveryPModeProvider).findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+        spyDynamicDiscoveryPModeProvider.doDynamicDiscovery(userMessage, MSHRole.SENDING);
+
+        assertEquals(2, spyDynamicDiscoveryPModeProvider.getConfiguration().getBusinessProcesses().getParties().size());
     }
 
     @Test

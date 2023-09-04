@@ -9,6 +9,7 @@ import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 
 import java.security.KeyStore;
@@ -93,6 +94,10 @@ public class SecurityProfileValidatorService {
 
     private boolean isCertificateTypeForStoreAliasValid(List<SecurityProfileAliasConfiguration> securityProfileAliasConfigurations,
                                                         String alias, KeyStore store, StoreType storeType) {
+        if (BooleanUtils.isTrue(domibusPropertyProvider.getBooleanProperty(DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY))) {
+            LOG.debug("Security Profile certificate aliases are not currently validated in dynamic discovery mode");
+            return true;
+        }
         SecurityProfile securityProfileExtractedFromAlias;
         try {
             securityProfileExtractedFromAlias = getSecurityProfileFromAlias(alias);
