@@ -20,7 +20,7 @@ SET DB_USER=edelivery
 SET DB_PASS=edelivery
 SET JDBC_CONNECTION_URL=jdbc:mysql://%DB_HOST%:%DB_PORT%/!DB_NAME!
 SET MYSQL_JDBC_DRIVER_DIR=%JBOSS_HOME%\modules\system\layers\base\com\mysql\main
-SET MYSQL_JDBC_DRIVER_NAME=mysql-connector-java-X.Y.Z.jar
+SET MYSQL_JDBC_DRIVER_NAME=mysql-connector-j-X.Y.Z.jar
 
 :: Oracle configuration
 :: SET DB_TYPE=Oracle
