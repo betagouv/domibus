@@ -3,7 +3,6 @@ package eu.domibus.jms.weblogic;
 import mockit.Expectations;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -33,20 +32,10 @@ public class SecurityHelperTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-11939")
     public void testGetBootIdentityWithUserAndPasswordFromTheBootFile() throws Exception {
         File bootPropertiesFile = new File(getClass().getClassLoader().getResource("jms/boot.properties").toURI());
         final String bootPropertiesPath = bootPropertiesFile.getAbsolutePath();
-        new Expectations() {{
-            System.getProperty("weblogic.management.username");
-            result = null;
-
-            System.getProperty("weblogic.management.password");
-            result = null;
-
-            System.getProperty("weblogic.system.BootIdentityFile");
-            result = bootPropertiesPath;
-        }};
+        System.setProperty("weblogic.system.BootIdentityFile", bootPropertiesPath);
 
         new Expectations(securityHelper) {{
             securityHelper.decrypt("{AES}myuser");
@@ -60,6 +49,4 @@ public class SecurityHelperTest {
         assertEquals("{AES}myuser", bootIdentity.get("username"));
         assertEquals("{AES}mypwd", bootIdentity.get("password"));
     }
-
-
 }
