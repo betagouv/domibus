@@ -27,6 +27,7 @@ import static org.awaitility.Awaitility.with;
 public class DomibusConditionUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusConditionUtil.class);
+    public static final String SELECT_FROM = "SELECT * FROM ";
 
     @Autowired
     protected UserRoleDao userRoleDao;
@@ -47,14 +48,14 @@ public class DomibusConditionUtil {
 
     public Callable<Boolean> databaseIsInitialized() {
         return () -> {
-            boolean defaultOk = dbSchemaUtil.isDatabaseSchemaForDomainValid(new Domain("default", "default"));
-            boolean redOk = dbSchemaUtil.isDatabaseSchemaForDomainValid(new Domain("red", "default"));
-            boolean generalOk = doIsDatabaseGeneralSchemaReady();
+            boolean defaultOk = doIsDatabaseGeneralSchemaReady(dbSchemaUtil.getDatabaseSchema(new Domain("default", "default")));
+            boolean redOk = doIsDatabaseGeneralSchemaReady(dbSchemaUtil.getDatabaseSchema(new Domain("red", "default")));
+            boolean generalOk = doIsDatabaseGeneralSchemaReady(dbSchemaUtil.getGeneralSchema(), true);
             boolean result = defaultOk && redOk && generalOk;
             String msg =
                     "general schema is " + getModifier(generalOk) + " ready, " +
-                    "default schema is " + getModifier(defaultOk) + " ready, " +
-                    "red schema is " + getModifier(redOk) + " ready. ";
+                            "default schema is " + getModifier(defaultOk) + " ready, " +
+                            "red schema is " + getModifier(redOk) + " ready. ";
             if (!result) {
                 LOG.warn(msg);
             } else {
@@ -64,23 +65,39 @@ public class DomibusConditionUtil {
         };
     }
 
-    protected Boolean doIsDatabaseGeneralSchemaReady() {
-        String databaseSchema = dbSchemaUtil.getGeneralSchema();
+    private Boolean doIsDatabaseGeneralSchemaReady(String databaseSchema) {
+        return doIsDatabaseGeneralSchemaReady(databaseSchema, false);
+    }
 
+    private Boolean doIsDatabaseGeneralSchemaReady(String databaseSchema, boolean general) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
 
             dbSchemaUtil.setSchema(connection, databaseSchema);
 
             try {
-                try (final Statement statement = connection.createStatement()) {
-                    String query = "SELECT * FROM TB_USER_DOMAIN";
-                    statement.execute(query);
-                    LOG.trace("Executed statement [{}] for schema [{}]", query, databaseSchema);
+                checkDatabase(databaseSchema, connection,
+                        "TB_USER_ROLE",
+                        "DOMIBUS_SCALABLE_SEQUENCE",
+                        "TB_D_TIMEZONE_OFFSET");
+                if (!general) {
+                    checkDatabase(databaseSchema, connection,
+                            "TB_D_ACTION",
+                            "TB_D_AGREEMENT",
+                            "TB_D_SERVICE",
+                            "TB_D_MPC",
+                            "TB_D_PARTY",
+                            "TB_D_ROLE",
+                            "TB_D_MSH_ROLE",
+                            "TB_D_NOTIFICATION_STATUS",
+                            "TB_D_TIMEZONE_OFFSET",
+                            "TB_D_PART_PROPERTY",
+                            "TB_D_MESSAGE_PROPERTY",
+                            "TB_D_MESSAGE_STATUS");
                 }
                 return true;
             } catch (final Exception e) {
-                LOG.warn("Could not find table TB_USER_DOMAIN for general schema [{}]",databaseSchema);
+                LOG.warn("Could not find table TB_USER_DOMAIN / DOMIBUS_SCALABLE_SEQUENCE for schema [{}]", databaseSchema);
                 return false;
             }
 
@@ -88,6 +105,17 @@ public class DomibusConditionUtil {
             LOG.warn("Could not create a connection for general schema [{}].", databaseSchema);
             return false;
         }
+    }
+
+    private static void checkDatabase(String databaseSchema, Connection connection, String... tables) throws SQLException {
+        for (String table : tables) {
+            try (final Statement statement = connection.createStatement()) {
+                String query = SELECT_FROM + table;
+                statement.execute(query);
+                LOG.trace("Executed statement [{}] for schema [{}]", query, databaseSchema);
+            }
+        }
+
     }
 
     private static String getModifier(boolean redOk) {
