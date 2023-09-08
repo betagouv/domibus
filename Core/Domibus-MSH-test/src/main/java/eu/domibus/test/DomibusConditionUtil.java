@@ -5,6 +5,7 @@ import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.util.DbSchemaUtil;
+import eu.domibus.api.util.FaultyDatabaseSchemaNameException;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.user.ui.UserRoleDao;
 import eu.domibus.logging.DomibusLogger;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -73,7 +75,12 @@ public class DomibusConditionUtil {
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
 
-            dbSchemaUtil.setSchema(connection, databaseSchema);
+            try {
+                dbSchemaUtil.setSchema(connection, databaseSchema);
+            } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
+                LOG.warn("Could not set database schema [{}], so it is not a proper schema.", databaseSchema);
+                return false;
+            }
 
             try {
                 checkDatabase(databaseSchema, connection,
