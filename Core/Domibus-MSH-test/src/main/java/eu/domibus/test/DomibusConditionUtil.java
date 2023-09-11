@@ -83,33 +83,19 @@ public class DomibusConditionUtil {
             }
 
             try {
-                checkDatabase(databaseSchema, connection,
-                        "TB_USER_ROLE",
-                        "DOMIBUS_SCALABLE_SEQUENCE",
-                        "TB_D_TIMEZONE_OFFSET");
-                if (!general) {
-                    checkDatabase(databaseSchema, connection,
-                            "TB_D_ACTION",
-                            "TB_D_AGREEMENT",
-                            "TB_D_SERVICE",
-                            "TB_D_MPC",
-                            "TB_D_PARTY",
-                            "TB_D_ROLE",
-                            "TB_D_MSH_ROLE",
-                            "TB_D_NOTIFICATION_STATUS",
-                            "TB_D_TIMEZONE_OFFSET",
-                            "TB_D_PART_PROPERTY",
-                            "TB_D_MESSAGE_PROPERTY",
-                            "TB_D_MESSAGE_STATUS");
+                if (general) {
+                    checkDatabase(databaseSchema, connection, "TB_USER_DOMAIN_AUD");
+                } else {
+                    checkDatabase(databaseSchema, connection, "TB_MESSAGES_TO_RESEND");
                 }
                 return true;
             } catch (final Exception e) {
-                LOG.warn("Could not find tables for schema [{}]", databaseSchema);
+                LOG.warn("Could not find last table created for schema [{}]", databaseSchema);
                 return false;
             }
 
         } catch (SQLException e) {
-            LOG.warn("Could not create a connection for general schema [{}].", databaseSchema);
+            LOG.warn("Could not create a connection for schema [{}].", databaseSchema);
             return false;
         }
     }
