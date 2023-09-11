@@ -50,9 +50,9 @@ public class DomibusConditionUtil {
 
     public Callable<Boolean> databaseIsInitialized() {
         return () -> {
-            boolean defaultOk = doIsDatabaseGeneralSchemaReady(dbSchemaUtil.getDatabaseSchema(new Domain("default", "default")));
-            boolean redOk = doIsDatabaseGeneralSchemaReady(dbSchemaUtil.getDatabaseSchema(new Domain("red", "default")));
-            boolean generalOk = doIsDatabaseGeneralSchemaReady(dbSchemaUtil.getGeneralSchema(), true);
+            boolean defaultOk = doIsDatabaseSchemaReady(dbSchemaUtil.getDatabaseSchema(new Domain("default", "default")));
+            boolean redOk = doIsDatabaseSchemaReady(dbSchemaUtil.getDatabaseSchema(new Domain("red", "default")));
+            boolean generalOk = doIsDatabaseSchemaReady(dbSchemaUtil.getGeneralSchema(), true);
             boolean result = defaultOk && redOk && generalOk;
             String msg =
                     "general schema is " + getModifier(generalOk) + " ready, " +
@@ -67,11 +67,11 @@ public class DomibusConditionUtil {
         };
     }
 
-    private Boolean doIsDatabaseGeneralSchemaReady(String databaseSchema) {
-        return doIsDatabaseGeneralSchemaReady(databaseSchema, false);
+    private Boolean doIsDatabaseSchemaReady(String databaseSchema) {
+        return doIsDatabaseSchemaReady(databaseSchema, false);
     }
 
-    private Boolean doIsDatabaseGeneralSchemaReady(String databaseSchema, boolean general) {
+    private Boolean doIsDatabaseSchemaReady(String databaseSchema, boolean general) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
 
@@ -104,7 +104,7 @@ public class DomibusConditionUtil {
                 }
                 return true;
             } catch (final Exception e) {
-                LOG.warn("Could not find table TB_USER_DOMAIN / DOMIBUS_SCALABLE_SEQUENCE for schema [{}]", databaseSchema);
+                LOG.warn("Could not find tables for schema [{}]", databaseSchema);
                 return false;
             }
 
