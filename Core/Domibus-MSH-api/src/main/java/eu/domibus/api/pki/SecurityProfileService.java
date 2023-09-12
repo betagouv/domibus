@@ -43,15 +43,10 @@ public interface SecurityProfileService {
 
     /**
      * Checks if the signing certificate of the acknowledgement message sender is in the TrustStore
+     *
      * @param securityProfile - the SecurityProfile
-     * @param userMessage - the UserMessage that was sent
+     * @param userMessage     - the UserMessage that was sent
      */
     void checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(final SecurityProfile securityProfile, UserMessage userMessage);
 
-
-    /**
-     * Retrieves the algorithm id (e.g. the curve name for an ECC certificate: 1.3.101.110) based on the standard algorithm name(e.g. X25519)
-     * @param algoType - the algorithm standard name(e.g. X25519)
-     */
-    String getAlgoIdMapping(CertificateAlgoType algoType);
 }

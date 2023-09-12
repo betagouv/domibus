@@ -3,14 +3,12 @@ package eu.domibus.core.crypto;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.pki.CertificateAlgoType;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.SecurityProfile;
-import eu.domibus.api.util.CertificateAlgoTypeMappingsUtil;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
@@ -56,14 +54,6 @@ public class SecurityProfileServiceImpl implements SecurityProfileService {
         this.pModeProvider = pModeProvider;
         this.multiDomainCertificateProvider = multiDomainCertificateProvider;
         this.domainContextProvider = domainContextProvider;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getAlgoIdMapping(CertificateAlgoType algoType) {
-        return CertificateAlgoTypeMappingsUtil.getAlgoIdMapping(algoType);
     }
 
     @Override

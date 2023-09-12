@@ -212,7 +212,7 @@ public class SecurityProfileValidatorService {
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
 
-        String certificateAlgorithm = securityProfileService.getAlgoIdMapping(CertificateAlgoType.lookupByName(certificate.getPublicKey().getAlgorithm().toUpperCase()));
+        String certificateAlgorithm = CertificateAlgoType.lookupAlgoIdByAlgoName(certificate.getPublicKey().getAlgorithm().toUpperCase()).getCertificateAlgoType();
         if (certificateAlgorithm == null) {
             String exceptionMessage = String.format("Algorithm for certificate with alias [%s] in [%s] used in security profile: [%s] is null",
                     alias, storeType, securityProfile);

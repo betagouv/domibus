@@ -1,39 +1,31 @@
 package eu.domibus.api.pki;
 
-import com.google.common.collect.Maps;
-
-import java.util.Map;
-
 /**
- * Defines the supported certificate algorithm type names
+ * Defines the supported certificate algorithm type names and provides the algo id based on the algo name
  *
  * @author Lucian FURCA
  * @since 5.2
  */
 public enum CertificateAlgoType {
     RSA("RSA"),
-    X25519("X25519"),
-    X448("X448"),
-    ED25519("ED25519"),
-    ED448("ED448");
-
-    private static final Map<String, CertificateAlgoType> nameIndex =
-            Maps.newHashMapWithExpectedSize(CertificateAlgoType.values().length);
-    static {
-        for (CertificateAlgoType certificateAlgoType : CertificateAlgoType.values()) {
-            nameIndex.put(certificateAlgoType.name(), certificateAlgoType);
-        }
-    }
-
-    public static CertificateAlgoType lookupByName(String name) {
-        return nameIndex.get(name);
-    }
-
+    X25519("1.3.101.110"),
+    X448("1.3.101.111"),
+    ED25519("1.3.101.112"),
+    ED448("1.3.101.113");
 
     private final String certificateAlgoType;
 
     CertificateAlgoType(final String certificateAlgoType) {
         this.certificateAlgoType = certificateAlgoType;
+    }
+
+    /**
+     * Retrieves the algorithm id (e.g. the curve name for an ECC certificate: 1.3.101.110) based on the standard algorithm name(e.g. X25519)
+     * @param algoName - the algorithm standard name(e.g. X25519)
+     */
+
+    public static CertificateAlgoType lookupAlgoIdByAlgoName(String algoName) {
+        return CertificateAlgoType.valueOf(algoName);
     }
 
     public String getCertificateAlgoType() {
