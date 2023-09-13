@@ -3,6 +3,7 @@ package eu.domibus.core.util;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
+import eu.domibus.api.model.DatePrefixedGenericSequenceIdGenerator;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -27,6 +28,11 @@ import java.util.concurrent.TimeUnit;
 public class DateUtilImpl implements DateUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DateUtilImpl.class);
+
+    /**
+     * see {@link DatePrefixedGenericSequenceIdGenerator}
+     */
+    public static final String YEAR_2020_PREFIX = "20";
 
     @Override
     public Date fromString(String value) {
@@ -122,8 +128,9 @@ public class DateUtilImpl implements DateUtil {
             throw new DomibusDateTimeException(DATETIME_FORMAT_DEFAULT);
         }
         try {
-            //we add 20 as prefix to have 4 digits for the year eg 22 becomes 2022
-            final String dateWithHourAndFullYear = "20" + dateWithHour;
+            //we add 20 as prefix to have 4 digits for the year eg 22 becomes 2022; this is needed to convert from string to local date time
+            final String dateWithHourAndFullYear = YEAR_2020_PREFIX + dateWithHour;
+            LOG.debug("Parsing date with hour [{}]", dateWithHourAndFullYear);
             LocalDateTime localDateTime = LocalDateTime.parse(dateWithHourAndFullYear, REST_FORMATTER_FOR_DATE_WITH_HOUR_NO_SEPARATORS);
             return localDateTime.atZone(ZoneOffset.UTC).toLocalDateTime();
         } catch (Exception e) {
