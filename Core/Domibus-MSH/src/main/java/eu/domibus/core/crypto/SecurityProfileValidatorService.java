@@ -2,6 +2,7 @@ package eu.domibus.core.crypto;
 
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.multitenancy.Domain;
+import eu.domibus.api.pki.CertificateAlgoType;
 import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.CertificateException;
@@ -32,8 +33,6 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 public class SecurityProfileValidatorService {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityProfileValidatorService.class);
-
-    public static final String CERTIFICATE_ALGORITHM_RSA = "RSA";
 
     protected final DomibusPropertyProvider domibusPropertyProvider;
 
@@ -213,7 +212,12 @@ public class SecurityProfileValidatorService {
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
 
-        String certificateAlgorithm = certificate.getPublicKey().getAlgorithm();
+        String certificateAlgorithm = CertificateAlgoType.lookupAlgoIdByAlgoName(certificate.getPublicKey().getAlgorithm().toUpperCase()).getCertificateAlgoType();
+        if (certificateAlgorithm == null) {
+            String exceptionMessage = String.format("Algorithm for certificate with alias [%s] in [%s] used in security profile: [%s] is null",
+                    alias, storeType, securityProfile);
+            throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
+        }
         CertificatePurpose certificatePurpose = getCertificatePurposeFromAlias(alias);
         if (securityProfile == null || certificatePurpose == null) {
             validateLegacyAliasCertificateType(certificateAlgorithm, alias, storeType);
@@ -238,7 +242,7 @@ public class SecurityProfileValidatorService {
             String exceptionMessage = String.format("Legacy keystore alias [%s] is not defined in [%s]", alias, storeType);
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
-        if (!certificateAlgorithm.equalsIgnoreCase(CERTIFICATE_ALGORITHM_RSA)) {
+        if (!certificateAlgorithm.equalsIgnoreCase(CertificateAlgoType.RSA.getCertificateAlgoType())) {
             String exceptionMessage = String.format("Invalid certificate type with alias: [%s] defined in [%s]", alias, storeType);
             throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
         }
@@ -269,6 +273,11 @@ public class SecurityProfileValidatorService {
 
     private void checkCertificateType(List<String> acceptedCertificateAlgorithms, String certificateAlgorithm, CertificatePurpose certificatePurpose,
                                       String alias, SecurityProfile securityProfile, StoreType storeType) {
+        if (certificateAlgorithm == null) {
+            String exceptionMessage = String.format("Certificate algorithm in [%s] for alias: [%s] used in security profile: [%s] is null",
+                    storeType, alias, securityProfile);
+            throw new CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
+        }
         boolean certificateTypeIsAccepted = acceptedCertificateAlgorithms.stream().anyMatch(certificateAlgorithm::equalsIgnoreCase);
         if (!certificateTypeIsAccepted) {
             String exceptionMessage = String.format("Invalid [%s] certificate type in [%s] with alias: [%s] used in security profile: [%s]",

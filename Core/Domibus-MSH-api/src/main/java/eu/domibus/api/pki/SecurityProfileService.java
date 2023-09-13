@@ -43,8 +43,10 @@ public interface SecurityProfileService {
 
     /**
      * Checks if the signing certificate of the acknowledgement message sender is in the TrustStore
+     *
      * @param securityProfile - the SecurityProfile
-     * @param userMessage - the UserMessage that was sent
+     * @param userMessage     - the UserMessage that was sent
      */
     void checkIfAcknowledgmentSigningCertificateIsInTheTrustStore(final SecurityProfile securityProfile, UserMessage userMessage);
+
 }
