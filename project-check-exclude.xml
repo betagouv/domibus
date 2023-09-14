@@ -141,7 +141,14 @@
         <cve>CVE-2022-45688</cve>
     </suppress>
 
-
+    <suppress>
+        <notes><![CDATA[
+   file name: wiremock-3.0.0-beta-10.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.github\.tomakehurst/wiremock@.*$</packageUrl>
+        <cve>CVE-2023-41329</cve>
+        <cve>CVE-2023-41327</cve>
+    </suppress>
     <suppress>
         <notes><![CDATA[
    file name: wiremock-2.27.2.jar: jquery-3.4.1.min.js
