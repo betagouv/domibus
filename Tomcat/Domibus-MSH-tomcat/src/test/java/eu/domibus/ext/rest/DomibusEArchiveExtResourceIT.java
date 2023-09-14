@@ -1,10 +1,12 @@
 package eu.domibus.ext.rest;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.earchive.EArchiveBatchEntity;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.EArchiveBatchUserMessage;
 import eu.domibus.api.earchive.EArchiveRequestType;
-import eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.util.TsidUtil;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.earchive.*;
 import eu.domibus.ext.domain.archive.*;
@@ -13,7 +15,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -29,6 +30,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 
@@ -78,6 +80,9 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
     @Autowired
     MessageDaoTestUtil messageDaoTestUtil;
 
+    @Autowired
+    TsidUtil tsidUtil;
+
     EArchiveBatchEntity batch1;
     EArchiveBatchEntity batch2;
     EArchiveBatchEntity batch3;
@@ -126,8 +131,8 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                 EArchiveRequestType.CONTINUOUS,
                 EArchiveBatchStatus.FAILED,
                 DateUtils.addDays(currentDate, -5),
-                2110100000000011L,
-                2110100000000020L,
+                tsidUtil.zonedTimeDateToTsid(LocalDateTime.of(2021, 10, 10, 0, 0, 11).atZone(ZoneOffset.UTC)),
+                tsidUtil.zonedTimeDateToTsid(LocalDateTime.of(2021, 10, 10, 0, 0, 20).atZone(ZoneOffset.UTC)),
                 1,
                 "/tmp/batch"));
 
@@ -140,8 +145,8 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                 EArchiveRequestType.MANUAL,
                 EArchiveBatchStatus.EXPORTED,
                 DateUtils.addDays(currentDate, 0),
-                2110100000000021L,
-                2110110000000001L,
+                tsidUtil.zonedTimeDateToTsid(LocalDateTime.of(2021, 10, 10, 0, 0, 21).atZone(ZoneOffset.UTC)),
+                tsidUtil.zonedTimeDateToTsid(LocalDateTime.of(2021, 10, 11, 0, 0, 1).atZone(ZoneOffset.UTC)),
                 1,
                 "/tmp/batch")); // is copy from 2
         eArchiveBatchUserMessageDao.create(batch3, Collections.singletonList(new EArchiveBatchUserMessage(uml6.getEntityId(), uml6.getUserMessage().getMessageId())));
@@ -263,7 +268,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        assertEquals(10100L, Long.parseLong(content));
+        assertEquals(20010100L, Long.parseLong(content));
     }
     @Test
     @Transactional
@@ -315,7 +320,7 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
                 .andReturn();
         // then
         String content = result.getResponse().getContentAsString();
-        assertEquals(10100L, Long.parseLong(content));
+        assertEquals(20010100L, Long.parseLong(content));
     }
 
     @Test
@@ -369,8 +374,6 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         assertEquals(1, response.getBatches().size());
         BatchDTO responseBatch = response.getBatches().get(0);
         assertEquals(batch1.getBatchId(), responseBatch.getBatchId());
-        assertEquals(batch1.getFirstPkUserMessage() / (DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER + 1), responseBatch.getMessageStartDate().longValue());
-        assertEquals(batch1.getLastPkUserMessage() / (DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER + 1), responseBatch.getMessageEndDate().longValue());
         assertEquals(batch1.getDateRequested(), responseBatch.getEnqueuedTimestamp());
         assertEquals(batch1.getRequestType().name(), responseBatch.getRequestType().name());
     }
@@ -404,8 +407,8 @@ public class DomibusEArchiveExtResourceIT extends AbstractIT {
         assertEquals(1, response.getBatches().size());
         BatchDTO responseBatch = response.getBatches().get(0);
         assertEquals(batch3.getBatchId(), responseBatch.getBatchId());
-        assertEquals(batch3.getFirstPkUserMessage() / (DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER + 1), responseBatch.getMessageStartDate().longValue());
-        assertEquals(batch3.getLastPkUserMessage() / (DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER + 1), responseBatch.getMessageEndDate().longValue());
+        assertEquals(21101000L, responseBatch.getMessageStartDate());
+        assertEquals(21101000L, responseBatch.getMessageEndDate());
         assertEquals(batch3.getDateRequested(), responseBatch.getEnqueuedTimestamp());
         assertEquals(batch3.getRequestType().name(), responseBatch.getRequestType().name());
         // test date formatting

@@ -4,12 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.NoArgGenerator;
 import eu.domibus.api.earchive.DomibusEArchiveException;
 import eu.domibus.api.earchive.EArchiveRequestType;
-import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.TsidUtil;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.ReceptionAwareness;
-import eu.domibus.core.earchive.*;
+import eu.domibus.core.earchive.EArchiveBatchDao;
+import eu.domibus.core.earchive.EArchiveBatchStartDao;
+import eu.domibus.core.earchive.EArchiveBatchUserMessageDao;
+import eu.domibus.api.earchive.EArchiveBatchUtil;
 import eu.domibus.core.earchive.alerts.EArchivingEventService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
@@ -25,7 +28,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +51,9 @@ public class EArchivingJobServiceTest {
     private EArchivingJobService eArchivingJobService;
 
     @Injectable
+    TsidUtil tsidUtil;
+
+    @Injectable
     private EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -63,7 +68,7 @@ public class EArchivingJobServiceTest {
     @Injectable
     private ObjectMapper domibusJsonMapper;
     @Injectable
-    private EArchiveBatchUtils eArchiveBatchUtils;
+    private EArchiveBatchUtil eArchiveBatchUtil;
     @Injectable
     private UserMessageLogDao userMessageLogDao;
     @Injectable

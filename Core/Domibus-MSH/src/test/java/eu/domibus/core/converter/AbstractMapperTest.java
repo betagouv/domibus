@@ -1,8 +1,11 @@
 package eu.domibus.core.converter;
 
+import eu.domibus.api.util.DateUtil;
+import eu.domibus.api.util.TsidUtil;
 import eu.domibus.core.alerts.model.mapper.EventMapper;
 import eu.domibus.core.alerts.model.mapper.EventMapperImpl_;
-import eu.domibus.core.earchive.EArchiveBatchUtils;
+import eu.domibus.core.earchive.EArchiveBatchUtilImpl;
+import eu.domibus.api.earchive.EArchiveBatchUtil;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.europa.ec.digit.commons.test.api.ObjectService;
 import mockit.Injectable;
@@ -30,14 +33,20 @@ public abstract class AbstractMapperTest {
         @Injectable
         private UserMessageLogDao userMessageLogDao;
 
+        @Injectable
+        private TsidUtil tsidUtil;
+
+        @Injectable
+        DateUtil dateUtil;
+
         @Bean
         public EventMapper eventMapper() {
             return new EventMapperImpl_();
         }
 
         @Bean
-        public EArchiveBatchUtils eArchiveBatchUtils() {
-            return new EArchiveBatchUtils(userMessageLogDao);
+        public EArchiveBatchUtil eArchiveBatchUtils() {
+            return new EArchiveBatchUtilImpl(userMessageLogDao, tsidUtil, dateUtil);
         }
 
         @Bean

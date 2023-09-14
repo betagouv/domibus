@@ -2,8 +2,8 @@ package eu.domibus.core.converter;
 
 
 import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
-import eu.domibus.core.earchive.EArchiveBatchEntity;
-import eu.domibus.core.earchive.EArchiveBatchUtils;
+import eu.domibus.api.earchive.EArchiveBatchEntity;
+import eu.domibus.api.earchive.EArchiveBatchUtil;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -19,7 +19,7 @@ import java.util.List;
 public abstract class EArchiveBatchMapper {
 
     @Autowired
-    protected EArchiveBatchUtils archiveBatchUtils;
+    protected EArchiveBatchUtil archiveBatchUtils;
 
     @Mapping(ignore = true, target = "version")
     @Mapping(source = "EArchiveBatchStatus", target = "status")

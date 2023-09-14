@@ -6,6 +6,7 @@ import eu.domibus.api.jms.JMSManager;
 import eu.domibus.api.jms.JMSMessageBuilder;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.converter.EArchiveBatchMapper;
 import eu.domibus.core.earchive.job.EArchiveBatchDispatcherService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.jms.Queue;
 import javax.validation.constraints.NotNull;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,7 +55,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     private final EArchiveBatchDispatcherService eArchiveBatchDispatcherService;
 
-    private final EArchiveBatchUtils eArchiveBatchUtils;
+    private final EArchiveBatchUtil eArchiveBatchUtil;
 
     private final DomainContextProvider domainContextProvider;
 
@@ -65,6 +67,8 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     private final Queue eArchiveNotificationQueue;
 
+    protected DateUtil dateUtil;
+
     public EArchivingDefaultService(EArchiveBatchStartDao eArchiveBatchStartDao,
                                     @Lazy UserMessageLogDefaultService userMessageLogDefaultService,
                                     EArchiveBatchDao eArchiveBatchDao,
@@ -73,20 +77,22 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
                                     @Qualifier(InternalJMSConstants.EARCHIVE_NOTIFICATION_QUEUE) Queue eArchiveNotificationQueue,
                                     EArchiveBatchMapper eArchiveBatchMapper,
                                     EArchiveBatchDispatcherService eArchiveBatchDispatcherService,
-                                    EArchiveBatchUtils eArchiveBatchUtils,
+                                    EArchiveBatchUtil eArchiveBatchUtil,
                                     DomainContextProvider domainContextProvider,
-                                    DomibusPropertyProvider domibusPropertyProvider) {
+                                    DomibusPropertyProvider domibusPropertyProvider,
+                                    DateUtil dateUtil) {
         this.eArchiveBatchStartDao = eArchiveBatchStartDao;
         this.eArchiveBatchDao = eArchiveBatchDao;
         this.eArchiveBatchUserMessageDao = eArchiveBatchUserMessageDao;
         this.eArchiveBatchMapper = eArchiveBatchMapper;
         this.eArchiveBatchDispatcherService = eArchiveBatchDispatcherService;
-        this.eArchiveBatchUtils = eArchiveBatchUtils;
+        this.eArchiveBatchUtil = eArchiveBatchUtil;
         this.domainContextProvider = domainContextProvider;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.userMessageLogDefaultService = userMessageLogDefaultService;
         this.jmsManager = jmsManager;
         this.eArchiveNotificationQueue = eArchiveNotificationQueue;
+        this.dateUtil = dateUtil;
     }
 
     @Override
@@ -104,18 +110,28 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     @Override
     @Transactional(readOnly = true)
     public Long getStartDateContinuousArchive() {
-        return eArchiveBatchUtils.extractDateFromPKUserMessageId(eArchiveBatchStartDao.read(CONTINUOUS_ID).getLastPkUserMessage());
+        final EArchiveBatchStart eArchiveBatchStart = eArchiveBatchStartDao.read(CONTINUOUS_ID);
+        final Long lastPkUserMessage = eArchiveBatchStart.getLastPkUserMessage();
+        return primaryKeyToHourDate(lastPkUserMessage);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Long getStartDateSanityArchive() {
-        return eArchiveBatchUtils.extractDateFromPKUserMessageId(eArchiveBatchStartDao.read(SANITY_ID).getLastPkUserMessage());
+        final EArchiveBatchStart eArchiveBatchStart = eArchiveBatchStartDao.read(SANITY_ID);
+        final Long lastPkUserMessage = eArchiveBatchStart.getLastPkUserMessage();
+        return primaryKeyToHourDate(lastPkUserMessage);
+    }
+
+    protected Long primaryKeyToHourDate(Long primaryKey) {
+        final Long dateAsLong = eArchiveBatchUtil.extractDateFromPKUserMessageId(primaryKey);
+        final Date date = new Date(dateAsLong);
+        return Long.valueOf(dateUtil.getIdPkDateHourPrefix(date));
     }
 
     private void updateEArchiveBatchStart(int sanityId, Long startMessageDate) {
         EArchiveBatchStart byReference = eArchiveBatchStartDao.findByReference(sanityId);
-        long lastPkUserMessage = eArchiveBatchUtils.dateToPKUserMessageId(startMessageDate);
+        long lastPkUserMessage = eArchiveBatchUtil.dateToPKUserMessageId(startMessageDate);
         if (LOG.isDebugEnabled()) {
             LOG.debug("New start date archive [{}] batch lastPkUserMessage : [{}]", byReference.getDescription(), lastPkUserMessage);
         }
@@ -157,7 +173,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
                 || batch.getEArchiveBatchStatus() == EArchiveBatchStatus.STARTED) {
             return Collections.emptyList();
         }
-        return eArchiveBatchUtils.getMessageIds(eArchiveBatchUserMessageDao.getBatchMessageList(batch.getEntityId(), pageStart, pageSize));
+        return eArchiveBatchUtil.getMessageIds(eArchiveBatchUserMessageDao.getBatchMessageList(batch.getEntityId(), pageStart, pageSize));
     }
 
     @Override
@@ -182,7 +198,8 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
         if (startMessageId == null) {
             startMessageId = 0L;
         }
-        return eArchiveBatchUtils.getMessageIds(eArchiveBatchDao.getNotArchivedMessages(startMessageId, endMessageId, pageStart, pageSize));
+        final List<EArchiveBatchUserMessage> notArchivedMessages = eArchiveBatchDao.getNotArchivedMessages(startMessageId, endMessageId, pageStart, pageSize);
+        return eArchiveBatchUtil.getMessageIds(notArchivedMessages);
     }
 
     @Override
@@ -271,13 +288,13 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     public void executeBatchIsExported(EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
         setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
         LOG.businessInfo(DomibusMessageCode.BUS_ARCHIVE_BATCH_EXPORTED, eArchiveBatchByBatchId.getBatchId(), eArchiveBatchByBatchId.getStorageLocation());
-        userMessageLogDefaultService.updateStatusToExported(eArchiveBatchUtils.getEntityIds(userMessageDtos));
+        userMessageLogDefaultService.updateStatusToExported(eArchiveBatchUtil.getEntityIds(userMessageDtos));
         sendToNotificationQueue(eArchiveBatchByBatchId, EArchiveBatchStatus.EXPORTED);
     }
 
     @Transactional
     public void executeBatchIsArchived(EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
-        userMessageLogDefaultService.updateStatusToArchived(eArchiveBatchUtils.getEntityIds(userMessageDtos));
+        userMessageLogDefaultService.updateStatusToArchived(eArchiveBatchUtil.getEntityIds(userMessageDtos));
         if (eArchiveBatchByBatchId.getEArchiveBatchStatus() != EArchiveBatchStatus.ARCHIVED) {
             setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.ARCHIVED);
         }

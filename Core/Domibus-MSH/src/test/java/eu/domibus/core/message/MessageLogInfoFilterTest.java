@@ -2,9 +2,9 @@ package eu.domibus.core.message;
 
 import com.google.common.collect.ImmutableMap;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.TsidUtil;
 import mockit.Expectations;
 import mockit.Injectable;
-import mockit.Mocked;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +29,9 @@ public class MessageLogInfoFilterTest {
 
     @Tested
     MessageLogInfoFilter messageLogInfoFilter;
+
+    @Injectable
+    TsidUtil tsidUtil;
 
     @Injectable
     private DomibusPropertyProvider domibusProperties;

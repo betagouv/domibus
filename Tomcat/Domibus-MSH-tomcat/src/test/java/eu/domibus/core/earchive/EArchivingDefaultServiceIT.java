@@ -1,18 +1,16 @@
 package eu.domibus.core.earchive;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.earchive.EArchiveBatchFilter;
-import eu.domibus.api.earchive.EArchiveBatchRequestDTO;
-import eu.domibus.api.earchive.EArchiveBatchStatus;
-import eu.domibus.api.earchive.EArchiveRequestType;
+import eu.domibus.api.earchive.*;
 import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.util.DateUtil;
+import eu.domibus.api.util.TsidUtil;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.message.UserMessageDefaultService;
 import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -20,23 +18,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.DATETIME_FORMAT_DEFAULT;
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX;
 import static eu.domibus.core.earchive.EArchivingDefaultService.CONTINUOUS_ID;
 import static eu.domibus.core.earchive.EArchivingDefaultService.SANITY_ID;
 import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.util.Locale.ENGLISH;
 
 /**
  * @author François Gautier
  * @since 5.0
  */
 @Transactional
-@Disabled("EDELIVERY-6896")
 public class EArchivingDefaultServiceIT extends AbstractIT {
 
     @Autowired
@@ -52,7 +47,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao;
 
     @Autowired
-    EArchiveBatchUtils eArchiveBatchUtils;
+    EArchiveBatchUtil eArchiveBatchUtil;
 
     @Autowired
     MessageDaoTestUtil messageDaoTestUtil;
@@ -62,6 +57,12 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
 
     @PersistenceContext(unitName = JPAConstants.PERSISTENCE_UNIT_NAME)
     protected EntityManager em;
+
+    @Autowired
+    TsidUtil tsidUtil;
+
+    @Autowired
+    DateUtil dateUtil;
 
     @Autowired
     protected PlatformTransactionManager transactionManager;
@@ -81,8 +82,8 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     @BeforeEach
     public void setUp() throws Exception {
         waitUntilDatabaseIsInitialized();
-        Assertions.assertEquals(101000000000000L, ((long) eArchiveBatchStartDao.findByReference(CONTINUOUS_ID).getLastPkUserMessage()));
-        Assertions.assertEquals(101000000000000L, ((long) eArchiveBatchStartDao.findByReference(SANITY_ID).getLastPkUserMessage()));
+        Assertions.assertEquals(0L, ((long) eArchiveBatchStartDao.read(CONTINUOUS_ID).getLastPkUserMessage()));
+        Assertions.assertEquals(0L, ((long) eArchiveBatchStartDao.read(SANITY_ID).getLastPkUserMessage()));
         // prepare
         Date currentDate = Calendar.getInstance().getTime();
         uml1 = messageDaoTestUtil.createUserMessageLog("uml1-" + UUID.randomUUID(), currentDate);
@@ -130,7 +131,7 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
         Long startMessageDate = 21102610L;
         eArchivingService.updateStartDateContinuousArchive(startMessageDate);
 
-        Assertions.assertEquals(eArchiveBatchUtils.dateToPKUserMessageId(startMessageDate),
+        Assertions.assertEquals(eArchiveBatchUtil.dateToPKUserMessageId(startMessageDate),
                 eArchiveBatchStartDao.findByReference(CONTINUOUS_ID).getLastPkUserMessage());
 
     }
@@ -139,15 +140,16 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     public void getStartDateContinuousArchive() {
         Long startDateContinuousArchive = eArchivingService.getStartDateContinuousArchive();
 
-        Assertions.assertEquals(10100L, startDateContinuousArchive.longValue());
+        //2020-01-01T00:00:00.000Z
+        Assertions.assertEquals(20010100L, startDateContinuousArchive.longValue());
     }
 
     @Test
     public void updateStartDateSanityArchive() {
-        Long startMessageDate = 102710L;
+        Long startMessageDate = 10071000L;
         eArchivingService.updateStartDateSanityArchive(startMessageDate);
 
-        Assertions.assertEquals(eArchiveBatchUtils.dateToPKUserMessageId(startMessageDate),
+        Assertions.assertEquals(eArchiveBatchUtil.dateToPKUserMessageId(startMessageDate),
                 eArchiveBatchStartDao.findByReference(SANITY_ID).getLastPkUserMessage());
     }
 
@@ -155,7 +157,8 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     public void getStartDateSanityArchive() {
         Long startDateSanityArchive = eArchivingService.getStartDateSanityArchive();
 
-        Assertions.assertEquals(10100L, startDateSanityArchive.longValue());
+        //2020-01-01T00:00:00.000Z
+        Assertions.assertEquals(20010100L, startDateSanityArchive.longValue());
     }
 
     @Test
@@ -225,10 +228,8 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     @Test
     public void getNotArchivedMessages() {
         Date currentDate = Calendar.getInstance().getTime();
-        Long startDate =  Long.parseLong(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, -30).toInstant(),
-                ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
-        Long endDate  = Long.parseLong(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, 1).toInstant(),
-                ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+        Long startDate = tsidUtil.zonedTimeDateToMaxTsid(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, -30).toInstant(), ZoneOffset.UTC));
+        Long endDate =tsidUtil.zonedTimeDateToMaxTsid(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, 1).toInstant(), ZoneOffset.UTC));
 
         List<String> messages = eArchivingService.getNotArchivedMessages(startDate,
                 endDate, null, null);
@@ -244,10 +245,8 @@ public class EArchivingDefaultServiceIT extends AbstractIT {
     @Transactional
     public void getNotArchivedMessagesCount() {
         Date currentDate = Calendar.getInstance().getTime();
-        Long startDate =  Long.parseLong(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, -30).toInstant(),
-                ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
-        Long endDate  = Long.parseLong(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, 1).toInstant(),
-                ZoneOffset.UTC).format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+        Long startDate = tsidUtil.zonedTimeDateToMaxTsid(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, -30).toInstant(), ZoneOffset.UTC));
+        Long endDate =tsidUtil.zonedTimeDateToMaxTsid(ZonedDateTime.ofInstant(DateUtils.addDays(currentDate, 1).toInstant(), ZoneOffset.UTC));
 
         Long count = eArchivingService.getNotArchivedMessagesCount(startDate,
                 endDate);

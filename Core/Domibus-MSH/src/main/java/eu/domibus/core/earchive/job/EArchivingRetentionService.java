@@ -4,14 +4,13 @@ import com.codahale.metrics.MetricRegistry;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.earchive.EArchiveBatchDao;
-import eu.domibus.core.earchive.EArchiveBatchEntity;
+import eu.domibus.api.earchive.EArchiveBatchEntity;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

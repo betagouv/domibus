@@ -4,15 +4,14 @@ import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.archive.client.api.ArchiveWebhookApi;
 import eu.domibus.archive.client.model.BatchNotification;
-import eu.domibus.core.earchive.EArchiveBatchEntity;
-import eu.domibus.core.earchive.EArchiveBatchUtils;
+import eu.domibus.api.earchive.EArchiveBatchEntity;
+import eu.domibus.api.earchive.EArchiveBatchUtil;
 import eu.domibus.core.earchive.EArchivingDefaultService;
 import eu.domibus.core.util.JmsUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import mockit.Expectations;
-import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
@@ -20,7 +19,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.context.ApplicationContext;
 
 import javax.jms.Message;
 import java.util.UUID;
@@ -46,7 +44,7 @@ public class EArchiveNotificationListenerTest {
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
     @Injectable
-    private EArchiveBatchUtils eArchiveBatchUtils;
+    private EArchiveBatchUtil eArchiveBatchUtil;
     @Injectable
     private ArchiveWebhookApi eArchivingClientApi;
     @Injectable

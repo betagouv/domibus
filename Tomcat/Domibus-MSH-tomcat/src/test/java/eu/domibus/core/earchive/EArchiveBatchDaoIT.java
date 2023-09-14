@@ -1,6 +1,7 @@
 package eu.domibus.core.earchive;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.api.earchive.EArchiveBatchEntity;
 import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.common.JPAConstants;
 import eu.domibus.logging.DomibusLogger;

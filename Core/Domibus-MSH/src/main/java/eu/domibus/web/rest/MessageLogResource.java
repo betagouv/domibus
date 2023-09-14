@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -86,9 +87,12 @@ public class MessageLogResource extends BaseResource {
 
         // return also the current messageType to be shown in GUI
         filters.put(PROPERTY_MESSAGE_TYPE, request.getMessageType());
-        // remove
-        filters.remove(PROPERTY_MIN_ENTITY_ID);
-        filters.remove(PROPERTY_MAX_ENTITY_ID);
+        // remove the filters so that they don't show up in the UI
+        Date minEntityId = (Date)filters.remove(PROPERTY_MIN_ENTITY_ID);
+        Date maxEntityId = (Date) filters.remove(PROPERTY_MAX_ENTITY_ID);
+        // add the filters so that they show up in the UI
+        filters.put(PROPERTY_RECEIVED_FROM, minEntityId);
+        filters.put(PROPERTY_RECEIVED_TO, maxEntityId);
 
         result.setFilter(filters);
         result.setMshRoles(MSHRole.values());

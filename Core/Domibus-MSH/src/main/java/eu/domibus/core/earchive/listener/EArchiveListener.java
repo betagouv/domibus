@@ -1,6 +1,9 @@
 package eu.domibus.core.earchive.listener;
 
+import eu.domibus.api.earchive.EArchiveBatchEntity;
 import eu.domibus.api.earchive.EArchiveBatchStatus;
+import eu.domibus.api.earchive.EArchiveBatchUserMessage;
+import eu.domibus.api.earchive.EArchiveBatchUtil;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DatabaseUtil;
 import eu.domibus.core.earchive.*;
@@ -43,14 +46,14 @@ public class EArchiveListener implements MessageListener {
 
     private final JmsUtil jmsUtil;
 
-    private final EArchiveBatchUtils eArchiveBatchUtils;
+    private final EArchiveBatchUtil eArchiveBatchUtil;
 
     private final DomibusPropertyProvider domibusPropertyProvider;
 
     public EArchiveListener(
             FileSystemEArchivePersistence fileSystemEArchivePersistence,
             DatabaseUtil databaseUtil,
-            EArchiveBatchUtils eArchiveBatchUtils,
+            EArchiveBatchUtil eArchiveBatchUtil,
             EArchivingDefaultService eArchivingDefaultService,
             JmsUtil jmsUtil,
             DomibusPropertyProvider domibusPropertyProvider) {
@@ -58,7 +61,7 @@ public class EArchiveListener implements MessageListener {
         this.databaseUtil = databaseUtil;
         this.eArchivingDefaultService = eArchivingDefaultService;
         this.jmsUtil = jmsUtil;
-        this.eArchiveBatchUtils = eArchiveBatchUtils;
+        this.eArchiveBatchUtil = eArchiveBatchUtil;
         this.domibusPropertyProvider = domibusPropertyProvider;
     }
 
@@ -131,11 +134,11 @@ public class EArchiveListener implements MessageListener {
         final Boolean isNotificationWithStartAndEndDate = domibusPropertyProvider.getBooleanProperty(DOMIBUS_EARCHIVING_NOTIFICATION_DETAILS_ENABLED);
         LOG.debug("eArchive client with batch Id [{}] needs to receive notifications with message start date and end date: [{}]", batchId, isNotificationWithStartAndEndDate);
 
-        Long firstUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, 0);
-        Long lastUserMessageEntityId = eArchiveBatchUtils.getMessageStartDate(batchUserMessages, eArchiveBatchUtils.getLastIndex(batchUserMessages));
+        Long firstUserMessageEntityId = eArchiveBatchUtil.getMessageStartDate(batchUserMessages, 0);
+        Long lastUserMessageEntityId = eArchiveBatchUtil.getMessageStartDate(batchUserMessages, eArchiveBatchUtil.getLastIndex(batchUserMessages));
         if (BooleanUtils.isTrue(isNotificationWithStartAndEndDate)) {
-            messageStartDate = eArchiveBatchUtils.getBatchMessageDate(firstUserMessageEntityId);
-            messageEndDate = eArchiveBatchUtils.getBatchMessageDate(lastUserMessageEntityId);
+            messageStartDate = eArchiveBatchUtil.getBatchMessageDate(firstUserMessageEntityId);
+            messageEndDate = eArchiveBatchUtil.getBatchMessageDate(lastUserMessageEntityId);
         }
         LOG.debug("eArchive batch messageStartDate [{}] and messageEndDate [{}] for batchId [{}]", messageStartDate, messageEndDate, batchId);
 
@@ -147,7 +150,7 @@ public class EArchiveListener implements MessageListener {
                         .timestamp(DateTimeFormatter.ISO_DATE_TIME.format(eArchiveBatchByBatchId.getDateRequested().toInstant().atZone(ZoneOffset.UTC)))
                         .messageStartId(String.valueOf(firstUserMessageEntityId))
                         .messageEndId(String.valueOf(lastUserMessageEntityId))
-                        .messages(eArchiveBatchUtils.getMessageIds(batchUserMessages))
+                        .messages(eArchiveBatchUtil.getMessageIds(batchUserMessages))
                         .createBatchEArchiveDTO(),
                 batchUserMessages, messageStartDate, messageEndDate);
 

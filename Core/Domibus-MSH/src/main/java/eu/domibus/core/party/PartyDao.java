@@ -35,9 +35,9 @@ public class PartyDao extends BasicDao<Party> {
         return em.createNamedQuery("Party.findAll",Party.class).getResultList();
     }
 
-    public Party findById(final String id) {
-        final Query query = this.em.createNamedQuery("Party.findByPartyId");
-        query.setParameter("PARTY_ID", id);
+    public Party findByPartyName(final String id) {
+        final Query query = this.em.createNamedQuery("Party.findByName");
+        query.setParameter("NAME", id);
         return (Party) query.getSingleResult();
     }
 

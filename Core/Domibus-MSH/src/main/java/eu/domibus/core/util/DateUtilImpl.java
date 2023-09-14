@@ -3,6 +3,7 @@ package eu.domibus.core.util;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.exceptions.DomibusDateTimeException;
+import eu.domibus.api.model.DatePrefixedGenericSequenceIdGenerator;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -18,25 +19,20 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MIN;
-import static java.time.format.DateTimeFormatter.ofPattern;
-
 /**
  * @author Cosmin Baciu
  * @author Sebastian-Ion TINCU
  * @since 3.3
  */
-@Component
+@Component(DateUtil.BEAN_NAME)
 public class DateUtilImpl implements DateUtil {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DateUtilImpl.class);
 
-    @Override
-    public String getIdPkDateHourPrefix(Date value) {
-        SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return sdf.format(value).substring(0, 8);
-    }
+    /**
+     * see {@link DatePrefixedGenericSequenceIdGenerator}
+     */
+    public static final String YEAR_2020_PREFIX = "20";
 
     @Override
     public Date fromString(String value) {
@@ -114,16 +110,54 @@ public class DateUtilImpl implements DateUtil {
     }
 
     @Override
-    public Long getIdPkDateHour(String date) {
+    public LocalDateTime getLocalDateTime(String date) {
         if (StringUtils.isBlank(date)) {
             throw new DomibusDateTimeException(date, REST_FORMATTER_PATTERNS_MESSAGE);
         }
         try {
             LocalDateTime localDateTime = LocalDateTime.parse(date, REST_FORMATTER);
-            String format = getUtcLocalDateTime(localDateTime).format(ofPattern(DATETIME_FORMAT_DEFAULT));
-            return Long.parseLong(format + MIN);
+            return getUtcLocalDateTime(localDateTime);
         } catch (Exception e) {
             throw new DomibusDateTimeException(date, REST_FORMATTER_PATTERNS_MESSAGE, e);
         }
+    }
+
+    @Override
+    public LocalDateTime getLocalDateTimeFromDateWithHour(Long dateWithHour) {
+        if (dateWithHour == null) {
+            throw new DomibusDateTimeException(DATETIME_FORMAT_DEFAULT);
+        }
+        try {
+            //we add 20 as prefix to have 4 digits for the year eg 22 becomes 2022; this is needed to convert from string to local date time
+            final String dateWithHourAndFullYear = YEAR_2020_PREFIX + dateWithHour;
+            LOG.debug("Parsing date with hour [{}]", dateWithHourAndFullYear);
+            LocalDateTime localDateTime = LocalDateTime.parse(dateWithHourAndFullYear, REST_FORMATTER_FOR_DATE_WITH_HOUR_NO_SEPARATORS);
+            return localDateTime.atZone(ZoneOffset.UTC).toLocalDateTime();
+        } catch (Exception e) {
+            throw new DomibusDateTimeException(dateWithHour + "", DATETIME_FORMAT_DEFAULT, e);
+        }
+    }
+
+    @Override
+    public LocalDateTime convertToLocalDateTime(Date date) {
+        if(date == null) {
+            return null;
+        }
+        return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+    }
+
+    @Override
+    public Date convertFromLocalDateTime(LocalDateTime localDateTime) {
+        if (localDateTime == null) {
+            return null;
+        }
+        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    }
+
+    @Override
+    public String getIdPkDateHourPrefix(Date value) {
+        SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return sdf.format(value).substring(0, 8);
     }
 }

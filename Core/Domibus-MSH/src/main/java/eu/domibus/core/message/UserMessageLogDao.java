@@ -3,7 +3,7 @@ package eu.domibus.core.message;
 import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.model.*;
 import eu.domibus.api.util.DateUtil;
-import eu.domibus.core.earchive.EArchiveBatchUserMessage;
+import eu.domibus.api.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;

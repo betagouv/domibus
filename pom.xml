@@ -188,6 +188,7 @@
         <junit.version>5.9.3</junit.version>
         <mockito.version>5.3.1</mockito.version>
         <maven-resources-plugin.version>3.0.0</maven-resources-plugin.version>
+        <hypersistence-tsid.version>2.0.0</hypersistence-tsid.version>
     </properties>
 
     <scm>
@@ -270,6 +271,12 @@
                 <scope>provided</scope>
             </dependency>
             <!-- End Domibus modules -->
+
+            <dependency>
+                <groupId>io.hypersistence</groupId>
+                <artifactId>hypersistence-tsid</artifactId>
+                <version>${hypersistence-tsid.version}</version>
+            </dependency>
 
             <!-- Hazelcast  -->
             <dependency>

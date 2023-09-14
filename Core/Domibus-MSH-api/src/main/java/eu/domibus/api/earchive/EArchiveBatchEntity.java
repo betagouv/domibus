@@ -1,7 +1,5 @@
-package eu.domibus.core.earchive;
+package eu.domibus.api.earchive;
 
-import eu.domibus.api.earchive.EArchiveBatchStatus;
-import eu.domibus.api.earchive.EArchiveRequestType;
 import eu.domibus.api.model.AbstractBaseEntity;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;

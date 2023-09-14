@@ -1,8 +1,8 @@
-package eu.domibus.core.earchive;
+package eu.domibus.api.earchive;
 
+import eu.domibus.api.model.AbstractBaseEntity;
 import eu.domibus.api.model.DomibusBaseEntity;
 import eu.domibus.api.model.MessageStatus;
-import eu.domibus.common.JPAConstants;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -17,10 +17,10 @@ import javax.persistence.*;
 public class EArchiveBatchUserMessage implements DomibusBaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = JPAConstants.DOMIBUS_SCALABLE_SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = AbstractBaseEntity.DOMIBUS_SCALABLE_SEQUENCE)
     @GenericGenerator(
-            name = JPAConstants.DOMIBUS_SCALABLE_SEQUENCE,
-            strategy = JPAConstants.DATE_PREFIXED_SEQUENCE_ID_GENERATOR)
+            name = AbstractBaseEntity.DOMIBUS_SCALABLE_SEQUENCE,
+            strategy = AbstractBaseEntity.DATE_PREFIXED_SEQUENCE_ID_GENERATOR)
     @Column(name = "ID_PK")
     private long entityId;
 

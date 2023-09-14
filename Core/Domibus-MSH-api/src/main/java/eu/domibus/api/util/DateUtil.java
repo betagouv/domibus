@@ -3,6 +3,7 @@ package eu.domibus.api.util;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.SignStyle;
 import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.Locale;
@@ -15,6 +16,8 @@ import static java.time.temporal.ChronoField.HOUR_OF_DAY;
  * @since 3.3
  */
 public interface DateUtil {
+
+    String BEAN_NAME = "domibusDateUtil";
 
     DateTimeFormatter DEFAULT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
     String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
@@ -29,6 +32,26 @@ public interface DateUtil {
             .appendLiteral('T')
             .appendValue(HOUR_OF_DAY, 2)
             .appendLiteral('H')
+            .optionalEnd()
+
+            .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+            .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
+            .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+            .parseDefaulting(ChronoField.MILLI_OF_SECOND, 0)
+            .toFormatter(Locale.ENGLISH);
+
+    DateTimeFormatter YEAR4DIGITS_ISO_LOCAL_DATE_WITH_NO_SEPARATORS = new DateTimeFormatterBuilder()
+            .appendValue(ChronoField.YEAR, 4, 4, SignStyle.EXCEEDS_PAD)
+            .appendValue(ChronoField.MONTH_OF_YEAR, 2)
+            .appendValue(ChronoField.DAY_OF_MONTH, 2)
+            .toFormatter();
+
+    DateTimeFormatter REST_FORMATTER_FOR_DATE_WITH_HOUR_NO_SEPARATORS = new DateTimeFormatterBuilder()
+            .parseCaseInsensitive()
+            .append(YEAR4DIGITS_ISO_LOCAL_DATE_WITH_NO_SEPARATORS)
+
+            .optionalStart()
+            .appendValue(HOUR_OF_DAY, 2)
             .optionalEnd()
 
             .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
@@ -60,18 +83,24 @@ public interface DateUtil {
 
     long getDiffMinutesBetweenDates(Date date1, Date date2);
 
-    /**
-     * Parse a string date to an ID_PK
-     *
-     * @param date of format YYYY-MM-dd'T'HH'H' or YYYY-MM-dd with formatter {@link #REST_FORMATTER}
-     * @return date of format YYMMDDHH0000000000
-     */
-    Long getIdPkDateHour(String date);
+    LocalDateTime getLocalDateTime(String date);
 
     /**
-     * Parse a date to an ID_PK prefix
+     * Converts a date containing an hour to a local date time
      *
-     * @return string of format YYMMDDHH
+     * @param dateWithHour in a format yyMMddHH
+     * @return
+     */
+    LocalDateTime getLocalDateTimeFromDateWithHour(Long dateWithHour);
+
+    LocalDateTime convertToLocalDateTime(Date date);
+
+    Date convertFromLocalDateTime(LocalDateTime localDateTime);
+
+    /**
+     * Converts a date to the format yyMMddHH
+     * @param value
+     * @return
      */
     String getIdPkDateHourPrefix(Date value);
 }

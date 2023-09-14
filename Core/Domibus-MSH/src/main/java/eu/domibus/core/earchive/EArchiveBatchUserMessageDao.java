@@ -1,5 +1,7 @@
 package eu.domibus.core.earchive;
 
+import eu.domibus.api.earchive.EArchiveBatchEntity;
+import eu.domibus.api.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.dao.BasicDao;
 import eu.domibus.core.util.QueryUtil;
 import eu.domibus.logging.DomibusLogger;

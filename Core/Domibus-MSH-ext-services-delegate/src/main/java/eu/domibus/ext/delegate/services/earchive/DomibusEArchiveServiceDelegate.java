@@ -1,6 +1,8 @@
 package eu.domibus.ext.delegate.services.earchive;
 
 import eu.domibus.api.earchive.*;
+import eu.domibus.api.util.DateUtil;
+import eu.domibus.api.util.TsidUtil;
 import eu.domibus.ext.delegate.mapper.EArchiveExtMapper;
 import eu.domibus.ext.domain.archive.*;
 import eu.domibus.ext.services.DomibusEArchiveExtService;
@@ -9,11 +11,10 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.MAX_INCREMENT_NUMBER;
 
 /**
  * @author François Gautier
@@ -22,12 +23,21 @@ import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerat
 @Service
 public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DomibusEArchiveServiceDelegate.class);
-    private final DomibusEArchiveService domibusEArchiveService;
-    private final EArchiveExtMapper eArchiveExtMapper;
+    protected final DomibusEArchiveService domibusEArchiveService;
+    protected final EArchiveExtMapper eArchiveExtMapper;
 
-    public DomibusEArchiveServiceDelegate(DomibusEArchiveService domibusEArchiveService, EArchiveExtMapper eArchiveExtMapper) {
+    protected TsidUtil tsidUtil;
+
+    protected DateUtil dateUtil;
+
+    protected EArchiveBatchUtil eArchiveBatchUtil;
+
+    public DomibusEArchiveServiceDelegate(DomibusEArchiveService domibusEArchiveService, EArchiveExtMapper eArchiveExtMapper, TsidUtil tsidUtil, DateUtil dateUtil, EArchiveBatchUtil eArchiveBatchUtil) {
         this.domibusEArchiveService = domibusEArchiveService;
         this.eArchiveExtMapper = eArchiveExtMapper;
+        this.tsidUtil = tsidUtil;
+        this.dateUtil = dateUtil;
+        this.eArchiveBatchUtil = eArchiveBatchUtil;
     }
 
     @Override
@@ -123,17 +133,23 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
 
     @Override
     public List<String> getNotArchivedMessages(NotArchivedMessagesFilterDTO filter, Integer pageStart, Integer pageSize) {
+        final Long startMessageId = tsidUtil.dateToTsid(filter.getMessageStartDate());
+        final Long endMessageId = tsidUtil.dateToTsid(filter.getMessageEndDate());
+
         return domibusEArchiveService.getNotArchivedMessages(
-                dateToPKUserMessageId(filter.getMessageStartDate()),
-                dateToPKUserMessageId(filter.getMessageEndDate()),
+                startMessageId,
+                endMessageId,
                 pageStart, pageSize);
     }
 
     @Override
     public Long getNotArchivedMessageCount(NotArchivedMessagesFilterDTO filter) {
+        final Long startMessageId = tsidUtil.dateToTsid(filter.getMessageStartDate());
+        final Long endMessageId = tsidUtil.dateToTsid(filter.getMessageEndDate());
+
         return domibusEArchiveService.getNotArchivedMessagesCount(
-                dateToPKUserMessageId(filter.getMessageStartDate()),
-                dateToPKUserMessageId(filter.getMessageEndDate()));
+                startMessageId,
+                endMessageId);
     }
 
     /**
@@ -186,9 +202,12 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
             filter.getStatuses().forEach(requestedStatusType -> archiveBatchFilter.getStatusList().add(EArchiveBatchStatus.valueOf(requestedStatusType.name())));
         }
 
+        final long startMessageId = eArchiveBatchUtil.dateToPKUserMessageId(filter.getMessageStartDate());
+        final long endMessageId = eArchiveBatchUtil.dateToPKUserMessageId(filter.getMessageEndDate());
+
         // set filter
-        archiveBatchFilter.setMessageStartId(dateToPKUserMessageId(filter.getMessageStartDate()));
-        archiveBatchFilter.setMessageEndId(dateToPKUserMessageId(filter.getMessageEndDate()));
+        archiveBatchFilter.setMessageStartId(startMessageId);
+        archiveBatchFilter.setMessageEndId(endMessageId);
         archiveBatchFilter.setIncludeReExportedBatches(filter.getIncludeReExportedBatches());
 
         // set pagination
@@ -200,12 +219,8 @@ public class DomibusEArchiveServiceDelegate implements DomibusEArchiveExtService
 
     private void setBatchRequestTypes(EArchiveBatchFilter archiveBatchFilter, List<BatchRequestType> requestTypes) {
         requestTypes.forEach(batchRequestType -> archiveBatchFilter.getRequestTypes().add(EArchiveRequestType.valueOf(batchRequestType.name())));
-        if(archiveBatchFilter.getRequestTypes().contains(EArchiveRequestType.CONTINUOUS)) {
+        if (archiveBatchFilter.getRequestTypes().contains(EArchiveRequestType.CONTINUOUS)) {
             archiveBatchFilter.getRequestTypes().add(EArchiveRequestType.SANITIZER);
         }
-    }
-
-    protected Long dateToPKUserMessageId(Long pkUserMessageDate) {
-        return pkUserMessageDate == null ? null : pkUserMessageDate * (MAX_INCREMENT_NUMBER + 1);
     }
 }
