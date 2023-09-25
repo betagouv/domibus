@@ -12,6 +12,7 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pmode.PModeEventListener;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
@@ -126,6 +127,9 @@ public class CachingPModeProviderTest {
     SignalService signalService;
 
     @Injectable
+    List<PModeEventListener> pModeEventListeners;
+
+    @Injectable
     PullProcessValidator pullProcessValidator;
 
     @Injectable
@@ -163,9 +167,6 @@ public class CachingPModeProviderTest {
 
     @Injectable
     private DomibusLocalCacheService domibusLocalCacheService;
-
-    @Injectable
-    FinalRecipientService finalRecipientService;
 
     @Injectable
     PModeValidationHelper pModeValidationHelper;
@@ -1222,7 +1223,7 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.getReceiverParty(pModeKey);
             fail();
         } catch (ConfigurationException ex) {
-            assertEquals(ex.getMessage(), "no matching receiver party found with name: " + partyKey);
+            assertEquals(ex.getMessage(), "No matching receiver party found with name: " + partyKey);
         }
     }
 
