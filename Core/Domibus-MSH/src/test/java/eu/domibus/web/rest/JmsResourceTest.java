@@ -3,24 +3,25 @@ package eu.domibus.web.rest;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.jms.JMSDestination;
 import eu.domibus.api.jms.JMSManager;
-import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.jms.MessagesActionRequest;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.jms.spi.InternalJMSException;
 import eu.domibus.web.rest.error.ErrorHandlerService;
-import eu.domibus.web.rest.ro.*;
+import eu.domibus.web.rest.ro.DestinationsResponseRO;
+import eu.domibus.web.rest.ro.MessagesActionRequestRO;
+import eu.domibus.web.rest.ro.MessagesActionResponseRO;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * @author Tiago Miguel
@@ -34,10 +35,10 @@ public class JmsResourceTest {
     public static final String DOMIBUS_QUEUE_1 = "domibus.queue1";
     public static final String SOURCE_1 = "source1";
 
-    @Mocked
+    @Injectable
     private MessagesActionRequestRO messagesActionRequestRO;
 
-    @Mocked
+    @Injectable
     private MessagesActionRequest messagesActionRequest;
 
     @Tested
@@ -99,10 +100,7 @@ public class JmsResourceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testActionMove_ok(final @Mocked SortedMap<String, JMSDestination> dests,
-                                  final @Mocked JMSDestination queue1,
-                                  final @Mocked JMSDestination queue2) {
+    public void testActionMove_ok() {
         // Given
         new Expectations() {{
             messagesActionRequestRO.getSelectedMessages();

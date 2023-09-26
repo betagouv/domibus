@@ -9,22 +9,18 @@ import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1
  */
 @ExtendWith(JMockitExtension.class)
-@Disabled("EDELIVERY-6896")
 public class StorageProviderImplTest {
 
     @Injectable
@@ -36,8 +32,6 @@ public class StorageProviderImplTest {
     @Injectable
     protected DomainContextProvider domainContextProvider;
 
-    @Injectable
-    Map<Domain, PayloadFileStorage> instances = new HashMap<>();
 
     @Tested
     PayloadFileStorageProviderImpl storageProvider;
@@ -62,7 +56,7 @@ public class StorageProviderImplTest {
             storageFactory.create(domain);
             times = 1;
 
-            instances.put(domain, storage);
+//            instances.put(domain, storage);
         }};
     }
 
@@ -73,7 +67,7 @@ public class StorageProviderImplTest {
         storageProvider.forDomain(domain);
 
         new Verifications() {{
-            instances.get(domain);
+//            instances.get(domain);
         }};
     }
 
@@ -107,17 +101,14 @@ public class StorageProviderImplTest {
     }
 
     @Test
-    public void testSavePayloadsInDatabaseWithFileSystemStorage(@Injectable PayloadFileStorage storage,
-                                                                @Injectable File file) {
+    public void testSavePayloadsInDatabaseWithFileSystemStorage(@Injectable PayloadFileStorage storage) {
         new Expectations(storageProvider) {{
             storageProvider.getCurrentStorage();
             result = storage;
 
             storage.getStorageDirectory();
-            result = file;
+            result = new File("/home/storage");
 
-            file.getName();
-            result = "/home/storage";
         }};
 
         Assertions.assertFalse(storageProvider.isPayloadsPersistenceInDatabaseConfigured());

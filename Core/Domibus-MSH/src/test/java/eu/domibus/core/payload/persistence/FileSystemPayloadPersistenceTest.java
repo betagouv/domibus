@@ -1,16 +1,16 @@
 package eu.domibus.core.payload.persistence;
 
+import eu.domibus.api.model.PartInfo;
+import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.multitenancy.DomainContextProvider;
+import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.compression.CompressionService;
-import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.api.model.PartInfo;
-import eu.domibus.api.model.UserMessage;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
@@ -90,34 +90,42 @@ public class FileSystemPayloadPersistenceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testSaveIncomingPayloadToDisk(@Injectable PartInfo partInfo,
                                               @Injectable PayloadFileStorage storage,
                                               @Mocked File file,
-                                              @Injectable InputStream inputStream,
-                                              @Mocked UUID uuid) throws IOException {
+                                              @Injectable InputStream inputStream) throws IOException {
 
         String path = "/home/invoice.pdf";
+        long fileLength = 10L;
         new Expectations(fileSystemPayloadPersistence) {{
-            new File((File) any, anyString);
+            storage.getStorageDirectory();
             result = file;
 
-            file.getAbsolutePath();
+            File attachmentStore = new File(file, anyString);
+            attachmentStore.getAbsolutePath();
             result = path;
 
             partInfo.getPayloadDatahandler().getInputStream();
             result = inputStream;
 
-            fileSystemPayloadPersistence.saveIncomingFileToDisk(file, inputStream, false);
+            partInfo.getHref();
+            result = "href";
+
+            fileSystemPayloadPersistence.saveIncomingFileToDisk(attachmentStore, inputStream, false);
+            result = fileLength;
+            times = 1;
+
+            partInfo.toString();
+            result = "toStringPartInfo";
         }};
 
         fileSystemPayloadPersistence.saveIncomingPayloadToDisk(partInfo, storage, false);
 
         new Verifications() {{
-            fileSystemPayloadPersistence.saveIncomingFileToDisk(file, inputStream, false);
-            times = 1;
-
-            partInfo.setFileName(path);
+            partInfo.setFileName(path);         times = 1;
+            partInfo.setLength(fileLength);     times = 1;
+            partInfo.setEncrypted(false);       times = 1;
+            partInfo.loadBinary();              times = 1;
         }};
     }
 

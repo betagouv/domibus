@@ -19,7 +19,6 @@ import eu.domibus.web.rest.ro.AlertFilterRequestRO;
 import eu.domibus.web.rest.ro.AlertResult;
 import mockit.*;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.bind.ValidationException;
@@ -29,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
 public class AlertResourceTest {
     @Tested
     AlertResource alertResource;
@@ -207,7 +207,6 @@ public class AlertResourceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void processAlerts_deletedSuperAlerts(@Injectable AlertRo alertRo, @Injectable Alert alert) {
         // GIVEN
         List<AlertRo> alertRos = Lists.newArrayList(alertRo);
@@ -240,8 +239,10 @@ public class AlertResourceTest {
     }
 
     @Test
-    public void filterDomainAlerts(@Injectable AlertRo domainAlert, @Injectable AlertRo superAlert,
-                                   @Injectable AlertRo deletedDomainAlert, @Injectable AlertRo deletedSuperAlert,
+    public void filterDomainAlerts(@Injectable AlertRo domainAlert,
+                                   @Injectable AlertRo superAlert,
+                                   @Injectable AlertRo deletedDomainAlert,
+                                   @Injectable AlertRo deletedSuperAlert,
                                    @Injectable Alert filteredAlert) {
         // GIVEN
         new Expectations(alertResource) {{
@@ -415,7 +416,7 @@ public class AlertResourceTest {
 
         excludedCert = alertResource.getExcludedColumns(false);
         assertEquals(excludedCert.size(), 4);
-        Set<String> set2 = new HashSet<>(Arrays.asList("superAdmin"));
+        Set<String> set2 = new HashSet<>(Collections.singletonList("superAdmin"));
         containsAll = excludedCert.stream().map(Object::toString)
                 .anyMatch(s -> set2.remove(s) && set2.isEmpty());
         assertFalse(containsAll, "Checking excluded columns in MT mode:");

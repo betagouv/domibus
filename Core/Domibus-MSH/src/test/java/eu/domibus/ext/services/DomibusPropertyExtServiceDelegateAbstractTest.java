@@ -2,11 +2,8 @@ package eu.domibus.ext.services;
 
 import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.domain.DomibusPropertyMetadataDTO;
-
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -20,8 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ExtendWith(JMockitExtension.class)
-
-@Disabled("EDELIVERY-6896")
 public class DomibusPropertyExtServiceDelegateAbstractTest {
 
     public static final String KEY_1 = "key1";
@@ -48,7 +43,6 @@ public class DomibusPropertyExtServiceDelegateAbstractTest {
 
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void getKnownPropertyValue_global() {
         String propValue = "propValue";
         props.get(KEY_1).setStoredGlobally(true);
@@ -67,9 +61,7 @@ public class DomibusPropertyExtServiceDelegateAbstractTest {
     }
 
     @Test
-    public void getKnownPropertyValue_local(
-
-            @Mocked DomibusPropertyMetadataDTO propMeta) {
+    public void getKnownPropertyValue_local() {
         String propValue = "propValue";
         props.get(KEY_1).setStoredGlobally(false);
 
@@ -106,10 +98,7 @@ public class DomibusPropertyExtServiceDelegateAbstractTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getKnownIntegerPropertyValue_local(
-
-            @Mocked DomibusPropertyMetadataDTO propMeta) {
+    public void getKnownIntegerPropertyValue_local() {
         Integer propValue = 1;
         props.get(KEY_1).setStoredGlobally(false);
 
@@ -118,7 +107,7 @@ public class DomibusPropertyExtServiceDelegateAbstractTest {
             result = true;
             domibusPropertyExtServiceDelegateAbstract.getKnownProperties();
             result = props;
-            domibusPropertyExtServiceDelegateAbstract.onGetLocalIntegerPropertyValue(KEY_1, propMeta);
+            domibusPropertyExtServiceDelegateAbstract.onGetLocalIntegerPropertyValue(KEY_1, (DomibusPropertyMetadataDTO) any);
             result = propValue;
         }};
 
@@ -170,10 +159,7 @@ public class DomibusPropertyExtServiceDelegateAbstractTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void setKnownPropertyValue_global(
-            @Mocked DomibusPropertyMetadataDTO propMeta,
-            @Mocked DomainDTO domain) {
+    public void setKnownPropertyValue_global(@Injectable DomainDTO domain) {
         String propertyValue = "propValue";
         String domainCode = "domainCode";
         String propertyName = "propertyName";
@@ -182,31 +168,34 @@ public class DomibusPropertyExtServiceDelegateAbstractTest {
         props.get(KEY_1).setStoredGlobally(true);
 
         new Expectations(domibusPropertyExtServiceDelegateAbstract) {{
+            domibusPropertyExtService.getProperty(domain, KEY_1);
+            result = "different";
             domibusPropertyExtServiceDelegateAbstract.hasKnownProperty(KEY_1);
             result = true;
             domibusPropertyExtServiceDelegateAbstract.getKnownProperties();
             result = props;
             domainExtService.getDomain(domainCode);
             result = domain;
+            domibusPropertyExtService.setProperty(domain, KEY_1, propertyValue, broadcast);
         }};
 
-        domibusPropertyExtServiceDelegateAbstract.setKnownPropertyValue(domainCode, propertyName, propertyValue, broadcast);
+        domibusPropertyExtServiceDelegateAbstract.setKnownPropertyValue(domainCode, KEY_1, propertyValue, broadcast);
 
         new Verifications() {{
-            domainExtService.getDomain(domainCode);
-            domibusPropertyExtService.setProperty(domain, propertyName, propertyValue, broadcast);
+            domibusPropertyExtService.setProperty(domain, KEY_1, propertyValue, broadcast);
         }};
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void setKnownPropertyValue_local() {
         String propertyValue = "propValue";
         String domainCode = "domainCode";
-        String propertyName = "propertyName";
+        String propertyName = KEY_1;
         boolean broadcast = true;
         props.get(KEY_1).setStoredGlobally(false);
         new Expectations(domibusPropertyExtServiceDelegateAbstract) {{
+            domibusPropertyExtServiceDelegateAbstract.onGetLocalPropertyValue(domainCode, KEY_1);
+            result = "different";
             domibusPropertyExtServiceDelegateAbstract.hasKnownProperty(KEY_1);
             result = true;
             domibusPropertyExtServiceDelegateAbstract.getKnownProperties();
@@ -263,10 +252,7 @@ public class DomibusPropertyExtServiceDelegateAbstractTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getKnownPropertyValue_domain_global(@Mocked DomainDTO domain,
-
-                                                    @Mocked DomibusPropertyMetadataDTO propMeta) {
+    public void getKnownPropertyValue_domain_global(@Injectable DomainDTO domain) {
         String propValue = "propValue";
         String domainCode = "domainCode";
         props.get(KEY_1).setStoredGlobally(true);
@@ -313,14 +299,14 @@ public class DomibusPropertyExtServiceDelegateAbstractTest {
     }
 
     @Test
-    public void onGetLocalIntegerPropertyValue(@Mocked DomibusPropertyMetadataDTO propMeta) {
+    public void onGetLocalIntegerPropertyValue(@Injectable DomibusPropertyMetadataDTO propMeta) {
         String property = "";
         Integer integer = domibusPropertyExtServiceDelegateAbstract.onGetLocalIntegerPropertyValue(property, propMeta);
         assertEquals(Integer.valueOf(0), integer);
     }
 
     @Test
-    public void onGetLocalBooleanPropertyValue(@Mocked DomibusPropertyMetadataDTO propMeta) {
+    public void onGetLocalBooleanPropertyValue(@Injectable DomibusPropertyMetadataDTO propMeta) {
         String property = "";
         Boolean b = domibusPropertyExtServiceDelegateAbstract.onGetLocalBooleanPropertyValue(property, propMeta);
         assertNull(b);

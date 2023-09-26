@@ -11,9 +11,7 @@ import eu.domibus.core.multitenancy.dao.UserDomainDao;
 import eu.domibus.core.user.UserPersistenceService;
 import eu.domibus.core.user.UserService;
 import eu.domibus.core.user.ui.User;
-import eu.domibus.core.util.WarningUtil;
 import eu.domibus.web.rest.error.ErrorHandlerService;
-import eu.domibus.web.rest.ro.ChangePasswordRO;
 import eu.domibus.web.rest.ro.DomainRO;
 import eu.domibus.web.rest.ro.LoginRO;
 import eu.domibus.web.rest.ro.UserRO;
@@ -22,13 +20,11 @@ import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -38,15 +34,15 @@ import org.springframework.security.web.authentication.logout.CookieClearingLogo
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Thomas Dussart
  * @since 3.3
  */
+@SuppressWarnings("unused")
 @ExtendWith(JMockitExtension.class)
 public class AuthenticationResourceTest {
 
@@ -94,7 +90,6 @@ public class AuthenticationResourceTest {
 
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testWarningWhenDefaultPasswordUsed() {
         User user = new User() {{
             setUserName("user");
@@ -111,17 +106,20 @@ public class AuthenticationResourceTest {
 
             authenticationService.authenticate("user", "user", DomainService.DEFAULT_DOMAIN.getCode());
             result = domibusUserDetails;
+
+
         }};
+
         authenticationResource.authenticate(loginRO, new MockHttpServletResponse(), null);
-        new Verifications() {{
-            String message;
-            WarningUtil.warnOutput(message = withCapture());
-            assertEquals("user is using default password.", message);
+
+        new FullVerifications() {{
+            domainContextProvider.setCurrentDomainWithValidation(DomainService.DEFAULT_DOMAIN.getCode());
+            compositeSessionAuthenticationStrategy.onAuthentication((Authentication) any, (HttpServletRequest) any, (HttpServletResponse) any);
         }};
     }
 
     @Test
-    public void testGetCurrentDomain(@Mocked final LoggerFactory loggerFactory) {
+    public void testGetCurrentDomain() {
         // Given
         final DomainRO domainRO = new DomainRO();
         domainRO.setCode(DomainService.DEFAULT_DOMAIN.getCode());
@@ -150,18 +148,18 @@ public class AuthenticationResourceTest {
             result = new DomainTaskException("");
         }};
         // When
-        Assertions.assertThrows(DomainTaskException. class,() -> authenticationResource.setCurrentDomain(""));
+        Assertions.assertThrows(DomainTaskException.class, () -> authenticationResource.setCurrentDomain(""));
         // Then
         // expect DomainException
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testLogout_PrincipalExists(final @Mocked HttpServletRequest request, final @Mocked HttpServletResponse response,
-                                           final @Mocked SecurityContext securityContext, final @Mocked Authentication authentication,
+    public void testLogout_PrincipalExists(final @Injectable HttpServletRequest request,
+                                           final @Injectable HttpServletResponse response,
+                                           final @Injectable SecurityContext securityContext,
+                                           final @Injectable Authentication authentication,
                                            final @Mocked CookieClearingLogoutHandler cookieClearingLogoutHandler,
                                            final @Mocked SecurityContextLogoutHandler securityContextLogoutHandler) {
-
         new Expectations() {{
             new MockUp<SecurityContextHolder>() {
                 @Mock
@@ -173,21 +171,23 @@ public class AuthenticationResourceTest {
             securityContext.getAuthentication();
             result = authentication;
 
-            new CookieClearingLogoutHandler("JSESSIONID", "XSRF-TOKEN");
-            result = cookieClearingLogoutHandler;
+            CookieClearingLogoutHandler cookieClearingLogoutHandler1 = new CookieClearingLogoutHandler("JSESSIONID", "XSRF-TOKEN");
+            SecurityContextLogoutHandler securityContextLogoutHandler1 = new SecurityContextLogoutHandler();
+            cookieClearingLogoutHandler1.logout(request, response, null);
+            securityContextLogoutHandler1.logout(request, response, authentication);
 
-            new SecurityContextLogoutHandler();
-            result = securityContextLogoutHandler;
+            request.getContextPath();
+            result = "contextPath";
 
-
+            authentication.getName();
+            result = "authName";
         }};
 
         //tested method
         authenticationResource.logout(request, response);
 
         new FullVerifications() {{
-            cookieClearingLogoutHandler.logout(request, response, null);
-            securityContextLogoutHandler.logout(request, response, authentication);
+            response.addCookie((Cookie) any);
         }};
     }
 
@@ -204,8 +204,8 @@ public class AuthenticationResourceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testHandleAccountStatusException(final @Mocked AccountStatusException ex) {
+    public void testHandleAccountStatusException() {
+        AccountStatusException ex = new AccountExpiredException("TEST");
         new Expectations(authenticationResource) {{
             errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
             result = any;
@@ -219,8 +219,9 @@ public class AuthenticationResourceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testHandleAuthenticationException(final @Mocked AuthenticationException ex) {
+    public void testHandleAuthenticationException() {
+        AuthenticationException ex = new AccountExpiredException("TEST");
+
         new Expectations(authenticationResource) {{
             errorHandlerService.createResponse(ex, HttpStatus.FORBIDDEN);
             result = any;

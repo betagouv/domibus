@@ -13,7 +13,6 @@ import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
@@ -76,10 +75,10 @@ public class LoggingResourceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testGetLogLevel(final @Mocked List<LoggingEntry> loggingEntryList) {
+    public void testGetLogLevel() {
         final String name = "eu.domibus";
         final boolean showClasses = false;
+        List<LoggingEntry> loggingEntryList = new ArrayList<>();
 
         final List<LoggingLevelRO> loggingLevelROList = new ArrayList<>();
         LoggingLevelRO loggingLevelRO1 = new LoggingLevelRO();

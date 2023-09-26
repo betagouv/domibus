@@ -2,23 +2,24 @@ package eu.domibus.core.ebms3.sender.client;
 
 import eu.domibus.api.pmode.PModeConstants;
 import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.core.cxf.DomibusHTTPConduitFactory;
 import eu.domibus.api.proxy.DomibusProxy;
 import eu.domibus.api.proxy.DomibusProxyService;
+import eu.domibus.core.cxf.DomibusBus;
+import eu.domibus.core.cxf.DomibusHTTPConduitFactory;
 import eu.domibus.core.proxy.ProxyCxfUtil;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.endpoint.EndpointException;
 import org.apache.cxf.jaxws.DispatchImpl;
+import org.apache.cxf.service.ServiceImpl;
 import org.apache.cxf.service.model.EndpointInfo;
 import org.apache.cxf.transport.http.HTTPConduit;
-import org.apache.cxf.transport.http.HTTPConduitFactory;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.apache.cxf.ws.policy.PolicyConstants;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -35,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Cosmin Baciu
  * @since 4.1
  */
-@SuppressWarnings("ResultOfMethodCallIgnored")
+@SuppressWarnings({"DataFlowIssue"})
 @ExtendWith(JMockitExtension.class)
 public class DispatchClientDefaultProviderTest {
 
@@ -95,25 +96,23 @@ public class DispatchClientDefaultProviderTest {
         new Verifications() {{
             httpClientPolicy.setConnectionTimeout(Integer.parseInt(connectionTimeout));
             httpClientPolicy.setReceiveTimeout(Integer.parseInt(receiveTimeout));
-            httpClientPolicy.setAllowChunking(Boolean.valueOf(allowChunking));
+            httpClientPolicy.setAllowChunking(Boolean.parseBoolean(allowChunking));
             httpClientPolicy.setConnection(ConnectionType.KEEP_ALIVE);
             httpClientPolicy.setChunkingThreshold(Integer.parseInt(chunkingThreshold));
         }};
     }
 
+    @SuppressWarnings("WriteOnlyObject")
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testGetClient(@Mocked org.apache.neethi.Policy policy,
-                              @Mocked TLSClientParameters tlsClientParameters,
-                              @Mocked DispatchImpl<SOAPMessage> dispatch,
-                              @Mocked Client client,
-                              @Mocked Endpoint clientEndpoint,
-                              @Injectable EndpointInfo clientEndpointInfo,
-                              @Mocked HTTPConduit httpConduit,
-                              @Mocked HTTPClientPolicy httpClientPolicy) {
+    public void testGetClient(@Injectable org.apache.neethi.Policy policy,
+                              @Injectable TLSClientParameters tlsClientParameters,
+                              @Injectable DispatchImpl<SOAPMessage> dispatch,
+                              @Injectable Client client,
+                              @Injectable HTTPConduit httpConduit,
+                              @Injectable HTTPClientPolicy httpClientPolicy) throws EndpointException {
 
         Map<String, Object> requestContext = new HashMap<>();
-
+        Endpoint clientEndpoint = new org.apache.cxf.endpoint.EndpointImpl(new DomibusBus(), new ServiceImpl(), new EndpointInfo());
         String endpoint = "https://tbd";
         String algorithm = "algorithm";
         String pModeKey = "pModeKey";
@@ -144,10 +143,6 @@ public class DispatchClientDefaultProviderTest {
             times = 1;
             result = clientEndpoint;
 
-            clientEndpoint.getEndpointInfo();
-            times = 1;
-            result = clientEndpointInfo;
-
             client.getConduit();
             times = 1;
             result = httpConduit;
@@ -168,9 +163,6 @@ public class DispatchClientDefaultProviderTest {
         Dispatch<SOAPMessage> result = dispatchClientDefaultProvider.getClient(domain, endpoint, algorithm, policy, pModeKey, false).get();
 
         new FullVerifications() {{
-
-            clientEndpointInfo.setProperty(HTTPConduitFactory.class.getName(), domibusHTTPConduitFactory);
-            times = 1;
 
             httpConduit.setClient(httpClientPolicy);
             times = 1;

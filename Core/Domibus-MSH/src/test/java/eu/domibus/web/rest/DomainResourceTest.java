@@ -16,7 +16,6 @@ import mockit.FullVerifications;
 import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -59,9 +58,9 @@ public class DomainResourceTest {
     private DomainContextProvider domainContextProvider;
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testGetDomains_IgnoringActiveFlag(@Injectable List<Domain> domainEntries,
-                                                  @Injectable List<DomainRO> domainROEntries) {
+    public void testGetDomains_IgnoringActiveFlag(){
+        List<Domain> domainEntries= new ArrayList<>();
+        List<DomainRO> domainROEntries = new ArrayList<>();
         // GIVEN
         final Boolean activeFlag = null;
         new Expectations() {{

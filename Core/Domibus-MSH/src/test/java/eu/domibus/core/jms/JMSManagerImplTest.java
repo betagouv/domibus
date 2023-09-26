@@ -21,7 +21,6 @@ import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.jms.core.JmsTemplate;
@@ -32,11 +31,13 @@ import javax.jms.Queue;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Cosmin Baciu
  * @since 3.2
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @ExtendWith(JMockitExtension.class)
 public class JMSManagerImplTest {
 
@@ -165,7 +166,7 @@ public class JMSManagerImplTest {
     }
 
     @Test
-    public void testDeleteMessages() throws Exception {
+    public void testDeleteMessages()  {
         final String source = "myqueue";
         final String[] messageIds = new String[]{"1", "2"};
 
@@ -229,7 +230,7 @@ public class JMSManagerImplTest {
     }
 
     @Test
-    public void test_retrieveDomainFromJMSMessage(final @Mocked JmsMessage jmsMessage) {
+    public void test_retrieveDomainFromJMSMessage(final @Injectable JmsMessage jmsMessage) {
         final String sourceQueue = "fromQueue";
         final String jmsMessageID = "jmsMessageID";
 
@@ -246,8 +247,7 @@ public class JMSManagerImplTest {
 
         jmsManager.retrieveDomainFromJMSMessage(sourceQueue, jmsMessageID);
 
-        new FullVerifications(jmsManager) {{
-        }};
+        new FullVerifications(jmsManager) {};
     }
 
     @Test
@@ -436,9 +436,7 @@ public class JMSManagerImplTest {
 
         jmsManager.listPendingMessages(queueName);
 
-        new FullVerifications() {{
-
-        }};
+        new FullVerifications() {};
     }
 
     @Test
@@ -487,13 +485,11 @@ public class JMSManagerImplTest {
 
         jmsManager.removeFromPending(queueName, messageId);
 
-        new FullVerifications() {{
-
-        }};
+        new FullVerifications() {};
     }
 
     @Test
-    public void testValidateMesaageMove_BlankAndNullIds() {
+    public void testValidateMessageMove_BlankAndNullIds() {
         String source = "src";
         String destination = "dest1";
         JMSDestination jmsDestination = new JMSDestination();
@@ -513,7 +509,7 @@ public class JMSManagerImplTest {
     }
 
     @Test
-    public void testValidateMesaageMove_NoIds() {
+    public void testValidateMessageMove_NoIds() {
         String source = "src";
         String destination = "dest1";
         JMSDestination jmsDestination = new JMSDestination();
@@ -533,7 +529,7 @@ public class JMSManagerImplTest {
     }
 
     @Test
-    public void testValidateMesaageMove_SameDestAsSrc() {
+    public void testValidateMessageMove_SameDestAsSrc() {
         String source = "src";
         String destination = "src";
         String[] messageIds = {"id1"};
@@ -553,56 +549,11 @@ public class JMSManagerImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testActionMove_InvalidDestination(final @Mocked JMSDestination queue1,
-                                                  final @Mocked JMSDestination queue2) {
+    public void testActionMove_InvalidMsgId(final @Injectable JMSDestination queue1) {
         String source = "src";
-        String destination = "domibus.queue3";
         String[] messageIds = {"id1"};
-        SortedMap<String, JMSDestination> dests = new TreeMap<>();
-
         // Given
-        new Expectations(jmsManager) {{
-            jmsManager.getDestinations();
-            result = dests;
-
-            dests.values();
-            result = Arrays.asList(queue2, queue1);
-
-            queue1.getName();
-            result = "domibus.queue2";
-
-            queue2.getName();
-            result = "domibus.queue2";
-        }};
-
-        // When
-        try {
-            jmsManager.validateMessagesMove(source, jmsManager.getValidJmsDestination(destination), messageIds);
-            Assertions.fail();
-        } catch (RequestValidationException e) {
-            //do nothing
-        }
-
-        new FullVerifications() {
-        };
-    }
-
-    @Test
-    @Disabled("EDELIVERY-6896")
-    public void testActionMove_InvalidMsgId(final @Mocked JMSDestination queue1) {
-        String source = "src";
-        String destination = "domibus.queue1";
-        String[] messageIds = {"id1"};
-        SortedMap<String, JMSDestination> dests = new TreeMap<>();
-        // Given
-        new Expectations(jmsManager) {{
-            jmsManager.getDestinations();
-            result = dests;
-
-            dests.values();
-            result = Arrays.asList(queue1);
-
+        new Expectations() {{
             queue1.getName();
             result = "domibus.queue1";
 
@@ -610,33 +561,21 @@ public class JMSManagerImplTest {
             result = null;
         }};
 
-        // When
-        try {
-            jmsManager.validateMessagesMove(source, jmsManager.getValidJmsDestination(destination), messageIds);
-            Assertions.fail();
-        } catch (RequestValidationException e) {
-            //do nothing
-        }
+        assertThrows(RequestValidationException.class, ()-> jmsManager.validateMessagesMove(source, queue1, messageIds));
 
         new FullVerifications() {
         };
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testActionMove_DifferentThanOriginalQueue(final @Mocked JMSDestination queue1, @Mocked InternalJmsMessage msg) {
+    public void testActionMove_DifferentThanOriginalQueue(final @Injectable JMSDestination queue1, @Injectable InternalJmsMessage msg) {
         String source = "src";
-        String destination = "domibus.queue1";
         String[] messageIds = {"id1"};
-        SortedMap<String, JMSDestination> dests = new TreeMap<>();
         Map<String, String> getCustomProperties =new HashMap<>();
+        getCustomProperties.put("originalQueue", "some other queue");
         // Given
-        new Expectations(jmsManager) {{
-            jmsManager.getDestinations();
-            result = dests;
+        new Expectations() {{
 
-            dests.values();
-            result = Arrays.asList(queue1);
 
             queue1.getName();
             result = "domibus.queue1";
@@ -649,18 +588,10 @@ public class JMSManagerImplTest {
 
             msg.getCustomProperties();
             result = getCustomProperties;
-
-            getCustomProperties.get("originalQueue");
-            result = "some other queue";
         }};
 
-        // When
-        try {
-            jmsManager.validateMessagesMove(source, jmsManager.getValidJmsDestination(destination), messageIds);
-            Assertions.fail();
-        } catch (RequestValidationException e) {
-            //do nothing
-        }
+
+        assertThrows(RequestValidationException.class, () -> jmsManager.validateMessagesMove(source, queue1, messageIds));
 
         new FullVerifications() {
         };

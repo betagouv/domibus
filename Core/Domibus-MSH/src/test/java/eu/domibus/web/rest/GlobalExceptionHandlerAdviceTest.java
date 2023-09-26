@@ -9,18 +9,14 @@ import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.error.GlobalExceptionHandlerAdvice;
 import org.hibernate.HibernateException;
 import org.hibernate.exception.SQLGrammarException;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import org.mockito.internal.matchers.Contains;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -41,7 +37,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Path;
 import java.sql.SQLException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -87,7 +83,6 @@ public class GlobalExceptionHandlerAdviceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testServerErrorHandler() throws Exception {
         Throwable thrown = new DomainTaskException(exceptionMessage);
         doThrow(thrown).when(pluginUserResource).updateUsers(anyList());
@@ -109,7 +104,6 @@ public class GlobalExceptionHandlerAdviceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testServerErrorHandler_HibernateException_hides_causes() throws Exception {
         // test that all the messages from all causes (recursively) of a hibernate exception are not returned in the response ...
         // ... as per EDELIVERY-9027 and only a generic exception message is shown
@@ -123,7 +117,6 @@ public class GlobalExceptionHandlerAdviceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testBadRequestHandler() throws Exception {
         Throwable thrown = new IllegalArgumentException(exceptionMessage);
         doThrow(thrown).when(pluginUserResource).updateUsers(anyList());
@@ -132,15 +125,13 @@ public class GlobalExceptionHandlerAdviceTest {
         assertThat(message, containsString(exceptionMessage));
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Test
-    @Disabled("EDELIVERY-6896")
     public void shouldHandleMethodArgumentNotValidException() throws Exception {
         // given
         BindingResult bindingResult = mock(BindingResult.class);
-        when(bindingResult.getAllErrors()).thenReturn(Arrays.asList(new FieldError("station", "name", exceptionMessage)));
+        when(bindingResult.getAllErrors()).thenReturn(Collections.singletonList(new FieldError("station", "name", exceptionMessage)));
         MethodParameter methodParameter = mock(MethodParameter.class);
-        when(methodParameter.getParameterIndex()).thenReturn(1);
-        when(methodParameter.getMethod()).thenReturn(this.getClass().getDeclaredMethods()[0]);
         MethodArgumentNotValidException thrown = new MethodArgumentNotValidException(methodParameter, bindingResult);
         // when
         ResponseEntity<Object> restErrorResponse = unitUnderTest.handleMethodArgumentNotValid(thrown, null, null, null);
@@ -149,8 +140,8 @@ public class GlobalExceptionHandlerAdviceTest {
         assertThat(message, containsString(exceptionMessage));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testConstraintValidationException() throws Exception {
         String fieldName1 = "User name is required";
         String exceptionMessage1 = "User name is required";
@@ -182,7 +173,6 @@ public class GlobalExceptionHandlerAdviceTest {
     public void testUploadPmodesEndpoint_throwing_HibernateException_sqlsHidden() throws Exception {
         // testing that even if not caught by the service layer and thrown by the endpoint rest method ...
         // ... a hibernate error message doesn't show explicit sql statements
-        MultipartFile file = new MockMultipartFile("filename", new byte[]{1, 0, 1});
         PModeException hibernateException = new PModeException(new HibernateException("Exception message containing SQL statements"));
 
         doThrow(hibernateException).when(pModeResource).uploadPMode(any(), any());
@@ -192,8 +182,6 @@ public class GlobalExceptionHandlerAdviceTest {
         Assertions.assertTrue(response.getContentAsString().contains("Hibernate exception occured"));
 
     }
-
-
 
     private String mockMvcResultContent(ResultMatcher expectedStatus) throws Exception {
         String dummyPayload = "[]";

@@ -8,13 +8,13 @@ import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandler;
 import eu.domibus.core.ebms3.receiver.handler.IncomingMessageHandlerFactory;
 import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.util.MessageUtil;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
+import org.apache.cxf.message.ExchangeImpl;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -28,9 +28,6 @@ import javax.xml.ws.WebServiceException;
  */
 @ExtendWith(JMockitExtension.class)
 public class MSHWebServiceTest {
-
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(MSHWebServiceTest.class);
-    private static final String VALID_PMODE_CONFIG_URI = "samplePModes/domibus-configuration-valid.xml";
 
     @Tested
     MSHWebservice mshWebservice;
@@ -48,15 +45,17 @@ public class MSHWebServiceTest {
     DomainContextProvider domainContextProvider;
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testInvokeHappyFlow(@Injectable SOAPMessage request,
                                     @Injectable Ebms3Messaging messaging,
-                                    @Injectable IncomingMessageHandler messageHandler,
-                                    @Mocked PhaseInterceptorChain interceptors) throws EbMS3Exception {
+                                    @Injectable IncomingMessageHandler messageHandler) throws EbMS3Exception {
+        MessageImpl message = getMessage(messaging);
+        new MockUp<PhaseInterceptorChain>() {
+            @Mock
+            public Message getCurrentMessage() {
+                return message;
+            }
+        };
         new Expectations() {{
-            PhaseInterceptorChain.getCurrentMessage().get(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY);
-            result = messaging;
-
             incomingMessageHandlerFactory.getMessageHandler(request, messaging);
             result = messageHandler;
         }};
@@ -68,20 +67,32 @@ public class MSHWebServiceTest {
         }};
     }
 
-    @Test
-    @Disabled("EDELIVERY-6896")
-    void testInvokeNoHandlerFound(@Injectable SOAPMessage request,
-                                         @Injectable Ebms3Messaging messaging,
-                                         @Injectable IncomingMessageHandler messageHandler) throws EbMS3Exception {
-        new Expectations() {{
-            PhaseInterceptorChain.getCurrentMessage().get(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY);
-            result = messaging;
+    private static MessageImpl getMessage(Ebms3Messaging messaging) {
+        MessageImpl message1 = new MessageImpl();
+        ExchangeImpl e = new ExchangeImpl();
+        message1.setExchange(e);
+        message1.put(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY, messaging);
+        e.put(DispatchClientDefaultProvider.MESSAGING_KEY_CONTEXT_PROPERTY, messaging);
+        return message1;
+    }
 
+    @Test
+    void testInvokeNoHandlerFound(@Injectable SOAPMessage request,
+                                  @Injectable Ebms3Messaging messaging,
+                                  @Injectable IncomingMessageHandler messageHandler) throws EbMS3Exception {
+        MessageImpl message = getMessage(messaging);
+        new MockUp<PhaseInterceptorChain>() {
+            @Mock
+            public Message getCurrentMessage() {
+                return message;
+            }
+        };
+        new Expectations() {{
             incomingMessageHandlerFactory.getMessageHandler(request, messaging);
             result = null;
         }};
 
-        Assertions.assertThrows(WebServiceException. class,() -> mshWebservice.invoke(request));
+        Assertions.assertThrows(WebServiceException.class, () -> mshWebservice.invoke(request));
 
         new Verifications() {{
             messageHandler.processMessage(request, messaging);
