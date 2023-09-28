@@ -22,20 +22,15 @@ import eu.domibus.logging.DomibusLogger;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.codec.binary.Base64;
-import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
-import org.bouncycastle.util.io.pem.PemObjectGenerator;
-import org.bouncycastle.util.io.pem.PemWriter;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -264,7 +259,7 @@ public class CertificateServiceImplTest {
     }
 
     private static Enumeration<String> getStringEnumeration(String... array) {
-        Enumeration<String> enumeration = new Enumeration<String>() {
+        return new Enumeration<String>() {
             final Iterator<String> a = Arrays.asList(array).iterator();
 
             @Override
@@ -277,13 +272,12 @@ public class CertificateServiceImplTest {
                 return a.next();
             }
         };
-        return enumeration;
     }
 
     @Test
-    public void testGetTrustStoreEntries(@Mocked final KeyStore trustStore,
-                                         @Mocked final X509Certificate blueCertificate,
-                                         @Mocked final X509Certificate redCertificate) throws KeyStoreException {
+    public void testGetTrustStoreEntries(@Injectable final KeyStore trustStore,
+                                         @Injectable final X509Certificate blueCertificate,
+                                         @Injectable final X509Certificate redCertificate) throws KeyStoreException {
         final Date validFrom = Date.from(ZonedDateTime.now(ZoneOffset.UTC).toInstant());
         final Date validUntil = Date.from(ZonedDateTime.now(ZoneOffset.UTC).plusDays(10).toInstant());
         Enumeration<String> aliasEnum = getStringEnumeration("blue_gw", "red_gw");
@@ -661,26 +655,17 @@ public class CertificateServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    void serializeCertificateChainIntoPemFormatTest(@Injectable java.security.cert.Certificate certificate,
-                                                    @Injectable PemWriter pw,
-                                                    @Injectable StringWriter sw,
-                                                    @Injectable JcaMiscPEMGenerator jcaMiscPEMGenerator,
-                                                    @Injectable PemObjectGenerator gen
-    ) throws IOException {
+    void serializeCertificateChainIntoPemFormatTest(@Injectable java.security.cert.Certificate certificate) {
         List<java.security.cert.Certificate> certificates = new ArrayList<>();
         certificates.add(certificate);
+
         Assertions.assertThrows(DomibusCertificateException.class, () -> certificateService.serializeCertificateChainIntoPemFormat(certificates));
-        new Verifications() {{
-            pw.writeObject(gen);
-            times = 1;
-        }};
     }
 
     @Test
     public void throwsExceptionWhenFailingToPersistTheCurrentTrustStore(@Injectable KeyStoreContentInfo storeInfo,
                                                                         @Injectable KeystorePersistenceInfo persistenceInfo,
-                                                                        @Injectable KeyStore trustStore) throws Exception {
+                                                                        @Injectable KeyStore trustStore) {
         new Expectations(certificateService) {{
             certificateService.loadStore(storeInfo);
             result = trustStore;
@@ -819,7 +804,7 @@ public class CertificateServiceImplTest {
                                                                                            @Injectable KeyStore store,
                                                                                            @Injectable KeystorePersistenceInfo persistenceInfo) {
 
-        List<CertificateEntry> certificates = Arrays.asList(certificateEntry);
+        List<CertificateEntry> certificates = Collections.singletonList(certificateEntry);
 
         new Expectations(certificateService) {{
             certificateService.getStore(persistenceInfo);
@@ -1062,7 +1047,6 @@ public class CertificateServiceImplTest {
     @Test
     public void doRemoveCertificatesNotRemoved(@Injectable KeyStore store, @Injectable KeystorePersistenceInfo persistenceInfo) {
 
-        final String trustStorePassword = "pwd";
         final String alias1 = "alias1";
         final String alias2 = "alias2";
         List<String> certificates = Arrays.asList(alias1, alias2);

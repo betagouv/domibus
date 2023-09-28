@@ -14,10 +14,10 @@ import eu.domibus.web.rest.error.ErrorHandlerService;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -70,18 +70,13 @@ public class TruststoreResourceTest {
     SecurityProfileService securityProfileService;
 
     @Test
-    public void replaceTruststore(@Mocked Domain domain, @Injectable KeyStoreContentInfo storeInfo) {
-        final byte[] fileContent = new byte[]{1, 0, 1};
-        String filename = "filename";
-        String INIT_VALUE_TRUSTSTORE = "truststore";
-
+    public void replaceTruststore(@Injectable Domain domain, @Injectable KeyStoreContentInfo storeInfo) {
         new Expectations() {{
             domainProvider.getCurrentDomain();
             result = domain;
         }};
 
         // When
-        String pass = "pass";
         truststoreResource.doUploadStore(storeInfo);
 
         new Verifications() {{
@@ -90,9 +85,8 @@ public class TruststoreResourceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getTrustStoreEntries(@Mocked List<TrustStoreEntry> trustStoreEntries) {
-
+    public void getTrustStoreEntries() {
+        List<TrustStoreEntry> trustStoreEntries = new ArrayList<>();
         new Expectations() {{
             multiDomainCertificateProvider.getTrustStoreEntries(domainProvider.getCurrentDomain());
             result = trustStoreEntries;

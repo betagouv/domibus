@@ -1,13 +1,11 @@
 package eu.domibus.web.security;
 
-import eu.domibus.web.rest.AuthenticationResource;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Verifications;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.core.Authentication;
@@ -40,10 +38,9 @@ public class DomibusCookieClearingLogoutHandlerTest {
     private Authentication authentication;
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void removesCookiesNotHavingTheirPathsEndingWithForwardSlashInAdditionToTheOnesEndingWithIt() {
         givenCookieClearingLogoutHandler(SESSION_COOKIE_NAME, CSRF_COOKIE_NAME);
-        givenContextPath("");
+        givenContextPath();
 
         whenLoggingOut();
 
@@ -56,7 +53,7 @@ public class DomibusCookieClearingLogoutHandlerTest {
     }
 
 
-    private void givenContextPath(String contextPath) {
+    private void givenContextPath() {
         new Expectations() {{
            request.getContextPath(); result = "domibus";
         }};

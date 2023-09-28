@@ -18,12 +18,13 @@ import eu.domibus.core.message.TestMessageValidator;
 import eu.domibus.core.message.UserMessageErrorCreator;
 import eu.domibus.core.message.UserMessageHandlerService;
 import eu.domibus.core.property.DomibusVersionService;
+import eu.domibus.test.common.SoapSampleUtil;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -31,12 +32,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * @author Catalin Enache, Soumya Chandran
  * @since 4.2
  */
-@SuppressWarnings("ConstantConditions")
+@SuppressWarnings({"ConstantConditions", "ResultOfMethodCallIgnored"})
 @ExtendWith(JMockitExtension.class)
 public class SetPolicyInServerInterceptorTest {
 
@@ -66,11 +68,15 @@ public class SetPolicyInServerInterceptorTest {
 
     @Injectable
     SecurityProfileService securityProfileService;
+    private SoapMessage message;
+
+    @BeforeEach
+    void setUp() throws IOException {
+        message = new SoapSampleUtil().createSoapMessage("SOAPMessage2.xml", UUID.randomUUID().toString());
+    }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void logIncomingMessaging(final @Injectable SoapMessage soapMessage,
-                                     final @Injectable TestMessageValidator testMessageValidator) throws Exception {
+    public void logIncomingMessaging(final @Injectable TestMessageValidator testMessageValidator) throws Exception {
 
         //tested method
         EbMS3Exception ex = EbMS3ExceptionBuilder.getInstance()
@@ -80,17 +86,16 @@ public class SetPolicyInServerInterceptorTest {
                 .cause(new NullPointerException())
                 .mshRole(MSHRole.RECEIVING)
                 .build();
-        setPolicyInServerInterceptor.logIncomingMessagingException(soapMessage, ex);
+
+        setPolicyInServerInterceptor.logIncomingMessagingException(message, ex);
 
         new Verifications() {{
-            soapService.getMessagingAsRAWXml(soapMessage);
+            soapService.getMessagingAsRAWXml(message);
         }};
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void handleMessage(@Injectable SoapMessage message,
-                              @Injectable HttpServletResponse response,
+    public void handleMessage(@Injectable HttpServletResponse response,
                               final @Injectable TestMessageValidator testMessageValidator) throws JAXBException, IOException, EbMS3Exception {
 
         new Expectations(setPolicyInServerInterceptor) {
@@ -115,9 +120,7 @@ public class SetPolicyInServerInterceptorTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    void handleMessageThrowsIOException(@Injectable SoapMessage message,
-                                        @Injectable HttpServletResponse response,
+    void handleMessageThrowsIOException(@Injectable HttpServletResponse response,
                                         final @Injectable TestMessageValidator testMessageValidator
     ) throws JAXBException, IOException, EbMS3Exception {
 
@@ -132,15 +135,12 @@ public class SetPolicyInServerInterceptorTest {
 
         new FullVerifications() {{
             soapService.getMessage(message);
-            policyService.parsePolicy("policies" + File.separator + anyString, SecurityProfile.RSA);
             setPolicyInServerInterceptor.setBindingOperation(message);
         }};
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    void handleMessageEbMS3Exception(@Injectable SoapMessage message,
-                                     @Injectable HttpServletResponse response,
+    void handleMessageEbMS3Exception(@Injectable HttpServletResponse response,
                                      @Injectable Messaging messaging,
                                      final @Injectable TestMessageValidator testMessageValidator) throws JAXBException, IOException, EbMS3Exception {
 
@@ -155,8 +155,6 @@ public class SetPolicyInServerInterceptorTest {
 
         new Verifications() {{
             soapService.getMessage(message);
-            times = 1;
-            policyService.parsePolicy("policies" + File.separator + anyString, SecurityProfile.RSA);
             times = 1;
             setPolicyInServerInterceptor.setBindingOperation(message);
             times = 1;

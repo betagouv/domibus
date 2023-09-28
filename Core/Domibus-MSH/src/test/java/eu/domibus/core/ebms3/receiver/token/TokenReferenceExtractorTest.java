@@ -4,42 +4,40 @@ import com.sun.xml.messaging.saaj.soap.impl.TextImpl;
 import eu.domibus.core.ebms3.receiver.interceptor.TrustSenderInterceptor;
 import eu.domibus.test.common.MessageTestUtility;
 import mockit.Expectations;
-import mockit.Mocked;
+import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.dom.WSConstants;
 import org.apache.wss4j.dom.util.WSSecurityUtil;
+import org.dom4j.dom.DOMText;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Thomas Dussart
  * @since 4.0
  */
+@SuppressWarnings({"ResultOfMethodCallIgnored", "UnusedAssignment"})
 @ExtendWith(JMockitExtension.class)
-@Disabled("EDELIVERY-6896")
 public class TokenReferenceExtractorTest {
-
 
     @Tested
     private TokenReferenceExtractor tokenReferenceExtractor;
 
     @Test
-    public void testX509PKIPathv1TokenReference(@Mocked final Element securityHeader,
-                                                @Mocked final Element signature,
-                                                @Mocked final Element keyInfo,
-                                                @Mocked final Element securityTokenrRefecence,
-                                                @Mocked final Node uriNode,
-                                                @Mocked final Node valueTypeNode) throws WSSecurityException {
+    public void testX509PKIPathV1TokenReference(@Injectable final Element securityHeader,
+                                                @Injectable final Element signature,
+                                                @Injectable final Element keyInfo,
+                                                @Injectable final Element securityTokenReference,
+                                                @Injectable final Node uriNode,
+                                                @Injectable final Node valueTypeNode) throws WSSecurityException {
 
         final String uri = "#X509-5f905b9f-f1e2-4f05-8369-123f330455d1";
         final String valueType = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509PKIPathv1";
@@ -58,18 +56,18 @@ public class TokenReferenceExtractorTest {
             keyInfo.getNamespaceURI();
             result = TrustSenderInterceptor.KEYINFO.getNamespaceURI();
             keyInfo.getFirstChild();
-            result = securityTokenrRefecence;
-            securityTokenrRefecence.getNodeType();
+            result = securityTokenReference;
+            securityTokenReference.getNodeType();
             result = Node.ELEMENT_NODE;
-            securityTokenrRefecence.getChildNodes().getLength();
+            securityTokenReference.getChildNodes().getLength();
             result = 1;
-            securityTokenrRefecence.getChildNodes().item(0).getLocalName();
+            securityTokenReference.getChildNodes().item(0).getLocalName();
             result = TokenReferenceExtractor.REFERENCE;
-            securityTokenrRefecence.getChildNodes().item(0).getAttributes().getNamedItem(TokenReferenceExtractor.URI);
+            securityTokenReference.getChildNodes().item(0).getAttributes().getNamedItem(TokenReferenceExtractor.URI);
             result = uriNode;
             uriNode.getNodeValue();
             result = uri;
-            securityTokenrRefecence.getChildNodes().item(0).getAttributes().getNamedItem(TokenReferenceExtractor.VALUE_TYPE);
+            securityTokenReference.getChildNodes().item(0).getAttributes().getNamedItem(TokenReferenceExtractor.VALUE_TYPE);
             result = valueTypeNode;
             valueTypeNode.getNodeValue();
             result = valueType;
@@ -82,13 +80,10 @@ public class TokenReferenceExtractorTest {
     }
 
     @Test
-    public void testKeySubjectIdendtifier(@Mocked final Element securityHeader,
-                                          @Mocked final Element signature,
-                                          @Mocked final Element keyInfo,
-                                          @Mocked final Element securityTokenrRefecence) throws WSSecurityException {
-
-        final String uri = "#X509-5f905b9f-f1e2-4f05-8369-123f330455d1";
-        final String valueType = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509PKIPathv1";
+    public void testKeySubjectIdendtifier(@Injectable final Element securityHeader,
+                                          @Injectable final Element signature,
+                                          @Injectable final Element keyInfo,
+                                          @Injectable final Element securityTokenrRefecence) throws WSSecurityException {
 
         new Expectations() {{
             securityHeader.getFirstChild();
@@ -119,11 +114,11 @@ public class TokenReferenceExtractorTest {
     }
 
     @Test
-    public void testGetSecTokenRefWithSpacesWithMock(@Mocked final Element securityHeader,
-                                                     @Mocked final Element signature,
-                                                     @Mocked final Element keyInfo,
-                                                     @Mocked final Node textNode,
-                                                     @Mocked final Element securityTokenrRefecence) throws WSSecurityException {
+    public void testGetSecTokenRefWithSpacesWithMock(@Injectable final Element securityHeader,
+                                                     @Injectable final Element signature,
+                                                     @Injectable final Element keyInfo,
+                                                     @Injectable final Node textNode,
+                                                     @Injectable final Element securityTokenrRefecence) {
 
         new Expectations() {{
             securityHeader.getFirstChild();
@@ -153,7 +148,7 @@ public class TokenReferenceExtractorTest {
     }
 
     @Test
-    public void testGetSecTokenFromXMLWithSpaces() throws WSSecurityException, XMLStreamException, ParserConfigurationException {
+    public void testGetSecTokenFromXMLWithSpaces() throws WSSecurityException, XMLStreamException {
         Document doc = MessageTestUtility.readDocument("/dataset/as4/RawXMLMessageWithSpaces.xml");
         final Element soapHeader = WSSecurityUtil.getSOAPHeader(doc);
 
@@ -164,10 +159,10 @@ public class TokenReferenceExtractorTest {
     }
 
     @Test
-    public void testGetFirstChildElement(@Mocked final Node parentNode,
-                                         @Mocked final Node someNode,
-                                         @Mocked final TextImpl textNode,
-                                         @Mocked final Element resultElement) {
+    public void testGetFirstChildElement(@Injectable final Node parentNode,
+                                         @Injectable final Node someNode,
+                                         @Injectable final TextImpl<DOMText> textNode,
+                                         @Injectable final Element resultElement) {
 
         new Expectations() {{
             parentNode.getFirstChild();

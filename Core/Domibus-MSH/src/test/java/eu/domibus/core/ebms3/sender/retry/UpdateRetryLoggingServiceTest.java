@@ -20,19 +20,17 @@ import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Date;
-import java.util.UUID;
 
+import static eu.domibus.core.ebms3.sender.retry.UpdateRetryLoggingService.MESSAGE_EXPIRATION_DELAY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ExtendWith(JMockitExtension.class)
-@Disabled("EDELIVERY-6896")
 public class UpdateRetryLoggingServiceTest {
 
     private static final int RETRY_TIMEOUT_IN_MINUTES = 60;
@@ -96,12 +94,11 @@ public class UpdateRetryLoggingServiceTest {
      * MessageLogDao#setMessageAsSendFailure is called
      * MessagingDao#clearPayloadData() is called
      *
-     * @throws Exception
      */
     @Test
     public void testUpdateRetryLogging_maxRetriesReachedNotificationEnabled_ExpectedMessageStatus(@Injectable UserMessage userMessage,
                                                                                                   @Injectable UserMessageLog userMessageLog,
-                                                                                                  @Injectable LegConfiguration legConfiguration) throws Exception {
+                                                                                                  @Injectable LegConfiguration legConfiguration)  {
         final long entityId = 123;
 
         new Expectations(updateRetryLoggingService) {{
@@ -135,7 +132,7 @@ public class UpdateRetryLoggingServiceTest {
     @Test
     public void testUpdateRetryLogging_Restored(@Injectable UserMessage userMessage,
                                                 @Injectable LegConfiguration legConfiguration,
-                                                @Injectable UserMessageLog userMessageLog) throws Exception {
+                                                @Injectable UserMessageLog userMessageLog)  {
 //        new SystemMockFirstOfJanuary2016(); //current timestamp
 
         final long entityId = 123;
@@ -164,11 +161,6 @@ public class UpdateRetryLoggingServiceTest {
     public void testUpdateMessageLogNextAttemptDateForRestoredMessage(@Injectable LegConfiguration legConfiguration,
                                                                       @Injectable UserMessageLog userMessageLog) {
 
-//        new SystemMockFirstOfJanuary2016(); //current timestamp
-
-        Date nextAttempt = new Date(FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016 + (RETRY_TIMEOUT_IN_MINUTES / RETRY_COUNT * 60 * 1000));
-
-
         new Expectations() {{
             userMessageLog.getNextAttempt();
             result = FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016;
@@ -181,13 +173,16 @@ public class UpdateRetryLoggingServiceTest {
 
             legConfiguration.getReceptionAwareness().getRetryCount();
             result = RETRY_COUNT;
+
+            domibusPropertyProvider.getLongProperty(MESSAGE_EXPIRATION_DELAY);
+            result = 10L;
         }};
 
         updateRetryLoggingService.updateMessageLogNextAttemptDate(legConfiguration, userMessageLog);
 
 
-        new Verifications() {{
-            reprogrammableService.setRescheduleInfo(userMessageLog, nextAttempt);
+        new FullVerifications() {{
+            reprogrammableService.setRescheduleInfo(userMessageLog, (Date) any);
         }};
     }
 
@@ -202,11 +197,8 @@ public class UpdateRetryLoggingServiceTest {
     @Test
     public void testUpdateRetryLogging_maxRetriesReachedNotificationDisabled_ExpectedMessageStatus_ClearPayloadDisabled(@Injectable UserMessage userMessage,
                                                                                                                         @Injectable UserMessageLog userMessageLog,
-                                                                                                                        @Injectable LegConfiguration legConfiguration) throws Exception {
-//        new SystemMockFirstOfJanuary2016();
-
+                                                                                                                        @Injectable LegConfiguration legConfiguration)  {
         final long entityId = 123;
-        final long receivedTime = FIVE_MINUTES_BEFORE_FIRST_OF_JANUARY_2016; //Received 5 min ago
 
         new Expectations() {{
             userMessageLog.getSendAttempts();
@@ -286,9 +278,6 @@ public class UpdateRetryLoggingServiceTest {
     public void testUpdateRetryLogging_timeoutNotificationDisabled_ExpectedMessageStatus(@Injectable UserMessage userMessage,
                                                                                          @Injectable UserMessageLog userMessageLog,
                                                                                          @Injectable LegConfiguration legConfiguration) {
-//        new SystemMockFirstOfJanuary2016();
-
-        final String messageId = UUID.randomUUID().toString();
         int retryTimeout = 1;
 
         new Expectations(updateRetryLoggingService) {{
@@ -313,7 +302,7 @@ public class UpdateRetryLoggingServiceTest {
     public void testUpdateRetryLogging_success_ExpectedMessageStatus(@Injectable UserMessage userMessage,
                                                                      @Injectable UserMessageLog userMessageLog,
                                                                      @Injectable LegConfiguration legConfiguration,
-                                                                     @Injectable MessageAttempt messageAttempt) throws Exception {
+                                                                     @Injectable MessageAttempt messageAttempt)  {
 
         long userMessageEntityId = 123;
         new Expectations(updateRetryLoggingService) {{
@@ -343,7 +332,7 @@ public class UpdateRetryLoggingServiceTest {
 
     @Test
     public void testMessageExpirationDate(@Injectable final UserMessageLog userMessageLog,
-                                          @Injectable final LegConfiguration legConfiguration) throws InterruptedException {
+                                          @Injectable final LegConfiguration legConfiguration)  {
         final int timeOutInMin = 10; // in minutes
         final long timeOutInMillis = 60000L * timeOutInMin;
         final long restoredTime = System.currentTimeMillis();
@@ -365,7 +354,7 @@ public class UpdateRetryLoggingServiceTest {
 
     @Test
     public void testMessageExpirationDateInTheFarFuture(@Injectable final UserMessageLog userMessageLog,
-                                                        @Injectable final LegConfiguration legConfiguration) throws InterruptedException {
+                                                        @Injectable final LegConfiguration legConfiguration)  {
         final int timeOutInMin = 90 * 24 * 60; // 90 days in minutes
         final long timeOutInMillis = 60000L * timeOutInMin;
         final long restoredTime = System.currentTimeMillis();
@@ -385,12 +374,12 @@ public class UpdateRetryLoggingServiceTest {
 
     @Test
     public void testIsExpired(@Injectable final UserMessageLog userMessageLog,
-                              @Injectable final LegConfiguration legConfiguration) throws InterruptedException {
+                              @Injectable final LegConfiguration legConfiguration)  {
 
         long delay = 10;
 
         new Expectations(updateRetryLoggingService) {{
-            domibusPropertyProvider.getLongProperty(UpdateRetryLoggingService.MESSAGE_EXPIRATION_DELAY);
+            domibusPropertyProvider.getLongProperty(MESSAGE_EXPIRATION_DELAY);
             result = delay;
 
             updateRetryLoggingService.getMessageExpirationDate(userMessageLog, legConfiguration);
@@ -402,16 +391,8 @@ public class UpdateRetryLoggingServiceTest {
         assertTrue(result);
     }
 
-//    @Deprecated // TODO: EDELIVERY-6896 François Gautier 23-02-22 to be removed, might bring instability
-//    private static class SystemMockFirstOfJanuary2016 extends MockUp<System> {
-//        @Mock
-//        public static long currentTimeMillis() {
-//            return SYSTEM_DATE_IN_MILLIS_FIRST_OF_JANUARY_2016;
-//        }
-//    }
-
     @Test
-    public void test_failIfExpired_MessageExpired_NotSourceMessage(final @Mocked UserMessage userMessage) {
+    public void test_failIfExpired_MessageExpired_NotSourceMessage(final @Injectable UserMessage userMessage) {
         long userMessageEntityId = 123;
 
         final UserMessageLog userMessageLog = new UserMessageLog();
@@ -427,7 +408,6 @@ public class UpdateRetryLoggingServiceTest {
         new Expectations(updateRetryLoggingService) {{
             userMessage.getEntityId();
             result = userMessageEntityId;
-            ;
 
             userMessageLogDao.findByEntityId(userMessageEntityId);
             result = userMessageLog;
@@ -450,7 +430,7 @@ public class UpdateRetryLoggingServiceTest {
     }
 
     @Test
-    public void test_failIfExpired_MessageNotExpired_NotSourceMessage(final @Mocked UserMessage userMessage) {
+    public void test_failIfExpired_MessageNotExpired_NotSourceMessage(final @Injectable UserMessage userMessage) {
         long userMessageEntityId = 123;
 
         final UserMessageLog userMessageLog = new UserMessageLog();
@@ -481,8 +461,7 @@ public class UpdateRetryLoggingServiceTest {
         boolean result = updateRetryLoggingService.failIfExpired(userMessage, legConfiguration);
         Assertions.assertFalse(result);
 
-        new FullVerifications() {{
-        }};
+        new FullVerifications() {};
     }
 
     @Test

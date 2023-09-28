@@ -2,7 +2,6 @@ package eu.domibus.web.rest;
 
 import eu.domibus.api.crypto.CryptoException;
 import eu.domibus.api.exceptions.RequestValidationException;
-import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.KeyStoreContentInfo;
 import eu.domibus.api.pki.KeystorePersistenceService;
@@ -17,10 +16,12 @@ import eu.domibus.core.converter.PartyCoreMapper;
 import eu.domibus.core.csv.CsvServiceImpl;
 import eu.domibus.web.rest.error.ErrorHandlerService;
 import eu.domibus.web.rest.ro.TrustStoreRO;
-import mockit.*;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.ByteArrayResource;
@@ -30,11 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.security.KeyStore;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static eu.domibus.web.rest.TruststoreResource.ERROR_MESSAGE_EMPTY_TRUSTSTORE_PASSWORD;
 
@@ -42,6 +39,7 @@ import static eu.domibus.web.rest.TruststoreResource.ERROR_MESSAGE_EMPTY_TRUSTST
  * @author Ion Perpegel
  * @since 5.0
  */
+@SuppressWarnings("unchecked")
 @ExtendWith(JMockitExtension.class)
 public class TruststoreResourceBaseTest {
 
@@ -216,7 +214,7 @@ public class TruststoreResourceBaseTest {
         ResponseEntity<ByteArrayResource> responseEntity = truststoreResourceBase.downloadTruststoreContent();
 
         // Then
-        validateResponseEntity(responseEntity, HttpStatus.OK);
+        validateResponseEntity(responseEntity);
 
         new Verifications() {{
             auditService.addKeystoreDownloadedAudit(storeName);
@@ -245,7 +243,7 @@ public class TruststoreResourceBaseTest {
 
         ResponseEntity<ByteArrayResource> responseEntity = truststoreResourceBase.downloadTruststoreContent();
 
-        validateResponseEntity(responseEntity, HttpStatus.OK);
+        validateResponseEntity(responseEntity);
         Assertions.assertTrue(responseEntity.getHeaders().getContentDisposition().getFilename().contains(fileName));
         new Verifications() {{
             auditService.addKeystoreDownloadedAudit(storeName);
@@ -254,10 +252,9 @@ public class TruststoreResourceBaseTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getTrustStoreEntries(@Injectable MultiDomainCryptoService multiDomainCertificateProvider, @Mocked Domain domain,
-                                     @Mocked KeyStore store, @Mocked List<TrustStoreEntry> trustStoreEntries, @Mocked List<TrustStoreRO> entries) {
-
+    public void getTrustStoreEntries(@Injectable MultiDomainCryptoService multiDomainCertificateProvider) {
+        List<TrustStoreRO> entries = new ArrayList<>();
+        List<TrustStoreEntry> trustStoreEntries = new ArrayList<>();
         new Expectations(truststoreResourceBase) {{
             truststoreResourceBase.doGetStoreEntries();
             result = trustStoreEntries;
@@ -294,10 +291,10 @@ public class TruststoreResourceBaseTest {
         return trustStoreROList;
     }
 
-    private void validateResponseEntity(ResponseEntity<? extends Resource> responseEntity, HttpStatus httpStatus) {
+    private void validateResponseEntity(ResponseEntity<? extends Resource> responseEntity) {
         Assertions.assertNotNull(responseEntity);
-        Assertions.assertEquals(httpStatus, responseEntity.getStatusCode());
-        Assertions.assertTrue(responseEntity.getHeaders().get("content-disposition").get(0).contains("attachment; filename="));
-        Assertions.assertEquals("Byte array resource [resource loaded from byte array]", responseEntity.getBody().getDescription());
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        Assertions.assertTrue(Objects.requireNonNull(responseEntity.getHeaders().get("content-disposition")).get(0).contains("attachment; filename="));
+        Assertions.assertEquals("Byte array resource [resource loaded from byte array]", Objects.requireNonNull(responseEntity.getBody()).getDescription());
     }
 }

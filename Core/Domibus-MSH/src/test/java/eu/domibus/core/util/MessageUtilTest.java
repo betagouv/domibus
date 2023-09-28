@@ -12,7 +12,6 @@ import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.NamedNodeMap;
@@ -40,7 +39,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Soumya Chandran
  * @since 4.2
  */
-@SuppressWarnings("ResultOfMethodCallIgnored")
+@SuppressWarnings({"ResultOfMethodCallIgnored", "UnusedAssignment"})
 @ExtendWith(JMockitExtension.class)
 public class MessageUtilTest {
 
@@ -609,10 +608,8 @@ public class MessageUtilTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void createErrors_null(@Injectable Node signalNode,
-                                  @Injectable Node errorNode,
-                                  @Injectable Error error) {
+                                  @Injectable Node errorNode) {
         final List<Node> errorNodeList = new ArrayList<>();
 
         new Expectations(messageUtil) {{
@@ -957,24 +954,18 @@ public class MessageUtilTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void getMessageFragment(@Injectable SOAPMessage soapMessage,
                                    @Injectable XMLStreamReader reader,
-                                   @Injectable Iterator iterator,
                                    @Injectable Node messagingXml,
                                    @Injectable Unmarshaller unmarshaller,
                                    @Injectable JAXBElement<Ebms3MessageFragmentType> root) throws SOAPException, JAXBException, XMLStreamException, TransformerException {
         final QName _MessageFragment_QNAME = new QName("http://docs.oasis-open.org/ebxml-msg/ns/v3.0/mf/2010/04/", "MessageFragment");
-
+        Iterator<Node> iterator = Collections.singletonList(messagingXml).iterator();
         new Expectations(messageUtil) {{
             xmlUtil.getXmlStreamReaderFromNode(messagingXml);
             result = reader;
             soapMessage.getSOAPHeader().getChildElements(_MessageFragment_QNAME);
             result = iterator;
-            iterator.hasNext();
-            result = true;
-            iterator.next();
-            result = messagingXml;
             jaxbContextMessageFragment.createUnmarshaller();
             result = unmarshaller;
             unmarshaller.unmarshal(reader);
@@ -991,17 +982,13 @@ public class MessageUtilTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void getMessageFragment_null(@Injectable SOAPMessage soapMessage,
-                                        @Injectable QName qName,
-                                        @Injectable Iterator iterator) throws SOAPException {
+                                        @Injectable QName qName) throws SOAPException {
         final QName _MessageFragment_QNAME = new QName("http://docs.oasis-open.org/ebxml-msg/ns/v3.0/mf/2010/04/", "MessageFragment");
-
+        Iterator<Node> iterator = Collections.emptyIterator();
         new Expectations(messageUtil) {{
             soapMessage.getSOAPHeader().getChildElements(_MessageFragment_QNAME);
             result = iterator;
-            iterator.hasNext();
-            result = false;
         }};
 
         assertNull(messageUtil.getMessageFragment(soapMessage));
@@ -1011,10 +998,8 @@ public class MessageUtilTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void getMessageFragment_exception(@Injectable SOAPMessage soapMessage,
-                                             @Injectable QName qName,
-                                             @Injectable Iterator iterator) throws SOAPException {
+                                             @Injectable QName qName) throws SOAPException {
         final QName _MessageFragment_QNAME = new QName("http://docs.oasis-open.org/ebxml-msg/ns/v3.0/mf/2010/04/", "MessageFragment");
 
         new Expectations(messageUtil) {{
@@ -1042,12 +1027,7 @@ public class MessageUtilTest {
             result = new JAXBException("Error marshalling the message", "DOM_001");
         }};
 
-        try {
-            messageUtil.getMessage(request);
-            fail();
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }
+        assertThrows(MessagingException.class, () -> messageUtil.getMessage(request));
 
         new FullVerifications() {
         };

@@ -12,11 +12,10 @@ import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.collections4.CollectionUtils;
-import org.hamcrest.CustomTypeSafeMatcher;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -59,19 +58,16 @@ public class UserDomainResourceTest {
         domainsResource.getDomains();
 
         // THEN
-        new FullVerifications() {{
-        }};
+        new FullVerifications() {};
     }
 
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testGetDomains(@Injectable DomibusUserDetailsImpl userDetails,
-                               @Injectable List<DomainRO> domainROEntries) {
+    public void testGetDomains(@Injectable DomibusUserDetailsImpl userDetails) {
         final Domain red = new Domain("red", "Red");
         final Domain yellow = new Domain("yellow", "Yellow");
         final Domain blue = new Domain("blue", "Blue");
-
+        List<DomainRO> domainROEntries = new ArrayList<>();
         // GIVEN
         new Expectations() {{
             authUtils.getUserDetails();
@@ -90,6 +86,7 @@ public class UserDomainResourceTest {
             coreMapper.domainListToDomainROList(with(
                     //"The argument list can contain domains in any order"
                             new Delegate<List<Domain>>() {
+                                @SuppressWarnings({"unused", "ProtectedMemberInFinalClass"})
                                 protected boolean matchesSafely(List<Domain> domains) {
                                     return CollectionUtils.containsAll(domains,
                                             Arrays.asList(red, yellow, blue));

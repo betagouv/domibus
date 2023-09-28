@@ -5,13 +5,9 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.DateUtil;
 import eu.domibus.core.util.DateUtilImpl;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Tested;
-import mockit.Verifications;
+import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -20,7 +16,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 import static eu.domibus.core.util.backup.BackupServiceImpl.BACKUP_EXT;
 import static eu.domibus.core.util.backup.BackupServiceImpl.BACKUP_FILE_FORMATTER;
@@ -30,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Ion Perpegel
  * @since 4.1.1
  */
+@SuppressWarnings({"unused", "DataFlowIssue"})
 @ExtendWith(JMockitExtension.class)
 public class BackupServiceImplTest {
 
@@ -49,10 +45,9 @@ public class BackupServiceImplTest {
     DomainContextProvider domainProvider;
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testBackupFile() throws IOException {
+    public void testBackupFile(@Mocked FileUtils fileUtils) throws IOException {
         File originalFile = new File("testfile");
-        new Expectations(FileUtils.class) {{
+        new Expectations() {{
             FileUtils.copyFile((File) any, (File) any);
         }};
 
@@ -86,14 +81,13 @@ public class BackupServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testTimestampFormatter() {
-        final LocalDateTime now = LocalDateTime.of(2019, 9, 2, 15, 1, 55, 123 * 1000000);
+    public void testTimestampFormatter(@Mocked LocalDateTime localDateTime) {
         final String expectedValue = "2019-09-02_15_01_55.123";
 
-        new Expectations(LocalDateTime.class) {{
-            LocalDateTime.now(ZoneOffset.UTC);
-            result = now;
+        new Expectations() {{
+            localDateTime.format(BACKUP_FILE_FORMATTER);
+            times = 1;
+            result = expectedValue;
         }};
 
         String value = dateUtilImpl.getCurrentTime(BACKUP_FILE_FORMATTER);
@@ -101,13 +95,12 @@ public class BackupServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void backupFileInLocation(@Injectable Domain currentDomain) throws IOException {
+    public void backupFileInLocation(@Mocked FileUtils fileUtils, @Injectable Domain currentDomain) throws IOException {
         File originalFile = new File("testfile");
         String backupLocation = "testfile_backup";
         File backupFile = new File(backupLocation);
 
-        new Expectations(FileUtils.class, backupService) {{
+        new Expectations( backupService) {{
             backupService.createBackupFileInLocation(originalFile, backupLocation);
             result = backupFile;
             FileUtils.copyFile((File) any, (File) any);
@@ -123,12 +116,11 @@ public class BackupServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void createBackupFileInLocation() throws IOException {
+    public void createBackupFileInLocation(@Mocked FileUtils fileUtils) throws IOException {
         File originalFile = new File("testfile");
         final String backupLocation = "test_backupFile";
         File backupFile = new File(backupLocation);
-        new Expectations(backupService, Files.class) {{
+        new Expectations(backupService) {{
             Files.exists(Paths.get(backupLocation).normalize());
             result = false;
         }};

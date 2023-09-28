@@ -25,17 +25,14 @@ import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.messaging.XmlProcessingException;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
-
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.*;
+import java.util.function.Predicate;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_FILE_UPLOAD_MAX_SIZE;
 import static org.hamcrest.CoreMatchers.containsString;
@@ -46,6 +43,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Thomas Dussart
  * @since 4.0
  */
+@SuppressWarnings({"ResultOfMethodCallIgnored", "DataFlowIssue", "UnusedAssignment", "ThrowableNotThrown", "unchecked", "OptionalGetWithoutIsPresent", "ClassEscapesDefinedScope", "SpellCheckingInspection"})
 @ExtendWith(JMockitExtension.class)
 public class PartyServiceImplTest {
 
@@ -98,29 +96,8 @@ public class PartyServiceImplTest {
     @Injectable
     PartyCoreMapper partyCoreMapper;
 
-    @BeforeEach
-    public void setUp() {
-        new Expectations() {{
-            gatewayParty.getName();
-            result = "gatewayParty";
-            pModeProvider.getGatewayParty();
-            result = gatewayParty;
-
-            configuration.getBusinessProcesses();
-            result = configurationBusinessProcesses;
-            configurationBusinessProcesses.getPartiesXml();
-            result = configurationParties;
-            configurationParties.getPartyIdTypes();
-            result = configurationPartyIdTypes;
-
-            domainProvider.getCurrentDomain();
-            result = currentDomain;
-        }};
-    }
-
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getParties() {
+    public void getParties(@Injectable Party party) {
         String name = "name";
         String endPoint = "endPoint";
         String partyId = "partyId";
@@ -130,10 +107,15 @@ public class PartyServiceImplTest {
 
         new Expectations(partyService) {{
             partyService.getSearchPredicate(anyString, anyString, anyString, anyString);
+            result = (Predicate<Party>) condition -> true;
             partyService.linkPartyAndProcesses();
-            times = 1;
+            result = Collections.singletonList(party);
         }};
-        partyService.getParties(name, endPoint, partyId, processName, pageStart, pageSize);
+
+        List<Party> parties = partyService.getParties(name, endPoint, partyId, processName, pageStart, pageSize);
+
+        assertEquals(1, parties.size());
+        assertEquals(party, parties.get(0));
         new Verifications() {{
             partyService.getSearchPredicate(name, endPoint, partyId, processName);
             times = 1;
@@ -141,7 +123,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void linkPartyAndProcesses() {
         eu.domibus.common.model.configuration.Party partyEntity = new eu.domibus.common.model.configuration.Party();
         final String name = "name";
@@ -183,7 +164,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void returnsEmptyListWhenLinkingProcessWithParty_findAllPartiesThrowsIllegalStateException() {
         new Expectations(partyService) {{
             pModeProvider.findAllParties();
@@ -196,8 +176,7 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void linkProcessWithPartyAsInitiator(final @Mocked eu.domibus.common.model.configuration.Process processEntity) {
+    public void linkProcessWithPartyAsInitiator(final @Injectable eu.domibus.common.model.configuration.Process processEntity) {
         Party party = new Party();
         party.setName("name");
         Map<String, Party> partyMap = new HashMap<>();
@@ -226,8 +205,7 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void linkProcessWithPartyAsResponder(final @Mocked eu.domibus.common.model.configuration.Process processEntity) {
+    public void linkProcessWithPartyAsResponder(final @Injectable eu.domibus.common.model.configuration.Process processEntity) {
         Party party = new Party();
         party.setName("name");
         Map<String, Party> partyMap = new HashMap<>();
@@ -257,16 +235,12 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getSearchPredicate() throws Exception {
+    public void getSearchPredicate() {
         final String name = "name";
         final String endPoint = "endPoint";
         final String partyId = "partyId";
         final String processName = "processName";
 
-        new Expectations(partyService) {{
-
-        }};
         partyService.getSearchPredicate(name, endPoint, partyId, processName);
 
         new Verifications() {{
@@ -282,7 +256,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testNamePredicate(@Injectable Party party) {
         final String name = "name";
 
@@ -298,7 +271,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testEndPointPredicate(@Injectable Party party) {
         final String endPoint = "http://localhost:8080";
 
@@ -314,7 +286,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testPartyIdPredicate(@Injectable Party party, @Injectable Identifier identifier) {
         final String partyId = "partyId";
         List<Identifier> identifiers = new ArrayList<>();
@@ -334,7 +305,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testProcessPredicate(@Injectable Party party, @Injectable Process process) {
         final String processName = "tc1Process";
         List<Process> processes = new ArrayList<>();
@@ -356,7 +326,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testGetGatewayPartyIdentifier() {
         // Given
         String expectedGatewayPartyId = "testGatewayPartyId";
@@ -379,7 +348,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void getProcesses() {
         new Expectations() {{
             pModeProvider.findAllProcesses();
@@ -390,7 +358,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void returnsEmptyListWhenRetrievingAllProcesses_findAllProcessesThrowsIllegalStateException() {
         // Given
         new Expectations(partyService) {{
@@ -406,7 +373,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void failsWhenReplacingPartiesIfTheNewReplacementPartiesDoNotContainTheGatewayPartyDefinitionAsCurrentlyPresentInConfiguration(
             @Injectable eu.domibus.common.model.configuration.Party replacement) {
         // Expected exception
@@ -416,6 +382,15 @@ public class PartyServiceImplTest {
         List<eu.domibus.common.model.configuration.Party> configurationPartyList = Lists.newArrayList(gatewayParty);
 
         new Expectations() {{
+            gatewayParty.getName();
+            result = "gatewayParty";
+            pModeProvider.getGatewayParty();
+            result = gatewayParty;
+
+            configuration.getBusinessProcesses();
+            result = configurationBusinessProcesses;
+            configurationBusinessProcesses.getPartiesXml();
+            result = configurationParties;
             replacement.getName();
             result = "replacementParty"; // update the replacement party
 
@@ -432,7 +407,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void addsPartyIdentifierTypesToTheOnesCurrentlyPresentInConfigurationWhenReplacingParties(@Injectable eu.domibus.common.model.configuration.Party converted,
                                                                                                      @Injectable PartyIdType partyIdType,
                                                                                                      @Injectable PartyIdType matchingConfigurationPartyIdType,
@@ -449,6 +423,18 @@ public class PartyServiceImplTest {
         identifiers.add(secondParty);
 
         new Expectations() {{
+            gatewayParty.getName();
+            result = "gatewayParty";
+            pModeProvider.getGatewayParty();
+            result = gatewayParty;
+
+            configuration.getBusinessProcesses();
+            result = configurationBusinessProcesses;
+            configurationBusinessProcesses.getPartiesXml();
+            result = configurationParties;
+            configurationParties.getPartyIdTypes();
+            result = configurationPartyIdTypes;
+
             partyIdType.equals(matchingConfigurationPartyIdType);
             result = true; // invoked by List#contains
             partyIdType.equals(nonMatchingConfigurationPartyIdType);
@@ -489,7 +475,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void removesInitiatorPartiesFromProcessConfigurationIfThePartiesBeingReplacedDoNotBelongToThoseProcessesAnymoreWhenReplacingParties(@Injectable Party replacement,
                                                                                                                                                @Injectable Process process,
                                                                                                                                                @Injectable eu.domibus.common.model.configuration.Process configurationProcess,
@@ -518,6 +503,8 @@ public class PartyServiceImplTest {
             result = configurationInitiatorParties;
             configurationInitiatorParties.getInitiatorParty();
             result = configurationInitiatorPartyList;
+            gatewayParty.getName();
+            result = "partyName";
 
             replacement.getProcessesWithPartyAsInitiator();
             result = Lists.newArrayList(process);
@@ -541,7 +528,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void doesNotAddInitiatorPartiesIfAlreadyExistingInsideProcessConfigurationWhenReplacingParties(@Injectable Party replacement,
                                                                                                           @Injectable Process process,
                                                                                                           @Injectable eu.domibus.common.model.configuration.Process configurationProcess,
@@ -555,6 +541,18 @@ public class PartyServiceImplTest {
         List<InitiatorParty> configurationInitiatorPartyList = Lists.newArrayList(configurationInitiatorParty);
 
         new Expectations() {{
+            gatewayParty.getName();
+            result = "gatewayParty";
+            pModeProvider.getGatewayParty();
+            result = gatewayParty;
+
+            configuration.getBusinessProcesses();
+            result = configurationBusinessProcesses;
+            configurationBusinessProcesses.getPartiesXml();
+            result = configurationParties;
+            configurationParties.getPartyIdTypes();
+            result = configurationPartyIdTypes;
+
             process.getName();
             result = "process_1";
             configurationProcess.getName();
@@ -594,7 +592,6 @@ public class PartyServiceImplTest {
 
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void addsInitiatorPartiesIfMissingInsideProcessConfigurationWhenReplacingParties(@Injectable Party gatewayReplacement,
                                                                                             @Injectable Party replacement,
                                                                                             @Injectable Process process,
@@ -609,6 +606,17 @@ public class PartyServiceImplTest {
         List<InitiatorParty> configurationInitiatorPartyList = Lists.newArrayList(configurationInitiatorParty);
 
         new Expectations() {{
+            gatewayParty.getName();
+            result = "gatewayParty";
+            pModeProvider.getGatewayParty();
+            result = gatewayParty;
+
+            configuration.getBusinessProcesses();
+            result = configurationBusinessProcesses;
+            configurationBusinessProcesses.getPartiesXml();
+            result = configurationParties;
+            configurationParties.getPartyIdTypes();
+            result = configurationPartyIdTypes;
             process.getName();
             result = "process_1";
             configurationProcess.getName();
@@ -650,7 +658,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void clearsTheInitiatorPartiesForTheConfigurationProcessIfTheReplacementPartyIsNotSetAsInitiatorWhenReplacingParties(@Injectable Party gatewayReplacement,
                                                                                                                                 @Injectable eu.domibus.common.model.configuration.Process configurationProcess,
                                                                                                                                 @Injectable InitiatorParties configurationInitiatorParties,
@@ -672,6 +679,9 @@ public class PartyServiceImplTest {
             gatewayReplacement.getProcessesWithPartyAsInitiator();
             result = Lists.newArrayList();
 
+            gatewayParty.getName();
+            result = "partyName";
+
             partyConverter.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
 
@@ -690,7 +700,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void initializesTheInitiatorPartiesIfUndefinedForTheConfigurationProcessWhenReplacingParties(@Injectable Party gatewayReplacement,
                                                                                                         @Injectable eu.domibus.common.model.configuration.Process configurationProcess,
                                                                                                         @Injectable InitiatorParties configurationInitiatorParties,
@@ -701,6 +710,18 @@ public class PartyServiceImplTest {
         List<eu.domibus.common.model.configuration.Party> configurationPartyList = Lists.newArrayList(gatewayParty);
 
         new Expectations() {{
+            gatewayParty.getName();
+            result = "gatewayParty";
+            pModeProvider.getGatewayParty();
+            result = gatewayParty;
+
+
+            configuration.getBusinessProcesses();
+            result = configurationBusinessProcesses;
+            configurationBusinessProcesses.getPartiesXml();
+            result = configurationParties;
+            configurationParties.getPartyIdTypes();
+            result = configurationPartyIdTypes;
             converted.getName();
             result = "gatewayParty"; // update the gateway party
 
@@ -731,7 +752,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void removesResponderPartiesFromProcessConfigurationIfThePartiesBeingReplacedDoNotBelongToThoseProcessesAnymoreWhenReplacingParties(@Injectable Party replacement,
                                                                                                                                                @Injectable Process process,
                                                                                                                                                @Injectable eu.domibus.common.model.configuration.Process configurationProcess,
@@ -745,6 +765,18 @@ public class PartyServiceImplTest {
         List<ResponderParty> configurationResponderPartyList = Lists.newArrayList(configurationResponderParty);
 
         new Expectations() {{
+            gatewayParty.getName();
+            result = "gatewayParty";
+            pModeProvider.getGatewayParty();
+            result = gatewayParty;
+
+            configuration.getBusinessProcesses();
+            result = configurationBusinessProcesses;
+            configurationBusinessProcesses.getPartiesXml();
+            result = configurationParties;
+            configurationParties.getPartyIdTypes();
+            result = configurationPartyIdTypes;
+
             process.getName();
             result = "process_1";
             configurationProcess.getName();
@@ -783,7 +815,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void doesNotAddResponderPartiesIfAlreadyExistingInsideProcessConfigurationWhenReplacingParties(@Injectable Party replacement,
                                                                                                           @Injectable Process process,
                                                                                                           @Injectable eu.domibus.common.model.configuration.Process configurationProcess,
@@ -797,6 +828,18 @@ public class PartyServiceImplTest {
         List<ResponderParty> configurationResponderPartyList = Lists.newArrayList(configurationResponderParty);
 
         new Expectations() {{
+            gatewayParty.getName();
+            result = "gatewayParty";
+            pModeProvider.getGatewayParty();
+            result = gatewayParty;
+
+            configuration.getBusinessProcesses();
+            result = configurationBusinessProcesses;
+            configurationBusinessProcesses.getPartiesXml();
+            result = configurationParties;
+            configurationParties.getPartyIdTypes();
+            result = configurationPartyIdTypes;
+
             process.getName();
             result = "process_1";
             configurationProcess.getName();
@@ -835,7 +878,6 @@ public class PartyServiceImplTest {
 
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void addsResponderPartiesIfMissingInsideProcessConfigurationWhenReplacingParties(@Injectable Party gatewayReplacement,
                                                                                             @Injectable Party replacement,
                                                                                             @Injectable Process process,
@@ -850,6 +892,17 @@ public class PartyServiceImplTest {
         List<ResponderParty> configurationResponderPartyList = Lists.newArrayList(configurationResponderParty);
 
         new Expectations() {{
+            gatewayParty.getName();
+            result = "gatewayParty";
+            pModeProvider.getGatewayParty();
+            result = gatewayParty;
+
+            configuration.getBusinessProcesses();
+            result = configurationBusinessProcesses;
+            configurationBusinessProcesses.getPartiesXml();
+            result = configurationParties;
+            configurationParties.getPartyIdTypes();
+            result = configurationPartyIdTypes;
             process.getName();
             result = "process_1";
             configurationProcess.getName();
@@ -891,7 +944,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void clearsTheResponderPartiesForTheConfigurationProcessIfTheReplacementPartyIsNotSetAsResponderWhenReplacingParties(@Injectable Party gatewayReplacement,
                                                                                                                                 @Injectable eu.domibus.common.model.configuration.Process configurationProcess,
                                                                                                                                 @Injectable ResponderParties configurationResponderParties,
@@ -902,6 +954,17 @@ public class PartyServiceImplTest {
         List<eu.domibus.common.model.configuration.Party> configurationPartyList = Lists.newArrayList(gatewayParty);
 
         new Expectations() {{
+            gatewayParty.getName();
+            result = "gatewayParty";
+            pModeProvider.getGatewayParty();
+            result = gatewayParty;
+
+            configuration.getBusinessProcesses();
+            result = configurationBusinessProcesses;
+            configurationBusinessProcesses.getPartiesXml();
+            result = configurationParties;
+            configurationParties.getPartyIdTypes();
+            result = configurationPartyIdTypes;
             converted.getName();
             result = "gatewayParty"; // update the gateway party
 
@@ -931,7 +994,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void initializesTheResponderPartiesIfUndefinedForTheConfigurationProcessWhenReplacingParties(@Injectable Party gatewayReplacement,
                                                                                                         @Injectable eu.domibus.common.model.configuration.Process configurationProcess,
                                                                                                         @Injectable ResponderParties configurationResponderParties,
@@ -952,6 +1014,8 @@ public class PartyServiceImplTest {
 
             gatewayReplacement.getProcessesWithPartyAsResponder();
             result = Lists.newArrayList();
+            gatewayParty.getName();
+            result = "partyName";
 
             partyConverter.partyListToConfigurationPartyList(replacements);
             result = convertedForReplacement;
@@ -972,7 +1036,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void throwsExceptionIfItCannotRetrieveThePModeRawConfigurationsArchiveWhenUpdatingParties() {
         // Given
         new Expectations() {{
@@ -987,10 +1050,11 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void throwsExceptionIfItCannotRetrieveThePModeConfigurationWhenUpdatingParties(@Injectable PModeArchiveInfo pModeArchiveInfo,
                                                                                           @Injectable ConfigurationRaw rawConfiguration) throws Exception {
         // Given
+
+        XmlProcessingException xmlProcessingException = new XmlProcessingException("");
 
         new Expectations() {{
             pModeArchiveInfo.getId();
@@ -998,12 +1062,13 @@ public class PartyServiceImplTest {
             rawConfiguration.getXml();
             result = any;
 
-            pModeProvider.getRawConfigurationList();
-            result = Lists.newArrayList(pModeArchiveInfo);
             pModeProvider.getRawConfiguration(anyInt);
             result = rawConfiguration;
             pModeProvider.getPModeConfiguration((byte[]) any);
-            result = new XmlProcessingException("");
+            result = xmlProcessingException;
+
+            pModeValidationHelper.getPModeValidationException(xmlProcessingException, anyString);
+            result = new PModeValidationException(Collections.singletonList(new ValidationIssue("TEST")));
         }};
 
         // When
@@ -1011,20 +1076,19 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void throwsExceptionIfItCannotUpdatePModeConfigurationWhenUpdatingParties(@Injectable PModeArchiveInfo pModeArchiveInfo,
                                                                                      @Injectable ConfigurationRaw rawConfiguration,
-                                                                                     @Mocked PartyServiceImpl.ReplacementResult replacementResult) throws Exception {
+                                                                                     @Injectable PartyServiceImpl.ReplacementResult replacementResult) throws Exception {
         // Given
+        XmlProcessingException xmlProcessingException = new XmlProcessingException("");
 
         new Expectations(partyService) {{
+
             pModeArchiveInfo.getId();
             result = anyInt;
             rawConfiguration.getXml();
             result = any;
 
-            pModeProvider.getRawConfigurationList();
-            result = Lists.newArrayList(pModeArchiveInfo);
             pModeProvider.getRawConfiguration(anyInt);
             result = rawConfiguration;
             pModeProvider.getPModeConfiguration((byte[]) any);
@@ -1037,8 +1101,10 @@ public class PartyServiceImplTest {
             pModeProvider.serializePModeConfiguration(configuration);
             result = any;
             pModeProvider.updatePModes((byte[]) any, anyString);
-            result = new XmlProcessingException("");
+            result = xmlProcessingException;
 
+            pModeValidationHelper.getPModeValidationException(xmlProcessingException, "Error writing current PMode due to: ");
+            result = new PModeValidationException(Collections.singletonList(new ValidationIssue("TEST")));
         }};
 
         // When
@@ -1046,7 +1112,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void removesCertificatesInTheCurrentDomainForRemovedPartiesWhenUpdatingParties(@Injectable PModeArchiveInfo pModeArchiveInfo,
                                                                                           @Injectable ConfigurationRaw rawConfiguration,
                                                                                           @Injectable eu.domibus.common.model.configuration.Party removedParty) throws Exception {
@@ -1092,7 +1157,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void ignoresNullPartyCertificatesInTheCurrentDomainWhenUpdatingParties(@Injectable PModeArchiveInfo pModeArchiveInfo,
                                                                                   @Injectable ConfigurationRaw rawConfiguration,
                                                                                   @Injectable eu.domibus.common.model.configuration.Party removedParty) throws Exception {
@@ -1135,7 +1199,6 @@ public class PartyServiceImplTest {
 
         // Then
         new Verifications() {{
-            List<CertificateEntry> certificates = null;
             certificateService.loadCertificate((String) null);
             times = 0;
             multiDomainCertificateProvider.addCertificate(currentDomain, null, anyBoolean);
@@ -1144,13 +1207,11 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void TrustStoreUpdateInTheCurrentDomainWhenUpdatingPartiesOnlyIfAnyChangeInCertificate(@Injectable X509Certificate x509Certificate,
                                                                                                   @Injectable PartyServiceImpl.ReplacementResult replacementResult,
-                                                                                                  @Injectable eu.domibus.common.model.configuration.Party removedParty) throws Exception {
+                                                                                                  @Injectable eu.domibus.common.model.configuration.Party removedParty) {
 
         // Given
-        List<eu.domibus.common.model.configuration.Party> removedParties = Lists.newArrayList(removedParty);
         Map<String, String> partyToCertificateMap = Maps.newHashMap();
         partyToCertificateMap.put("party_red", "certificate_1");
         List<String> aliases = new ArrayList<>();
@@ -1180,7 +1241,7 @@ public class PartyServiceImplTest {
             certificateService.saveCertificateAndLogRevocation(trustStore, keyStore);
 
             Assertions.assertTrue(aliases.size() == 1
-                            && "party_blue".equals(aliases.get(0).toString()),
+                            && "party_blue".equals(aliases.get(0)),
                     "Should update party truststore when removing certificates of the parties");
             Assertions.assertTrue(certificates.size() == 1
                             && "party_red".equals(certificates.get(0).getAlias())
@@ -1191,7 +1252,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void addsPartyCertificatesInTheCurrentDomainWhenUpdatingParties(@Injectable PModeArchiveInfo pModeArchiveInfo,
                                                                            @Injectable ConfigurationRaw rawConfiguration,
                                                                            @Injectable X509Certificate x509Certificate,
@@ -1249,7 +1309,6 @@ public class PartyServiceImplTest {
 
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void throwsExceptionIfLoadingPartyCertificatesFailsInTheCurrentDomainWhenUpdatingParties(@Injectable PModeArchiveInfo pModeArchiveInfo,
                                                                                                     @Injectable ConfigurationRaw rawConfiguration,
                                                                                                     @Injectable eu.domibus.common.model.configuration.Party removedParty) throws Exception {
@@ -1265,6 +1324,7 @@ public class PartyServiceImplTest {
         }};
 
         new Expectations() {{
+
             pModeArchiveInfo.getId();
             result = anyInt;
             rawConfiguration.getXml();
@@ -1272,10 +1332,6 @@ public class PartyServiceImplTest {
             removedParty.getName();
             result = "removed";
 
-            pModeProvider.getRawConfigurationList();
-            result = Lists.newArrayList(pModeArchiveInfo);
-            pModeProvider.getRawConfiguration(anyInt);
-            result = rawConfiguration;
             pModeProvider.getPModeConfiguration((byte[]) any);
             result = configuration;
 
@@ -1294,9 +1350,8 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void printPartyProcessesTest(@Injectable Party party,
-                                        @Mocked Process process) {
+                                        @Injectable Process process) {
         List<Process> processes = new ArrayList<>();
 
         new Expectations() {{
@@ -1319,12 +1374,11 @@ public class PartyServiceImplTest {
 
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void test_createParty(final @Mocked Party party,
-                                 final @Mocked eu.domibus.common.model.configuration.Party configParty,
-                                 final @Mocked BusinessProcesses businessProcesses,
-                                 final @Mocked Parties parties,
-                                 final @Mocked Configuration configuration) {
+    public void test_createParty(final @Injectable Party party,
+                                 final @Injectable eu.domibus.common.model.configuration.Party configParty,
+                                 final @Injectable BusinessProcesses businessProcesses,
+                                 final @Injectable Parties parties,
+                                 final @Injectable Configuration configuration) {
         final String certificateContent = "test";
         final List<eu.domibus.common.model.configuration.Party> listParties = new ArrayList<>();
 
@@ -1358,16 +1412,15 @@ public class PartyServiceImplTest {
 
             partyService.updateConfiguration((Date) any, configuration);
 
-            partyService.addPartyCertificate((HashMap) any);
+            partyService.addPartyCertificate((HashMap<String, String>) any);
         }};
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void test_addPartyToConfiguration(final @Mocked eu.domibus.common.model.configuration.Party configParty,
-                                             final @Mocked BusinessProcesses businessProcesses,
-                                             final @Mocked Parties parties,
-                                             final @Mocked Configuration configuration) {
+    public void test_addPartyToConfiguration(final @Injectable eu.domibus.common.model.configuration.Party configParty,
+                                             final @Injectable BusinessProcesses businessProcesses,
+                                             final @Injectable Parties parties,
+                                             final @Injectable Configuration configuration) {
         final List<eu.domibus.common.model.configuration.Party> listParties = new ArrayList<>();
 
         new Expectations() {{
@@ -1388,10 +1441,9 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void test_addProcessConfiguration(final @Mocked Party party,
-                                             final @Mocked eu.domibus.common.model.configuration.Process configProcess,
-                                             final @Mocked Configuration configuration) {
+    public void test_addProcessConfiguration(final @Injectable Party party,
+                                             final @Injectable eu.domibus.common.model.configuration.Process configProcess,
+                                             final @Injectable Configuration configuration) {
         final List<Process> listProcesses = new ArrayList<>();
         Process process = new Process();
         process.setName("tc1Process");
@@ -1431,9 +1483,8 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void test_getProcess(final @Mocked Configuration configuration,
-                                final @Mocked BusinessProcesses businessProcesses) {
+    public void test_getProcess(final @Injectable Configuration configuration,
+                                final @Injectable BusinessProcesses businessProcesses) {
         final String processName = "tc1Process";
         final List<eu.domibus.common.model.configuration.Process> listProcesses = new ArrayList<>();
         eu.domibus.common.model.configuration.Process process = new eu.domibus.common.model.configuration.Process();
@@ -1455,9 +1506,8 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void test_getProcess_NotFound(final @Mocked Configuration configuration,
-                                         final @Mocked BusinessProcesses businessProcesses) {
+    public void test_getProcess_NotFound(final @Injectable Configuration configuration,
+                                         final @Injectable BusinessProcesses businessProcesses) {
         final String processName = "tc1Process2";
         final List<eu.domibus.common.model.configuration.Process> listProcesses = new ArrayList<>();
         eu.domibus.common.model.configuration.Process process = new eu.domibus.common.model.configuration.Process();
@@ -1483,15 +1533,22 @@ public class PartyServiceImplTest {
 
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void test_deleteParty(final @Mocked Configuration configuration, final @Mocked BusinessProcesses businessProcesses,
-                                 final @Mocked eu.domibus.common.model.configuration.Party party,
-                                 final @Mocked Parties parties) {
+    public void test_deleteParty(final @Injectable Configuration configuration, final @Injectable BusinessProcesses businessProcesses,
+                                 final @Injectable eu.domibus.common.model.configuration.Party party,
+                                 final @Injectable Parties parties) {
         final String partyName = "red-gw";
         final List<eu.domibus.common.model.configuration.Party> listParties = new ArrayList<>();
         listParties.add(party);
 
         new Expectations(partyService) {{
+
+            gatewayParty.getName();
+            result = "gatewayParty";
+            pModeProvider.getGatewayParty();
+            result = gatewayParty;
+
+            configuration.getBusinessProcesses();
+            result = configurationBusinessProcesses;
             partyService.getConfiguration();
             result = configuration;
 
@@ -1529,11 +1586,10 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void test_removeProcessConfigurationInitiatorResponderParties(final @Mocked Party party,
-                                                                         final @Mocked eu.domibus.common.model.configuration.Process process,
-                                                                         final @Mocked InitiatorParties initiatorParties,
-                                                                         final @Mocked ResponderParties responderParties) {
+    public void test_removeProcessConfigurationInitiatorResponderParties(final @Injectable Party party,
+                                                                         final @Injectable eu.domibus.common.model.configuration.Process process,
+                                                                         final @Injectable InitiatorParties initiatorParties,
+                                                                         final @Injectable ResponderParties responderParties) {
         final String partyName = "red-gw";
 
         InitiatorParty initiatorParty = new InitiatorParty();
@@ -1566,23 +1622,38 @@ public class PartyServiceImplTest {
 
         //tested method
         partyService.removeProcessConfigurationInitiatorResponderParties(party, process);
-        Assertions.assertTrue(initiatorPartyList.size() == 0);
-        Assertions.assertTrue(responderPartyList.size() == 0);
+        assertEquals(0, initiatorPartyList.size());
+        assertEquals(0, responderPartyList.size());
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void test_updateParty(final @Mocked Configuration configuration, final @Mocked BusinessProcesses businessProcesses,
-                                 final @Mocked eu.domibus.common.model.configuration.Party configParty,
-                                 final @Mocked eu.domibus.common.model.configuration.Party newParty,
-                                 final @Mocked Party party,
-                                 final @Mocked Parties parties) {
+    public void test_updateParty(final @Injectable Configuration configuration, final @Injectable BusinessProcesses businessProcesses,
+                                 final @Injectable eu.domibus.common.model.configuration.Party configParty,
+                                 final @Injectable eu.domibus.common.model.configuration.Party newParty,
+                                 final @Injectable Party party,
+                                 final @Injectable Parties parties) {
         final String partyName = "red-gw";
         final List<eu.domibus.common.model.configuration.Party> listParties = new ArrayList<>();
         listParties.add(configParty);
         final String certificateContent = "test";
 
         new Expectations(partyService) {{
+            gatewayParty.getName();
+            result = "gatewayParty";
+            pModeProvider.getGatewayParty();
+            result = gatewayParty;
+
+            configuration.getBusinessProcesses();
+            result = configurationBusinessProcesses;
+
+            gatewayParty.getName();
+            result = "gatewayParty";
+            pModeProvider.getGatewayParty();
+            result = gatewayParty;
+
+            configuration.getBusinessProcesses();
+            result = configurationBusinessProcesses;
+
             party.getName();
             result = partyName;
 
@@ -1631,18 +1702,17 @@ public class PartyServiceImplTest {
 
             partyService.updateConfiguration((Date) any, configuration);
 
-            partyService.addPartyCertificate((HashMap) any);
+            partyService.addPartyCertificate((HashMap<String, String>) any);
 
         }};
     }
 
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void test_getConfiguration(final @Mocked PModeArchiveInfo pModeArchiveInfo,
-                                      final @Mocked ConfigurationRaw configurationRaw,
-                                      final @Mocked byte[] pmodeContent,
-                                      final @Mocked Configuration configuration) throws Exception {
+    public void test_getConfiguration(final @Injectable PModeArchiveInfo pModeArchiveInfo,
+                                      final @Injectable ConfigurationRaw configurationRaw,
+                                      final @Injectable byte[] pmodeContent,
+                                      final @Injectable Configuration configuration) throws Exception {
         final long pModeId = 1;
 
         new Expectations(partyService) {{
@@ -1666,15 +1736,14 @@ public class PartyServiceImplTest {
         //tested method
         partyService.getConfiguration();
 
-        new FullVerifications(pModeProvider) {{
-        }};
+        new FullVerifications() {
+        };
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void test_getConfiguration_Exception(final @Mocked PModeArchiveInfo pModeArchiveInfo,
-                                                final @Mocked ConfigurationRaw configurationRaw,
-                                                final @Mocked byte[] pmodeContent) throws Exception {
+    public void test_getConfiguration_Exception(final @Injectable PModeArchiveInfo pModeArchiveInfo,
+                                                final @Injectable ConfigurationRaw configurationRaw,
+                                                final @Injectable byte[] pmodeContent) throws Exception {
         final long pModeId = 1;
 
         new Expectations(partyService) {{
@@ -1703,12 +1772,11 @@ public class PartyServiceImplTest {
             Assertions.assertTrue(e instanceof PModeException);
         }
 
-        new FullVerifications(pModeProvider) {{
-        }};
+        new FullVerifications() {
+        };
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void test_getParty() {
         final String partyName = "red-gw";
         List<eu.domibus.common.model.configuration.Party> partyList = new ArrayList<>();
@@ -1723,7 +1791,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void validatePartyCertificates_errors() {
         Map<String, String> partyToCertificateMap = new HashMap<>();
         partyToCertificateMap.put("party1", "l/kjgslkgjrlgjkerljkh");
@@ -1747,7 +1814,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void validatePartyCertificates_OK() {
         Map<String, String> partyToCertificateMap = new HashMap<>();
         partyToCertificateMap.put("party1", "l/kjgslkgjrlgjkerljkh");
@@ -1767,7 +1833,6 @@ public class PartyServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testSanitize() {
         String partyIdTypeName = "partyIdTypeName";
         String partyIdId = "blue";
@@ -1782,9 +1847,9 @@ public class PartyServiceImplTest {
 
         Party party = new Party();
         party.setName(" " + partyName + "  ");
-        party.setIdentifiers(Arrays.asList(partyId));
+        party.setIdentifiers(Collections.singletonList(partyId));
 
-        List<Party> parties = Arrays.asList(party);
+        List<Party> parties = Collections.singletonList(party);
 
         partyService.sanitizeParties(parties);
 
