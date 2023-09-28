@@ -7,9 +7,9 @@ import eu.domibus.common.model.configuration.Party;
 import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryLookupDao;
 import eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryLookupService;
 import eu.domibus.test.common.PKIUtil;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,13 +42,13 @@ public class PmodeServiceTestIT extends AbstractIT {
     @Autowired
     PModeService pModeService;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         dynamicDiscoveryLookupDao.deleteAll(dynamicDiscoveryLookupDao.findAll());
         domibusPropertyProvider.setProperty(domainContextProvider.getCurrentDomain(), DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "true");
     }
 
-    @After
+    @AfterEach
     public void clean() {
         domibusPropertyProvider.setProperty(domainContextProvider.getCurrentDomain(), DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "false");
     }

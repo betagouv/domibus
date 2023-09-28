@@ -252,6 +252,9 @@ public abstract class PModeProvider {
         String receiverParty;
 
         final String messageId = userMessage.getMessageId();
+
+        LOG.debug("Finding the UserMessage exchange context for user message id [{}], mshRole [{}], isPull [{}], processingType [{}]", messageId, mshRole, isPull, processingType);
+
         //add messageId to MDC map
         if (StringUtils.isNotBlank(messageId)) {
             LOG.putMDC(DomibusLogger.MDC_MESSAGE_ID, messageId);

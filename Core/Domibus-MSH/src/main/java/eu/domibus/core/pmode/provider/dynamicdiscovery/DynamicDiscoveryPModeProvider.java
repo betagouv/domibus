@@ -342,15 +342,6 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         //we add the partyTo in the UserMessage
         addPartyToInUserMessage(userMessage, receiverParty);
 
-        //we add the certificate in the Domibus truststore, domain specific
-        Domain currentDomain = domainProvider.getCurrentDomain();
-
-        //save certificate in the truststore using synchronisation
-        boolean added = multiDomainCertificateProvider.addCertificate(currentDomain, x509Certificate, certificateCn, true);
-        if (added) {
-            LOG.info("Added public certificate with alias [{}] to the truststore for domain [{}]: [{}] ", certificateCn, currentDomain, x509Certificate);
-        }
-
         //update party in the Pmode with the latest discovered values; synchronized
         final String partyName = receiverParty.getValue();
         final String partyType = receiverParty.getType();
@@ -365,6 +356,9 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
         final List<String> partyProcessNames = getProcessNames(processCandidates);
 
+        //we add the certificate in the Domibus truststore, domain specific
+        //save certificate in the truststore using synchronisation
+        addCertificatesReceivedFromSmp(userMessage, x509Certificate, certificateCn);
 
         if (CollectionUtils.isNotEmpty(pModeEventListeners)) {
             //we call the PMode event listeners
@@ -378,6 +372,48 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
             });
         }
     }
+
+    private void addCertificatesReceivedFromSmp(UserMessage userMessage, X509Certificate certificate, String certificateCn) throws EbMS3Exception {
+        //it is important to call the findUserMessageExchangeContext from the super class so that we avoid recursion(endless loop)
+        final MessageExchangeConfiguration userMessageExchangeContext = super.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, null, false);
+        String pModeKey = userMessageExchangeContext.getPmodeKey();
+        LegConfiguration legConfiguration = getLegConfiguration(pModeKey);
+        LOG.debug("Found leg [{}] for PMode key [{}]", legConfiguration.getName(), pModeKey);
+
+        SecurityProfile securityProfile = legConfiguration.getSecurity().getProfile();
+
+        if (securityProfile != null) {
+            addCertificate(certificateCn, securityProfile, CertificatePurpose.SIGN, certificate);
+            addCertificate(certificateCn, securityProfile, CertificatePurpose.ENCRYPT, certificate);
+        } else {
+            //legacy alias
+            addCertificate(certificateCn, null, null, certificate);
+        }
+    }
+
+    /**
+     * Method adds certificate to the store. Currently, it is not possible to move this method to CertificateService since
+     * MultiDomainCryptoService contains a bean of type CertificateService which would cause a circular dependency
+     *
+     * @param cn - the certificate's common name
+     * @param securityProfile - the security profile, null if security profiles are not defined
+     * @param certificatePurpose - purpose of the certificate sign/encrypt
+     * @param certificate - the certificate which is added to the store
+     */
+    private void addCertificate(String cn, SecurityProfile securityProfile, CertificatePurpose certificatePurpose, final X509Certificate certificate) {
+        Domain currentDomain = domainProvider.getCurrentDomain();
+
+        String alias = cn;
+        if (securityProfile != null) {
+            alias = securityProfileService.getCertificateAliasForPurpose(cn, securityProfile, certificatePurpose);
+        }
+
+        boolean added = multiDomainCertificateProvider.addCertificate(currentDomain, certificate, alias, true);
+        if (added) {
+            LOG.debug("Added public certificate [{}] with alias [{}] to the truststore for domain [{}]", certificate, cn, currentDomain);
+        }
+    }
+
 
     protected PartyEndpointInfo getPartyEndpointInfo(EndpointInfo endpointInfo, String messageId) throws EbMS3Exception {
         final X509Certificate x509Certificate = endpointInfo.getCertificate();

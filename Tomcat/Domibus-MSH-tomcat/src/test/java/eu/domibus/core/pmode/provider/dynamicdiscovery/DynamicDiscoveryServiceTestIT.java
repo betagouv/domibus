@@ -6,8 +6,8 @@ import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.dynamicdyscovery.DynamicDiscoveryLookupEntity;
 import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.model.*;
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pki.MultiDomainCryptoService;
-import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthenticationException;
@@ -18,15 +18,17 @@ import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.jms.JMSManagerImpl;
 import eu.domibus.core.pmode.multitenancy.MultiDomainPModeProvider;
+import eu.domibus.ext.services.DomainContextExtService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.plugin.ProcessingType;
 import eu.domibus.test.common.PKIUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -41,7 +43,7 @@ import java.util.stream.Collectors;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY;
 import static eu.domibus.core.pmode.provider.dynamicdiscovery.DynamicDiscoveryServicePEPPOLConfigurationMockup.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Cosmin Baciu
@@ -70,6 +72,9 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     private MultiDomainCryptoServiceImpl multiDomainCryptoService;
 
     @Autowired
+    DomainContextExtService domainContextExtService;
+
+    @Autowired
     SignalService signalService;
 
     @Autowired
@@ -78,26 +83,39 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     @Autowired
     DynamicDiscoveryDeletePmodePartiesCommandTask dynamicDiscoveryDeletePmodePartiesCommandTask;
 
+    //dependency to initialize the DynamicDiscoveryServicePEPPOLConfigurationMockup.participantConfigurations
+    @Autowired
+    DynamicDiscoveryServicePEPPOL dynamicDiscoveryServicePEPPOL;
+
     @Configuration
     static class ContextConfiguration {
 
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        uploadPmode(SERVICE_PORT, "dataset/pmode/PModeDynamicDiscovery.xml", null);
+        uploadPMode(SERVICE_PORT, "dataset/pmode/PModeDynamicDiscovery.xml", null);
 
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "true");
-        domibusPropertyProvider.setProperty(DOMAIN, DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED, "true");
+
+        setClusteredProperty("true");
 
         domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION, DynamicDiscoveryClientSpecification.PEPPOL.getName());
     }
 
-    @After
+    protected void setClusteredProperty(String value) {
+        final Domain currentDomain = domainContextProvider.getCurrentDomain();
+        domainContextProvider.clearCurrentDomain();
+        domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED, value);
+        domainContextProvider.setCurrentDomain(currentDomain);
+    }
+
+    @AfterEach
     public void clean() {
         domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION, DynamicDiscoveryClientSpecification.OASIS.getName());
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "false");
-        domibusPropertyProvider.setProperty(DOMAIN, DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED, "false");
+
+        setClusteredProperty("false");
     }
 
     //start tests
@@ -195,6 +213,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
 
             final Thread thread = new Thread(() -> {
                 try {
+                    domainContextProvider.setCurrentDomain(DOMAIN);
                     //perform lookup
                     doLookupForFinalRecipient(finalRecipient);
                 } catch (EbMS3Exception e) {
@@ -357,7 +376,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         assertNotNull(multiDomainPModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PUSH));
     }
 
-    @Test(expected = AuthenticationException.class)
+    @Test
     public void c1SubmitsMessageToPartyWithExpiredCertificate() throws EbMS3Exception {
         //clean up
         cleanBeforeLookup();
@@ -365,7 +384,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         final UserMessage userMessage = buildUserMessage(FINAL_RECIPIENT4);
         //it triggers dynamic discovery lookup in SMP  because toParty is empty
         //it throws an exception because the discovered certificate is expired
-        multiDomainPModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PUSH);
+        Assertions.assertThrows(AuthenticationException. class,() -> multiDomainPModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PUSH));
     }
 
     @Test
@@ -480,7 +499,8 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         Date ddcTimeFinalRecipient1 = DateUtils.addHours(new Date(), 25 * -1);
         setDynamicDiscoveryTime(finalRecipient1, ddcTimeFinalRecipient1);
 
-        domibusPropertyProvider.setProperty(DOMAIN, DomibusConfigurationService.CLUSTER_DEPLOYMENT, "true");
+        setClusteredProperty("true");
+
         try {
             //we verify that the URL for final recipient is present in the cache
             assertTrue(dynamicDiscoveryLookupService.getFinalRecipientAccessPointUrls().containsKey(finalRecipient1));
@@ -510,7 +530,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
             //check that there are no processes which contain the party name in the responder parties
             assertFalse(isPartyPresentInTheResponderParties(partyName1));
         } finally {
-            domibusPropertyProvider.setProperty(DOMAIN, DomibusConfigurationService.CLUSTER_DEPLOYMENT, "false");
+            setClusteredProperty("false");
         }
     }
 

@@ -8,9 +8,9 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.PKIUtil;
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,12 +37,12 @@ public class DynamicDiscoveryLookupServiceTestIT extends AbstractIT {
     @Autowired
     protected DynamicDiscoveryLookupService dynamicDiscoveryLookupService;
 
-    @Before
+    @BeforeEach
     public void initialize() {
         deleteAllEntriesFromDB();
     }
 
-    @After
+    @AfterEach
     public void clean() {
         deleteAllEntriesFromDB();
     }

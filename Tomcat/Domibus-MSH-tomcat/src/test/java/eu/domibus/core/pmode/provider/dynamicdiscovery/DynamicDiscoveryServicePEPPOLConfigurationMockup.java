@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+import javax.annotation.PostConstruct;
 import java.math.BigInteger;
 import java.net.URI;
 import java.security.cert.X509Certificate;
@@ -60,21 +61,8 @@ public class DynamicDiscoveryServicePEPPOLConfigurationMockup {
         return DOMAIN;
     }
 
-
-    @Primary
-    @Bean
-    public DynamicDiscoveryServicePEPPOL dynamicDiscoveryServicePEPPOL(DomibusPropertyProvider domibusPropertyProvider,
-                                                                       MultiDomainCryptoService multiDomainCertificateProvider,
-                                                                       DomainContextProvider domainProvider,
-                                                                       ProxyUtil proxyUtil,
-                                                                       CertificateService certificateService,
-                                                                       DomibusHttpRoutePlanner domibusHttpRoutePlanner,
-                                                                       X509CertificateService x509CertificateService,
-                                                                       ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators,
-                                                                       ObjectProvider<DomibusBusdoxLocator> busdoxLocators,
-                                                                       ObjectProvider<DomibusApacheFetcher> domibusApacheFetchers,
-                                                                       ObjectProvider<EndpointInfo> endpointInfos,
-                                                                       DynamicDiscoveryUtil dynamicDiscoveryUtil) {
+    @PostConstruct
+    public void initialize() {
         PKIUtil pkiUtil = new PKIUtil();
         //we create the certificate for party 1 and party 2 Access Points
         final X509Certificate party1Certificate = pkiUtil.createCertificateWithSubject(BigInteger.valueOf(PARTY_NAME1_CERTIFICATE_SERIAL_NUMBER), "CN=" + PARTY_NAME1 + ",OU=Domibus,O=eDelivery,C=EU");
@@ -94,6 +82,24 @@ public class DynamicDiscoveryServicePEPPOLConfigurationMockup {
 
         //final recipient 5 is configured on party4 Access Point
         addParticipantConfiguration(FINAL_RECIPIENT5, PARTY_NAME4, party4Certificate);
+    }
+
+
+    @Primary
+    @Bean
+    public DynamicDiscoveryServicePEPPOL dynamicDiscoveryServicePEPPOL(DomibusPropertyProvider domibusPropertyProvider,
+                                                                       MultiDomainCryptoService multiDomainCertificateProvider,
+                                                                       DomainContextProvider domainProvider,
+                                                                       ProxyUtil proxyUtil,
+                                                                       CertificateService certificateService,
+                                                                       DomibusHttpRoutePlanner domibusHttpRoutePlanner,
+                                                                       X509CertificateService x509CertificateService,
+                                                                       ObjectProvider<DomibusCertificateValidator> domibusCertificateValidators,
+                                                                       ObjectProvider<DomibusBusdoxLocator> busdoxLocators,
+                                                                       ObjectProvider<DomibusApacheFetcher> domibusApacheFetchers,
+                                                                       ObjectProvider<EndpointInfo> endpointInfos,
+                                                                       DynamicDiscoveryUtil dynamicDiscoveryUtil) {
+
 
         return new DynamicDiscoveryServicePEPPOL(domibusPropertyProvider,
                 multiDomainCertificateProvider,
