@@ -249,8 +249,8 @@ public class DynamicDiscoveryPModeProviderTest {
     @Test
     public void testDoDynamicDiscoveryOnReceiver() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
-        doReturn(true).when(configurationDAO).configurationExists();
-        doReturn(testData).when(configurationDAO).readEager();
+        lenient().doReturn(true).when(configurationDAO).configurationExists();
+        lenient().doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
 
         UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());

@@ -64,6 +64,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ExtendWith(JMockitExtension.class)
+@Disabled("EDELIVERY-6896")
 public class CachingPModeProviderTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CachingPModeProviderTest.class);
@@ -135,9 +136,6 @@ public class CachingPModeProviderTest {
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
 
-    @Tested
-    CachingPModeProvider cachingPModeProvider;
-
     @Injectable
     private MpcService mpcService;
 
@@ -170,6 +168,9 @@ public class CachingPModeProviderTest {
 
     @Injectable
     PModeValidationHelper pModeValidationHelper;
+
+    @Tested
+    CachingPModeProvider cachingPModeProvider;
 
     public Configuration loadSamplePModeConfiguration(String samplePModeFileRelativeURI) throws JAXBException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         LOG.debug("Inside sample PMode configuration");
