@@ -10,7 +10,6 @@ import eu.domibus.core.plugin.notification.BackendNotificationService;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -19,12 +18,14 @@ import javax.crypto.CipherOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
  */
+@SuppressWarnings({"unused", "ResultOfMethodCallIgnored"})
 @ExtendWith(JMockitExtension.class)
 public class DatabasePayloadPersistenceTest {
 
@@ -45,20 +46,25 @@ public class DatabasePayloadPersistenceTest {
 
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testStoreIncomingPayload(@Injectable PartInfo partInfo,
                                          @Injectable UserMessage userMessage,
                                          @Injectable LegConfiguration legConfiguration,
                                          @Injectable String backendName,
                                          @Injectable InputStream inputStream,
-                                         @Mocked ByteArrayOutputStream byteArrayOutputStream,
+                                         @Mocked ByteArrayOutputStream byteArrayOutputStreamBase,
                                          @Injectable Cipher encryptCipherForPayload,
                                          @Mocked CipherOutputStream cipherOutputStream) throws IOException {
         final byte[] binaryData = "test".getBytes();
 
+        new MockUp<IOUtils>() {
+            @Mock
+            public long copy(final InputStream inputStream, final OutputStream outputStream, final int bufferSize) {
+                return 1L;
+            }
+        };
+
         new Expectations() {{
-            new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
-            result = byteArrayOutputStream;
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
 
             byteArrayOutputStream.toByteArray();
             result = binaryData;
@@ -69,13 +75,11 @@ public class DatabasePayloadPersistenceTest {
             encryptionService.getEncryptCipherForPayload();
             result = encryptCipherForPayload;
 
-            new CipherOutputStream(byteArrayOutputStream, encryptCipherForPayload);
-            result = cipherOutputStream;
-
             partInfo.getPayloadDatahandler().getInputStream();
             result = inputStream;
 
-            IOUtils.copy(inputStream, cipherOutputStream, PayloadPersistence.DEFAULT_BUFFER_SIZE);
+            new CipherOutputStream(byteArrayOutputStream, encryptCipherForPayload);
+            times = 1;
         }};
 
         databasePayloadPersistence.storeIncomingPayload(partInfo, userMessage, legConfiguration);
@@ -98,7 +102,7 @@ public class DatabasePayloadPersistenceTest {
                                          @Injectable String backendName,
                                          @Injectable InputStream inputStream) throws IOException, EbMS3Exception {
 
-        final String myfile = "myfile";
+        final String myFile = "myFile";
         byte[] binaryData = "fileContent".getBytes();
 
         new Expectations(databasePayloadPersistence) {{
@@ -107,7 +111,7 @@ public class DatabasePayloadPersistenceTest {
             result = inputStream;
 
             partInfo.getFileName();
-            result = myfile;
+            result = myFile;
 
             payloadPersistenceHelper.isPayloadEncryptionActive(userMessage);
             result = false;
@@ -119,8 +123,8 @@ public class DatabasePayloadPersistenceTest {
         databasePayloadPersistence.storeOutgoingPayload(partInfo, userMessage, legConfiguration, backendName);
 
         new Verifications() {{
-            backendNotificationService.notifyPayloadSubmitted(userMessage, myfile, partInfo, backendName);
-            backendNotificationService.notifyPayloadProcessed(userMessage, myfile, partInfo, backendName);
+            backendNotificationService.notifyPayloadSubmitted(userMessage, myFile, partInfo, backendName);
+            backendNotificationService.notifyPayloadProcessed(userMessage, myFile, partInfo, backendName);
 
             partInfo.setBinaryData(binaryData);
             partInfo.setLength(binaryData.length);
@@ -132,7 +136,6 @@ public class DatabasePayloadPersistenceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testGetOutgoingBinaryData(@Injectable PartInfo partInfo,
                                           @Injectable UserMessage userMessage,
                                           @Injectable LegConfiguration legConfiguration,
@@ -142,9 +145,16 @@ public class DatabasePayloadPersistenceTest {
                                           @Injectable Cipher encryptCipherForPayload,
                                           @Mocked CipherOutputStream cipherOutputStream,
                                           @Mocked GZIPOutputStream gzipOutputStream) throws IOException, EbMS3Exception {
+
+        new MockUp<IOUtils>() {
+            @Mock
+            public long copy(final InputStream inputStream, final OutputStream outputStream, final int bufferSize) {
+                return 1L;
+            }
+        };
+
         new Expectations() {{
-            new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
-            result = byteArrayOutputStream;
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(PayloadPersistence.DEFAULT_BUFFER_SIZE);
 
             compressionService.handleCompression(userMessage.getMessageId(), partInfo, legConfiguration);
             result = true;
@@ -152,13 +162,12 @@ public class DatabasePayloadPersistenceTest {
             encryptionService.getEncryptCipherForPayload();
             result = encryptCipherForPayload;
 
-            new CipherOutputStream(byteArrayOutputStream, encryptCipherForPayload);
-            result = cipherOutputStream;
+            CipherOutputStream cipherOutputStream = new CipherOutputStream(byteArrayOutputStream, encryptCipherForPayload);
+            times = 1;
 
             new GZIPOutputStream(cipherOutputStream);
-            result = gzipOutputStream;
+            times = 1;
 
-            IOUtils.copy(inputStream, gzipOutputStream, PayloadPersistence.DEFAULT_BUFFER_SIZE);
         }};
 
 

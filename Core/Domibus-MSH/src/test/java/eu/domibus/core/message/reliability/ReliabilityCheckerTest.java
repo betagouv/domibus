@@ -5,11 +5,8 @@ import eu.domibus.core.message.nonrepudiation.NonRepudiationConstants;
 import mockit.Expectations;
 import mockit.Mocked;
 import mockit.integration.junit5.JMockitExtension;
-
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -27,19 +24,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Joze Rihtarsic
  * @since 4.2
  */
+@SuppressWarnings({"UnusedAssignment", "ResultOfMethodCallIgnored"})
 @ExtendWith(JMockitExtension.class)
 public class ReliabilityCheckerTest {
 
-
     ReliabilityChecker testInstance = new ReliabilityChecker();
 
-    
-
     @Test
-    @Disabled("EDELIVERY-6896")
     public void getNonRepudiationDetailsNodeFromReceiptEmpty(@Mocked SOAPMessage response,
                                                              @Mocked SOAPHeader header,
-                                                             @Mocked NodeList nodelist) throws SOAPException, EbMS3Exception {
+                                                             @Mocked NodeList nodelist) throws SOAPException {
         String messageId = "TestMessageId";
         new Expectations() {{
             response.getSOAPHeader();
@@ -56,10 +50,9 @@ public class ReliabilityCheckerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void getNonRepudiationDetailsNodeFromReceiptNull(@Mocked SOAPMessage response,
                                                             @Mocked SOAPHeader header,
-                                                            @Mocked NodeList nodelist) throws SOAPException, EbMS3Exception {
+                                                            @Mocked NodeList nodelist) throws SOAPException {
         String messageId = "TestMessageId";
         new Expectations() {{
             response.getSOAPHeader();

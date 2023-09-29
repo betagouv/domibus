@@ -1,6 +1,7 @@
 package eu.domibus.test;
 
 import eu.domibus.api.ebms3.Ebms3Constants;
+import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.MessageProperty;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.UserMessageDao;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.HashSet;
 
 /**
@@ -45,14 +45,17 @@ public class UserMessageService {
 
     @Autowired
     ActionDictionaryService actionDictionaryService;
+    @Autowired
+    MshRoleDao mshRoleDao;
 
     @Autowired
     MessagePropertyDictionaryService messagePropertyDictionaryService;
 
     @Transactional
-    public UserMessage getUserMessage(){
-        final UserMessage userMessage = UserMessageSampleUtil.createUserMessage();;
-
+    public UserMessage getUserMessage(String messageId, String conversationId) {
+        final UserMessage userMessage = UserMessageSampleUtil.createUserMessage();
+        userMessage.setMessageId(messageId);
+        userMessage.setConversationId(conversationId);
         userMessage.setAction(actionDictionaryService.findOrCreateAction(userMessage.getActionValue()));
         userMessage.setService(serviceDictionaryService.findOrCreateService(userMessage.getService().getValue(), userMessage.getService().getType()));
         userMessage.setAgreementRef(agreementDictionaryService.findOrCreateAgreement(userMessage.getAgreementRef().getValue(), userMessage.getAgreementRef().getType()));
@@ -61,13 +64,12 @@ public class UserMessageService {
         userMessage.getPartyInfo().getTo().setToRole(partyRoleDictionaryService.findOrCreateRole("toRole"));
         userMessage.getPartyInfo().getFrom().setFromPartyId(partyIdDictionaryService.findOrCreateParty("fromPartyValue", "fromPartyType"));
         userMessage.getPartyInfo().getFrom().setFromRole(partyRoleDictionaryService.findOrCreateRole("fromRole"));
-
         HashSet<MessageProperty> messageProperties = new HashSet<>();
         messageProperties.add(messagePropertyDictionaryService.findOrCreateMessageProperty("name",
                 "value",
                 "type"));
         userMessage.setMessageProperties(messageProperties);
-
+        userMessage.setMshRole(mshRoleDao.findOrCreate(MSHRole.SENDING));
         userMessageDao.merge(userMessage);
         return userMessage;
     }

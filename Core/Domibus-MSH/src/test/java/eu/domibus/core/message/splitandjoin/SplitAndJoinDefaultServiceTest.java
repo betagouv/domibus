@@ -6,6 +6,7 @@ import eu.domibus.api.ebms3.model.Ebms3UserMessage;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageFragmentType;
 import eu.domibus.api.ebms3.model.mf.Ebms3MessageHeaderType;
 import eu.domibus.api.model.*;
+import eu.domibus.api.model.splitandjoin.MessageFragmentEntity;
 import eu.domibus.api.model.splitandjoin.MessageGroupEntity;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -16,6 +17,7 @@ import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.common.model.configuration.Party;
 import eu.domibus.common.model.configuration.Splitting;
 import eu.domibus.core.ebms3.EbMS3Exception;
+import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
 import eu.domibus.core.ebms3.receiver.handler.IncomingSourceMessageHandler;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
@@ -37,10 +39,8 @@ import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.message.MessageImpl;
 import org.apache.neethi.Policy;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -51,11 +51,7 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static eu.domibus.core.message.splitandjoin.SplitAndJoinDefaultService.ERROR_GENERATING_THE_SIGNAL_SOAPMESSAGE_FOR_SOURCE_MESSAGE;
 import static org.junit.jupiter.api.Assertions.*;
@@ -163,67 +159,68 @@ public class SplitAndJoinDefaultServiceTest {
     @TempDir
     Path tempDir;
 
-//    @Test
-//    public void createUserFragmentsFromSourceFile(@Injectable SOAPMessage sourceMessageRequest,
-//                                                  @Injectable UserMessage userMessage,
-//                                                  @Injectable MessageExchangeConfiguration userMessageExchangeConfiguration,
-//                                                  @Injectable LegConfiguration legConfiguration,
-//                                                  @Mocked File file) throws EbMS3Exception, IOException {
-//        String sourceMessageFileName = "invoice.pdf";
-//        long sourceMessageFileLength = 23L;
-//        String contentTypeString = "application/pdf";
-//        boolean compression = false;
-//        String pModeKey = "mykey";
-//        String sourceMessageId = "123";
-//
-//
-//        List<String> fragmentFiles = new ArrayList<>();
-//        fragmentFiles.add("fragment1");
-//        fragmentFiles.add("fragment2");
-//
-//        new Expectations(splitAndJoinDefaultService) {{
-//            userMessage.getMessageId();
-//            result = sourceMessageId;
-//
-//            userMessage.getMessageId();
-//            result = sourceMessageId;
-//
-//            new File(sourceMessageFileName);
-//            result = file;
-//
-//            file.delete();
-//            result = true;
-//
-//            file.length();
-//            result = sourceMessageFileLength;
-//
-//            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
-//            result = userMessageExchangeConfiguration;
-//
-//            userMessageExchangeConfiguration.getPmodeKey();
-//            result = pModeKey;
-//
-//            pModeProvider.getLegConfiguration(pModeKey);
-//            result = legConfiguration;
-//
-//
-//            splitAndJoinDefaultService.splitSourceMessage((File) any, anyInt);
-//            result = fragmentFiles;
-//        }};
-//
-//        splitAndJoinDefaultService.createUserFragmentsFromSourceFile(sourceMessageFileName, sourceMessageRequest, userMessage, contentTypeString, compression);
-//
-//        new Verifications() {{
-//            MessageGroupEntity messageGroupEntity;
-//            userMessageDefaultService.createMessageFragments(userMessage, messageGroupEntity = withCapture(), fragmentFiles);
-//
-//            Assertions.assertEquals(2L, messageGroupEntity.getFragmentCount().longValue());
-//            Assertions.assertEquals(sourceMessageId, messageGroupEntity.getGroupId());
-//            Assertions.assertEquals(BigInteger.valueOf(sourceMessageFileLength), messageGroupEntity.getMessageSize());
-//
-//            attachmentCleanupService.cleanAttachments(sourceMessageRequest);
-//        }};
-//    }
+
+    @SuppressWarnings("unused")
+    @Test
+    public void createUserFragmentsFromSourceFile(@Injectable SOAPMessage sourceMessageRequest,
+                                                  @Injectable UserMessage userMessage,
+                                                  @Injectable MessageExchangeConfiguration userMessageExchangeConfiguration,
+                                                  @Injectable LegConfiguration legConfiguration,
+                                                  @Mocked File fileBase) throws EbMS3Exception, IOException {
+        String sourceMessageFileName = "invoice.pdf";
+        long sourceMessageFileLength = 23L;
+        String contentTypeString = "application/pdf";
+        boolean compression = false;
+        String pModeKey = "mykey";
+        String sourceMessageId = "123";
+
+
+        List<String> fragmentFiles = new ArrayList<>();
+        fragmentFiles.add("fragment1");
+        fragmentFiles.add("fragment2");
+
+        new Expectations(splitAndJoinDefaultService) {{
+            userMessage.getMessageId();
+            result = sourceMessageId;
+
+            userMessage.getMessageId();
+            result = sourceMessageId;
+
+            File file = new File(sourceMessageFileName);
+
+            file.delete();
+            result = true;
+
+            file.length();
+            result = sourceMessageFileLength;
+
+            pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
+            result = userMessageExchangeConfiguration;
+
+            userMessageExchangeConfiguration.getPmodeKey();
+            result = pModeKey;
+
+            pModeProvider.getLegConfiguration(pModeKey);
+            result = legConfiguration;
+
+
+            splitAndJoinDefaultService.splitSourceMessage((File) any, anyInt);
+            result = fragmentFiles;
+        }};
+
+        splitAndJoinDefaultService.createUserFragmentsFromSourceFile(sourceMessageFileName, sourceMessageRequest, userMessage, contentTypeString, compression);
+
+        new Verifications() {{
+            MessageGroupEntity messageGroupEntity;
+            splitAndJoinHelper.createMessageFragments(userMessage, messageGroupEntity = withCapture(), fragmentFiles);
+
+            Assertions.assertEquals(2L, messageGroupEntity.getFragmentCount().longValue());
+            Assertions.assertEquals(sourceMessageId, messageGroupEntity.getGroupId());
+            Assertions.assertEquals(BigInteger.valueOf(sourceMessageFileLength), messageGroupEntity.getMessageSize());
+
+            attachmentCleanupService.cleanAttachments(sourceMessageRequest);
+        }};
+    }
 
     @Test
     public void rejoinSourceMessage(@Injectable final SOAPMessage sourceRequest,
@@ -240,7 +237,6 @@ public class SplitAndJoinDefaultServiceTest {
         String pModeKey = "mykey";
         String reversePModeKey = "reversemykey";
 
-        List<PartInfo> partInfos = Collections.singletonList(partInfo);
         new Expectations(splitAndJoinDefaultService) {{
             splitAndJoinDefaultService.rejoinSourceMessage(sourceMessageId, (File) any);
             result = sourceRequest;
@@ -684,7 +680,6 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void isGroupExpired(@Injectable final UserMessage userMessage,
                                @Injectable MessageExchangeConfiguration userMessageExchangeContext,
                                @Injectable LegConfiguration legConfiguration,
@@ -693,7 +688,7 @@ public class SplitAndJoinDefaultServiceTest {
         String pmodeKey = "pModeKey";
 
 
-        new Expectations(LocalDateTime.class) {{
+        new Expectations() {{
             userMessage.getEntityId();
             result = entityId;
 
@@ -814,13 +809,11 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void splitAndJoinReceiveFailed_exception(
             @Injectable UserMessage fragment,
             @Injectable MessageGroupEntity messageGroupEntity,
             @Injectable MessageExchangeConfiguration userMessageExchangeContext,
-            @Injectable LegConfiguration legConfiguration,
-            @Injectable EbMS3Exception exception) throws EbMS3Exception {
+            @Injectable LegConfiguration legConfiguration) throws EbMS3Exception {
         String groupId = "123";
         final String ebMS3ErrorCode = "004";
         final String errorDetail = "Random error";
@@ -836,7 +829,10 @@ public class SplitAndJoinDefaultServiceTest {
             result = fragments;
 
             pModeProvider.findUserMessageExchangeContext(fragment, MSHRole.RECEIVING);
-            result = exception;
+            result = EbMS3ExceptionBuilder.getInstance()
+                    .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
+                    .refToMessageId(UUID.randomUUID().toString())
+                    .build();
         }};
 
 
@@ -995,6 +991,7 @@ public class SplitAndJoinDefaultServiceTest {
 
     }
 
+    @SuppressWarnings("resource")
     @Test
     public void mergeSourceFile(@Injectable MessageGroupEntity messageGroupEntity,
                                 @Injectable Domain domain) throws IOException {
@@ -1060,12 +1057,10 @@ public class SplitAndJoinDefaultServiceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void getUserMessage(@Injectable FileInputStream fileInputStream,
                                @Injectable InputStream inputStream,
-                               @Injectable MessageImpl messageImpl,
-                               @Injectable MessageGroupEntity messageGroupEntity,
-                               @Injectable final SOAPMessage soapMessage) throws IOException {
+                               @Injectable MessageGroupEntity messageGroupEntity) throws IOException {
+
         final File sourceMessageFileName = Files.createFile(tempDir.resolve("file1.txt")).toFile();
 
         final String text1 = "text1";
@@ -1382,9 +1377,6 @@ public class SplitAndJoinDefaultServiceTest {
 
             ebms3MessageFragmentType.getFragmentNum();
             result = 41L;
-
-//            userMessageHandlerService.addPartInfoFromFragment(userMessage, ebms3MessageFragmentType);
-//            times = 1;
         }};
 
         splitAndJoinDefaultService.persistReceivedUserFragment(userMessage, ebms3MessageFragmentType, legConfiguration);
@@ -1415,14 +1407,18 @@ public class SplitAndJoinDefaultServiceTest {
             ebms3MessageFragmentType.getFragmentNum();
             result = 41L;
 
-//            userMessageHandlerService.addPartInfoFromFragment(userMessage, ebms3MessageFragmentType);
-//            times = 1;
+            userMessage.getEntityId();
+            result = 12L;
+
+            userMessageDao.findByReference(12L);
+            result = userMessage;
         }};
 
         splitAndJoinDefaultService.persistReceivedUserFragment(userMessage, ebms3MessageFragmentType, legConfiguration);
 
-        new Verifications() {{
-
+        new FullVerifications() {{
+            messageFragmentDao.create((MessageFragmentEntity) any);
+            times = 1;
         }};
     }
 }

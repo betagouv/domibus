@@ -17,9 +17,7 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
@@ -98,37 +96,38 @@ public class MessageFilterResourceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testGetMessageFilterCsv() throws CsvException {
         // Given
         final String backendName = "Backend Filter 1";
         final String fromExpression = "from:expression";
         List<MessageFilterRO> messageFilterResultROS = new ArrayList<>();
 
-        List<RoutingCriteria> routingCriterias = new ArrayList<>();
-        RoutingCriteria routingCriteria = new RoutingCriteria();
-        routingCriteria.setEntityId("1");
-        routingCriteria.setName("From");
-        routingCriteria.setExpression(fromExpression);
-        routingCriterias.add(routingCriteria);
-
-        MessageFilterRO messageFilterRO = new MessageFilterRO();
-        messageFilterRO.setIndex(1);
-
-        messageFilterRO.setBackendName(backendName);
-        messageFilterRO.setEntityId("1");
-        messageFilterRO.setRoutingCriterias(routingCriterias);
-        messageFilterRO.setPersisted(true);
+        MessageFilterRO messageFilterRO = getMessageFilterRO(fromExpression, backendName);
 
         messageFilterResultROS.add(messageFilterRO);
+
+        final ArrayList<BackendFilter> backendFilters = new ArrayList<>();
+        BackendFilter backendFilter = new BackendFilter();
+        backendFilter.setEntityId("1");
+        backendFilter.setBackendName("backendName1");
+        backendFilter.setIndex(0);
+        backendFilter.setActive(true);
+        backendFilters.add(backendFilter);
+
 
         new Expectations(messageFilterResource){{
             domainContextProvider.getCurrentDomain();
             result = new Domain("default", "default");
-            messageFilterResource.getBackendFiltersInformation();
-            result = new ImmutablePair<>(messageFilterResultROS, true);
+
+            routingService.getBackendFiltersWithCache();
+            result = backendFilters;
+
+            backendFilterCoreMapper.backendFilterListToMessageFilterROList(backendFilters);
+            result = messageFilterResultROS;
+
             messageFilterResource.fromMessageFilterRO(messageFilterRO);
             result = new MessageFilterCSV();
+
             csvServiceImpl.exportToCSV((List<?>) any, MessageFilterCSV.class,new HashMap<>(), new ArrayList<>());
             result = CSV_TITLE + backendName + "," + fromExpression + ", , , ," + true + System.lineSeparator();
 
@@ -147,6 +146,25 @@ public class MessageFilterResourceTest {
         new FullVerifications(){{
             csvServiceImpl.validateMaxRows(1);
         }};
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private static MessageFilterRO getMessageFilterRO(String fromExpression, String backendName) {
+        List<RoutingCriteria> routingCriterias = new ArrayList<>();
+        RoutingCriteria routingCriteria = new RoutingCriteria();
+        routingCriteria.setEntityId("1");
+        routingCriteria.setName("From");
+        routingCriteria.setExpression(fromExpression);
+        routingCriterias.add(routingCriteria);
+
+        MessageFilterRO messageFilterRO = new MessageFilterRO();
+        messageFilterRO.setIndex(1);
+
+        messageFilterRO.setBackendName(backendName);
+        messageFilterRO.setEntityId("1");
+        messageFilterRO.setRoutingCriterias(routingCriterias);
+        messageFilterRO.setPersisted(true);
+        return messageFilterRO;
     }
 
     private MessageFilterResultRO getMessageFilterResultRO(String messageFilterEntityId) {

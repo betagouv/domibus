@@ -1,13 +1,10 @@
 package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.model.UserMessage;
-import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
 import eu.domibus.core.message.UserMessageContextKeyProvider;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.cxf.binding.soap.SoapMessage;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -30,7 +27,6 @@ public class SaveRawEnvelopeInterceptorTest {
     protected UserMessageContextKeyProvider userMessageContextKeyProvider;
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testHandleMessage(@Mocked SoapMessage message, @Mocked SOAPMessage jaxwsMessage) {
         Long userMessageEntityId = 123L;
         String userMessageId = "456";

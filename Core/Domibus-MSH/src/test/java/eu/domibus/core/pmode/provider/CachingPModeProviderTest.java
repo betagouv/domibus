@@ -38,7 +38,6 @@ import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -1465,11 +1464,14 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
+
     public void testFindUserMessageExchangeContextSenderNotProvided() {
 
         MSHRole mshRole1 = MSHRole.SENDING;
         new Expectations(cachingPModeProvider) {{
+            cachingPModeProvider.getConfiguration().getBusinessProcesses().getLegConfigurations();
+            result = configuration.getBusinessProcesses().getLegConfigurations();
+
             userMessage.getPartyInfo().getFrom().getFromPartyId();
             result = partyId1;
         }};

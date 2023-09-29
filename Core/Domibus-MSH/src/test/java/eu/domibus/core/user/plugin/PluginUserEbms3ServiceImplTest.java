@@ -17,10 +17,7 @@ import eu.domibus.core.user.plugin.security.password.PluginUserPasswordHistoryDa
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,6 +28,7 @@ import java.util.*;
  * @author Ion Perpegel
  * @since 4.0
  */
+@SuppressWarnings({"ResultOfMethodCallIgnored", "DataFlowIssue"})
 @ExtendWith(JMockitExtension.class)
 public class PluginUserEbms3ServiceImplTest {
 
@@ -72,9 +70,9 @@ public class PluginUserEbms3ServiceImplTest {
         AuthenticationEntity user2 = new AuthenticationEntity();
         user2.setUserName("username1");
 
-        List<AuthenticationEntity> addedUsers = Arrays.asList(new AuthenticationEntity[]{user1, user2});
-        List<AuthenticationEntity> updatedUsers = new ArrayList();
-        List<AuthenticationEntity> removedUsers = new ArrayList();
+        List<AuthenticationEntity> addedUsers = Arrays.asList(user1, user2);
+        List<AuthenticationEntity> updatedUsers = new ArrayList<>();
+        List<AuthenticationEntity> removedUsers = new ArrayList<>();
 
         Assertions.assertThrows(UserManagementException.class, () -> pluginUserService.updateUsers(addedUsers, updatedUsers, removedUsers));
     }
@@ -86,9 +84,9 @@ public class PluginUserEbms3ServiceImplTest {
         AuthenticationEntity user2 = new AuthenticationEntity();
         user2.setCertificateId("aaa");
 
-        List<AuthenticationEntity> addedUsers = Arrays.asList(new AuthenticationEntity[]{user1, user2});
-        List<AuthenticationEntity> updatedUsers = new ArrayList();
-        List<AuthenticationEntity> removedUsers = new ArrayList();
+        List<AuthenticationEntity> addedUsers = Arrays.asList(user1, user2);
+        List<AuthenticationEntity> updatedUsers = new ArrayList<>();
+        List<AuthenticationEntity> removedUsers = new ArrayList<>();
 
         Assertions.assertThrows(UserManagementException.class, () -> pluginUserService.updateUsers(addedUsers, updatedUsers, removedUsers));
     }
@@ -100,17 +98,17 @@ public class PluginUserEbms3ServiceImplTest {
         AuthenticationEntity added_user = new AuthenticationEntity();
         added_user.setCertificateId("added_user");
         added_user.setAuthRoles("ROLE_ADMIN");
-        List<AuthenticationEntity> addedUsers = Arrays.asList(new AuthenticationEntity[]{added_user});
+        List<AuthenticationEntity> addedUsers = Collections.singletonList(added_user);
 
         AuthenticationEntity updated_user = new AuthenticationEntity();
         updated_user.setCertificateId("updated_user");
         updated_user.setAuthRoles("ROLE_ADMIN");
-        List<AuthenticationEntity> updatedUsers = Arrays.asList(new AuthenticationEntity[]{updated_user});
+        List<AuthenticationEntity> updatedUsers = Collections.singletonList(updated_user);
 
         AuthenticationEntity deleted_user = new AuthenticationEntity();
         updated_user.setCertificateId("deleted_user");
         updated_user.setAuthRoles("ROLE_ADMIN");
-        List<AuthenticationEntity> removedUsers = Arrays.asList(new AuthenticationEntity[]{deleted_user});
+        List<AuthenticationEntity> removedUsers = Collections.singletonList(deleted_user);
 
         new Expectations() {{
             domainProvider.getCurrentDomain();
@@ -239,7 +237,6 @@ public class PluginUserEbms3ServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void checkUsers_duplicateUserNames(@Injectable AuthenticationEntity user,
                                               @Injectable AuthenticationEntity nonDuplicate,
                                               @Injectable AuthenticationEntity duplicate) {
@@ -248,8 +245,6 @@ public class PluginUserEbms3ServiceImplTest {
         new Expectations() {{
             user.getUserName();
             result = duplicateUserName;
-            nonDuplicate.getUserName();
-            result = "userName";
             duplicate.getUserName();
             result = duplicateUserName;
         }};
@@ -263,7 +258,6 @@ public class PluginUserEbms3ServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void checkUsers_duplicateCertificateIds(@Injectable AuthenticationEntity user,
                                                    @Injectable AuthenticationEntity nonDuplicate,
                                                    @Injectable AuthenticationEntity duplicate) {
@@ -272,8 +266,6 @@ public class PluginUserEbms3ServiceImplTest {
         new Expectations() {{
             user.getCertificateId();
             result = duplicateCertificateId;
-            nonDuplicate.getCertificateId();
-            result = "certificateId";
             duplicate.getCertificateId();
             result = duplicateCertificateId;
         }};
@@ -316,7 +308,6 @@ public class PluginUserEbms3ServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void checkUsers_nonAdminPluginUsersUpdatedWithoutOriginalUser(@Injectable AuthenticationEntity adminUser,
                                                                          @Injectable AuthenticationEntity validUser,
                                                                          @Injectable AuthenticationEntity nonValidUser) {
@@ -324,10 +315,6 @@ public class PluginUserEbms3ServiceImplTest {
         new Expectations() {{
             adminUser.getAuthRoles();
             result = AuthRole.ROLE_ADMIN.name();
-            adminUser.getUserName();
-            result = "adminUser";
-            validUser.getUserName();
-            result = "validUser";
             validUser.getAuthRoles();
             result = AuthRole.ROLE_USER.name();
             validUser.getOriginalUser();
@@ -347,33 +334,33 @@ public class PluginUserEbms3ServiceImplTest {
     }
 
     @Test
-    public void checkUsers_InvalidUserName_SplChar(@Mocked AuthenticationEntity addedUser) {
+    public void checkUsers_InvalidUserName_SplChar(@Injectable AuthenticationEntity addedUser) {
         new Expectations() {{
             addedUser.getUserName();
             result = "AdminUser!1234";
         }};
 
         UserManagementException userManagementException = Assertions.assertThrows(UserManagementException.class,
-                () -> pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST));
+                () -> pluginUserService.checkUsers(Collections.singletonList(addedUser), new ArrayList<>()));
 
         Assertions.assertEquals("[DOM_001]:Plugin User should be alphanumeric with allowed special characters .@_", userManagementException.getMessage());
 
     }
 
     @Test
-    public void checkUsers_InvalidUserName_length(@Mocked AuthenticationEntity addedUser) {
+    public void checkUsers_InvalidUserName_length(@Injectable AuthenticationEntity addedUser) {
         new Expectations() {{
             addedUser.getUserName();
             result = "Ad1";
         }};
 
         UserManagementException userManagementException = Assertions.assertThrows(UserManagementException.class,
-                () -> pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST));
+                () -> pluginUserService.checkUsers(Collections.singletonList(addedUser), new ArrayList<>()));
         Assertions.assertEquals("[DOM_001]:Plugin User Username should be between 4 and 255 characters long.", userManagementException.getMessage());
     }
 
     @Test
-    public void checkUsers_InvalidOriginalUserPattern(@Mocked AuthenticationEntity addedUser) {
+    public void checkUsers_InvalidOriginalUserPattern(@Injectable AuthenticationEntity addedUser) {
         String testOriginalUser = "urn:oasis:names:tc:ebcore:partyid-type:test1";
         new Expectations() {{
             addedUser.getUserName();
@@ -385,7 +372,7 @@ public class PluginUserEbms3ServiceImplTest {
 
         }};
 
-        pluginUserService.checkUsers(Arrays.asList(addedUser), Collections.EMPTY_LIST);
+        pluginUserService.checkUsers(Collections.singletonList(addedUser), new ArrayList<>());
     }
 
 

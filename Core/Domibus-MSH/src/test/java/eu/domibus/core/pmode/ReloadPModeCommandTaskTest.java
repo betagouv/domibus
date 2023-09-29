@@ -11,11 +11,10 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit5.JMockitExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.Map;
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -53,15 +52,13 @@ public class ReloadPModeCommandTaskTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void execute(@Injectable Map<String, String> properties,
-                        @Injectable Domain domain) {
+    public void execute(@Injectable Domain domain) {
         new Expectations() {{
             domainContextProvider.getCurrentDomain();
             result = domain;
         }};
 
-        reloadPModeCommandTask.execute(properties);
+        reloadPModeCommandTask.execute(new HashMap<>());
 
         new Verifications() {{
             pModeProvider.refresh();

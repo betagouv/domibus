@@ -6,7 +6,6 @@ import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -28,22 +27,19 @@ public class RegexIOFileFilterTest {
     RegexIOFileFilter regexIOFileFilter;
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void acceptFile(@Injectable File file) {
+    public void acceptFile() {
         String myFile = "myFile";
+        File file = new File(myFile);
         new Expectations(regexIOFileFilter) {{
-            file.getName();
-            result = myFile;
-
             regexIOFileFilter.accept(anyString);
             result = true;
         }};
 
         final boolean accept = regexIOFileFilter.accept(file);
+        Assertions.assertTrue(accept);
 
         new Verifications() {{
             regexIOFileFilter.accept(myFile);
-            Assertions.assertTrue(accept);
         }};
 
     }

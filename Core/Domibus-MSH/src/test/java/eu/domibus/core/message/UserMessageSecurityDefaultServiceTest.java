@@ -1,6 +1,5 @@
 package eu.domibus.core.message;
 
-import eu.domibus.api.message.UserMessageException;
 import eu.domibus.api.messaging.MessageNotFoundException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
@@ -13,7 +12,6 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -122,7 +120,6 @@ public class UserMessageSecurityDefaultServiceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     void validateUserAccess_noAccess(@Injectable final UserMessage userMessage) {
         String originalUser = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C4";
         String other = "urn:oasis:names:tc:ebcore:partyid-type:unregistered:C1";

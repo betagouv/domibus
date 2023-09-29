@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -39,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @since 4.1
  */
 
-@SuppressWarnings("ResultOfMethodCallIgnored")
+@SuppressWarnings({"ResultOfMethodCallIgnored", "JUnitMalformedDeclaration"})
 public class UserSecurityPolicyManagerTest {
 
     private static final String PASSWORD_COMPLEXITY_PATTERN = "^.*(?=..*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[~`!@#$%^&+=\\-_<>.,?:;*/()|\\[\\]{}'\"\\\\]).{8,32}$";
@@ -82,20 +81,16 @@ public class UserSecurityPolicyManagerTest {
         String userName = "user1";
 
         String testPassword = "";
-        try {
-            securityPolicyManager.validateComplexity(userName, testPassword);
-            Assertions.fail("Expected exception was not raised!");
-        } catch (DomibusCoreException e2) {
-            assertEquals(DomibusCoreErrorCode.DOM_001, e2.getError());
-        }
+
+        DomibusCoreException domibusCoreException = assertThrows(DomibusCoreException.class, () -> securityPolicyManager.validateComplexity(userName, testPassword));
+        assertEquals(DomibusCoreErrorCode.DOM_001, domibusCoreException.getError());
         new FullVerifications() {
         };
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void checkPasswordComplexity_ok1() {
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             domibusPropertyProvider.getProperty(securityPolicyManager.getPasswordComplexityPatternProperty());
             result = PASSWORD_COMPLEXITY_PATTERN;
         }};
@@ -109,9 +104,8 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void checkPasswordComplexity_ok2() {
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             domibusPropertyProvider.getProperty(securityPolicyManager.getPasswordComplexityPatternProperty());
             result = PASSWORD_COMPLEXITY_PATTERN;
         }};
@@ -125,9 +119,8 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void checkPasswordComplexity_ok3() {
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             domibusPropertyProvider.getProperty(securityPolicyManager.getPasswordComplexityPatternProperty());
             result = PASSWORD_COMPLEXITY_PATTERN;
         }};
@@ -141,9 +134,8 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void checkPasswordComplexity_ok4() {
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             domibusPropertyProvider.getProperty(securityPolicyManager.getPasswordComplexityPatternProperty());
             result = PASSWORD_COMPLEXITY_PATTERN;
         }};
@@ -161,9 +153,8 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void checkPasswordComplexity_nok_min8() {
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             domibusPropertyProvider.getProperty(securityPolicyManager.getPasswordComplexityPatternProperty());
             result = PASSWORD_COMPLEXITY_PATTERN;
         }};
@@ -183,9 +174,8 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void checkPasswordComplexity_nok_max32() {
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             domibusPropertyProvider.getProperty(securityPolicyManager.getPasswordComplexityPatternProperty());
             result = PASSWORD_COMPLEXITY_PATTERN;
         }};
@@ -205,9 +195,8 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void checkPasswordComplexity_nok_lowerCase() {
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             domibusPropertyProvider.getProperty(securityPolicyManager.getPasswordComplexityPatternProperty());
             result = PASSWORD_COMPLEXITY_PATTERN;
         }};
@@ -227,9 +216,8 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void checkPasswordComplexity_nok_uppercase() {
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             domibusPropertyProvider.getProperty(securityPolicyManager.getPasswordComplexityPatternProperty());
             result = PASSWORD_COMPLEXITY_PATTERN;
         }};
@@ -249,9 +237,8 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void checkPasswordComplexity_nok_digit() {
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             domibusPropertyProvider.getProperty(securityPolicyManager.getPasswordComplexityPatternProperty());
             result = PASSWORD_COMPLEXITY_PATTERN;
         }};
@@ -271,9 +258,8 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void checkPasswordComplexity_nok_specialChar() {
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             domibusPropertyProvider.getProperty(securityPolicyManager.getPasswordComplexityPatternProperty());
             result = PASSWORD_COMPLEXITY_PATTERN;
         }};
@@ -293,11 +279,10 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testPasswordHistoryDisabled() {
         String username = "user1";
         String testPassword = "testPassword123.";
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             domibusPropertyProvider.getIntegerProperty(securityPolicyManager.getPasswordHistoryPolicyProperty());
             result = 0;
         }};
@@ -341,7 +326,6 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     void testValidateHistory_exception() {
         String username = "anyname";
         String testPassword = "anypassword";
@@ -353,7 +337,7 @@ public class UserSecurityPolicyManagerTest {
         user.setDefaultPassword(true);
         List<UserPasswordHistory<User>> oldPasswords = Collections.singletonList(new UserPasswordHistory<>(user, testPassword, LocalDateTime.now(ZoneOffset.UTC)));
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             domibusPropertyProvider.getIntegerProperty(securityPolicyManager.getPasswordHistoryPolicyProperty());
             result = oldPasswordsToCheck;
             securityPolicyManager.getUserDao();
@@ -368,20 +352,19 @@ public class UserSecurityPolicyManagerTest {
             result = true;
         }};
 
-        Assertions.assertThrows(DomibusCoreException. class,() -> securityPolicyManager.validateHistory(username, testPassword));
+        Assertions.assertThrows(DomibusCoreException.class, () -> securityPolicyManager.validateHistory(username, testPassword));
         new FullVerifications() {
         };
 
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testValidateDaysTillExpiration_warningDaysBeforeExpiration_0() {
         final LocalDateTime passwordChangeDate = of(2018, 9, 15, 15, 58, 59);
 
         final String username = "user1";
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             securityPolicyManager.getWarningDaysBeforeExpirationProperty();
             result = "warningDaysBeforeExpirationProperty";
             domibusPropertyProvider.getIntegerProperty("warningDaysBeforeExpirationProperty");
@@ -397,16 +380,13 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testValidateDaysTillExpiration_maxPasswordAgeInDays_0() {
         final LocalDateTime passwordChangeDate = of(2018, 9, 15, 15, 58, 59);
-        final Integer remainingDays = 15;
-
 
         final String username = "user1";
         final String maximumDefaultPasswordAgeProperty = "MaximumDefaultPasswordAgeProperty";
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             securityPolicyManager.getWarningDaysBeforeExpirationProperty();
             result = "warningDaysBeforeExpirationProperty";
             domibusPropertyProvider.getIntegerProperty("warningDaysBeforeExpirationProperty");
@@ -426,12 +406,12 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
+    @Disabled //date is null?
     public void testValidateDaysTillExpiration_LocalDateTimeIsNull() {
         final Integer maxPasswordAge = 45;
 
         final LocalDateTime passwordChangeDate = of(2018, 9, 15, 15, 58, 59);
-        ReflectionTestUtils.setField(passwordChangeDate, "date", null);
+//        ReflectionTestUtils.setField(passwordChangeDate, "date", null);
 
         final String username = "user1";
         final String maximumDefaultPasswordAgeProperty = "MaximumDefaultPasswordAgeProperty";
@@ -456,7 +436,6 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testValidateDaysTillExpiration_warningDaysBeforeExpiration_sup_maxPasswordAgeInDays() {
         final Integer maxPasswordAge = 45;
 
@@ -465,7 +444,7 @@ public class UserSecurityPolicyManagerTest {
         final String username = "user1";
         final String maximumDefaultPasswordAgeProperty = "MaximumDefaultPasswordAgeProperty";
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             securityPolicyManager.getWarningDaysBeforeExpirationProperty();
             result = "warningDaysBeforeExpirationProperty";
             domibusPropertyProvider.getIntegerProperty("warningDaysBeforeExpirationProperty");
@@ -485,7 +464,6 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testValidateDaysTillExpiration_15() {
         final LocalDate today = LocalDate.of(2018, 10, 15);
         final Integer maxPasswordAge = 45;
@@ -497,12 +475,14 @@ public class UserSecurityPolicyManagerTest {
         final String username = "user1";
         final String maximumDefaultPasswordAgeProperty = "MaximumDefaultPasswordAgeProperty";
 
-        new Expectations(LocalDate.class) {{
-            LocalDate.now();
-            result = today;
-        }};
+        new MockUp<LocalDate>() {
+            @Mock
+            LocalDate now() {
+                return today;
+            }
+        };
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             securityPolicyManager.getWarningDaysBeforeExpirationProperty();
             result = "warningDaysBeforeExpirationProperty";
             domibusPropertyProvider.getIntegerProperty("warningDaysBeforeExpirationProperty");
@@ -522,23 +502,23 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testValidateDaysTillExpiration_null() {
         final LocalDate today = LocalDate.of(2018, 10, 15);
         final Integer maxPasswordAge = 45;
 
         final LocalDateTime passwordChangeDate2 = of(2019, 9, 15, 15, 58, 59);
-        final Integer remainingDays2 = null;
 
         final String username = "user1";
         final String maximumDefaultPasswordAgeProperty = "MaximumDefaultPasswordAgeProperty";
 
-        new Expectations(LocalDate.class) {{
-            LocalDate.now();
-            result = today;
-        }};
+        new MockUp<LocalDate>() {
+            @Mock
+            LocalDate now() {
+                return today;
+            }
+        };
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             securityPolicyManager.getWarningDaysBeforeExpirationProperty();
             result = "warningDaysBeforeExpirationProperty";
             domibusPropertyProvider.getIntegerProperty("warningDaysBeforeExpirationProperty");
@@ -551,14 +531,13 @@ public class UserSecurityPolicyManagerTest {
 
         Integer result2 = securityPolicyManager.getDaysTillExpiration(username, true, passwordChangeDate2);
 
-        assertEquals(remainingDays2, result2);
+        assertNull(result2);
         new FullVerifications() {
         };
 
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testValidateDaysTillExpiration_1() {
         final LocalDate today = LocalDate.of(2018, 10, 15);
         final Integer maxPasswordAge = 45;
@@ -569,12 +548,14 @@ public class UserSecurityPolicyManagerTest {
         final String username = "user1";
         final String maximumDefaultPasswordAgeProperty = "MaximumDefaultPasswordAgeProperty";
 
-        new Expectations(LocalDate.class) {{
-            LocalDate.now();
-            result = today;
-        }};
+        new MockUp<LocalDate>() {
+            @Mock
+            LocalDate now() {
+                return today;
+            }
+        };
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             securityPolicyManager.getWarningDaysBeforeExpirationProperty();
             result = "warningDaysBeforeExpirationProperty";
             domibusPropertyProvider.getIntegerProperty("warningDaysBeforeExpirationProperty");
@@ -593,10 +574,9 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testValidateDaysTillExpirationDisabled() {
         final String username = "user1";
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             securityPolicyManager.getWarningDaysBeforeExpirationProperty();
             result = null;
         }};
@@ -625,12 +605,11 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testValidatePasswordExpired_pwdAge_0() {
         final String username = "user1";
         final int defaultAge = 0;
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             domibusPropertyProvider.getIntegerProperty(securityPolicyManager.getMaximumDefaultPasswordAgeProperty());
             result = defaultAge;
         }};
@@ -643,18 +622,17 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     void testValidatePasswordExpired() {
         final String username = "user1";
         final int defaultAge = 5;
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             domibusPropertyProvider.getIntegerProperty(securityPolicyManager.getMaximumDefaultPasswordAgeProperty());
             result = defaultAge;
         }};
 
-        Assertions.assertThrows(CredentialsExpiredException. class,
-        () -> securityPolicyManager.validatePasswordExpired(username, true, LocalDateTime.now(ZoneOffset.UTC).minusDays(defaultAge + 1)))
+        Assertions.assertThrows(CredentialsExpiredException.class,
+                () -> securityPolicyManager.validatePasswordExpired(username, true, LocalDateTime.now(ZoneOffset.UTC).minusDays(defaultAge + 1)))
         ;
 
         new FullVerifications() {
@@ -663,7 +641,6 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void applyLockingPolicyOnUpdateUnlock() {
         final User userEntity = new User() {{
             setActive(false);
@@ -673,7 +650,7 @@ public class UserSecurityPolicyManagerTest {
         eu.domibus.api.user.User user = new eu.domibus.api.user.User() {{
             setActive(true);
         }};
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             securityPolicyManager.getUserAlertsService();
             result = userAlertsService;
         }};
@@ -692,7 +669,6 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void applyLockingPolicyOnUpdateSendAlert() {
         final User userEntity = new User();
         userEntity.setActive(true);
@@ -700,7 +676,7 @@ public class UserSecurityPolicyManagerTest {
         user.setActive(false);
         user.setUserName("user");
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             securityPolicyManager.getUserAlertsService();
             result = userAlertsService;
         }};
@@ -714,7 +690,6 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void changePasswordTest() {
         String newPassword = "newPassword";
 
@@ -724,7 +699,7 @@ public class UserSecurityPolicyManagerTest {
             setDefaultPassword(true);
         }};
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             securityPolicyManager.getPasswordComplexityPatternProperty();
             result = "prop2";
             domibusPropertyProvider.getProperty("prop2");
@@ -749,7 +724,6 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void handleCorrectAuthenticationTest() {
         String userName = "user1";
         final User userEntity = new User() {{
@@ -758,7 +732,7 @@ public class UserSecurityPolicyManagerTest {
             setAttemptCount(3);
         }};
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             securityPolicyManager.getUserDao();
             result = userDao;
             userDao.findByUserName(anyString);
@@ -771,7 +745,6 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void handleWrongAuthenticationSuspendedTest_noUser() {
         String userName = "user1";
         final User user = new User() {{
@@ -781,7 +754,7 @@ public class UserSecurityPolicyManagerTest {
             setAttemptCount(5);
         }};
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             securityPolicyManager.getUserDao();
             result = userDao;
             userDao.findByUserName(anyString);
@@ -799,7 +772,6 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void handleWrongAuthenticationSuspendedTest() {
         String userName = "user1";
         final User user = new User() {{
@@ -809,7 +781,7 @@ public class UserSecurityPolicyManagerTest {
             setAttemptCount(5);
         }};
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             securityPolicyManager.getUserDao();
             result = userDao;
             userDao.findByUserName(anyString);
@@ -827,7 +799,6 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void handleWrongAuthenticationBadCredentialsTest() {
         String userName = "user1";
         int attemptCount = 5;
@@ -837,7 +808,7 @@ public class UserSecurityPolicyManagerTest {
             setAttemptCount(attemptCount - 1);
         }};
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             securityPolicyManager.getUserDao();
             result = userDao;
             userDao.findByUserName(anyString);
@@ -860,7 +831,6 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void reactivateSuspendedUsersTest() {
         final User user1 = new User() {{
             setUserName("user1");
@@ -871,7 +841,7 @@ public class UserSecurityPolicyManagerTest {
 
         List<UserEntityBase> users = Collections.singletonList(user1);
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             securityPolicyManager.getSuspensionInterval();
             result = 1;
             securityPolicyManager.getUserDao();
@@ -889,7 +859,6 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void reactivateSuspendedUsersTest_0() {
         final User user1 = new User() {{
             setUserName("user1");
@@ -898,7 +867,7 @@ public class UserSecurityPolicyManagerTest {
             setSuspensionDate(new Date());
         }};
 
-        new Expectations() {{
+        new Expectations(securityPolicyManager) {{
             securityPolicyManager.getSuspensionInterval();
             result = 0;
 
@@ -931,7 +900,7 @@ public class UserSecurityPolicyManagerTest {
             result = testDomain;
         }};
 
-        Assertions.assertThrows(UserManagementException. class,() -> securityPolicyManager.validateUniqueUser(addedUser));
+        Assertions.assertThrows(UserManagementException.class, () -> securityPolicyManager.validateUniqueUser(addedUser));
 
         new FullVerifications() {
         };
@@ -956,7 +925,7 @@ public class UserSecurityPolicyManagerTest {
             result = "preferredDomain";
         }};
 
-        Assertions.assertThrows(UserManagementException. class,() -> securityPolicyManager.validateUniqueUser(addedUser));
+        Assertions.assertThrows(UserManagementException.class, () -> securityPolicyManager.validateUniqueUser(addedUser));
 
         new FullVerifications() {
         };
@@ -988,7 +957,7 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    public void validateUniqueUserShouldFailIfUsernameAlreadyExists_noMultiAware_ok(@Mocked UserDaoBase<User> userDao) {
+    public void validateUniqueUserShouldFailIfUsernameAlreadyExists_noMultiAware_ok(@Injectable UserDaoBase<User> userDao) {
         String testUsername = "testUsername";
 
         eu.domibus.api.user.User addedUser = new eu.domibus.api.user.User() {{
@@ -1013,7 +982,7 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    void validateUniqueUserShouldFailIfUsernameAlreadyExists_noMultiAware_nok(@Mocked UserDaoBase<User> userDao) {
+    void validateUniqueUserShouldFailIfUsernameAlreadyExists_noMultiAware_nok(@Injectable UserDaoBase<User> userDao) {
         String testUsername = "testUsername";
 
         eu.domibus.api.user.User addedUser = new eu.domibus.api.user.User() {{
@@ -1033,14 +1002,14 @@ public class UserSecurityPolicyManagerTest {
             result = true;
         }};
 
-        Assertions.assertThrows(UserManagementException. class,() -> securityPolicyManager.validateUniqueUser(addedUser));
+        Assertions.assertThrows(UserManagementException.class, () -> securityPolicyManager.validateUniqueUser(addedUser));
 
         new FullVerifications() {
         };
     }
 
     @Test
-    public void getExpirationDate_noExpiration(@Mocked User userEntity) {
+    public void getExpirationDate_noExpiration(@Injectable User userEntity) {
 
         new Expectations(securityPolicyManager) {{
             userEntity.hasDefaultPassword();
@@ -1056,7 +1025,7 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    public void getExpirationDate_nullChangeDate(@Mocked User userEntity) {
+    public void getExpirationDate_nullChangeDate(@Injectable User userEntity) {
         new Expectations(securityPolicyManager) {{
             userEntity.hasDefaultPassword();
             result = false;
@@ -1073,7 +1042,7 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    public void getExpirationDate(@Mocked User userEntity) {
+    public void getExpirationDate(@Injectable User userEntity) {
         LocalDateTime passChangeDate = LocalDateTime.now(ZoneOffset.UTC);
 
         new Expectations(securityPolicyManager) {{
@@ -1101,7 +1070,7 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    public void getLoginFailureReason_activeUser(@Mocked User user) {
+    public void getLoginFailureReason_activeUser(@Injectable User user) {
         String userName = "userName";
 
         new Expectations() {{
@@ -1117,7 +1086,7 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    public void getLoginFailureReason_inactiveUser(@Mocked User user) {
+    public void getLoginFailureReason_inactiveUser(@Injectable User user) {
         String userName = "userName";
 
         new Expectations() {{
@@ -1135,7 +1104,7 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    public void getLoginFailureReason_inactiveUser_suspended(@Mocked User user) {
+    public void getLoginFailureReason_inactiveUser_suspended(@Injectable User user) {
         String userName = "userName";
 
         new Expectations() {{
@@ -1153,7 +1122,7 @@ public class UserSecurityPolicyManagerTest {
     }
 
     @Test
-    public void savePasswordHistory_noSave(@Mocked User user) {
+    public void savePasswordHistory_noSave(@Injectable User user) {
         new Expectations(securityPolicyManager) {{
             securityPolicyManager.getPasswordHistoryPolicyProperty();
             result = "passwordHistoryPolicyProperty";
@@ -1163,8 +1132,9 @@ public class UserSecurityPolicyManagerTest {
         securityPolicyManager.savePasswordHistory(user);
     }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
-    public void savePasswordHistory(@Mocked User user, @Mocked UserPasswordHistoryDao dao) {
+    public void savePasswordHistory(@Injectable User user, @Injectable UserPasswordHistoryDao dao) {
         new Expectations(securityPolicyManager) {{
             securityPolicyManager.getPasswordHistoryPolicyProperty();
             result = "passwordHistoryPolicyProperty";

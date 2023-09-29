@@ -5,7 +5,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -46,7 +45,6 @@ public class CheckReleaseSQLScriptsGenerationIT {
      * @throws IOException
      */
     @Test
-    @Disabled("EDELIVERY-6896")
     public void checkPresenceOfSQLScriptDDLsForRelease() throws IOException {
 
         String domibusArtifactVersion = retrieveDomibusArtifactVersion();
@@ -90,7 +88,7 @@ public class CheckReleaseSQLScriptsGenerationIT {
     }
 
     protected void preVerifications(String domibusArtifactVersion, File sqlScriptsDirectory) {
-        Assertions.assertNotNull("Domibus Artefact Version should be initialized from properties file!", domibusArtifactVersion);
+        Assertions.assertNotNull( domibusArtifactVersion);
         Assertions.assertNotNull(sqlScriptsDirectory);
         Assertions.assertTrue(sqlScriptsDirectory.isDirectory(), "target/sql-scripts directory should be present!");
     }
@@ -98,14 +96,15 @@ public class CheckReleaseSQLScriptsGenerationIT {
     protected boolean checkPresenceOfFile(String prefixString, String artefactVersion, String suffixString, File sqlScriptsDirectory) throws IOException {
         boolean filePresentFlag = false;
 
-        DirectoryStream<Path> directoryStream = Files.newDirectoryStream(sqlScriptsDirectory.toPath());
-        for (Path entry : directoryStream) {
-            String fileName = entry.getFileName().toString();
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(sqlScriptsDirectory.toPath())) {
+            for (Path entry : directoryStream) {
+                String fileName = entry.getFileName().toString();
 //            LOG.debug(fileName);
-            if (StringUtils.startsWith(fileName, prefixString) && StringUtils.contains(fileName, artefactVersion) && StringUtils.endsWith(fileName, suffixString)) {
-                filePresentFlag = true;
-                LOG.debug("Located file with prefix: [" + prefixString + "] containing artefactVersion: [" + artefactVersion + "] and suffix string: [" + suffixString + "] in directory:" + sqlScriptsDirectory.getAbsolutePath());
-                break;
+                if (StringUtils.startsWith(fileName, prefixString) && StringUtils.contains(fileName, artefactVersion) && StringUtils.endsWith(fileName, suffixString)) {
+                    filePresentFlag = true;
+                    LOG.debug("Located file with prefix: [" + prefixString + "] containing artefactVersion: [" + artefactVersion + "] and suffix string: [" + suffixString + "] in directory:" + sqlScriptsDirectory.getAbsolutePath());
+                    break;
+                }
             }
         }
         return filePresentFlag;

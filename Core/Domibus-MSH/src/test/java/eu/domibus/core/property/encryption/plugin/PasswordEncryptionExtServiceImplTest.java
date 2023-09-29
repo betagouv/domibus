@@ -7,20 +7,19 @@ import eu.domibus.api.property.encryption.PasswordEncryptionResult;
 import eu.domibus.api.property.encryption.PasswordEncryptionService;
 import eu.domibus.core.converter.DomibusCoreMapper;
 import eu.domibus.core.property.encryption.PasswordEncryptionContextFactory;
-import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.PluginPasswordEncryptionContext;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import static eu.domibus.ext.domain.DomainDTO.DEFAULT_DOMAIN;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1.2
  */
 @ExtendWith(JMockitExtension.class)
-@SuppressWarnings("TestMethodWithIncorrectSignature")
 public class PasswordEncryptionExtServiceImplTest {
 
     @Tested
@@ -39,11 +38,9 @@ public class PasswordEncryptionExtServiceImplTest {
     protected DomibusCoreMapper coreMapper;
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void encryptPasswordsInFilePositive(@Injectable PluginPasswordEncryptionContext pluginPasswordEncryptionContext,
                                                @Injectable Domain domain,
-                                               @Injectable PasswordEncryptionContext passwordEncryptionContext,
-                                               @Mocked PluginPasswordEncryptionContextDelegate pluginPasswordEncryptionContextDelegate) {
+                                               @Injectable PasswordEncryptionContext passwordEncryptionContext) {
         new Expectations() {{
             pluginPasswordEncryptionContext.isEncryptionActive();
             result = true;
@@ -57,14 +54,12 @@ public class PasswordEncryptionExtServiceImplTest {
             passwordEncryptionContextFactory.getPasswordEncryptionContext(domain);
             result = passwordEncryptionContext;
 
-            new PluginPasswordEncryptionContextDelegate(pluginPasswordEncryptionContext, passwordEncryptionContext);
-            result = pluginPasswordEncryptionContextDelegate;
         }};
 
         passwordEncryptionExtService.encryptPasswordsInFile(pluginPasswordEncryptionContext);
 
         new Verifications() {{
-            passwordEncryptionService.encryptPasswords(pluginPasswordEncryptionContextDelegate);
+            passwordEncryptionService.encryptPasswords((PasswordEncryptionContext) any);
         }};
     }
 
@@ -119,23 +114,21 @@ public class PasswordEncryptionExtServiceImplTest {
     }
 
     @Test
-    public void encryptProperty(@Injectable DomainDTO domainDTO,
-                                @Injectable String propertyName,
+    public void encryptProperty(@Injectable String propertyName,
                                 @Injectable String encryptedFormatValue,
                                 @Injectable Domain domain,
                                 @Injectable PasswordEncryptionResult passwordEncryptionResult) {
         new Expectations() {{
-            coreMapper.domainDTOToDomain(domainDTO);
+            coreMapper.domainDTOToDomain(DEFAULT_DOMAIN);
             result = domain;
 
             passwordEncryptionService.encryptProperty(domain, propertyName, encryptedFormatValue);
             result = passwordEncryptionResult;
         }};
 
-        passwordEncryptionExtService.encryptProperty(domainDTO, propertyName, encryptedFormatValue);
+        passwordEncryptionExtService.encryptProperty(DEFAULT_DOMAIN, propertyName, encryptedFormatValue);
 
         new FullVerifications() {{
-            domainDTO.toString();
             coreMapper.passwordEncryptionResultToPasswordEncryptionResultDTO(passwordEncryptionResult);
         }};
     }

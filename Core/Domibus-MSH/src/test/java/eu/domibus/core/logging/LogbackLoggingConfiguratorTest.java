@@ -5,11 +5,9 @@ import eu.domibus.core.property.PropertyUtils;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -18,6 +16,7 @@ import java.util.Optional;
 /**
  * Created by Cosmin Baciu on 12-Oct-16.
  */
+@SuppressWarnings("unused")
 @ExtendWith(JMockitExtension.class)
 public class LogbackLoggingConfiguratorTest {
 
@@ -32,14 +31,18 @@ public class LogbackLoggingConfiguratorTest {
 
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testConfigureLoggingWithCustomFile() {
+
+        new MockUp<System>() {
+            @Mock
+            String getProperty(String key) {
+                return "/user/mylogback.xml";
+            }
+        };
+
         new Expectations(logbackLoggingConfigurator) {{
             logbackLoggingConfigurator.getDefaultLogbackConfigurationFile();
             result = "/user/logback-test.xml";
-
-            System.getProperty(anyString);
-            result = "/user/mylogback.xml";
         }};
 
         logbackLoggingConfigurator.configureLogging();
@@ -54,14 +57,17 @@ public class LogbackLoggingConfiguratorTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testConfigureLoggingWithTheDefaultLogbackConfigurationFile() {
+
+        new MockUp<System>() {
+            @Mock
+            String getProperty(String key) {
+                return null;
+            }
+        };
         new Expectations(logbackLoggingConfigurator) {{
             logbackLoggingConfigurator.getDefaultLogbackConfigurationFile();
             result = "/user/logback-test.xml";
-
-            System.getProperty(anyString);
-            result = null;
         }};
 
         logbackLoggingConfigurator.configureLogging();
@@ -76,7 +82,7 @@ public class LogbackLoggingConfiguratorTest {
     }
 
     @Test
-    public void testConfigureLoggingWithEmptyConfigLocation(final @Capturing Logger log) throws Exception {
+    public void testConfigureLoggingWithEmptyConfigLocation(final @Capturing Logger log) {
         logbackLoggingConfigurator.configureLogging(null);
 
         new Verifications() {{
@@ -86,7 +92,7 @@ public class LogbackLoggingConfiguratorTest {
     }
 
     @Test
-    public void testConfigureLoggingWithMissingLogFile(@Mocked File file) throws Exception {
+    public void testConfigureLoggingWithMissingLogFile(@Mocked File file) {
         new Expectations(logbackLoggingConfigurator) {{
             new File(anyString).exists();
             result = false;
@@ -122,14 +128,14 @@ public class LogbackLoggingConfiguratorTest {
     }
 
     @Test
-    public void testGetDefaultLogbackConfigurationFileWithConfiguredDomibusLocation() throws Exception {
+    public void testGetDefaultLogbackConfigurationFileWithConfiguredDomibusLocation() {
         String defaultLogbackConfigurationFile = logbackLoggingConfigurator.getDefaultLogbackConfigurationFile();
 
         Assertions.assertEquals(File.separator + "user" + File.separator + "logback.xml", defaultLogbackConfigurationFile);
     }
 
     @Test
-    public void testGetDefaultLogbackFilePathWithMissingDomibusLocation(final @Capturing Logger log) throws Exception {
+    public void testGetDefaultLogbackFilePathWithMissingDomibusLocation(final @Capturing Logger log) {
         logbackLoggingConfigurator.domibusConfigLocation = null;
         logbackLoggingConfigurator.getDefaultLogbackConfigurationFile();
 

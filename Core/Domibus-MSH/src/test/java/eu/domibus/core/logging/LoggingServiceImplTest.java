@@ -5,24 +5,20 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import eu.domibus.api.cluster.SignalService;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.jms.JMSMessageBuilder;
-import eu.domibus.api.jms.JmsMessage;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.core.converter.DomibusCoreMapper;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import static eu.domibus.core.logging.LoggingServiceImpl.PREFIX_CLASS_;
@@ -31,6 +27,7 @@ import static eu.domibus.core.logging.LoggingServiceImpl.PREFIX_CLASS_;
  * @author Catalin Enache
  * @since 4.1
  */
+@SuppressWarnings({"ResultOfMethodCallIgnored", "unused", "UnusedAssignment"})
 @ExtendWith(JMockitExtension.class)
 public class LoggingServiceImplTest {
 
@@ -162,8 +159,6 @@ public class LoggingServiceImplTest {
 
     @Test
     public void testGetLoggingLevel_ClassNotPresentInList() {
-        DomibusLogger LOG1 = DomibusLoggerFactory.getLogger("class TestLoggerName");
-        DomibusLogger LOG2 = DomibusLoggerFactory.getLogger("class org.ehcache.core.Ehcache-eu.domibus.api.model.PartyRole");
 
         List<LoggingEntry> loggingEntries = loggingService.getLoggingLevel("eu.domibus", true);
         List<LoggingEntry> loggingEntries2 = loggingService.getLoggingLevel("class", true);
@@ -174,7 +169,6 @@ public class LoggingServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testResetLogging(final @Mocked LogbackLoggingConfigurator logbackLoggingConfigurator) {
 
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -184,11 +178,10 @@ public class LoggingServiceImplTest {
             domibusConfigurationService.getConfigLocation();
             result = domibusConfigLocation;
 
-            new LogbackLoggingConfigurator(domibusConfigLocation);
-            result = logbackLoggingConfigurator;
+            LogbackLoggingConfigurator log = new LogbackLoggingConfigurator(domibusConfigLocation);
 
-            logbackLoggingConfigurator.getLoggingConfigurationFile();
-            result = this.getClass().getResource("/logback-test.xml").getPath();
+            log.getLoggingConfigurationFile();
+            result = Objects.requireNonNull(this.getClass().getResource("/logback-test.xml")).getPath();
         }};
 
         //tested method
@@ -210,22 +203,9 @@ public class LoggingServiceImplTest {
     }
 
     @Test
-    public void testSignalLoggingReset_ExceptionThrown_MessageNotSent(final @Mocked JmsMessage jmsMessage, final @Mocked JMSMessageBuilder messageBuilder) {
-        final String name = "eu.domibus";
-        final String level = "INFO";
+    public void testSignalLoggingReset_ExceptionThrown_MessageNotSent() {
 
-        new Expectations(loggingService) {{
-//            JMSMessageBuilder.create();
-//            result = messageBuilder;
-//
-//            messageBuilder.property(Command.COMMAND, Command.LOGGING_RESET);
-//            result = messageBuilder;
-//
-//            messageBuilder.build();
-//            result = jmsMessage;
-//
-//            jmsManager.sendMessageToTopic(jmsMessage, clusterCommandTopic);
-//            result = new DestinationResolutionException("error while sending JMS message");
+        new Expectations() {{
             signalService.signalLoggingReset();
             result = new LoggingException("Error while sending topic message for logging reset");
         }};
@@ -299,7 +279,7 @@ public class LoggingServiceImplTest {
 
         new MockUp<FieldUtils>() {
             @Mock
-            public Object readField(Object target, String fieldName, boolean forceAccess) throws IllegalAccessException {
+            public Object readField(Object target, String fieldName, boolean forceAccess)  {
                 if ("childrenList".equalsIgnoreCase(fieldName) && (target instanceof Logger)) {
                     if (packageLoggerName.equalsIgnoreCase(((Logger) target).getName())) {
                         return packageChildLoggers;

@@ -67,7 +67,7 @@ public class MSHWebServiceTest {
         }};
     }
 
-    private static MessageImpl getMessage(Ebms3Messaging messaging) {
+    public static MessageImpl getMessage(Ebms3Messaging messaging) {
         MessageImpl message1 = new MessageImpl();
         ExchangeImpl e = new ExchangeImpl();
         message1.setExchange(e);

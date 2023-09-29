@@ -17,7 +17,6 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -32,10 +31,7 @@ import java.util.Set;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ExtendWith(JMockitExtension.class)
-@Disabled("EDELIVERY-6896")
 public class PropertyProfileValidatorTest {
-
-    public static final String valid4CornerMessagePath = "target/test-classes/eu/domibus/common/validators/valid4CornerMessage.xml";
 
     @Tested
     PropertyProfileValidator propertyProfileValidator;

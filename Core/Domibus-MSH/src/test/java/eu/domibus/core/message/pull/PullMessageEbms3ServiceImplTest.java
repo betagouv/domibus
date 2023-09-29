@@ -22,7 +22,6 @@ import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -100,7 +99,7 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    public void getPullMessageIdFirstAttempt( @Mocked final PullMessageId pullMessageId) {
+    public void getPullMessageIdFirstAttempt(@Injectable final PullMessageId pullMessageId) {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
@@ -128,7 +127,7 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    public void getPullMessageIdExpired(@Mocked final PullMessageId pullMessageId) {
+    public void getPullMessageIdExpired(@Injectable final PullMessageId pullMessageId) {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
@@ -156,8 +155,8 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    public void getPullMessageIdRetry(@Mocked final PullMessageId pullMessageId,
-                                      @Mocked UserMessage userMessage) {
+    public void getPullMessageIdRetry(@Injectable final PullMessageId pullMessageId,
+                                      @Injectable UserMessage userMessage) {
         final String initiator = "initiator";
         final String mpc = "mpc";
         final String messageId = "messageId";
@@ -188,17 +187,9 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    void addPullMessageLockWithPmodeException(@Mocked final UserMessage userMessage, @Mocked final UserMessageLog messageLog) throws EbMS3Exception {
-        final String partyId = "partyId";
-        final String messageId = "messageId";
-        final String mpc = "mpc";
+    void addPullMessageLockWithPmodeException(@Injectable final UserMessage userMessage, @Injectable final UserMessageLog messageLog) throws EbMS3Exception {
+
         new Expectations(pullMessageService) {{
-//            userMessage.getToFirstPartyId();
-//            result = partyId;
-//            messageLog.getMessageId();
-//            result = messageId;
-//            messageLog.getMpc();
-//            result = mpc;
             pModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, anyBoolean).getPmodeKey();
             result = EbMS3ExceptionBuilder.getInstance()
                     .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0001)
@@ -211,6 +202,7 @@ public class PullMessageEbms3ServiceImplTest {
                 () -> pullMessageService.addPullMessageLock(userMessage, messageLog));
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Test
     public void addPullMessageLock(@Injectable final UserMessage userMessage,
                                    @Injectable final UserMessageLog messageLog) throws EbMS3Exception {
@@ -246,7 +238,7 @@ public class PullMessageEbms3ServiceImplTest {
         pullMessageService.addPullMessageLock(userMessage, messageLog);
 
         new Verifications() {{
-            MessagingLock messagingLock = null;
+            MessagingLock messagingLock;
             messagingLockDao.save(messagingLock = withCapture());
             assertEquals(partyId, messagingLock.getInitiator());
             assertEquals(mpc, messagingLock.getMpc());
@@ -257,7 +249,6 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void waitingForCallExpired(
             @Injectable final MessagingLock lock,
             @Injectable final LegConfiguration legConfiguration,
@@ -289,7 +280,6 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void waitingForCallBackWithAttempt(
             @Injectable final MessagingLock lock,
             @Injectable final LegConfiguration legConfiguration,
@@ -431,7 +421,7 @@ public class PullMessageEbms3ServiceImplTest {
                                                @Injectable final UserMessageLog userMessageLog) {
 
         final String messageID = "123456";
-        final Date nextAttempt = new Date(1528110891749l);
+        final Date nextAttempt = new Date(1528110891749L);
         new Expectations(pullMessageService) {{
             userMessage.getMessageId();
             result = messageID;
