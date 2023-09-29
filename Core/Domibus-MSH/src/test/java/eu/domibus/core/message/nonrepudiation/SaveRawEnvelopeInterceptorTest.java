@@ -2,7 +2,11 @@ package eu.domibus.core.message.nonrepudiation;
 
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.core.message.UserMessageContextKeyProvider;
-import mockit.*;
+import eu.domibus.test.common.SoapSampleUtil;
+import mockit.Expectations;
+import mockit.Injectable;
+import mockit.Tested;
+import mockit.Verifications;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.junit.jupiter.api.Test;
@@ -27,20 +31,17 @@ public class SaveRawEnvelopeInterceptorTest {
     protected UserMessageContextKeyProvider userMessageContextKeyProvider;
 
     @Test
-    public void testHandleMessage(@Mocked SoapMessage message, @Mocked SOAPMessage jaxwsMessage) {
+    public void testHandleMessage() throws Exception {
         Long userMessageEntityId = 123L;
         String userMessageId = "456";
 
+        SoapMessage message= new SoapSampleUtil().createSoapMessage("SOAPMessage2.xml", "id");
+
+
+        message.getExchange().put(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY, userMessageId);
+        message.getExchange().put(UserMessage.USER_MESSAGE_ID_KEY_CONTEXT_PROPERTY, userMessageEntityId+"");
+
         new Expectations() {{
-            message.getContent(SOAPMessage.class);
-            result = jaxwsMessage;
-
-            message.getExchange().get(UserMessage.MESSAGE_ID_CONTEXT_PROPERTY);
-            result = userMessageId;
-
-            message.getExchange().get(UserMessage.USER_MESSAGE_ID_KEY_CONTEXT_PROPERTY);
-            result = String.valueOf(userMessageEntityId);
-
             userMessageContextKeyProvider.getKeyFromTheCurrentMessage(UserMessage.USER_MESSAGE_DUPLICATE_KEY);
             result = "false";
         }};
@@ -48,7 +49,7 @@ public class SaveRawEnvelopeInterceptorTest {
         saveRawEnvelopeInterceptor.handleMessage(message);
 
         new Verifications() {{
-            nonRepudiationService.saveResponse(jaxwsMessage, userMessageEntityId);
+            nonRepudiationService.saveResponse((SOAPMessage) any, userMessageEntityId);
         }};
     }
 }

@@ -1464,25 +1464,21 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-
-    public void testFindUserMessageExchangeContextSenderNotProvided() {
-
+    public void testFindUserMessageExchangeContextSenderNotProvided() throws JAXBException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         MSHRole mshRole1 = MSHRole.SENDING;
         new Expectations(cachingPModeProvider) {{
-            cachingPModeProvider.getConfiguration().getBusinessProcesses().getLegConfigurations();
-            result = configuration.getBusinessProcesses().getLegConfigurations();
+            cachingPModeProvider.getConfiguration();
+            result = configuration;
 
             userMessage.getPartyInfo().getFrom().getFromPartyId();
             result = partyId1;
         }};
-        try {
-            cachingPModeProvider.findUserMessageExchangeContext(userMessage, mshRole1, true, null);
-            Assertions.fail("expected error that sender party is missing");
-        } catch (EbMS3Exception ex) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
-            assertEquals("Sender party could not be found for the value  " + partyId1, ex.getErrorDetail());
-            assertEquals(mshRole1, ex.getMshRole());
-        }
+
+        EbMS3Exception ex = assertThrows(EbMS3Exception.class, () -> cachingPModeProvider.findUserMessageExchangeContext(userMessage, mshRole1, true, null));
+        assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
+        assertEquals("Sender party could not be found for the value  " + partyId1, ex.getErrorDetail());
+        assertEquals(mshRole1, ex.getMshRole());
     }
 
     @Test

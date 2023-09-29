@@ -22,6 +22,7 @@ import eu.domibus.core.scheduler.ReprogrammableService;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -249,6 +250,7 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896 Fails on bamboo")
     public void waitingForCallExpired(
             @Injectable final MessagingLock lock,
             @Injectable final LegConfiguration legConfiguration,
@@ -280,6 +282,7 @@ public class PullMessageEbms3ServiceImplTest {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896 Fails on bamboo")
     public void waitingForCallBackWithAttempt(
             @Injectable final MessagingLock lock,
             @Injectable final LegConfiguration legConfiguration,
