@@ -5,8 +5,8 @@ import eu.domibus.api.monitoring.domain.QuartzTriggerDetails;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
-import eu.domibus.api.multitenancy.lock.SynchronizationService;
 import eu.domibus.api.multitenancy.lock.DbClusterSynchronizedRunnableFactory;
+import eu.domibus.api.multitenancy.lock.SynchronizationService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.plugin.BackendConnectorProvider;
@@ -14,7 +14,6 @@ import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.quartz.*;
@@ -31,6 +30,7 @@ import java.util.*;
  * @version 1.0
  * @since 3.3.2
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @ExtendWith(JMockitExtension.class)
 public class DomibusQuartzStarterTest {
 
@@ -82,9 +82,6 @@ public class DomibusQuartzStarterTest {
     @BeforeEach
     public void setUp() throws Exception {
         jobKeys.add(jobKey1);
-
-        Domain domain = new Domain();
-        domain.setCode(domainName);
     }
 
     @Test
@@ -115,8 +112,7 @@ public class DomibusQuartzStarterTest {
         //tested method
         domibusQuartzStarter.checkSchedulerJobs(scheduler);
 
-        new FullVerifications() {{
-        }};
+        new FullVerifications() {};
     }
 
     @Test
@@ -189,43 +185,40 @@ public class DomibusQuartzStarterTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void getGeneralSchedulersInfoTest(@Injectable QuartzTriggerDetails triggerInfo) throws Exception {
         generalSchedulers.add(scheduler);
         final List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
 
-        new Expectations() {{
+        new Expectations(domibusQuartzStarter) {{
             scheduler.getJobGroupNames();
             times = 1;
             result = jobGroups;
-            domibusQuartzStarter.getTriggerDetails(scheduler, groupName, domainName);
+            domibusQuartzStarter.getTriggerDetails(scheduler, groupName, null);
             result = triggerInfoList;
         }};
 
         domibusQuartzStarter.getGeneralSchedulersInfo(generalSchedulers);
         new Verifications() {{
-            domibusQuartzStarter.getTriggerDetails(scheduler, groupName, domainName);
+            domibusQuartzStarter.getTriggerDetails(scheduler, groupName, null);
             times = 1;
         }};
 
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getSchedulersInfoTest(@Injectable Domain domain,
-                                      @Injectable QuartzTriggerDetails triggerInfo) throws Exception {
-        schedulers.put(domain, scheduler);
+    public void getSchedulersInfoTest(@Injectable QuartzTriggerDetails triggerInfo) throws Exception {
+        schedulers.put(DomainService.DEFAULT_DOMAIN, scheduler);
         final List<QuartzTriggerDetails> triggerInfoList = new ArrayList<>();
-        new Expectations() {{
+        new Expectations(domibusQuartzStarter) {{
             scheduler.getJobGroupNames();
             times = 1;
             result = jobGroups;
-            domibusQuartzStarter.getTriggerDetails(scheduler, groupName, domainName);
+            domibusQuartzStarter.getTriggerDetails(scheduler, groupName, DomainService.DEFAULT_DOMAIN.getName());
             result = triggerInfoList;
         }};
         domibusQuartzStarter.getSchedulersInfo(schedulers);
         new Verifications() {{
-            domibusQuartzStarter.getTriggerDetails(scheduler, groupName, domainName);
+            domibusQuartzStarter.getTriggerDetails(scheduler, groupName, DomainService.DEFAULT_DOMAIN.getName());
             times = 1;
         }};
     }
@@ -303,10 +296,9 @@ public class DomibusQuartzStarterTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void checkJobsAndStartSchedulerTest(@Injectable Domain domain,
                                                @Injectable Scheduler scheduler) throws Exception {
-        new Expectations() {{
+        new Expectations(domibusQuartzStarter) {{
             domibusSchedulerFactory.createScheduler(domain);
             result = scheduler;
             domibusQuartzStarter.checkSchedulerJobs(scheduler);
@@ -384,7 +376,7 @@ public class DomibusQuartzStarterTest {
     }
 
     @Test
-    public void pauseJobTest(@Injectable Domain domain) throws Exception {
+    public void pauseJobTest(@Injectable Domain domain)  {
         String jobName = "job1";
         new Expectations(domibusQuartzStarter) {{
             domibusQuartzStarter.pauseJobs((Domain)any, anyString);
@@ -398,7 +390,7 @@ public class DomibusQuartzStarterTest {
     }
 
     @Test
-    public void resumeJobTest(@Injectable Domain domain) throws Exception {
+    public void resumeJobTest(@Injectable Domain domain)  {
         String jobName = "job1";
         new Expectations(domibusQuartzStarter) {{
             domibusQuartzStarter.resumeJobs((Domain)any, anyString);

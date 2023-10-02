@@ -1,13 +1,9 @@
 package eu.domibus.core.property;
 
 import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
-import mockit.Expectations;
-import mockit.Injectable;
-import mockit.Mocked;
-import mockit.Tested;
+import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -35,16 +31,19 @@ public class DomibusConfigLocationProviderTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getDomibusConfigLocation(@Injectable ServletContext servletContext,
-                                         @Mocked System system) {
+    public void getDomibusConfigLocation(@Injectable ServletContext servletContext) {
         String systemConfigLocation = "systemConfigLocation";
+
+        new MockUp<System>() {
+            @Mock
+            String getProperty(String key) {
+                return systemConfigLocation;
+            }
+        };
+
         new Expectations() {{
             servletContext.getInitParameter(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);
             result = null;
-
-            system.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_CONFIG_LOCATION);
-            result = systemConfigLocation;
         }};
 
         Assertions.assertEquals(systemConfigLocation, domibusConfigLocationProvider.getDomibusConfigLocation(servletContext));

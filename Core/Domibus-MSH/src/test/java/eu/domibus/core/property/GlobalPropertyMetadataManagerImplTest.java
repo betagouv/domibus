@@ -14,10 +14,8 @@ import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Spy;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -29,30 +27,25 @@ import java.util.stream.Collectors;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 
 @ExtendWith(JMockitExtension.class)
-@Disabled("EDELIVERY-6896")
 public class GlobalPropertyMetadataManagerImplTest {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(GlobalPropertyMetadataManagerImplTest.class);
 
-    @Tested
     GlobalPropertyMetadataManagerImpl globalPropertyMetadataManager;
 
-    @Injectable
-    List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers;
+    List<DomibusPropertyMetadataManagerSPI> propertyMetadataManagers = new ArrayList<>();
 
     @Injectable
     DomibusCoreMapper coreMapper;
 
-    @Injectable
-    private List<DomibusPropertyManagerExt> extPropertyManagers;
+    private List<DomibusPropertyManagerExt> extPropertyManagers = new ArrayList<>();
 
     @Injectable
     private NestedPropertiesManager nestedPropertiesManager;
 
-    @Mocked
-    @Spy
+    @Injectable
     private DomibusPropertyManagerExt propertyManager1;
 
-    @Mocked
+    @Injectable
     private DomibusPropertyManagerExt propertyManager2;
 
     @Injectable
@@ -61,6 +54,8 @@ public class GlobalPropertyMetadataManagerImplTest {
     @Injectable
     protected DomibusPropertyMetadataMapper domibusPropertyMetadataMapper;
 
+    Map<String, DomibusPropertyMetadata> allPropertyMetadataMap = new HashMap<>();
+    Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap = new HashMap<>();
     Map<String, DomibusPropertyMetadataDTO> props1;
     Map<String, DomibusPropertyMetadata> props2;
     String domainCode = "domain1";
@@ -68,6 +63,10 @@ public class GlobalPropertyMetadataManagerImplTest {
 
     @BeforeEach
     public void setUp() {
+        extPropertyManagers = Arrays.asList(propertyManager1, propertyManager2);
+
+        globalPropertyMetadataManager = new GlobalPropertyMetadataManagerImpl(propertyMetadataManagers, extPropertyManagers, nestedPropertiesManager, domibusPropertyMetadataMapper);
+        globalPropertyMetadataManager.loadInternalProperties();
         props1 = Arrays.stream(new DomibusPropertyMetadataDTO[]{
                 new DomibusPropertyMetadataDTO(DOMIBUS_UI_TITLE_NAME, DomibusPropertyMetadataDTO.Usage.DOMAIN, true),
                 new DomibusPropertyMetadataDTO(DOMIBUS_SEND_MESSAGE_MESSAGE_ID_PATTERN, DomibusPropertyMetadataDTO.Usage.DOMAIN, false),
@@ -82,43 +81,34 @@ public class GlobalPropertyMetadataManagerImplTest {
                 new DomibusPropertyMetadata(DOMIBUS_PASSWORD_POLICY_PLUGIN_DONT_REUSE_LAST, DomibusPropertyMetadata.Usage.DOMAIN, true),
         }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
-        extPropertyManagers = Arrays.asList(propertyManager1, propertyManager2);
     }
 
     @Test
-    public void getPropertyMetadataNotNullPropertyTest(@Injectable DomibusPropertyMetadata prop,
-                                                       @Injectable Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap,
-                                                       @Injectable Map<String, DomibusPropertyMetadata> allPropertyMetadataMap) {
+    public void getPropertyMetadataNotNullPropertyTest(@Injectable DomibusPropertyMetadata prop) {
         String propertyName = DOMIBUS_UI_TITLE_NAME;
+        allPropertyMetadataMap.put(propertyName, prop);
         new Expectations(globalPropertyMetadataManager) {{
             globalPropertyMetadataManager.loadPropertiesIfNotFound(propertyName);
-            allPropertyMetadataMap.get(propertyName);
-            result = prop;
+
+            globalPropertyMetadataManager.clonePropertyMetadata(DOMIBUS_UI_TITLE_NAME, (DomibusPropertyMetadata) any);
+            result = new DomibusPropertyMetadata();
         }};
         globalPropertyMetadataManager.getPropertyMetadata(propertyName);
-        new Verifications() {{
-            allPropertyMetadataMap.get(propertyName);
-            times = 1;
-            allPropertyMetadataMap.values().stream().filter(p -> p.isComposable() && propertyName.startsWith(p.getName())).findAny();
-            times = 0;
-        }};
+        new FullVerifications() {};
     }
 
     @Test
-    public void getPropertyMetadataWithComposeablePropertyTest(@Injectable DomibusPropertyMetadata propMeta,
-                                                               @Injectable Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap,
-                                                               @Injectable Map<String, DomibusPropertyMetadata> allPropertyMetadataMap) {
+    public void getPropertyMetadataWithComposeablePropertyTest() {
         String propertyName = DOMIBUS_UI_TITLE_NAME;
-
+        DomibusPropertyMetadata propMeta = new DomibusPropertyMetadata();
+        propMeta.setUsage(1);
         new Expectations(globalPropertyMetadataManager) {{
             globalPropertyMetadataManager.loadPropertiesIfNotFound(propertyName);
             times = 1;
-            allPropertyMetadataMap.get(anyString);
-            result = null;
             globalPropertyMetadataManager.getComposablePropertyMetadata(allPropertyMetadataMap, propertyName);
             result = propMeta;
-//            coreMapper.clonePropertyMetadata(propMeta);
-//            result = propMeta;
+            globalPropertyMetadataManager.clonePropertyMetadata(DOMIBUS_UI_TITLE_NAME, propMeta);
+            result = propMeta;
         }};
         DomibusPropertyMetadata meta = globalPropertyMetadataManager.getPropertyMetadata(propertyName);
         Assertions.assertNotNull(meta);
@@ -131,8 +121,7 @@ public class GlobalPropertyMetadataManagerImplTest {
     }
 
     @Test
-    public void initializeIfNeededTest_loadExternalProps(@Injectable Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap,
-                                                         @Injectable Map<String, DomibusPropertyMetadata> allPropertyMetadataMap) {
+    public void initializeIfNeededTest_loadExternalProps() {
         String propertyName = DOMIBUS_UI_TITLE_NAME;
 
         new Expectations(globalPropertyMetadataManager) {{
@@ -149,11 +138,10 @@ public class GlobalPropertyMetadataManagerImplTest {
     }
 
     @Test
-    public void initializeIfNeededTest_loadInternalProps(@Injectable Map<String, DomibusPropertyMetadata> allPropertyMetadataMap) {
+    public void initializeIfNeededTest_loadInternalProps() {
         String propertyName = DOMIBUS_UI_TITLE_NAME;
 
         new Expectations(globalPropertyMetadataManager) {{
-            globalPropertyMetadataManager.loadInternalProperties();
             globalPropertyMetadataManager.hasProperty(allPropertyMetadataMap, propertyName);
             result = true;
         }};
@@ -161,16 +149,13 @@ public class GlobalPropertyMetadataManagerImplTest {
         globalPropertyMetadataManager.loadPropertiesIfNotFound(propertyName);
 
         new Verifications() {{
-            globalPropertyMetadataManager.loadInternalProperties();
-            times = 1;
             globalPropertyMetadataManager.loadExternalPropertiesIfNeeded();
             times = 0;
         }};
     }
 
     @Test
-    public void initializeIfNeededNullPropertyMetadataMapTest(@Injectable Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap,
-                                                              @Injectable Map<String, DomibusPropertyMetadata> allPropertyMetadataMap) {
+    public void initializeIfNeededNullPropertyMetadataMapTest() {
         String propertyName = DOMIBUS_UI_TITLE_NAME;
         new Expectations(globalPropertyMetadataManager) {{
             globalPropertyMetadataManager.hasProperty(allPropertyMetadataMap, propertyName);
@@ -184,8 +169,7 @@ public class GlobalPropertyMetadataManagerImplTest {
     }
 
     @Test
-    public void getManagerForProperty_internal(@Injectable Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap,
-                                               @Injectable Map<String, DomibusPropertyMetadata> allPropertyMetadataMap) {
+    public void getManagerForProperty_internal() {
         String propertyName = DOMIBUS_UI_TITLE_NAME;
 
         new Expectations(globalPropertyMetadataManager) {{
@@ -197,16 +181,14 @@ public class GlobalPropertyMetadataManagerImplTest {
 
         DomibusPropertyManagerExt manager = globalPropertyMetadataManager.getManagerForProperty(propertyName);
 
-        Assertions.assertEquals(null, manager);
+        Assertions.assertNull(manager);
     }
 
     @Test
-    public void getManagerForProperty_external(@Injectable Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap,
-                                               @Injectable Map<String, DomibusPropertyMetadata> allPropertyMetadataMap) {
+    public void getManagerForProperty_external() {
         String propertyName = DOMIBUS_UI_TITLE_NAME;
-
         new Expectations(globalPropertyMetadataManager) {{
-            globalPropertyMetadataManager.loadPropertiesIfNotFound(propertyName);
+//            globalPropertyMetadataManager.loadPropertiesIfNotFound(propertyName);
 
             globalPropertyMetadataManager.hasProperty(internalPropertyMetadataMap, propertyName);
             result = false;
@@ -222,8 +204,7 @@ public class GlobalPropertyMetadataManagerImplTest {
     }
 
     @Test
-    void getManagerForProperty_not_found(@Injectable Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap,
-                                         @Injectable Map<String, DomibusPropertyMetadata> allPropertyMetadataMap) {
+    void getManagerForProperty_not_found() {
         String propertyName = DOMIBUS_UI_TITLE_NAME;
         new Expectations(globalPropertyMetadataManager) {{
             globalPropertyMetadataManager.loadPropertiesIfNotFound(propertyName);
@@ -250,8 +231,7 @@ public class GlobalPropertyMetadataManagerImplTest {
     }
 
     @Test
-    public void loadExternalPropertiesTest(@Injectable Map<String, DomibusPropertyMetadata> allPropertyMetadataMap,
-                                           @Injectable DomibusPropertyMetadata propMeta) {
+    public void loadExternalPropertiesTest(@Injectable DomibusPropertyMetadata propMeta) {
         new Expectations(globalPropertyMetadataManager) {{
             propertyManager1.getKnownProperties();
             result = props1;
@@ -270,9 +250,7 @@ public class GlobalPropertyMetadataManagerImplTest {
     }
 
     @Test
-    public void loadPropertiesTest(@Mocked DomibusPropertyMetadataManagerSPI propertyManager,
-                                   @Injectable Map<String, DomibusPropertyMetadata> allPropertyMetadataMap,
-                                   @Injectable Map<String, DomibusPropertyMetadata> internalPropertyMetadataMap) {
+    public void loadPropertiesTest(@Mocked DomibusPropertyMetadataManagerSPI propertyManager) {
         new Expectations(globalPropertyMetadataManager) {{
             propertyManager.getKnownProperties();
             result = props2;
@@ -321,13 +299,12 @@ public class GlobalPropertyMetadataManagerImplTest {
     }
 
     @Test
-    public void hasComposableProperty(@Injectable DomibusPropertyMetadata propMeta,
-                                      @Injectable Map<String, DomibusPropertyMetadata> map) {
+    public void hasComposableProperty(@Injectable DomibusPropertyMetadata propMeta) {
         String propertyName = "domibus.composable.property.suffix1";
         String compPropertyName = "domibus.composable.property";
 
         List<String> nestedProps = Arrays.asList("suffix1");
-
+        Map<String, DomibusPropertyMetadata> map = new HashMap<>();
         new Expectations(globalPropertyMetadataManager) {{
             globalPropertyMetadataManager.getComposablePropertyMetadata(map, propertyName);
             result = propMeta;
@@ -342,10 +319,9 @@ public class GlobalPropertyMetadataManagerImplTest {
     }
 
     @Test
-    public void hasComposablePropertyNegative(@Injectable DomibusPropertyMetadata propMeta,
-                                              @Injectable Map<String, DomibusPropertyMetadata> map) {
+    public void hasComposablePropertyNegative(@Injectable DomibusPropertyMetadata propMeta) {
         String propertyName = "domibus.composable.property.suffix1";
-
+        Map<String, DomibusPropertyMetadata> map = new HashMap<>();
         new Expectations(globalPropertyMetadataManager) {{
             globalPropertyMetadataManager.getComposablePropertyMetadata(map, propertyName);
             result = null;
@@ -356,11 +332,10 @@ public class GlobalPropertyMetadataManagerImplTest {
     }
 
     @Test
-    public void hasComposablePropertyNegative2(@Injectable DomibusPropertyMetadata propMeta,
-                                               @Injectable Map<String, DomibusPropertyMetadata> map) {
+    public void hasComposablePropertyNegative2(@Injectable DomibusPropertyMetadata propMeta) {
         String propertyName = "domibus.composable.property.suffix1";
         String compPropertyName = "domibus.composable.property";
-
+        Map<String, DomibusPropertyMetadata> map = new HashMap<>();
         List<String> nestedProps = Arrays.asList();
 
         new Expectations(globalPropertyMetadataManager) {{

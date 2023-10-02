@@ -10,7 +10,6 @@ import eu.domibus.web.security.DomibusUserDetailsImpl;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.core.Authentication;
@@ -31,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author François Gautier
  * @since 4.2
  */
-@SuppressWarnings("AccessStaticViaInstance")
+@SuppressWarnings({"AccessStaticViaInstance", "DataFlowIssue"})
 @ExtendWith(JMockitExtension.class)
 public class AuthUtilsImplTest {
 
@@ -46,13 +45,20 @@ public class AuthUtilsImplTest {
     private AuthUtilsImpl authUtilsImpl;
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getOriginalUserFromSecurityContext_user(@Injectable Authentication authentication) {
+    public void getOriginalUserFromSecurityContext_user(@Injectable Authentication authentication,
+                                                        @Injectable SecurityContext securityContext
+    ) {
+        new MockUp<SecurityContextHolder>() {
+            @Mock
+            SecurityContext getContext() {
+                return securityContext;
+            }
+        };
         new Expectations(authUtilsImpl) {{
             authUtilsImpl.isUnsecureLoginAllowed();
             result = false;
 
-            SecurityContextHolder.getContext().getAuthentication();
+            securityContext.getAuthentication();
             result = authentication;
 
             authentication.getAuthorities();
@@ -70,13 +76,19 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getOriginalUserFromSecurityContext_superAdmin(@Injectable Authentication authentication) {
+    public void getOriginalUserFromSecurityContext_superAdmin(@Injectable Authentication authentication,
+                                                              @Injectable SecurityContext securityContext) {
+        new MockUp<SecurityContextHolder>() {
+            @Mock
+            SecurityContext getContext() {
+                return securityContext;
+            }
+        };
         new Expectations(authUtilsImpl) {{
             authUtilsImpl.isUnsecureLoginAllowed();
             result = false;
 
-            SecurityContextHolder.getContext().getAuthentication();
+            securityContext.getAuthentication();
             result = authentication;
 
             authentication.getAuthorities();
@@ -91,13 +103,20 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getOriginalUserFromSecurityContext_admin(@Injectable Authentication authentication) {
+    public void getOriginalUserFromSecurityContext_admin(@Injectable Authentication authentication,
+                                                         @Injectable SecurityContext securityContext
+    ) {
+        new MockUp<SecurityContextHolder>() {
+            @Mock
+            SecurityContext getContext() {
+                return securityContext;
+            }
+        };
         new Expectations(authUtilsImpl) {{
             authUtilsImpl.isUnsecureLoginAllowed();
             result = false;
 
-            SecurityContextHolder.getContext().getAuthentication();
+            securityContext.getAuthentication();
             result = authentication;
 
             authentication.getAuthorities();
@@ -112,13 +131,18 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    void getOriginalUserFromSecurityContext_noAuth() {
+    void getOriginalUserFromSecurityContext_noAuth(@Injectable SecurityContext securityContext) {
+        new MockUp<SecurityContextHolder>() {
+            @Mock
+            SecurityContext getContext() {
+                return securityContext;
+            }
+        };
         new Expectations(authUtilsImpl) {{
             authUtilsImpl.isUnsecureLoginAllowed();
             result = false;
 
-            SecurityContextHolder.getContext().getAuthentication();
+            securityContext.getAuthentication();
             result = null;
         }};
         Assertions.assertThrows(AuthenticationException.class, () -> authUtilsImpl.getOriginalUserWithUnsecureLoginAllowed());
@@ -127,16 +151,19 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    void getOriginalUserFromSecurityContext_noContext() {
+    void getOriginalUserFromSecurityContext_noContext(@Injectable SecurityContext securityContext) {
+        new MockUp<SecurityContextHolder>() {
+            @Mock
+            SecurityContext getContext() {
+                return null;
+            }
+        };
         new Expectations(authUtilsImpl) {{
             authUtilsImpl.isUnsecureLoginAllowed();
             result = false;
 
-            SecurityContextHolder.getContext();
-            result = null;
         }};
-        Assertions.assertThrows(AuthenticationException. class,() -> authUtilsImpl.getOriginalUserWithUnsecureLoginAllowed());
+        Assertions.assertThrows(AuthenticationException.class, () -> authUtilsImpl.getOriginalUserWithUnsecureLoginAllowed());
         new FullVerifications() {
         };
     }
@@ -153,10 +180,15 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getUserDetails_noAuth() {
+    public void getUserDetails_noAuth(@Injectable SecurityContext securityContext) {
+        new MockUp<SecurityContextHolder>() {
+            @Mock
+            SecurityContext getContext() {
+                return securityContext;
+            }
+        };
         new Expectations() {{
-            SecurityContextHolder.getContext().getAuthentication();
+            securityContext.getAuthentication();
             result = null;
         }};
         assertNull(authUtilsImpl.getUserDetails());
@@ -165,22 +197,30 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void getUserDetails_noContext() {
-        new Expectations() {{
-            SecurityContextHolder.getContext();
-            result = null;
-        }};
+        new MockUp<SecurityContextHolder>() {
+            @Mock
+            SecurityContext getContext() {
+                return null;
+            }
+        };
         assertNull(authUtilsImpl.getUserDetails());
         new FullVerifications() {
         };
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getUserDetails_noUserDetails(@Injectable Authentication authentication) {
+    public void getUserDetails_noUserDetails(@Injectable Authentication authentication,
+                                             @Injectable SecurityContext securityContext
+    ) {
+        new MockUp<SecurityContextHolder>() {
+            @Mock
+            SecurityContext getContext() {
+                return securityContext;
+            }
+        };
         new Expectations() {{
-            SecurityContextHolder.getContext().getAuthentication();
+            securityContext.getAuthentication();
             result = authentication;
 
             authentication.getPrincipal();
@@ -192,11 +232,18 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void getUserDetails(@Injectable Authentication authentication,
-            @Injectable DomibusUserDetailsImpl userDetails) {
+                               @Injectable DomibusUserDetailsImpl userDetails,
+                               @Injectable SecurityContext securityContext
+    ) {
+        new MockUp<SecurityContextHolder>() {
+            @Mock
+            SecurityContext getContext() {
+                return securityContext;
+            }
+        };
         new Expectations() {{
-            SecurityContextHolder.getContext().getAuthentication();
+            securityContext.getAuthentication();
             result = authentication;
 
             authentication.getPrincipal();
@@ -208,7 +255,6 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void getAuthenticatedUser_noAuth() {
         new Expectations() {{
             SecurityContextHolder.getContext().getAuthentication();
@@ -220,7 +266,6 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void getAuthenticatedUser_noContext() {
         new Expectations() {{
             SecurityContextHolder.getContext();
@@ -310,7 +355,7 @@ public class AuthUtilsImplTest {
             result = "";
         }};
 
-        Assertions.assertThrows(AuthenticationException. class,() -> authUtilsImpl.checkHasAdminRoleOrUserRoleWithOriginalUser());
+        Assertions.assertThrows(AuthenticationException.class, () -> authUtilsImpl.checkHasAdminRoleOrUserRoleWithOriginalUser());
 
         new FullVerifications() {
         };
@@ -347,13 +392,19 @@ public class AuthUtilsImplTest {
     }
 
     @Test
-    public void setAuthenticationToSecurityContextWithRole(@Mocked SecurityContextHolder securityContextHolder) {
+    public void setAuthenticationToSecurityContextWithRole(@Injectable SecurityContext securityContext) {
+        new MockUp<SecurityContextHolder>() {
+            @Mock
+            SecurityContext getContext() {
+                return securityContext;
+            }
+        };
 
         authUtilsImpl.setAuthenticationToSecurityContext("user", "pwd", AuthRole.ROLE_USER);
 
         new FullVerifications() {{
             Authentication authentication;
-            securityContextHolder.getContext()
+            securityContext
                     .setAuthentication(authentication = withCapture());
 
             assertThat(authentication.getCredentials(), is("pwd"));
