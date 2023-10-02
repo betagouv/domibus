@@ -39,7 +39,6 @@ import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -1467,22 +1466,21 @@ public class CachingPModeProviderTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void testFindUserMessageExchangeContextSenderNotProvided() {
-
+    public void testFindUserMessageExchangeContextSenderNotProvided() throws JAXBException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        configuration = loadSamplePModeConfiguration(VALID_PMODE_CONFIG_URI);
         MSHRole mshRole1 = MSHRole.SENDING;
         new Expectations(cachingPModeProvider) {{
+            cachingPModeProvider.getConfiguration();
+            result = configuration;
+
             userMessage.getPartyInfo().getFrom().getFromPartyId();
             result = partyId1;
         }};
-        try {
-            cachingPModeProvider.findUserMessageExchangeContext(userMessage, mshRole1, true, null);
-            Assertions.fail("expected error that sender party is missing");
-        } catch (EbMS3Exception ex) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
-            assertEquals("Sender party could not be found for the value  " + partyId1, ex.getErrorDetail());
-            assertEquals(mshRole1, ex.getMshRole());
-        }
+
+        EbMS3Exception ex = assertThrows(EbMS3Exception.class, () -> cachingPModeProvider.findUserMessageExchangeContext(userMessage, mshRole1, true, null));
+        assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
+        assertEquals("Sender party could not be found for the value  " + partyId1, ex.getErrorDetail());
+        assertEquals(mshRole1, ex.getMshRole());
     }
 
     @Test

@@ -11,27 +11,23 @@ import eu.domibus.core.message.compression.CompressionService;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorage;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
-import eu.domibus.logging.DomibusLogger;
-import eu.domibus.logging.DomibusLoggerFactory;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.UUID;
 
 /**
  * @author Cosmin Baciu
  * @since 4.1.1
  */
+@SuppressWarnings({"ResultOfMethodCallIgnored", "DataFlowIssue"})
 @ExtendWith(JMockitExtension.class)
 public class FileSystemPayloadPersistenceTest {
 
-    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(FileSystemPayloadPersistenceTest.class);
 
     @Injectable
     protected PayloadFileStorageProvider storageProvider;
@@ -154,15 +150,13 @@ public class FileSystemPayloadPersistenceTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testSaveOutgoingPayloadToDisk(@Injectable PartInfo partInfo,
                                               @Injectable UserMessage userMessage,
                                               @Injectable PayloadFileStorage currentStorage,
                                               @Injectable LegConfiguration legConfiguration,
                                               @Injectable String backendName,
                                               @Injectable InputStream inputStream,
-                                              @Mocked File file,
-                                              @Mocked UUID uuid
+                                              @Mocked File fileBase
     ) throws IOException, EbMS3Exception {
 
         final String myfile = "myfile";
@@ -170,14 +164,16 @@ public class FileSystemPayloadPersistenceTest {
         final String myFilePath = "myFilePath";
 
         new Expectations(fileSystemPayloadPersistence) {{
+            currentStorage.getStorageDirectory();
+            result = fileBase;
+
             partInfo.getPayloadDatahandler().getInputStream();
             result = inputStream;
 
             partInfo.getFileName();
             result = myfile;
 
-            new File((File) any, anyString);
-            result = file;
+            File file = new File((File) any, anyString);
 
             file.getAbsolutePath();
             result = myFilePath;

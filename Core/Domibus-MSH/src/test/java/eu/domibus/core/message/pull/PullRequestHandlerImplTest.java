@@ -1,11 +1,11 @@
 package eu.domibus.core.message.pull;
 
 import eu.domibus.api.ebms3.model.Ebms3Error;
+import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.message.attempt.MessageAttempt;
 import eu.domibus.api.message.attempt.MessageAttemptService;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageType;
 import eu.domibus.api.model.PartInfo;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pki.DomibusCertificateException;
@@ -17,8 +17,6 @@ import eu.domibus.common.model.configuration.Security;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.EbMS3ExceptionBuilder;
 import eu.domibus.core.ebms3.sender.EbMS3MessageBuilder;
-import eu.domibus.core.ebms3.sender.client.DispatchClientDefaultProvider;
-import eu.domibus.core.ebms3.sender.client.MSHDispatcher;
 import eu.domibus.core.ebms3.sender.retry.RetryService;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.message.MessageExchangeService;
@@ -30,15 +28,17 @@ import eu.domibus.core.message.reliability.ReliabilityService;
 import eu.domibus.test.common.MessageTestUtility;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.xml.soap.SOAPMessage;
 import java.util.List;
 
+import static eu.domibus.core.ebms3.receiver.MSHWebServiceTest.getMessage;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
@@ -87,7 +87,6 @@ public class PullRequestHandlerImplTest {
 
     @Test
     public void testHandlePullRequestMessageFoundWithError(
-            @Mocked final PhaseInterceptorChain pi,
             @Injectable final LegConfiguration legConfiguration,
             @Injectable final PullContext pullContext) throws EbMS3Exception {
         final UserMessage userMessage = new MessageTestUtility().createSampleUserMessage();
@@ -121,14 +120,19 @@ public class PullRequestHandlerImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testHandlePullRequestMessageFound(
-            @Mocked final PhaseInterceptorChain pi,
             @Injectable final LegConfiguration legConfiguration,
             @Injectable final UserMessage userMessage,
-            @Injectable final PullContext pullContext) throws EbMS3Exception {
+            @Injectable final PullContext pullContext,
+            @Injectable Ebms3Messaging messaging) throws EbMS3Exception {
         final String messageId = "messageId";
-
+        MessageImpl message = getMessage(messaging);
+        new MockUp<PhaseInterceptorChain>() {
+            @Mock
+            Message getCurrentMessage() {
+                return message;
+            }
+        };
         new Expectations() {{
             userMessageDao.findByMessageId(messageId, MSHRole.SENDING);
             result = userMessage;
@@ -147,12 +151,6 @@ public class PullRequestHandlerImplTest {
         pullRequestHandler.handleRequest(messageId, pullContext);
 
         new Verifications() {{
-
-            PhaseInterceptorChain.getCurrentMessage().getExchange().put(MSHDispatcher.MESSAGE_TYPE_OUT, MessageType.USER_MESSAGE);
-            times = 1;
-
-            PhaseInterceptorChain.getCurrentMessage().getExchange().put(DispatchClientDefaultProvider.MESSAGE_ID, messageId);
-            times = 1;
 
             messageBuilder.buildSOAPMessage(userMessage, (List<PartInfo>) any, legConfiguration);
             times = 1;
@@ -215,9 +213,9 @@ public class PullRequestHandlerImplTest {
 
     @Test
     public void testHandlePullRequestConfigurationException(
-            @Mocked final LegConfiguration legConfiguration,
-            @Mocked final UserMessage userMessage,
-            @Mocked final PullContext pullContext) throws EbMS3Exception {
+            @Injectable final LegConfiguration legConfiguration,
+            @Injectable final UserMessage userMessage,
+            @Injectable final PullContext pullContext) throws EbMS3Exception {
 
         final String messageId = "whatEverId";
 
@@ -251,9 +249,9 @@ public class PullRequestHandlerImplTest {
 
     @Test
     public void testHandlePullRequestWithInvalidReceiverCertificate(
-            @Mocked final UserMessage userMessage,
-            @Mocked final LegConfiguration legConfiguration,
-            @Mocked final PullContext pullContext) throws EbMS3Exception {
+            @Injectable final UserMessage userMessage,
+            @Injectable final LegConfiguration legConfiguration,
+            @Injectable final PullContext pullContext) throws EbMS3Exception {
 
         final String messageId = "whatEverID";
         new Expectations() {{

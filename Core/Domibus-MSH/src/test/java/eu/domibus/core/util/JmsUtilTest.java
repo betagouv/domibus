@@ -8,7 +8,6 @@ import mockit.Tested;
 import org.apache.activemq.command.ActiveMQTextMessage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.jms.Message;
@@ -62,14 +61,12 @@ public class JmsUtilTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void getLongProperty_notFound() {
         Long result = jmsUtil.getLongPropertySafely(message, "NotFound");
         Assertions.assertNull(result);
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void getLongProperty_notALong() {
         Long result = jmsUtil.getLongPropertySafely(message, "NotALong");
         Assertions.assertNull(result);

@@ -15,11 +15,10 @@ import eu.domibus.ext.domain.DomainDTO;
 import eu.domibus.ext.services.DomainsAwareExt;
 import mockit.Expectations;
 import mockit.Injectable;
-import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -31,11 +30,10 @@ import java.util.List;
  * @author Ion Perpegel
  * @since 5.0
  */
+@SuppressWarnings("DataFlowIssue")
 @ExtendWith(JMockitExtension.class)
-@Disabled("EDELIVERY-6896")
 public class DynamicDomainManagementServiceImplTest {
 
-    @Tested
     DynamicDomainManagementServiceImpl dynamicDomainManagementService;
 
     @Injectable
@@ -50,11 +48,9 @@ public class DynamicDomainManagementServiceImplTest {
     @Injectable
     private SignalService signalService;
 
-    @Injectable
-    private List<DomainsAware> domainsAwareList = new ArrayList<>();
+    private final List<DomainsAware> domainsAwareList = new ArrayList<>();
 
-    @Injectable
-    private List<DomainsAwareExt> externalDomainsAwareList = new ArrayList<>();
+    private final List<DomainsAwareExt> externalDomainsAwareList = new ArrayList<>();
 
     @Injectable
     private DomibusCoreMapper coreMapper;
@@ -92,6 +88,11 @@ public class DynamicDomainManagementServiceImplTest {
         });
     }
 
+    @BeforeEach
+    void setUp() {
+        dynamicDomainManagementService = new DynamicDomainManagementServiceImpl(domainService, domibusPropertyProvider, domainDao, signalService, domainsAwareList, externalDomainsAwareList, coreMapper, domibusConfigurationService, backendConnectorService);
+    }
+
     @Test
     void validateAdditionInvalidName() {
         new Expectations() {{
@@ -115,7 +116,7 @@ public class DynamicDomainManagementServiceImplTest {
     }
 
     @Test
-    public void internalAddDomain(@Injectable List<DomainsAware> domainsAwareList) throws Exception {
+    public void internalAddDomain() throws Exception {
         new Expectations() {{
             domibusPropertyProvider.loadProperties((Domain) any);
         }};
@@ -128,6 +129,7 @@ public class DynamicDomainManagementServiceImplTest {
         }};
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void internalAddDomainError() throws Exception {
         domainsAwareList.add(new DomainsAware() {

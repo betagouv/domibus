@@ -11,7 +11,6 @@ import mockit.Injectable;
 import mockit.Verifications;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -33,6 +32,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
  * @author Lucian FURCA
  * @since 5.1
  */
+@SuppressWarnings({"SqlDialectInspection", "SqlNoDataSourceInspection"})
 @ExtendWith(MockitoExtension.class)
 public class DbSchemaUtilImplTest {
 
@@ -195,19 +195,17 @@ public class DbSchemaUtilImplTest {
     void givenDomainWithDbSchemaNameThatFailsSanityCheckWhenTestingThenFaultyDatabaseSchemaNameExceptionShouldBeThrown() {
         String dbSchemaName = "default'; select * from tb_user";
         Mockito.when(domibusConfigurationService.getDataBaseEngine()).thenReturn(DataBaseEngine.valueOf("MYSQL"));
-        Assertions.assertThrows(FaultyDatabaseSchemaNameException. class,() -> dbSchemaUtilImpl.getSchemaChangeSQL(dbSchemaName));
+        Assertions.assertThrows(FaultyDatabaseSchemaNameException.class, () -> dbSchemaUtilImpl.getSchemaChangeSQL(dbSchemaName));
     }
 
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void getDatabaseSchemaWhenItIsAlreadyCached(@Injectable Map<Domain, String> domainSchemas) {
+    public void getDatabaseSchemaWhenItIsAlreadyCached() {
         Domain defaultDomain = DomainService.DEFAULT_DOMAIN;
         dbSchemaUtilImpl.domainSchemas = domainSchemas;
 
-        new Expectations() {{
-            domainSchemas.get(defaultDomain);
-            result = "defaultSchema";
-        }};
+        Map<Domain, String> domainSchemas = new HashMap<>();
+        domainSchemas.put(defaultDomain, "defaultSchema");
 
         dbSchemaUtilImpl.getDatabaseSchema(defaultDomain);
 
@@ -220,8 +218,7 @@ public class DbSchemaUtilImplTest {
     @Test
     public void getDatabaseSchema() {
         Domain defaultDomain = DomainService.DEFAULT_DOMAIN;
-        Map<Domain, String> domainSchemas = new HashMap<>();
-        dbSchemaUtilImpl.domainSchemas = domainSchemas;
+        dbSchemaUtilImpl.domainSchemas = new HashMap<>();
         String defaultSchema = "defaultSchema";
 
         new Expectations(dbSchemaUtilImpl) {{
@@ -243,8 +240,7 @@ public class DbSchemaUtilImplTest {
 
     @Test
     public void getGeneralSchemaWhenItIsAlreadyCached() {
-        String generalSchema = "generalSchema";
-        dbSchemaUtilImpl.generalSchema = generalSchema;
+        dbSchemaUtilImpl.generalSchema = "generalSchema";
 
         dbSchemaUtilImpl.getGeneralSchema();
 

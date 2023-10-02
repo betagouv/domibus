@@ -7,7 +7,6 @@ import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -32,7 +31,6 @@ public class BusinessProcessValidatorTest {
     PModeValidationHelper pModeValidationHelper;
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void validate_test(final @Injectable Configuration configuration, final @Injectable BusinessProcesses businessProcesses) throws NoSuchFieldException, IllegalAccessException {
         final String processName = "testProcess";
         final Process process = new Process();
@@ -174,7 +172,8 @@ public class BusinessProcessValidatorTest {
             result = validResponderParties;
 
             process.getResponderPartiesXml();
-            result = responderPartiesXml;;
+            result = responderPartiesXml;
+            ;
 
             responderPartiesXml.getResponderParty();
             result = allResponderParties;
@@ -225,7 +224,7 @@ public class BusinessProcessValidatorTest {
         businessProcessValidator.checkPartyIdentifiers(issues, process, partyIdTypes, party, message);
 
         new FullVerifications(businessProcessValidator) {{
-            businessProcessValidator.createIssue(issues, process, anyString , anyString);
+            businessProcessValidator.createIssue(issues, process, anyString, anyString);
         }};
     }
 
@@ -243,7 +242,7 @@ public class BusinessProcessValidatorTest {
         businessProcessValidator.validateAgreement(new ArrayList<>(), process);
 
         new FullVerifications(businessProcessValidator) {{
-           businessProcessValidator.createIssue((List<ValidationIssue>) any, process, anyString, "Agreement [%s] of process [%s] not found in business process agreements.");
+            businessProcessValidator.createIssue((List<ValidationIssue>) any, process, anyString, "Agreement [%s] of process [%s] not found in business process agreements.");
         }};
     }
 
@@ -255,7 +254,7 @@ public class BusinessProcessValidatorTest {
         List<ValidationIssue> issues = new ArrayList<>();
         issues.add(validationIssue);
 
-        Set<LegConfiguration> legConfigurations=new HashSet<>();
+        Set<LegConfiguration> legConfigurations = new HashSet<>();
 
         new Expectations(businessProcessValidator) {{
             process.getLegs();
@@ -344,10 +343,10 @@ public class BusinessProcessValidatorTest {
 
     @Test
     public void test_validateLegConfigurationCaseInsensitive(final @Injectable ValidationIssue validationIssue,
-                                                       final @Injectable Process process,
-                                                       final @Injectable LegConfiguration legConfiguration,
-                                                       final @Injectable Legs legs,
-                                                       final @Injectable Leg leg) {
+                                                             final @Injectable Process process,
+                                                             final @Injectable LegConfiguration legConfiguration,
+                                                             final @Injectable Legs legs,
+                                                             final @Injectable Leg leg) {
         List<ValidationIssue> issues = new ArrayList<>();
         issues.add(validationIssue);
         List<Leg> allLegs = new ArrayList<>();
@@ -385,7 +384,7 @@ public class BusinessProcessValidatorTest {
                                                              final @Injectable ValidationIssue validationIssue,
                                                              final @Injectable ResponderParties responderPartiesXml,
                                                              final @Injectable ResponderParty responderParty
-                                                             ) {
+    ) {
         List<ValidationIssue> issues = new ArrayList<>();
         issues.add(validationIssue);
         List<ResponderParty> allResponderParties = new ArrayList<>();
@@ -425,7 +424,7 @@ public class BusinessProcessValidatorTest {
                                                              final @Injectable InitiatorParty InitiatorParty) {
         List<ValidationIssue> issues = new ArrayList<>();
         issues.add(validationIssue);
-        List<InitiatorParty> allInitiatorParties= new ArrayList<>();
+        List<InitiatorParty> allInitiatorParties = new ArrayList<>();
         allInitiatorParties.add(InitiatorParty);
         Set<Party> initiatorParties = new HashSet<>();
         initiatorParties.add(validInitiatorParty);

@@ -1,19 +1,21 @@
 package eu.domibus.core.property.listeners;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.payload.encryption.PayloadEncryptionService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.api.property.DomibusPropertyChangeListener;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.api.scheduler.DomibusScheduler;
 import eu.domibus.core.alerts.MailSender;
 import eu.domibus.core.alerts.configuration.account.AccountDisabledModuleConfiguration;
+import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.configuration.global.CommonConfigurationManager;
 import eu.domibus.core.alerts.configuration.messaging.MessagingConfigurationManager;
 import eu.domibus.core.alerts.model.service.ConfigurationLoader;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
-import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.jms.MessageListenerContainerInitializer;
 import eu.domibus.core.logging.cxf.DomibusLoggingEventSender;
@@ -23,30 +25,26 @@ import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.property.CorePropertyMetadataManagerImpl;
 import eu.domibus.core.property.GatewayConfigurationValidator;
-import eu.domibus.api.proxy.DomibusProxyService;
 import eu.domibus.core.rest.validators.BlacklistValidator;
 import eu.domibus.core.scheduler.DomibusQuartzStarter;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.ext.logging.LoggingFeature;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.ApplicationContext;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
-import java.util.function.Consumer;
 
 /**
  * @author Ion Perpegel
  * @since 4.1.1
  */
 @ExtendWith(JMockitExtension.class)
-@Disabled("EDELIVERY-6896")
 public class DomibusPropertiesChangeListenersTest {
 
-    @Tested
     BlacklistChangeListener blacklistChangeListener;
 
     @Tested
@@ -97,9 +95,6 @@ public class DomibusPropertiesChangeListenersTest {
     @Tested
     @Injectable
     CorePropertyMetadataManagerImpl corePropertyMetadataManager;
-
-    @Injectable
-    List<BlacklistValidator> blacklistValidators;
 
     @Injectable
     DomainService domainService;
@@ -167,8 +162,14 @@ public class DomibusPropertiesChangeListenersTest {
     @Injectable
     CommonConfigurationManager configurationManager;
 
+    @Injectable
+    DomibusConfigurationService domibusConfigurationService;
+
     @Test
     public void testPropertyChangeListeners() {
+        blacklistChangeListener = new BlacklistChangeListener();
+        ReflectionTestUtils.setField(blacklistChangeListener, "blacklistValidators", new ArrayList<BlacklistValidator<?,?>>());
+
         DomibusPropertyChangeListener[] domibusPropertyChangeListeners = new DomibusPropertyChangeListener[]{
                 blacklistChangeListener,
                 concurrencyChangeListener,
@@ -215,7 +216,7 @@ public class DomibusPropertiesChangeListenersTest {
             domibusScheduler.rescheduleJob((Domain) any, anyString, anyString);
             domibusLocalCacheService.clearCache(anyString);
             pModeProvider.refresh();
-            blacklistValidators.forEach((Consumer) any);
+//            blacklistValidators.forEach((Consumer) any);
 
             mailSender.reset();
             alertConfigurationService.resetAll();

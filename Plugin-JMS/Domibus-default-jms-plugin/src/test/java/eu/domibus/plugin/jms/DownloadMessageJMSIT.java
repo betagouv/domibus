@@ -2,6 +2,7 @@
 package eu.domibus.plugin.jms;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.model.PartInfo;
@@ -19,6 +20,7 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.jms.property.JmsPluginPropertyManager;
+import eu.domibus.plugin.notification.AsyncNotificationConfiguration;
 import eu.domibus.test.PModeUtil;
 import eu.domibus.test.UserMessageService;
 import eu.domibus.test.common.JMSMessageUtil;
@@ -26,7 +28,6 @@ import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.activemq.ActiveMQXAConnection;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -36,6 +37,7 @@ import javax.mail.util.ByteArrayDataSource;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 import static eu.domibus.messaging.MessageConstants.*;
 import static eu.domibus.plugin.jms.JMSMessageConstants.JMSPLUGIN_DOMAIN_ENABLED;
@@ -103,7 +105,6 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
      * Tests that a message is found in the JMS queue and pushed to the business queue.
      */
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testDownloadMessageOk() throws Exception {
         final UserMessage userMessage = getUserMessage();
         javax.jms.Connection connection = jmsConnectionFactory.createConnection("domibus", "changeit");
@@ -122,11 +123,9 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
                 "tc1Action", "", "pushTestcase1tc2ActionWithPayload");
         final LegConfiguration legConfiguration = pModeProvider.getLegConfiguration(pModeKey);
 
-        String messageId = "2809cef6-240f-4792-bec1-7cb300a34679@domibus.eu";
-        final UserMessage userMessage = userMessageService.getUserMessage();
+        final UserMessage userMessage = userMessageService.getUserMessage(UUID.randomUUID().toString(), UUID.randomUUID().toString());
         userMessage.setMshRole(mshRoleDao.findOrCreate(MSHRole.RECEIVING));
         String messagePayload = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<hello>world</hello>";
-        userMessage.setMessageId(messageId);
         ArrayList<PartInfo> partInfoList = new ArrayList<>();
         PartInfo partInfo = new PartInfo();
         partInfo.setBinaryData(messagePayload.getBytes());
@@ -165,6 +164,8 @@ public class DownloadMessageJMSIT extends AbstractBackendJMSIT {
         msg.setStringProperty(MessageConstants.NOTIFICATION_TYPE, NotificationType.MESSAGE_RECEIVED.name());
         msg.setStringProperty(MessageConstants.ENDPOINT, "backendInterfaceEndpoint");
         msg.setStringProperty(MessageConstants.FINAL_RECIPIENT, "testRecipient");
+        msg.setStringProperty(AsyncNotificationConfiguration.BODY, new ObjectMapper().writeValueAsString(new DeliverMessageEvent(entityId, messageId, new HashMap<>())));
+        msg.setStringProperty(AsyncNotificationConfiguration.EVENT_CLASS, DeliverMessageEvent.class.getName());
         producer.send(msg);
         LOG.info("Message [{}] [{}] sent in queue [{}]!", entityId, messageId, queueName);
         producer.close();

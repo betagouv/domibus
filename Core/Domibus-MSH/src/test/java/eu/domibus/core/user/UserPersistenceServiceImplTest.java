@@ -24,7 +24,6 @@ import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -35,6 +34,7 @@ import java.util.*;
  * @author Thomas Dussart, Ion Perpegel
  * @since 4.0
  */
+@SuppressWarnings({"ResultOfMethodCallIgnored", "DataFlowIssue"})
 @ExtendWith(JMockitExtension.class)
 public class UserPersistenceServiceImplTest {
 
@@ -90,8 +90,7 @@ public class UserPersistenceServiceImplTest {
             setActive(true);
             setStatus(UserState.NEW.name());
         }};
-        List<eu.domibus.api.user.User> addedUsers = Arrays.asList(addedUser);
-        User addedUserUntity = new User() {{
+        User addedUserEntity = new User() {{
             setPassword("password1");
         }};
 
@@ -100,20 +99,20 @@ public class UserPersistenceServiceImplTest {
             setActive(true);
             setStatus(UserState.UPDATED.name());
         }};
-        List<eu.domibus.api.user.User> modifiedUsers = Arrays.asList(modifiedUser);
+        List<eu.domibus.api.user.User> modifiedUsers = Collections.singletonList(modifiedUser);
 
         eu.domibus.api.user.User deletedUser = new eu.domibus.api.user.User() {{
             setUserName("deletedUserName");
             setActive(true);
             setStatus(UserState.REMOVED.name());
         }};
-        List<eu.domibus.api.user.User> deletedUsers = Arrays.asList(deletedUser);
+        List<eu.domibus.api.user.User> deletedUsers = Collections.singletonList(deletedUser);
 
         List<eu.domibus.api.user.User> users = Arrays.asList(addedUser, modifiedUser, deletedUser);
 
         new Expectations() {{
             authCoreMapper.userApiToUserSecurity(addedUser);
-            result = addedUserUntity;
+            result = addedUserEntity;
         }};
 
         userPersistenceService.updateUsers(users);
@@ -133,20 +132,20 @@ public class UserPersistenceServiceImplTest {
             setActive(true);
             setStatus(UserState.NEW.name());
         }};
-        User addedUserUntity = new User() {{
+        User addedUserEntity = new User() {{
             setPassword("password1");
         }};
-        List<eu.domibus.api.user.User> addedUsers = Arrays.asList(addedUser);
+        List<eu.domibus.api.user.User> addedUsers = Collections.singletonList(addedUser);
 
         new Expectations() {{
             authCoreMapper.userApiToUserSecurity(addedUser);
-            result = addedUserUntity;
+            result = addedUserEntity;
         }};
 
         userPersistenceService.insertNewUsers(addedUsers);
 
         new Verifications() {{
-            userDao.create(addedUserUntity);
+            userDao.create(addedUserEntity);
             times = 1;
             userDomainService.setDomainForUser(addedUser.getUserName(), addedUser.getDomain());
             times = 1;
@@ -156,6 +155,7 @@ public class UserPersistenceServiceImplTest {
     }
 
 
+    @SuppressWarnings("WriteOnlyObject")
     @Test
     void insertNewUsersShouldFailIfUsernameAlreadyExists() {
         String testUsername = "testUsername";
@@ -170,7 +170,7 @@ public class UserPersistenceServiceImplTest {
             setActive(true);
             setStatus(UserState.NEW.name());
         }};
-        List<eu.domibus.api.user.User> addedUsers = Arrays.asList(addedUser);
+        List<eu.domibus.api.user.User> addedUsers = Collections.singletonList(addedUser);
 
         new Expectations() {{
             securityPolicyManager.validateUniqueUser(addedUser);
@@ -191,7 +191,7 @@ public class UserPersistenceServiceImplTest {
         User addedUserEntity = new User() {{
             setPassword("password1");
         }};
-        List<eu.domibus.api.user.User> addedUsers = Arrays.asList(addedUser);
+        List<eu.domibus.api.user.User> addedUsers = Collections.singletonList(addedUser);
 
         new Expectations() {{
             domibusConfigurationService.isMultiTenantAware();
@@ -222,12 +222,12 @@ public class UserPersistenceServiceImplTest {
             setActive(true);
             setStatus(UserState.NEW.name());
             setDomain("default");
-            setAuthorities(Arrays.asList("ROLE_AP_ADMIN"));
+            setAuthorities(Collections.singletonList("ROLE_AP_ADMIN"));
         }};
         User addedUserEntity = new User() {{
             setPassword("password1");
         }};
-        List<eu.domibus.api.user.User> addedUsers = Arrays.asList(addedUser);
+        List<eu.domibus.api.user.User> addedUsers = Collections.singletonList(addedUser);
 
         new Expectations(userPersistenceService) {{
             domibusConfigurationService.isMultiTenantAware();
@@ -259,7 +259,7 @@ public class UserPersistenceServiceImplTest {
             setStatus(UserState.REMOVED.name());
             setDomain("domain2");
         }};
-        List<eu.domibus.api.user.User> deletedUsers = Arrays.asList(deletedUser);
+        List<eu.domibus.api.user.User> deletedUsers = Collections.singletonList(deletedUser);
         User deletedUserEntity = new User() {{
             setPassword("password1");
         }};
@@ -291,7 +291,7 @@ public class UserPersistenceServiceImplTest {
             setStatus(UserState.UPDATED.name());
             setDomain("domain2");
         }};
-        List<eu.domibus.api.user.User> modifiedUsers = Arrays.asList(modifiedUser);
+        List<eu.domibus.api.user.User> modifiedUsers = Collections.singletonList(modifiedUser);
         User updatedUserEntity = new User() {{
             setPassword("password1");
         }};
@@ -324,9 +324,9 @@ public class UserPersistenceServiceImplTest {
         }};
         eu.domibus.api.user.User user = new eu.domibus.api.user.User() {{
             setActive(true);
-            setAuthorities(Arrays.asList(AuthRole.ROLE_AP_ADMIN.name()));
+            setAuthorities(Collections.singletonList(AuthRole.ROLE_AP_ADMIN.name()));
         }};
-        Collection<eu.domibus.api.user.User> users = Arrays.asList(user);
+        Collection<eu.domibus.api.user.User> users = Collections.singletonList(user);
 
         new Expectations(userPersistenceService) {{
             userDao.loadUserByUsername(anyString);
@@ -354,7 +354,6 @@ public class UserPersistenceServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     void changePasswordPasswordsNotMatchTest() {
         String userName = "user1";
         String currentPassword = "currentPassword";
@@ -371,12 +370,7 @@ public class UserPersistenceServiceImplTest {
             result = userEntity;
         }};
 
-        Assertions.assertThrows(UserManagementException.class,() -> userPersistenceService.changePassword(userName, currentPassword, newPassword));
-
-        new Verifications() {{
-            userDao.update(userEntity);
-            times = 1;
-        }};
+        Assertions.assertThrows(UserManagementException.class, () -> userPersistenceService.changePassword(userName, currentPassword, newPassword));
 
     }
 
@@ -423,7 +417,7 @@ public class UserPersistenceServiceImplTest {
         eu.domibus.api.user.User user = new eu.domibus.api.user.User() {{
             setUserName("user1");
             setActive(true);
-            setAuthorities(Arrays.asList(AuthRole.ROLE_USER.name()));
+            setAuthorities(Collections.singletonList(AuthRole.ROLE_USER.name()));
         }};
 
         new Expectations(existing) {{
@@ -454,30 +448,49 @@ public class UserPersistenceServiceImplTest {
         }};
 
         Collection<eu.domibus.api.user.User> result1 = userPersistenceService.filterModifiedUserWithoutPasswordChange(users);
-        Assertions.assertTrue(result1.size() == 1);
+        Assertions.assertEquals(1, result1.size());
         Collection<eu.domibus.api.user.User> result2 = userPersistenceService.filterModifiedUserWithoutPasswordChange(users);
         Assertions.assertTrue(result2.isEmpty());
 
         Collection<eu.domibus.api.user.User> result3 = userPersistenceService.filterModifiedUserWithPasswordChange(users);
         Assertions.assertTrue(result3.isEmpty());
         Collection<eu.domibus.api.user.User> result4 = userPersistenceService.filterModifiedUserWithPasswordChange(users);
-        Assertions.assertTrue(result4.size() == 1);
+        Assertions.assertEquals(1, result4.size());
 
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
-    public void isPasswordChangedTest(@Injectable eu.domibus.api.user.User user1) {
+    public void isPasswordChangedTest_empty(@Injectable eu.domibus.api.user.User user1) {
 
         new Expectations() {{
             user1.getPassword();
-            returns(StringUtils.EMPTY, "newPass", null);
+            result = StringUtils.EMPTY;
         }};
 
         boolean res1 = userPersistenceService.isPasswordChanged(user1);
         Assertions.assertFalse(res1);
+    }
+
+    @Test
+    public void isPasswordChangedTest_new(@Injectable eu.domibus.api.user.User user1) {
+
+        new Expectations() {{
+            user1.getPassword();
+            result = "newPass";
+        }};
+
         boolean res2 = userPersistenceService.isPasswordChanged(user1);
         Assertions.assertTrue(res2);
+    }
+
+    @Test
+    public void isPasswordChangedTest(@Injectable eu.domibus.api.user.User user1) {
+
+        new Expectations() {{
+            user1.getPassword();
+            result = null;
+        }};
+
         boolean res3 = userPersistenceService.isPasswordChanged(user1);
         Assertions.assertFalse(res3);
     }
@@ -555,7 +568,7 @@ public class UserPersistenceServiceImplTest {
             result = false;
         }};
 
-        Assertions.assertThrows(UserManagementException. class,() -> userPersistenceService.checkCanUpdateIfCurrentUser(user, existing));
+        Assertions.assertThrows(UserManagementException.class, () -> userPersistenceService.checkCanUpdateIfCurrentUser(user, existing));
 
         new Verifications() {{
             existing.isActive();

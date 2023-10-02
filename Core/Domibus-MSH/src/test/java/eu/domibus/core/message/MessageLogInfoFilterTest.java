@@ -9,7 +9,6 @@ import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -24,8 +23,6 @@ import static org.mockito.Mockito.spy;
  */
 @ExtendWith(JMockitExtension.class)
 public class MessageLogInfoFilterTest {
-
-    public static final String QUERY1 = "select * from table where z = 1 and log.notificationStatus = :notificationStatus and partyFrom.value = :fromPartyId and log.sendAttemptsMax = :sendAttemptsMax and propsFrom.value = :originalSender and log.received <= :receivedTo and message.collaborationInfo.conversationId = :conversationId and log.messageId = :messageId and info.refToMessageId = :refToMessageId and log.received = :received and log.sendAttempts = :sendAttempts and propsTo.value = :finalRecipient and log.nextAttempt = :nextAttempt and log.messageStatus = :messageStatus and log.deleted = :deleted and log.messageType = :messageType and log.received >= :receivedFrom and partyTo.value = :toPartyId and log.mshRole = :mshRole order by log.messageStatus";
 
     @Tested
     MessageLogInfoFilter messageLogInfoFilter;
@@ -127,7 +124,6 @@ public class MessageLogInfoFilterTest {
         TypedQuery<MessageLogInfo> messageLogInfoTypedQuery = messageLogInfoFilter.applyParameters(typedQuery, returnFilters());
     }
 
-
     @Test
     public void getCountMessageLogQuery() {
         String result = messageLogInfoFilter.getCountMessageLogQuery(new HashMap<>());
@@ -135,8 +131,12 @@ public class MessageLogInfoFilterTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void getMessageLogIdQuery() {
+
+        new Expectations(messageLogInfoFilter){{
+            messageLogInfoFilter.createFromMappings();
+            result = new HashMap<String, List<String>>();
+        }};
         String result = messageLogInfoFilter.getMessageLogIdQuery(new HashMap<>());
         Assertions.assertTrue(result.contains("select log.id"));
     }
@@ -189,8 +189,8 @@ public class MessageLogInfoFilterTest {
 
         String messageTable = ", UserMessage message left join log.messageInfo info ";
         Map<String, List<String>> mappings = ImmutableMap.of(
-                "message", Arrays.asList(messageTable),
-                "info", Arrays.asList(messageTable));
+                "message", Collections.singletonList(messageTable),
+                "info", Collections.singletonList(messageTable));
 
         new Expectations(messageLogInfoFilter) {{
             messageLogInfoFilter.createFromMappings();
@@ -214,8 +214,8 @@ public class MessageLogInfoFilterTest {
 
         String messageTable = ", UserMessage message left join log.messageInfo info ";
         Map<String, List<String>> mappings = ImmutableMap.of(
-                "message", Arrays.asList(messageTable),
-                "info", Arrays.asList(messageTable));
+                "message", Collections.singletonList(messageTable),
+                "info", Collections.singletonList(messageTable));
 
         new Expectations(messageLogInfoFilter) {{
             messageLogInfoFilter.createFromMappings();
@@ -240,8 +240,8 @@ public class MessageLogInfoFilterTest {
         String messageTable = ", UserMessage message left join log.messageInfo info ";
         String partyFromTable = "left join message.partyInfo.from.fromPartyId partyFrom ";
         Map<String, List<String>> mappings = ImmutableMap.of(
-                "message", Arrays.asList(messageTable),
-                "info", Arrays.asList(messageTable),
+                "message", Collections.singletonList(messageTable),
+                "info", Collections.singletonList(messageTable),
                 "partyFrom", Arrays.asList(messageTable, partyFromTable));
 
         new Expectations(messageLogInfoFilter) {{
@@ -263,7 +263,7 @@ public class MessageLogInfoFilterTest {
 
         String messageCriteria = "message.messageInfo = info ";
         Map<String, List<String>> mappings = ImmutableMap.of(
-                "message", Arrays.asList(messageCriteria),
+                "message", Collections.singletonList(messageCriteria),
                 "propsFrom", Arrays.asList(messageCriteria, "and propsFrom.name = 'originalSender' "));
 
         new Expectations(messageLogInfoFilter) {{
@@ -281,7 +281,7 @@ public class MessageLogInfoFilterTest {
 
         String messageCriteria = "message.messageInfo = info ";
         Map<String, List<String>> mappings = ImmutableMap.of(
-                "message", Arrays.asList(messageCriteria),
+                "message", Collections.singletonList(messageCriteria),
                 "propsFrom", Arrays.asList(messageCriteria, "and propsFrom.name = 'originalSender' "));
 
         new Expectations(messageLogInfoFilter) {{
@@ -300,7 +300,7 @@ public class MessageLogInfoFilterTest {
         String messageCriteria = "message.messageInfo = info ";
         String propsCriteria = "and propsFrom.name = 'originalSender' ";
         Map<String, List<String>> mappings = ImmutableMap.of(
-                "message", Arrays.asList(messageCriteria),
+                "message", Collections.singletonList(messageCriteria),
                 "propsFrom", Arrays.asList(messageCriteria, propsCriteria));
 
         new Expectations(messageLogInfoFilter) {{

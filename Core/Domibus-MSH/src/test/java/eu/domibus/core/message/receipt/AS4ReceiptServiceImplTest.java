@@ -26,7 +26,6 @@ import eu.domibus.core.util.TimestampDateFormatter;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -37,7 +36,8 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.dom.DOMResult;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -255,20 +255,14 @@ public class AS4ReceiptServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testSetMessagingId(@Injectable SOAPMessage responseMessage,
-                                   @Injectable Iterator childElements,
                                    @Injectable SOAPElement messagingElement) throws Exception {
         String messageId = "123";
+        List<SOAPElement> objects = new ArrayList<>();
+        objects.add(messagingElement);
         new Expectations() {{
             responseMessage.getSOAPHeader().getChildElements(ObjectFactory._Messaging_QNAME);
-            result = childElements;
-
-            childElements.hasNext();
-            result = true;
-
-            childElements.next();
-            result = messagingElement;
+            result = objects.iterator();
 
             userMessage.getMessageId();
             result = messageId;
