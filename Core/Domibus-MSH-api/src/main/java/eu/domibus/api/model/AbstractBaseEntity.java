@@ -26,7 +26,7 @@ public abstract class AbstractBaseEntity extends AbstractBaseAuditEntity {
             name = DOMIBUS_SCALABLE_SEQUENCE,
             strategy = DATE_PREFIXED_SEQUENCE_ID_GENERATOR)
     @Column(name = "ID_PK")
-    private long entityId;
+    protected long entityId;
 
 
     /**

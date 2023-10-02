@@ -1243,28 +1243,6 @@
         <addUniqueConstraint columnNames="VERSION" tableName="TB_VERSION" constraintName="UK_VERSION" />
     </changeSet>
 
-    <changeSet author="Cosmin Baciu" id="EDELIVERY-10221">
-        <createTable tableName="TB_FINAL_RECIPIENT_URL">
-            <column name="ID_PK" type="BIGINT" autoIncrement="true">
-                <constraints primaryKey="true" primaryKeyName="PK_TB_FINAL_RECIPIENT_URL"/>
-            </column>
-            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
-            <column name="ENDPOINT_URL" type="VARCHAR(1000)"/>
-
-            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
-            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
-        </createTable>
-        <createIndex indexName="TB_FINAL_RECIPIENT_URL_IDX" tableName="TB_FINAL_RECIPIENT_URL">
-            <column name="FINAL_RECIPIENT"/>
-        </createIndex>
-    </changeSet>
-
     <!-- Start PMode Tables -->
     <changeSet author="Cosmin Baciu" id="EDELIVERY-7803-PMode Tables">
         <createTable tableName="TB_PM_BUSINESS_PROCESS">
@@ -3049,5 +3027,68 @@
             DROP INDEX IDX_USER_LOG_RECEIVED;
             CREATE INDEX IDX_USER_LOG_RECEIVED ON TB_USER_MESSAGE_LOG(RECEIVED) REVERSE;
         </sql>
+    </changeSet>
+
+    <changeSet author="Cosmin Baciu" id="EDELIVERY-12066">
+        <createTable tableName="TB_DDC_LOOKUP">
+            <column name="ID_PK" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="PK_DDC_CERTIFICATE"/>
+            </column>
+            <column name="FINAL_RECIPIENT" type="VARCHAR(255)"/>
+            <column name="ENDPOINT_URL" type="VARCHAR(1000)"/>
+            <column name="PARTY_NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PARTY_TYPE" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PARTY_PROCESSES" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CERT_ISSUER_SUBJECT" type="VARCHAR(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CERT_CN" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CERT_SUBJECT" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CERT_SERIAL" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CERT_FINGERPRINT" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <!-- The last time when the certificate was discovered from SMP -->
+            <column name="DDC_LOOKUP_TIME" type="TIMESTAMP"/>
+
+            <column defaultValueComputed="${now}" name="CREATION_TIME" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="${current_db_user}" name="CREATED_BY" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="MODIFICATION_TIME" type="TIMESTAMP"/>
+            <column name="MODIFIED_BY" type="VARCHAR(255)"/>
+        </createTable>
+        <!-- only one entry allowed per final recipient -->
+        <addUniqueConstraint columnNames="FINAL_RECIPIENT" constraintName="UK_DDC_FINAL_RECIPIENT" tableName="TB_DDC_LOOKUP"/>
+
+        <!-- we add an index for columns used for filtering entries in the table -->
+        <createIndex indexName="IDX_DDC_PARTY_NAME" tableName="TB_DDC_LOOKUP">
+            <column name="PARTY_NAME"/>
+        </createIndex>
+        <createIndex indexName="IDX_DDC_CERT_CN" tableName="TB_DDC_LOOKUP">
+            <column name="CERT_CN"/>
+        </createIndex>
+        <createIndex indexName="IDX_DDC_DDC_LOOKUP_TIME" tableName="TB_DDC_LOOKUP">
+            <column name="DDC_LOOKUP_TIME"/>
+        </createIndex>
+    </changeSet>
+    <changeSet dbms="mysql" author="Cosmin Baciu" id="12066-1"> <!-- oracle creates index for the unique constraint -->
+        <createIndex indexName="IDX_DDC_FINAL_RECIPIENT" tableName="TB_DDC_LOOKUP">
+            <column name="FINAL_RECIPIENT"/>
+        </createIndex>
     </changeSet>
 </databaseChangeLog>
