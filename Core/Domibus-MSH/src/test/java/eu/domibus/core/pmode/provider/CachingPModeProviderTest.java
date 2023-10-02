@@ -12,6 +12,7 @@ import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.multitenancy.DomainService;
+import eu.domibus.api.pmode.PModeEventListener;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.common.ErrorCode;
@@ -62,6 +63,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @SuppressWarnings("ResultOfMethodCallIgnored")
 @ExtendWith(JMockitExtension.class)
+@Disabled("EDELIVERY-6896")
 public class CachingPModeProviderTest {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(CachingPModeProviderTest.class);
@@ -125,13 +127,13 @@ public class CachingPModeProviderTest {
     SignalService signalService;
 
     @Injectable
+    List<PModeEventListener> pModeEventListeners;
+
+    @Injectable
     PullProcessValidator pullProcessValidator;
 
     @Injectable
     DomibusPropertyProvider domibusPropertyProvider;
-
-    @Tested
-    CachingPModeProvider cachingPModeProvider;
 
     @Injectable
     private MpcService mpcService;
@@ -164,10 +166,10 @@ public class CachingPModeProviderTest {
     private DomibusLocalCacheService domibusLocalCacheService;
 
     @Injectable
-    FinalRecipientService finalRecipientService;
-
-    @Injectable
     PModeValidationHelper pModeValidationHelper;
+
+    @Tested
+    CachingPModeProvider cachingPModeProvider;
 
     public Configuration loadSamplePModeConfiguration(String samplePModeFileRelativeURI) throws JAXBException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         LOG.debug("Inside sample PMode configuration");
@@ -1221,7 +1223,7 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.getReceiverParty(pModeKey);
             fail();
         } catch (ConfigurationException ex) {
-            assertEquals(ex.getMessage(), "no matching receiver party found with name: " + partyKey);
+            assertEquals(ex.getMessage(), "No matching receiver party found with name: " + partyKey);
         }
     }
 

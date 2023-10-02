@@ -76,10 +76,10 @@ public class UserMessageSecurityDefaultServiceTest {
             authUtils.getOriginalUserOrNullIfAdmin();
             result = originalUser;
 
-            userMessageServiceHelper.getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);
+            userMessageServiceHelper.getPropertyValue(userMessage, MessageConstants.ORIGINAL_SENDER);
             result = other;
 
-            userMessageServiceHelper.getProperty(userMessage, MessageConstants.FINAL_RECIPIENT);
+            userMessageServiceHelper.getPropertyValue(userMessage, MessageConstants.FINAL_RECIPIENT);
             result = originalUser;
         }};
 
@@ -98,7 +98,7 @@ public class UserMessageSecurityDefaultServiceTest {
             authUtils.getOriginalUserOrNullIfAdmin();
             result = originalUser;
 
-            userMessageServiceHelper.getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);
+            userMessageServiceHelper.getPropertyValue(userMessage, MessageConstants.ORIGINAL_SENDER);
             result = originalUser;
         }};
 
@@ -131,10 +131,10 @@ public class UserMessageSecurityDefaultServiceTest {
             authUtils.getOriginalUserOrNullIfAdmin();
             result = originalUser;
 
-            userMessageServiceHelper.getProperty(userMessage, MessageConstants.ORIGINAL_SENDER);
+            userMessageServiceHelper.getPropertyValue(userMessage, MessageConstants.ORIGINAL_SENDER);
             result = other;
 
-            userMessageServiceHelper.getProperty(userMessage, MessageConstants.FINAL_RECIPIENT);
+            userMessageServiceHelper.getPropertyValue(userMessage, MessageConstants.FINAL_RECIPIENT);
             result = other;
         }};
         Assertions.assertThrows(AuthenticationException.class,

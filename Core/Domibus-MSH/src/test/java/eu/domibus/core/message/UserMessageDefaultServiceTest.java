@@ -222,7 +222,7 @@ public class UserMessageDefaultServiceTest {
         userMessageDefaultService.getFinalRecipient(messageId, MSHRole.SENDING);
 
         new Verifications() {{
-            userMessageServiceHelper.getFinalRecipient(userMessage);
+            userMessageServiceHelper.getFinalRecipientValue(userMessage);
         }};
     }
 

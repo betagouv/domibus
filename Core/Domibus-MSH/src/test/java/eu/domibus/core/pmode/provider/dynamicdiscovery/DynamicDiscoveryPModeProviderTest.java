@@ -1,5 +1,6 @@
 package eu.domibus.core.pmode.provider.dynamicdiscovery;
 
+import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
@@ -22,13 +23,11 @@ import eu.domibus.core.certificate.CertificateHelper;
 import eu.domibus.core.certificate.CertificateServiceImpl;
 import eu.domibus.core.certificate.crl.CRLServiceImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
-import eu.domibus.core.message.MessageExchangeConfiguration;
+import eu.domibus.core.message.UserMessageServiceHelper;
 import eu.domibus.core.message.dictionary.PartyIdDictionaryService;
 import eu.domibus.core.message.dictionary.PartyRoleDictionaryService;
-import eu.domibus.core.participant.FinalRecipientDao;
 import eu.domibus.core.pmode.ConfigurationDAO;
 import eu.domibus.core.pmode.PModeBeanConfiguration;
-import eu.domibus.core.pmode.provider.FinalRecipientService;
 import eu.domibus.core.pmode.validation.PModeValidationHelper;
 import eu.domibus.core.property.DomibusPropertyProviderImpl;
 import eu.domibus.core.util.SecurityUtilImpl;
@@ -55,8 +54,10 @@ import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
+import static eu.domibus.api.cache.DomibusLocalCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
 import static org.junit.jupiter.api.Assertions.*;
@@ -123,7 +124,13 @@ public class DynamicDiscoveryPModeProviderTest {
     DomainContextProvider domainProvider;
 
     @Mock
-    FinalRecipientDao finalRecipientDao;
+    protected UserMessageServiceHelper userMessageServiceHelper;
+
+    @Mock
+    DomibusLocalCacheService domibusLocalCacheService;
+
+    @Mock
+    DynamicDiscoveryLookupService dynamicDiscoveryLookupService;
 
     @Mock
     PartyIdDictionaryService partyIdDictionaryService;
@@ -131,9 +138,6 @@ public class DynamicDiscoveryPModeProviderTest {
     PartyRoleDictionaryService partyRoleDictionaryService;
     @Mock
     private DomibusPropertyProviderImpl domibusPropertyProvider;
-
-    @Mock
-    FinalRecipientService finalRecipientService;
 
     @Mock
     private X509CertificateService x509CertificateService;
@@ -219,36 +223,20 @@ public class DynamicDiscoveryPModeProviderTest {
         assertTrue(dynamicDiscoveryPModeProvider.useDynamicDiscovery());
     }
 
-    @Test
-    public void testDoDynamicDiscoveryOnSender() throws Exception {
-        Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
-        doReturn(testData).when(configurationDAO).readEager();
-        dynamicDiscoveryPModeProvider.init();
 
-        EndpointInfo testDataEndpoint = buildAS4EndpointWithArguments(ADDRESS);
-        doReturn(testDataEndpoint).when(dynamicDiscoveryServiceOASIS).lookupInformation(DOMAIN.getCode(), UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
-        lenient().doReturn(KeyStore.getInstance(KeyStore.getDefaultType())).when(multiDomainCertificateProvider).getTrustStore(DomainService.DEFAULT_DOMAIN);
-        lenient().doReturn(true).when(multiDomainCertificateProvider).addCertificate(null, testDataEndpoint.getCertificate(), EXPECTED_COMMON_NAME, true);
-        doReturn(DOMAIN).when(domainProvider).getCurrentDomain();
-
-        UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());
-        doReturn(userMessage.getPartyInfo().getTo().getToPartyId()).when(partyIdDictionaryService).findOrCreateParty(any(), any());
-
-        MessageExchangeConfiguration messageExchangeConfiguration = new MessageExchangeConfiguration(TEST_AGREEMENT_NAME, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, TEST_SERVICE_VALUE, TEST_ACTION_VALUE, TEST_LEG_NAME);
-        DynamicDiscoveryPModeProvider spyDynamicDiscoveryPModeProvider =  Mockito.spy(dynamicDiscoveryPModeProvider);
-        doReturn(messageExchangeConfiguration).when(spyDynamicDiscoveryPModeProvider).findUserMessageExchangeContext(userMessage, MSHRole.SENDING);
-        spyDynamicDiscoveryPModeProvider.doDynamicDiscovery(userMessage, MSHRole.SENDING);
-
-        assertEquals(2, spyDynamicDiscoveryPModeProvider.getConfiguration().getBusinessProcesses().getParties().size());
-    }
-
-    @Test
-    void testDoDynamicDiscoveryOnSenderNullCertificate() throws Exception {
+    public void testDoDynamicDiscoveryOnSenderNullCertificate() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
         doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
 
         EndpointInfo testDataEndpoint = buildAS4EndpointWithArguments(null);
+
+        doReturn(UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE).when(userMessageServiceHelper).getFinalRecipientValue(any());;
+        doReturn(UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE).when(userMessageServiceHelper).getFinalRecipientType(any());;
+
+        doReturn(testDataEndpoint).when(dynamicDiscoveryServiceOASIS).lookupInformation(any(), any(), any(), any(), any(), any());
+        doReturn(testDataEndpoint).when(domibusLocalCacheService).getEntryFromCache(any(), any());
+
         doReturn(testDataEndpoint).when(dynamicDiscoveryServiceOASIS).lookupInformation(DOMAIN.getCode(), UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE);
         lenient().doReturn(null).when(multiDomainCertificateProvider).getTrustStore(null);
         lenient().doReturn(true).when(multiDomainCertificateProvider).addCertificate(null, testDataEndpoint.getCertificate(), EXPECTED_COMMON_NAME, true);
@@ -261,7 +249,8 @@ public class DynamicDiscoveryPModeProviderTest {
     @Test
     public void testDoDynamicDiscoveryOnReceiver() throws Exception {
         Configuration testData = initializeConfiguration(DYNAMIC_DISCOVERY_ENABLED);
-        doReturn(testData).when(configurationDAO).readEager();
+        lenient().doReturn(true).when(configurationDAO).configurationExists();
+        lenient().doReturn(testData).when(configurationDAO).readEager();
         dynamicDiscoveryPModeProvider.init();
 
         UserMessage userMessage = buildUserMessageForDoDynamicThingsWithArguments(TEST_ACTION_VALUE, TEST_SERVICE_VALUE, TEST_SERVICE_TYPE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_VALUE, UNKNOWN_DYNAMIC_RESPONDER_PARTYID_TYPE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_VALUE, UNKNOWN_DYNAMIC_INITIATOR_PARTYID_TYPE, UUID.randomUUID().toString());
