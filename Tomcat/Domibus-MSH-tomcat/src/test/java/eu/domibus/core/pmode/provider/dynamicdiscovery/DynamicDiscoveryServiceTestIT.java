@@ -97,6 +97,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         uploadPMode(SERVICE_PORT, "dataset/pmode/PModeDynamicDiscovery.xml", null);
 
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "true");
+        domibusPropertyProvider.setProperty(DOMAIN, DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED, "true");
 
         setClusteredProperty("true");
 
@@ -114,7 +115,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     public void clean() {
         domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION, DynamicDiscoveryClientSpecification.OASIS.getName());
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "false");
-
+        domibusPropertyProvider.setProperty(DOMAIN, DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED, "false");
         setClusteredProperty("false");
     }
 

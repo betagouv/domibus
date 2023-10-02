@@ -55,8 +55,9 @@ class AlertEventsTestIT extends AbstractIT {
     }
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws XmlProcessingException, IOException {
         dispatchedAlerts.clear();
+        uploadPmode(SERVICE_PORT);
     }
 
     @Test

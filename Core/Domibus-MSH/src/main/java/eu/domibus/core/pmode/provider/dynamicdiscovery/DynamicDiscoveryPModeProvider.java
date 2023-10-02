@@ -342,6 +342,17 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
         //we add the partyTo in the UserMessage
         addPartyToInUserMessage(userMessage, receiverParty);
 
+
+        //we add the certificate in the Domibus truststore, domain specific
+        Domain currentDomain = domainProvider.getCurrentDomain();
+
+        //save certificate in the truststore using synchronisation
+        boolean added = multiDomainCertificateProvider.addCertificate(currentDomain, x509Certificate, certificateCn, true);
+        if (added) {
+            LOG.info("Added public certificate with alias [{}] to the truststore for domain [{}]: [{}] ", certificateCn, currentDomain, x509Certificate);
+        }
+
+
         //update party in the Pmode with the latest discovered values; synchronized
         final String partyName = receiverParty.getValue();
         final String partyType = receiverParty.getType();

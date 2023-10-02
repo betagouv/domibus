@@ -180,7 +180,7 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void updateStatusToArchived(List<Long> entityIds) {
+    public void updateUserMessagesArchived(List<Long> entityIds) {
         userMessageLogDao.updateArchived(entityIds);
     }
 

@@ -18,7 +18,6 @@ import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.audit.AuditService;
 import eu.domibus.core.certificate.crl.CRLService;
 import eu.domibus.core.certificate.crl.DomibusCRLException;
-import eu.domibus.core.crypto.TruststoreEntity;
 import eu.domibus.core.exception.ConfigurationException;
 import eu.domibus.core.util.SecurityUtilImpl;
 import eu.domibus.logging.DomibusLogger;
@@ -539,6 +538,7 @@ public class CertificateServiceImpl implements CertificateService {
 
 
     protected boolean doAddCertificatesAndSave(KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
+        LOG.info("Adding certificates [{}] to [{}]", certificates.stream().map(certificateEntry -> certificateEntry.getAlias()).collect(Collectors.toList()), persistenceInfo.getFileLocation());
         KeyStore store = getStore(persistenceInfo);
 
         return doAddCertificatesAndSave(store, persistenceInfo, certificates, overwrite);
@@ -604,7 +604,7 @@ public class CertificateServiceImpl implements CertificateService {
             throw new CryptoException("Error while trying to get the alias from the store. This should never happen", e);
         }
         if (containsAlias && !overwrite) {
-            LOG.debug("The store already contains alias [{}] and the overwrite is false so no adding.", alias);
+            LOG.info("The store already contains alias [{}] and the overwrite is false so no adding.", alias);
             return false;
         }
         if (certificateHelper.containsAndIdentical(keystore, alias, certificate)) {
@@ -614,8 +614,10 @@ public class CertificateServiceImpl implements CertificateService {
         try {
             if (containsAlias) {
                 keystore.deleteEntry(alias);
+                LOG.info("Deleted certificate with alias [{}]", alias);
             }
             keystore.setCertificateEntry(alias, certificate);
+            LOG.info("Added certificate with alias [{}]: [{}]", alias, certificate);
             return true;
         } catch (final KeyStoreException e) {
             throw new ConfigurationException(e);
@@ -630,11 +632,12 @@ public class CertificateServiceImpl implements CertificateService {
             throw new CryptoException("Error while trying to get the alias from the store. This should never happen", e);
         }
         if (!containsAlias) {
-            LOG.debug("The store does not contain alias [{}] so no removing.", alias);
+            LOG.info("The store does not contain alias [{}] so no removing.", alias);
             return false;
         }
         try {
             keystore.deleteEntry(alias);
+            LOG.info("Removed certificate with alias [{}]", alias);
             return true;
         } catch (final KeyStoreException e) {
             throw new ConfigurationException(e);

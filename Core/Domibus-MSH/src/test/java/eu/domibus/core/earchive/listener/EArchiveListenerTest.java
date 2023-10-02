@@ -309,6 +309,9 @@ public class EArchiveListenerTest {
 
             eArchivingDefaultService.executeBatchIsArchived(eArchiveBatch, batchUserMessages);
             times = 1;
+
+            eArchivingDefaultService.executeDeleteBatch(eArchiveBatch);
+            times = 1;
         }};
     }
 }

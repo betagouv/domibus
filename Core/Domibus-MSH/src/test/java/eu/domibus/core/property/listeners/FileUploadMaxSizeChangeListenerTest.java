@@ -44,7 +44,7 @@ public class FileUploadMaxSizeChangeListenerTest {
 
         new FullVerifications() {{
             multipartResolver.setMaxUploadSize(100);
-            times = 1;
+            times = 0;
         }};
     }
 

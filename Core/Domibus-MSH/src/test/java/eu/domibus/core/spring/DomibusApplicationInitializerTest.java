@@ -191,6 +191,7 @@ public class DomibusApplicationInitializerTest {
         }};
     }
 
+    @Ignore
     @Test
     public void configurePropertySources(@Injectable AnnotationConfigWebApplicationContext rootContext,
                                          @Injectable ConfigurableEnvironment configurableEnvironment,

@@ -1,4 +1,5 @@
 package eu.domibus.test.common;
+
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import org.apache.commons.lang3.ObjectUtils;

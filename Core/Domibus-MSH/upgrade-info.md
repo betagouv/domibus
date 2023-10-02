@@ -7,15 +7,19 @@
                 - Replace/update all policy files that have the AsymmetricBinding/Policy/AlgorithSuite tag defined(e.g. eDeliveryAS4Policy.xml, eDeliveryAS4Policy_BST.xml, eDeliveryAS4Policy_BST_PKIP.xml,eDeliveryAS4Policy_IS.xml, signOnly.xml etc.) to accomodate this change
                 The policy xml config files can be found in the Domibus distribution inside the file domibus-msh-distribution-5.1.1-application_server_name-configuration.zip under the folder /policies or inside the file domibus-msh-distribution-5.1.1-application_server_name-full.zip under the folder domibus/conf/domibus/policies
   ## Domibus 5.1.1 (from 5.1)
+                - remove property domibus.fourcornermodel.enabled and add properties domibus.ui.pages.messageLogs.landingPage.enabled and domibus.ui.pages.messageLogs.search.advanced.enabled to control the message log admin page in regards with high performance requirements
                 - In all eDeliveryAS4Policy xml files, the hardcoded algorithm suite name defined in AsymmetricBinding/Policy/AlgorithSuite/ (e.g Basic128GCMSha256MgfSha256) was replaced with the placeholder: ${algorithmSuitePlaceholder} which will be automatically replaced in code according to the security setup
                 - Replace/update all policy files that have the AsymmetricBinding/Policy/AlgorithSuite tag defined(e.g. eDeliveryAS4Policy.xml, eDeliveryAS4Policy_BST.xml, eDeliveryAS4Policy_BST_PKIP.xml,eDeliveryAS4Policy_IS.xml, signOnly.xml etc.) to accomodate this change
                 The policy xml config files can be found in the Domibus distribution inside the file domibus-msh-distribution-5.1.1-application_server_name-configuration.zip under the folder /policies or inside the file domibus-msh-distribution-5.1.1-application_server_name-full.zip under the folder domibus/conf/domibus/policies
+                - Run the appropriate DB migration script (mysql-5.1-to-5.1.1-migration.ddl for MySQL or oracle-5.1-to-5.1.1-migration.ddl for Oracle)
 
   ## Domibus 5.1 (from 5.0.6)
                 - Replace the Domibus war
                 - Replace the default plugin(s) property file(s) and jar(s) into "conf/domibus/plugins/config" respectively into "conf/domibus/plugins/lib"
                 - Update the file cef_edelivery_path/domibus/conf/domibus/internal/activemq.xml and make sure the <property-placeholder> section has the attribute system-properties-mode="ENVIRONMENT". Ideally the line should look exactly like this: <context:property-placeholder system-properties-mode="ENVIRONMENT" ignore-resource-not-found="false" ignore-unresolvable="false"/>
                 - Update the "/conf/domibus/internal/ehcache.xml" cache definitions file by removing domainValidity if exists
+                - Update all the domibus.UI.title.name domain property names to domibus.ui.title.name
+                - Update all the property names prefixed with domibus.metrics.sl4j to domibus.metrics.slf4j
                 - Update your logback.xml configuration so that logs contain the correct origin line number. At the begginging of your <configuration> declare the conversion word domibusLine: 
                 <conversionRule conversionWord="domibusLine" converterClass="eu.domibus.logging.DomibusLineOfCallerConverter" />
                 And then change your log pattern layouts by replacing %L and %line with %domibusLine. For example, the pattern:
@@ -47,7 +51,7 @@
                             - general schema: oracle-5.0-to-5.1-multi-tenancy-migration.ddl
                             - domain schemas: oracle-5.0-to-5.1-migration.ddl, oracle-5.1-data-migration.ddl
                         - partitioning the database:
-                              - if your database is not partitioned then run @oracle-5.1.1-partitioning.ddl
+                            - if your database is not partitioned then run @oracle-5.0.5-to-5.0.6-partitioning-migration.ddl
                   o [MySQL only]
                       The scripts below - please adapt to your local configuration (i.e. users, database names) - can be run using either:
                           - the root user, specifying the target databases as part of the command. For example, for single tenancy:
@@ -71,7 +75,7 @@
                 - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
 ### Partitioning (only oracle)
 #### If the database was not partitioned
-               - Run as edelivery_user: @oracle-5.0.6-partitioning.ddl
+               - Run as edelivery_user: @oracle-5.0.5-to-5.0.6-partitioning-migration.ddl
 ## Domibus 5.0.5 (from 5.0.4):
                 - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s)
                 - Replace the default dss extension jar into  "/conf/domibus/extensions/lib"

@@ -86,6 +86,23 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
     }
 
     @Override
+    public void submit(Runnable task, Runnable errorHandler, String lockKey) {
+        submit(task, errorHandler, lockKey, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+        LOG.trace("Submitting task with lock file [{}], timeout [{}] expressed in unit [{}]", lockKey, timeout, timeUnit);
+
+        DBClusterSynchronizedRunnable DBClusterSynchronizedRunnable = dbClusterSynchronizedRunnableFactory.synchronizedRunnable(task, lockKey);
+
+        SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(DBClusterSynchronizedRunnable, errorHandler);
+        final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, setMDCContextTaskRunnable);
+
+        submitRunnable(schedulingTaskExecutor, clearDomainRunnable, errorHandler, waitForTask, timeout, timeUnit);
+    }
+
+    @Override
     public void submit(Runnable task, Domain domain) {
         submit(schedulingTaskExecutor, task, domain, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
     }

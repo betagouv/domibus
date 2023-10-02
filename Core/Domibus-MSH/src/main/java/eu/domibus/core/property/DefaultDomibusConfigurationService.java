@@ -76,11 +76,6 @@ public class DefaultDomibusConfigurationService implements DomibusConfigurationS
     }
 
     @Override
-    public boolean isFourCornerEnabled() {
-        return getBooleanProperty(FOURCORNERMODEL_ENABLED_KEY);
-    }
-
-    @Override
     public boolean isExtAuthProviderEnabled() {
         return getBooleanProperty(EXTERNAL_AUTH_PROVIDER);
     }
