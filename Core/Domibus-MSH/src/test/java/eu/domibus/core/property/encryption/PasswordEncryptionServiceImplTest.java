@@ -18,7 +18,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -27,13 +26,13 @@ import javax.crypto.spec.GCMParameterSpec;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -415,34 +414,34 @@ public class PasswordEncryptionServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void replacePropertiesInFile_IOExceptionOnFileWrite(@Injectable PasswordEncryptionContext passwordEncryptionContext,
-                                                               @Injectable PasswordEncryptionResult passwordEncryptionResult,
-                                                               @Injectable File configurationFile,
-                                                               @Injectable File configurationFileBackup) throws IOException {
+                                                               @Injectable PasswordEncryptionResult passwordEncryptionResult) throws IOException {
         List<PasswordEncryptionResult> encryptedProperties = new ArrayList<>();
         encryptedProperties.add(passwordEncryptionResult);
 
+
+        File configurationFile = new File("configurationFile");
+        List<String> list = new ArrayList<>();
+
+        new MockUp<Files>() {
+            @Mock
+            public Path write(Path path, Iterable<? extends CharSequence> lines, OpenOption... options) {
+                throw new RuntimeException("TEST");
+            }
+        };
         new Expectations(passwordEncryptionService) {{
             passwordEncryptionContext.getConfigurationFile();
             result = configurationFile;
 
             passwordEncryptionService.getReplacedLines(encryptedProperties, configurationFile);
-            result = new ArrayList<>();
+            result = list;
 
-            passwordEncryptionService.arePropertiesNewlyEncrypted(configurationFile, (List<String>) any);
+            passwordEncryptionService.arePropertiesNewlyEncrypted(configurationFile, list);
             result = true;
-
-            Files.write(configurationFile.toPath(), (List<String>) any);
-            result = new IOException("TEST");
         }};
 
-        try {
-            passwordEncryptionService.replacePropertiesInFile(passwordEncryptionContext, encryptedProperties);
-            fail();
-        } catch (Exception e) {
-            //ok
-        }
+        assertThrows(RuntimeException.class, () ->
+                passwordEncryptionService.replacePropertiesInFile(passwordEncryptionContext, encryptedProperties));
 
         new Verifications() {{
             configurationFile.toString();
@@ -486,25 +485,22 @@ public class PasswordEncryptionServiceImplTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void replacePropertiesInFile_NoPropertiesEncrypted(@Injectable PasswordEncryptionContext passwordEncryptionContext,
-                                                              @Injectable PasswordEncryptionResult passwordEncryptionResult,
-                                                              @Injectable File configurationFile) {
+                                                              @Injectable PasswordEncryptionResult passwordEncryptionResult) {
         List<PasswordEncryptionResult> encryptedProperties = new ArrayList<>();
         encryptedProperties.add(passwordEncryptionResult);
-
+        ArrayList<String> list = new ArrayList<>();
+        File configurationFile = new File("DomibusPropertiesFileName");
         new Expectations(passwordEncryptionService) {{
             passwordEncryptionContext.getConfigurationFile();
             result = configurationFile;
 
             passwordEncryptionService.getReplacedLines(encryptedProperties, configurationFile);
-            result = new ArrayList<>();
+            result = list;
 
-            passwordEncryptionService.arePropertiesNewlyEncrypted(configurationFile, (List<String>) any);
+            passwordEncryptionService.arePropertiesNewlyEncrypted(configurationFile, list);
             result = false;
 
-            configurationFile.toString();
-            result = "DomibusPropertiesFileName";
         }};
 
         passwordEncryptionService.replacePropertiesInFile(passwordEncryptionContext, encryptedProperties);

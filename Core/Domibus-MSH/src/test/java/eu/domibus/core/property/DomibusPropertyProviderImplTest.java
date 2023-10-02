@@ -10,17 +10,14 @@ import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMAIN_TITLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,20 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Ion Perpegel
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @ExtendWith(JMockitExtension.class)
-@Disabled("EDELIVERY-6896")
 public class DomibusPropertyProviderImplTest {
 
     @Tested
     private DomibusPropertyProviderImpl domibusPropertyProvider;
-
-    @Injectable
-    @Qualifier("domibusProperties")
-    private Properties domibusProperties;
-
-    @Injectable
-    @Qualifier("domibusDefaultProperties")
-    private Properties domibusDefaultProperties;
 
     @Injectable
     private GlobalPropertyMetadataManager globalPropertyMetadataManager;
@@ -73,11 +62,11 @@ public class DomibusPropertyProviderImplTest {
     @Injectable
     private DomibusLocalCacheService domibusLocalCacheService;
 
-    private String propertyName = "domibus.property.name";
+    private final String propertyName = "domibus.property.name";
 
-    private String propertyValue = "domibus.property.value";
+    private final String propertyValue = "domibus.property.value";
 
-    private Domain domain = new Domain("domain1", "Domain 1");
+    private final Domain domain = new Domain("domain1", "Domain 1");
 
     @Test
     public void getProperty() {
@@ -130,7 +119,6 @@ public class DomibusPropertyProviderImplTest {
     @Test
     void getDomainProperty_NullDomain() {
         Assertions.assertThrows(DomibusPropertyException.class, () -> domibusPropertyProvider.getProperty(null, propertyName));
-        ;
 
         new Verifications() {{
             globalPropertyMetadataManager.getPropertyMetadata(propertyName);
@@ -259,18 +247,15 @@ public class DomibusPropertyProviderImplTest {
                     domibusPropertyProvider.getCommaSeparatedPropertyValues(propertyName);
                 }, "Should have thrown a DomibusPropertyException when retrieving the comma separated property " +
                         "values for a property not having a comma separated list type");
-        Assertions.assertEquals("Should have thrown a DomibusPropertyException indicating the property type is " +
-                        "not a comma separated list type",
-                "Cannot get the individual parts for property " + propertyName + " because its type "
+        Assertions.assertEquals("Cannot get the individual parts for property " + propertyName + " because its type "
                         + DomibusPropertyMetadata.Type.NUMERIC + " is not a comma separated list one",
-                exception.getMessage());
+                exception.getMessage(), "Should have thrown a DomibusPropertyException indicating the property type is " +
+                        "not a comma separated list type");
     }
-
 
     @Test
     public void getCommaSeparatedPropertyValues_returnsEmptyListForPropertyHavingTheCommaSeparatedListTypeWhenItsValueIsNull(
             @Injectable DomibusPropertyMetadata domibusPropertyMetadata) {
-        final String value = null;
 
         new Expectations() {{
             domibusPropertyMetadata.getTypeAsEnum();
@@ -283,7 +268,7 @@ public class DomibusPropertyProviderImplTest {
             result = domibusPropertyMetadata;
 
             propertyProviderDispatcher.getInternalOrExternalProperty(propertyName, (Domain) any);
-            result = value;
+            result = null;
         }};
 
         // WHEN
@@ -382,7 +367,7 @@ public class DomibusPropertyProviderImplTest {
     @Test
     public void getDomainTitle(@Injectable Domain domain) {
         String domainTitle = StringUtils.repeat("X", 52);
-        new Expectations() {{
+        new Expectations(domibusPropertyProvider) {{
             domibusPropertyProvider.getProperty(domain, DOMAIN_TITLE);
             result = domainTitle;
         }};

@@ -9,7 +9,6 @@ import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
@@ -45,32 +44,6 @@ public class Ebms3SchemaPayloadSubmissionValidatorTest {
 
         new Verifications() {{
             schema.getInputStream();
-            times = 0;
-        }};
-    }
-
-    @Test
-    @Disabled("EDELIVERY-6896")
-    void testValidateWithFirstPayloadInvalid(@Injectable final Submission submission,
-                                                    @Injectable final Submission.Payload payload1,
-                                                    @Injectable final Submission.Payload payload2) throws Exception {
-        new Expectations() {{
-            submission.getPayloads();
-            Set<Submission.Payload> payloads = new HashSet<>();
-            payloads.add(payload1);
-            payloads.add(payload2);
-            result = payloads;
-
-            schema.getInputStream();
-            result = null;
-        }};
-
-        Assertions.assertThrows(SubmissionValidationException.class,
-                () -> schemaPayloadSubmissionValidator.validate(submission));
-        schemaPayloadSubmissionValidator.validate(submission);
-
-        new Verifications() {{
-            payload2.getPayloadDatahandler().getInputStream();
             times = 0;
         }};
     }

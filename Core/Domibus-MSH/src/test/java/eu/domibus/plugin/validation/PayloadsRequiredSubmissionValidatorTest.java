@@ -6,7 +6,6 @@ import mockit.Injectable;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -16,6 +15,7 @@ import java.util.Set;
 /**
  * Created by baciuco on 08/08/2016.
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @ExtendWith(JMockitExtension.class)
 public class PayloadsRequiredSubmissionValidatorTest {
 
@@ -23,15 +23,16 @@ public class PayloadsRequiredSubmissionValidatorTest {
     PayloadsRequiredSubmissionValidator payloadsRequiredSubmissionValidator;
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void testValidateWithPayloads(@Injectable final Submission submission,
                                          @Injectable final Submission.Payload payload1,
-                                         @Injectable final Submission.Payload payload2) throws Exception {
+                                         @Injectable final Submission.Payload payload2) {
+
+        Set<Submission.Payload> payloads = new HashSet<>();
+        payloads.add(payload1);
+        payloads.add(payload2);
+
         new Expectations() {{
             submission.getPayloads();
-            Set<Submission.Payload> payloads = new HashSet<>();
-            payloads.add(payload1);
-            payloads.add(payload2);
             result = payloads;
         }};
         payloadsRequiredSubmissionValidator.validate(submission);

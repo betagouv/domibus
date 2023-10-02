@@ -12,7 +12,6 @@ import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
@@ -41,7 +40,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * @author Cosmin Baciu
  * @since 4.2
  */
-@SuppressWarnings("TestMethodWithIncorrectSignature")
+@SuppressWarnings({"TestMethodWithIncorrectSignature", "unused", "DataFlowIssue"})
 @ExtendWith(JMockitExtension.class)
 public class DomibusApplicationInitializerTest {
 
@@ -49,38 +48,32 @@ public class DomibusApplicationInitializerTest {
     DomibusApplicationInitializer domibusApplicationInitializer;
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void onStartup(@Injectable ServletContext servletContext,
                           @Mocked DomibusConfigLocationProvider domibusConfigLocationProvider,
                           @Mocked AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext,
                           @Mocked ServletRegistration.Dynamic dispatcher,
-                          @Mocked DispatcherServlet dispatcherServlet,
+                          @Mocked BouncyCastleInitializer bouncyCastleInitializer,
+                          @Mocked DispatcherServlet dispatcherServletBased,
                           @Mocked FilterRegistration.Dynamic springSecurityFilterChain,
                           @Mocked ServletRegistration.Dynamic cxfServlet) throws ServletException, IOException {
         String domibusConfigLocation = Paths.get("/home/domibus").normalize().toString();
 
         new Expectations(domibusApplicationInitializer) {{
-            new DomibusConfigLocationProvider();
-            result = domibusConfigLocationProvider;
 
             domibusConfigLocationProvider.getDomibusConfigLocation(servletContext);
-            result = domibusConfigLocation;
+            result = "/home/domibus";
+
+            AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext1 = new AnnotationConfigWebApplicationContext();
 
             domibusApplicationInitializer.configureLogging(domibusConfigLocation);
             domibusApplicationInitializer.configureMetrics(servletContext);
 
-            new AnnotationConfigWebApplicationContext();
-            result = annotationConfigWebApplicationContext;
-            times = 2;
-
-            new DispatcherServlet(annotationConfigWebApplicationContext);
-            result = dispatcherServlet;
-
+            DispatcherServlet dispatcherServlet= new DispatcherServlet(annotationConfigWebApplicationContext1);
 
             servletContext.addServlet("dispatcher", dispatcherServlet);
             result = dispatcher;
 
-            domibusApplicationInitializer.configurePropertySources(annotationConfigWebApplicationContext, domibusConfigLocation);
+            domibusApplicationInitializer.configurePropertySources((AnnotationConfigWebApplicationContext) any, (String) any);
 
             servletContext.addFilter("springSecurityFilterChain", DelegatingFilterProxy.class);
             result = springSecurityFilterChain;
@@ -92,6 +85,9 @@ public class DomibusApplicationInitializerTest {
         domibusApplicationInitializer.onStartup(servletContext);
 
         new Verifications() {{
+            bouncyCastleInitializer.registerBouncyCastle();
+            bouncyCastleInitializer.checkStrengthJurisdictionPolicyLevel();
+
             annotationConfigWebApplicationContext.register(DomibusRootConfiguration.class, DomibusSessionConfiguration.class);
             annotationConfigWebApplicationContext.register(DomibusWebConfiguration.class);
 
@@ -116,26 +112,18 @@ public class DomibusApplicationInitializerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void onStartup_exception(@Injectable ServletContext servletContext,
                                     @Mocked DomibusConfigLocationProvider domibusConfigLocationProvider,
                                     @Mocked AnnotationConfigWebApplicationContext annotationConfigWebApplicationContext) throws IOException {
         String domibusConfigLocation = Paths.get("/home/domibus").normalize().toString();
 
         new Expectations(domibusApplicationInitializer) {{
-            new DomibusConfigLocationProvider();
-            result = domibusConfigLocationProvider;
-
             domibusConfigLocationProvider.getDomibusConfigLocation(servletContext);
             result = domibusConfigLocation;
 
             domibusApplicationInitializer.configureLogging(Paths.get(domibusConfigLocation).normalize().toString());
 
-            new AnnotationConfigWebApplicationContext();
-            result = annotationConfigWebApplicationContext;
-            times = 1;
-
-            domibusApplicationInitializer.configurePropertySources(annotationConfigWebApplicationContext, domibusConfigLocation);
+            domibusApplicationInitializer.configurePropertySources((AnnotationConfigWebApplicationContext) any, (String) any);
             result = new IOException("ERROR");
 
         }};
@@ -147,7 +135,7 @@ public class DomibusApplicationInitializerTest {
             assertThat(e.getCause(), CoreMatchers.instanceOf(IOException.class));
         }
 
-        new FullVerifications() {{
+        new Verifications() {{
 
             annotationConfigWebApplicationContext.register(DomibusRootConfiguration.class, DomibusSessionConfiguration.class);
             annotationConfigWebApplicationContext.setClassLoader((PluginClassLoader)any);
@@ -155,7 +143,6 @@ public class DomibusApplicationInitializerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void configureMetrics(@Mocked ServletContext servletContext,
                                  @Injectable ServletRegistration.Dynamic servlet) {
         new Expectations() {{
@@ -176,16 +163,17 @@ public class DomibusApplicationInitializerTest {
     }
 
     @Test
-    public void createPluginClassLoader() {
+    public void createPluginClassLoader() throws IOException {
         String domibusConfigLocation = "/home/domibus";
 
         File pluginsLocation = new File(domibusConfigLocation + DomibusApplicationInitializer.PLUGINS_LOCATION);
         File extensionsLocation = new File(domibusConfigLocation + DomibusApplicationInitializer.EXTENSIONS_LOCATION);
 
-        PluginClassLoader pluginClassLoader = domibusApplicationInitializer.createPluginClassLoader(domibusConfigLocation);
+        try (PluginClassLoader pluginClassLoader = domibusApplicationInitializer.createPluginClassLoader(domibusConfigLocation)) {
 
-        Assertions.assertTrue(pluginClassLoader.getFiles().contains(pluginsLocation));
-        Assertions.assertTrue(pluginClassLoader.getFiles().contains(extensionsLocation));
+            Assertions.assertTrue(pluginClassLoader.getFiles().contains(pluginsLocation));
+            Assertions.assertTrue(pluginClassLoader.getFiles().contains(extensionsLocation));
+        }
     }
 
     @Test
@@ -247,17 +235,13 @@ public class DomibusApplicationInitializerTest {
     }
 
     @Test
-    @Disabled("EDELIVERY-6896")
     public void createDomibusPropertiesPropertySource(@Mocked DomibusPropertyConfiguration domibusPropertyConfiguration,
                                                       @Injectable PropertiesFactoryBean propertiesFactoryBean,
-                                                      @Injectable Properties properties,
                                                       @Injectable DomibusPropertiesPropertySource domibusPropertiesPropertySource) throws IOException {
         String domibusConfigLocation = "/home/domibus";
 
+        Properties properties = new Properties();
         new Expectations() {{
-            new DomibusPropertyConfiguration();
-            result = domibusPropertyConfiguration;
-
             domibusPropertyConfiguration.domibusProperties(domibusConfigLocation);
             result = propertiesFactoryBean;
 
