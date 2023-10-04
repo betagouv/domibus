@@ -57,6 +57,7 @@
    file name: jetty-xxx-yyy.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-.*@.*$</packageUrl>
+        <!-- jetty-server is not used in production - used in tests -->
         <cve>CVE-2017-9735</cve>
         <cve>CVE-2020-27216</cve>
         <cve>CVE-2021-28165</cve>
@@ -64,39 +65,46 @@
         <cve>CVE-2021-34428</cve>
         <cve>CVE-2022-2048</cve>
         <cve>CVE-2022-2047</cve>
+        <cve>CVE-2023-26048</cve>
+        <cve>CVE-2023-26049</cve>
+        <cve>CVE-2023-40167</cve>
+        <cve>CVE-2023-36479</cve>
+        <cve>CVE-2023-36479</cve>
+        <cve>CVE-2023-41900</cve>
+
         <vulnerabilityName>CVE-2022-2047</vulnerabilityName>
         <vulnerabilityName>CVE-2018-12536</vulnerabilityName>
     </suppress>
-    <suppress>
-        <!-- jetty-server is not used in production - used in tests -->
-        <notes><![CDATA[
-   file name: jetty-server-9.2.28.v20190418.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-.*$</packageUrl>
-        <cve>CVE-2023-26048</cve>
-        <cve>CVE-2023-26049</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: jetty-io-11.0.12.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-io@.*$</packageUrl>
-        <!-- jetty is not used in production - used in tests -->
-        <cve>CVE-2023-40167</cve>
-        <cve>CVE-2023-36479</cve>
-        <cve>CVE-2023-36479</cve>
-        <cve>CVE-2023-41900</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: jetty-server-11.0.12.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-server@.*$</packageUrl>
-        <!-- jetty-server is not used in production - used in tests -->
-        <cve>CVE-2023-40167</cve>
-        <cve>CVE-2023-36479</cve>
-        <cve>CVE-2023-41900</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        &lt;!&ndash; jetty-server is not used in production - used in tests &ndash;&gt;-->
+<!--        <notes><![CDATA[-->
+<!--   file name: jetty-server-9.2.28.v20190418.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-.*$</packageUrl>-->
+<!--        <cve>CVE-2023-26048</cve>-->
+<!--        <cve>CVE-2023-26049</cve>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: jetty-io-11.0.12.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-io@.*$</packageUrl>-->
+<!--        &lt;!&ndash; jetty is not used in production - used in tests &ndash;&gt;-->
+<!--        <cve>CVE-2023-40167</cve>-->
+<!--        <cve>CVE-2023-36479</cve>-->
+<!--        <cve>CVE-2023-36479</cve>-->
+<!--        <cve>CVE-2023-41900</cve>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: jetty-server-11.0.12.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-server@.*$</packageUrl>-->
+<!--        &lt;!&ndash; jetty-server is not used in production - used in tests &ndash;&gt;-->
+<!--        <cve>CVE-2023-40167</cve>-->
+<!--        <cve>CVE-2023-36479</cve>-->
+<!--        <cve>CVE-2023-41900</cve>-->
+<!--    </suppress>-->
     <suppress>
         <notes><![CDATA[
    file name: jetty-alpn-server-11.0.12.jar
@@ -117,66 +125,66 @@
         <cve>CVE-2023-36479</cve>
         <cve>CVE-2023-41900</cve>
     </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: jetty-xml-11.0.12.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-xml@.*$</packageUrl>
-        <!-- jetty-server is not used in production - used in tests -->
-        <cve>CVE-2023-40167</cve>
-        <cve>CVE-2023-36479</cve>
-        <cve>CVE-2023-41900</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: jetty-http-11.0.12.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-http@.*$</packageUrl>
-        <!-- jetty-server is not used in production - used in tests -->
-        <cve>CVE-2023-40167</cve>
-        <cve>CVE-2023-36479</cve>
-        <cve>CVE-2023-41900</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: jetty-util-11.0.12.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-util@.*$</packageUrl>
-        <!-- jetty-server is not used in production - used in tests -->
-        <cve>CVE-2023-40167</cve>
-        <cve>CVE-2023-36479</cve>
-        <cve>CVE-2023-41900</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: jetty-webapp-11.0.12.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-webapp@.*$</packageUrl>
-        <!-- jetty-server is not used in production - used in tests -->
-        <cve>CVE-2023-40167</cve>
-        <cve>CVE-2023-36479</cve>
-        <cve>CVE-2023-41900</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: jetty-servlet-11.0.12.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-servlet@.*$</packageUrl>
-        <!-- jetty-server is not used in production - used in tests -->
-        <cve>CVE-2023-40167</cve>
-        <cve>CVE-2023-36479</cve>
-        <cve>CVE-2023-41900</cve>
-    </suppress>
-    <suppress>
-        <notes><![CDATA[
-   file name: jetty-security-11.0.12.jar
-   ]]></notes>
-        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-security@.*$</packageUrl>
-        <!-- jetty-server is not used in production - used in tests -->
-        <cve>CVE-2023-40167</cve>
-        <cve>CVE-2023-36479</cve>
-        <cve>CVE-2023-41900</cve>
-    </suppress>
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: jetty-xml-11.0.12.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-xml@.*$</packageUrl>-->
+<!--        &lt;!&ndash; jetty-server is not used in production - used in tests &ndash;&gt;-->
+<!--        <cve>CVE-2023-40167</cve>-->
+<!--        <cve>CVE-2023-36479</cve>-->
+<!--        <cve>CVE-2023-41900</cve>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: jetty-http-11.0.12.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-http@.*$</packageUrl>-->
+<!--        &lt;!&ndash; jetty-server is not used in production - used in tests &ndash;&gt;-->
+<!--        <cve>CVE-2023-40167</cve>-->
+<!--        <cve>CVE-2023-36479</cve>-->
+<!--        <cve>CVE-2023-41900</cve>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: jetty-util-11.0.12.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-util@.*$</packageUrl>-->
+<!--        &lt;!&ndash; jetty-server is not used in production - used in tests &ndash;&gt;-->
+<!--        <cve>CVE-2023-40167</cve>-->
+<!--        <cve>CVE-2023-36479</cve>-->
+<!--        <cve>CVE-2023-41900</cve>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: jetty-webapp-11.0.12.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-webapp@.*$</packageUrl>-->
+<!--        &lt;!&ndash; jetty-server is not used in production - used in tests &ndash;&gt;-->
+<!--        <cve>CVE-2023-40167</cve>-->
+<!--        <cve>CVE-2023-36479</cve>-->
+<!--        <cve>CVE-2023-41900</cve>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: jetty-servlet-11.0.12.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-servlet@.*$</packageUrl>-->
+<!--        &lt;!&ndash; jetty-server is not used in production - used in tests &ndash;&gt;-->
+<!--        <cve>CVE-2023-40167</cve>-->
+<!--        <cve>CVE-2023-36479</cve>-->
+<!--        <cve>CVE-2023-41900</cve>-->
+<!--    </suppress>-->
+<!--    <suppress>-->
+<!--        <notes><![CDATA[-->
+<!--   file name: jetty-security-11.0.12.jar-->
+<!--   ]]></notes>-->
+<!--        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-security@.*$</packageUrl>-->
+<!--        &lt;!&ndash; jetty-server is not used in production - used in tests &ndash;&gt;-->
+<!--        <cve>CVE-2023-40167</cve>-->
+<!--        <cve>CVE-2023-36479</cve>-->
+<!--        <cve>CVE-2023-41900</cve>-->
+<!--    </suppress>-->
     <suppress>
         <notes><![CDATA[
    file name: http2-common-11.0.12.jar
