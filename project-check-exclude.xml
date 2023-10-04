@@ -78,12 +78,36 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
+   file name: jetty-io-11.0.12.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-io@.*$</packageUrl>
+        <!-- jetty is not used in production - used in tests -->
+        <cve>CVE-2023-40167</cve>
+        <cve>CVE-2023-36479</cve>
+        <cve>CVE-2023-36479</cve>
+        <cve>CVE-2023-41900</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-server-11.0.12.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-server@.*$</packageUrl>
+        <!-- jetty-server is not used in production - used in tests -->
+        <cve>CVE-2023-40167</cve>
+        <cve>CVE-2023-36479</cve>
+        <cve>CVE-2023-41900</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
    file name: http2-common-11.0.12.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty\.http2/http2\-common@.*$</packageUrl>
         <!-- jetty-server is not used in production - used in tests -->
         <cve>CVE-2023-26048</cve>
         <cve>CVE-2023-26049</cve>
+        <cve>CVE-2023-40167</cve>
+        <cve>CVE-2023-36479</cve>
+        <cve>CVE-2023-41900</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -93,6 +117,9 @@
         <!-- jetty-server is not used in production - used in tests -->
         <cve>CVE-2023-26048</cve>
         <cve>CVE-2023-26049</cve>
+        <cve>CVE-2023-40167</cve>
+        <cve>CVE-2023-36479</cve>
+        <cve>CVE-2023-41900</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -371,6 +398,15 @@
         <packageUrl regex="true">^pkg:maven/org\.codehaus\.janino/commons\-compiler@.*$</packageUrl>
         <!--User supplied input comes only from trusted sources-->
         <cve>CVE-2023-33546</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: hazelcast-5.3.1.jar (shaded: org.json:json:20230227)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.json/json@.*$</packageUrl>
+        <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
+        <cve>CVE-2022-45688</cve>
     </suppress>
 
     <suppress>
