@@ -25,6 +25,17 @@ public interface DomainTaskExecutor {
     void submit(Runnable task, Domain domain, boolean waitForTask, Long timeout, TimeUnit timeUnit);
 
     /**
+     * Attempts to lock the file and if it succeeds submits a Runnable task for execution
+     *
+     * @param task         The Runnable task to execute
+     * @param errorHandler The Runnable task that will be executed in case an error occurs while running the main task
+     * @param lockKey      The key that will be used as lock before running the task
+     */
+    void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit);
+
+    void submit(Runnable task, Runnable errorHandler, String lockKey);
+
+    /**
      * Submits a long running task to be executed for a specific domain
      *
      * @param task         The task to be executed

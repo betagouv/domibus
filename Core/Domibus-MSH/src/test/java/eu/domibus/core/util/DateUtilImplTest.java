@@ -1,9 +1,8 @@
 package eu.domibus.core.util;
 
-import eu.domibus.api.exceptions.DomibusDateTimeException;
-import eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -11,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.*;
 import java.util.Date;
 import java.util.TimeZone;
@@ -149,17 +149,6 @@ public class DateUtilImplTest {
         final LocalDateTime expectedLocalDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0);
         Assert.assertEquals(expectedLocalDateTime, idPkDateHour);
     }
-}
-
-    @Test
-    public void getIdPkDateHour_empty() {
-        try {
-            dateUtilImpl.getIdPkDateHour("");
-            Assert.fail();
-        } catch (DomibusDateTimeException e) {
-            //OK
-        }
-    }
 
 
     @Test
@@ -179,7 +168,7 @@ public class DateUtilImplTest {
 
     @Test
     public void getDateHour() {
-        ZonedDateTime dateHour = dateUtilImpl.getDateHour("23091820" + DomibusDatePrefixedSequenceIdGeneratorGenerator.MIN);
+        ZonedDateTime dateHour = dateUtilImpl.getDateHour("230918200000000000");
         Assert.assertEquals(ZonedDateTime.of(LocalDateTime.of(2023, 9, 18, 20, 0), ZoneOffset.UTC), dateHour);
     }
 }

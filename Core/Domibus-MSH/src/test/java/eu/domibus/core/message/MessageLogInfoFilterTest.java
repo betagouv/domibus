@@ -1,9 +1,8 @@
 package eu.domibus.core.message;
 
 import com.google.common.collect.ImmutableMap;
-import eu.domibus.core.message.dictionary.*;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.TsidUtil;
+import eu.domibus.core.message.dictionary.*;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -254,6 +253,7 @@ public class MessageLogInfoFilterTest {
         String mainTable = "UserMessageLog log ";
 
         String messageTable = ", UserMessage message left join log.messageInfo info ";
+        String partyFromTable = "left join message.partyInfo.from.fromPartyId partyFrom ";
         Map<String, List<String>> mappings = ImmutableMap.of(
                 "message", Collections.singletonList(messageTable),
                 "info", Collections.singletonList(messageTable),

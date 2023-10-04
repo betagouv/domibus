@@ -37,7 +37,7 @@ import java.util.Set;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
-import static eu.domibus.core.pki.PKIUtil.*;
+import static eu.domibus.test.common.PKIUtil.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 

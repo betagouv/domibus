@@ -36,7 +36,7 @@ public class DateUtilImpl implements DateUtil {
 
     @Override
     public ZonedDateTime getDateHour(String idPk) {
-        DateTimeFormatter formatter = ofPattern(DATETIME_FORMAT_DEFAULT).withZone(ZoneOffset.UTC);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATETIME_FORMAT_DEFAULT).withZone(ZoneOffset.UTC);
         String dateHour = StringUtils.substring(idPk, 0, DATETIME_FORMAT_DEFAULT.length());
         return ZonedDateTime.parse(dateHour, formatter);
     }

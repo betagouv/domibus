@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import eu.domibus.api.csv.CsvException;
 import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.model.MSHRole;
-import eu.domibus.api.model.MessageStatus;
-import eu.domibus.api.model.NotificationStatus;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.routing.RoutingCriteria;
 import eu.domibus.api.util.DomibusStringUtil;
@@ -16,7 +14,6 @@ import eu.domibus.web.rest.ro.ErrorLogRO;
 import mockit.Expectations;
 import mockit.FullVerifications;
 import mockit.Injectable;
-import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.core.Is;
@@ -112,13 +109,13 @@ public class CsvServiceImplTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testExportToCsv() throws CsvException {
         testExportCsvBySubtype(null);
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testExportToCsvTest() throws CsvException {
         testExportCsvBySubtype(true);
     }
@@ -152,14 +149,14 @@ public class CsvServiceImplTest {
         final String exportToCSV = csvServiceImpl.exportToCSV(messageLogInfoList, MessageLogInfo.class, null, null);
 
         // Then
-        Assert.assertTrue(exportToCSV.contains(" Message Id,From Party Id,To Party Id,Message Status,Notification Status,Received,Msh Role,Send Attempts,Send Attempts Max,Next Attempt,Next Attempt Timezone Id,Next Attempt Offset Seconds,Conversation Id,Message Type,Test Message,Deleted,Original Sender,Final Recipient,Ref To Message Id,Failed,Restored,Message Fragment,Source Message,Action,Service Type,Service Value"));
-        Assert.assertTrue(exportToCSV.contains("messageId,fromPartyId,toPartyId,ACKNOWLEDGED,NOTIFIED," + csvDate + ",RECEIVING,1,5," + csvDate + ",Europe/Brussels,3600,conversationId,USER_MESSAGE," + (testMessage != null ? testMessage : "") + "," + csvDate + ",originalSender,finalRecipient,refToMessageId," + csvDate + "," + csvDate));
+        Assertions.assertTrue(exportToCSV.contains(" Message Id,From Party Id,To Party Id,Message Status,Notification Status,Received,Msh Role,Send Attempts,Send Attempts Max,Next Attempt,Next Attempt Timezone Id,Next Attempt Offset Seconds,Conversation Id,Message Type,Test Message,Deleted,Original Sender,Final Recipient,Ref To Message Id,Failed,Restored,Message Fragment,Source Message,Action,Service Type,Service Value"));
+        Assertions.assertTrue(exportToCSV.contains("messageId,fromPartyId,toPartyId,ACKNOWLEDGED,NOTIFIED," + csvDate + ",RECEIVING,1,5," + csvDate + ",Europe/Brussels,3600,conversationId,USER_MESSAGE," + (testMessage != null ? testMessage : "") + "," + csvDate + ",originalSender,finalRecipient,refToMessageId," + csvDate + "," + csvDate));
     }
 
     private List<MessageLogInfo> getMessageList(Date date, Boolean testMessage) {
         List<MessageLogInfo> result = new ArrayList<>();
         MessageLogInfo messageLog = new MessageLogInfo("messageId", 1L, 1L, 1L,
-                date, date, 1, 5, date, 1L,
+                date, date,date, 1, 5, date, 1L,
                 "conversationId", 1L, 1L, "originalSender", "finalRecipient",
                 "refToMessageId", date, date, testMessage, false, false, 1L, 1L,
                 "pluginType", 1L, date);

@@ -2,13 +2,18 @@ package eu.domibus.core.message;
 
 import eu.domibus.AbstractIT;
 import eu.domibus.ITTestsService;
+import eu.domibus.api.model.MSHRole;
+import eu.domibus.api.model.MessageStatus;
 import eu.domibus.api.model.MessageType;
+import eu.domibus.api.model.UserMessageLog;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.core.plugin.routing.RoutingService;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.web.rest.ro.MessageLogResultRO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.commons.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,12 +79,6 @@ public class MessagesLogServiceImplTestIT extends AbstractIT {
         addMessages();
     }
 
-    @Test
-    public void countMessages() {
-        final HashMap<String, Object> filters = new HashMap<>();
-        filters.put("receivedTo", new Date());
-        messagesLogService.countMessages(MessageType.USER_MESSAGE, filters);
-    }
     private void addMessages() {
         before = dateUtil.fromString("2019-01-01T12:00:00Z");
         timeT = dateUtil.fromString("2020-01-01T12:00:00Z");
@@ -114,6 +113,13 @@ public class MessagesLogServiceImplTestIT extends AbstractIT {
 
         long count = messagesLogService.countMessages(MessageType.USER_MESSAGE, filters);
         assertEquals(12, count);
+    }
+
+    @Test
+    public void countMessages2() {
+        final HashMap<String, Object> filters = new HashMap<>();
+        filters.put("receivedTo", new Date());
+        messagesLogService.countMessages(MessageType.USER_MESSAGE, filters);
     }
 
     @Test

@@ -1,12 +1,10 @@
 package eu.domibus.core.message;
 
 import com.google.common.collect.Maps;
-import eu.domibus.api.property.DomibusConfigurationService;
-import eu.domibus.api.property.DomibusPropertyProvider;
-import eu.domibus.api.util.TsidUtil;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.model.ServiceEntity;
+import eu.domibus.api.util.TsidUtil;
 import eu.domibus.core.dao.SingleValueDictionaryDao;
 import eu.domibus.core.message.dictionary.*;
 import eu.domibus.logging.DomibusLogger;
@@ -19,10 +17,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.*;
 import static eu.domibus.web.rest.MessageLogResource.*;
-import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.util.Locale.ENGLISH;
 
 /**
  * @author Tiago Miguel
@@ -272,20 +267,22 @@ public abstract class MessageLogInfoFilter {
     }
 
     private Object handleMaxEntityId(Map.Entry<String, Object> filter) {
-        return getLongValue(filter, MAX, "Turned [{}] into max entityId [{}]");
+        Object value = tsidUtil.zonedTimeDateToMaxTsid(getZonedDateTime(filter));
+        LOG.debug("Turned [{}] into max entityId [{}]", filter.getValue(), (Long) value);
+        return value;
     }
 
     private Object handleMinEntityId(Map.Entry<String, Object> filter) {
-        return getLongValue(filter, MIN, "Turned [{}] into min entityId [{}]");
+        Object value = tsidUtil.zonedTimeDateToTsid(getZonedDateTime(filter));
+        LOG.debug("Turned [{}] into min entityId [{}]", filter.getValue(), (Long) value);
+        return value;
     }
 
-    private Object getLongValue(Map.Entry<String, Object> filter, String max, String format) {
+    private static ZonedDateTime getZonedDateTime(Map.Entry<String, Object> filter) {
         Object value = filter.getValue();
         ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(((Date) value).toInstant(), ZoneOffset.UTC);
         LOG.trace(" zonedDateTime is [{}]", zonedDateTime);
-        value = Long.parseLong(zonedDateTime.format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + max);
-        LOG.debug(format, filter.getValue(), (Long) value);
-        return value;
+        return zonedDateTime;
     }
 
     public abstract String getFilterMessageLogQuery(String column, boolean asc, Map<String, Object> filters, List<String> fields);

@@ -37,6 +37,7 @@ import eu.europa.esig.dss.tsl.sync.SynchronizationStrategy;
 import eu.europa.esig.dss.tsl.sync.TrustedListCertificateSourceSynchronizer;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,7 @@ public class TrustedListLoadTest {
     CertificateSource certificateSource;
 
 
-    @Before
+    @BeforeEach
     public void before() throws IOException {
         String tempDirectoryPath = FileUtils.getTempDirectoryPath();
         cacheDirectory = new File(tempDirectoryPath + File.separator + DSS_TEST_DIRECTORY + File.separator + "cache");

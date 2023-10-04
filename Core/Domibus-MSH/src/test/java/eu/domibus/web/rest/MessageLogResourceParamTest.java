@@ -223,7 +223,7 @@ class MessageLogResourceParamTest {
     private List<MessageLogInfo> getMessageList(Date date, Boolean testMessage) {
         List<MessageLogInfo> result = new ArrayList<>();
         MessageLogInfo messageLog = new MessageLogInfo("messageId", 1L, 1L, 1L,
-                date, date, 1, 5, date, 1L,
+                date, date, date, 1, 5, date, 1L,
                 "conversationId", 1L, 1L, "originalSender", "finalRecipient",
                 "refToMessageId", date, date, testMessage, false, false, 1L, 1L,
                 "pluginType", 1L, date);

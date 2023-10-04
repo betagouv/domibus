@@ -56,8 +56,6 @@ public class MessageLogResourceNonParameterizedTest {
         new Expectations(messageLogResource) {{
             requestFilterUtils.createFilterMap(messageLogFilter);
             result = createFilterMap();
-            domibusConfigurationService.isFourCornerEnabled();
-            result = true;
             messageLogResource.exportToCSV((List<?>) any, (Class<?>) any, (Map<String, String>) any, (List<String>) any, anyString);
             result = any;
         }};
@@ -83,8 +81,6 @@ public class MessageLogResourceNonParameterizedTest {
         new Expectations(messageLogResource) {{
             requestFilterUtils.createFilterMap(messageLogFilter);
             result = createFilterMap();
-            domibusConfigurationService.isFourCornerEnabled();
-            result = false;
             messageLogResource.exportToCSV((List<?>) any, (Class<?>) any, (Map<String, String>) any, (List<String>) any, anyString);
             result = any;
         }};

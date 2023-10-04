@@ -138,7 +138,7 @@ public class MessageRetrieverImplTest {
             result = new DuplicateMessageFoundException(MESS_ID);
         }};
 
-        Assert.assertThrows(DuplicateMessageException.class, () -> messageRetriever.getErrorsForMessage(MESS_ID));
+        Assertions.assertThrows(DuplicateMessageException.class, () -> messageRetriever.getErrorsForMessage(MESS_ID));
 
         new Verifications() {{
             errorLogService.convert(errorLogEntry);

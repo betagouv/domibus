@@ -69,6 +69,24 @@ public class DomainTaskExecutorTestImpl implements DomainTaskExecutor {
     }
 
     @Override
+    public void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+        try {
+            task.run();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void submit(Runnable task, Runnable errorHandler, String lockKey) {
+        try {
+            task.run();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public void submitLongRunningTask(Runnable task, Runnable errorHandler, Domain domain) {
         try {
             task.run();

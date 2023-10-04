@@ -109,8 +109,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
 
     private final AuditService auditService;
 
-    private final SynchronizationService synchronizationService;
-
     public DefaultDomainCryptoServiceSpiImpl(DomibusPropertyProvider domibusPropertyProvider,
                                              CertificateService certificateService,
                                              SignalService signalService,
@@ -846,19 +844,19 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
         return result;
     }
 
-    private void reloadKeyStore() throws CryptoSpiException {
-        reloadStore(keystorePersistenceService::getKeyStorePersistenceInfo, this::getKeyStore, this::loadKeyStoreProperties,
+    private boolean reloadKeyStore() throws CryptoSpiException {
+        return reloadStore(keystorePersistenceService::getKeyStorePersistenceInfo, this::getKeyStore, this::loadKeyStoreProperties,
                 (keyStore, securityProfileConfiguration) -> securityProfileConfiguration.getMerlin().setKeyStore(keyStore),
                 signalService::signalKeyStoreUpdate, this::validateKeyStoreCertificateTypes);
     }
 
-    private void reloadTrustStore() throws CryptoSpiException {
-        reloadStore(keystorePersistenceService::getTrustStorePersistenceInfo, this::getTrustStore, this::loadTrustStoreProperties,
+    private boolean reloadTrustStore() throws CryptoSpiException {
+        return reloadStore(keystorePersistenceService::getTrustStorePersistenceInfo, this::getTrustStore, this::loadTrustStoreProperties,
                 (keyStore, securityProfileConfiguration) -> securityProfileConfiguration.getMerlin().setTrustStore(keyStore),
                 signalService::signalTrustStoreUpdate, this::validateTrustStoreCertificateTypes);
     }
 
-    private void reloadStore(Supplier<KeystorePersistenceInfo> persistenceGetter,
+    private boolean reloadStore(Supplier<KeystorePersistenceInfo> persistenceGetter,
                              Supplier<KeyStore> storeGetter,
                              Runnable storePropertiesLoader,
                              BiConsumer<KeyStore, SecurityProfileAliasConfiguration> storeSetter,
@@ -888,18 +886,6 @@ public class DefaultDomainCryptoServiceSpiImpl implements DomainCryptoServiceSpi
             return true;
         } catch (CryptoException ex) {
             throw new CryptoSpiException("Error while replacing the keystore from file " + storeLocation, ex);
-        }
-    }
-
-    private void executeWithLock(Runnable task) {
-        try {
-            synchronizationService.execute(task, DB_SYNC_LOCK_KEY, JAVA_CHANGE_LOCK);
-        } catch (DomibusSynchronizationException ex) {
-            Throwable cause = ExceptionUtils.getRootCause(ex);
-            if (cause instanceof CryptoSpiException) {
-                throw (CryptoSpiException) cause;
-            }
-            throw new CryptoSpiException(cause);
         }
     }
 

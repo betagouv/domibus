@@ -299,11 +299,11 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
 
     @Transactional
     public void executeBatchIsArchived(EArchiveBatchEntity eArchiveBatchByBatchId, List<EArchiveBatchUserMessage> userMessageDtos) {
-        LOG.debug("Update messages archived date for batch [{}]", eArchiveBatchByBatchId.batchId);
-        userMessageLogDefaultService.updateUserMessagesArchived(eArchiveBatchUtils.getEntityIds(userMessageDtos));
+        LOG.debug("Update messages archived date for batch [{}]", eArchiveBatchByBatchId.getBatchId());
+        userMessageLogDefaultService.updateUserMessagesArchived(eArchiveBatchUtil.getEntityIds(userMessageDtos));
         if (eArchiveBatchByBatchId.getEArchiveBatchStatus() != EArchiveBatchStatus.ARCHIVED &&
                 eArchiveBatchByBatchId.getEArchiveBatchStatus() != EArchiveBatchStatus.DELETED) {  // batch was already deleted from file system
-            LOG.debug("Set batch status ARCHIVED, for batch [{}], previous status [{}]", eArchiveBatchByBatchId.batchId, eArchiveBatchByBatchId.eArchiveBatchStatus);
+            LOG.debug("Set batch status ARCHIVED, for batch [{}], previous status [{}]", eArchiveBatchByBatchId.getBatchId(), eArchiveBatchByBatchId.getEArchiveBatchStatus());
             setStatus(eArchiveBatchByBatchId, EArchiveBatchStatus.ARCHIVED); // status has to be set, useful for replacing DELETED  status with a date
         }
         if (userMessageDtos.size() > 0) {
@@ -314,7 +314,7 @@ public class EArchivingDefaultService implements DomibusEArchiveService {
     }
 
     public void executeDeleteBatch(EArchiveBatchEntity eArchiveBatchByBatchId) {
-        LOG.debug("Execute delete batch [{}]", eArchiveBatchByBatchId.batchId);
+        LOG.debug("Execute delete batch [{}]", eArchiveBatchByBatchId.getBatchId());
         eArchivingRetentionService.deleteBatch(eArchiveBatchByBatchId);
     }
 }

@@ -1,7 +1,6 @@
 package eu.domibus.core.message.signal;
 
 import com.google.common.collect.ImmutableMap;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.TsidUtil;
 import eu.domibus.core.message.MessageLogInfoFilterTest;
 import eu.domibus.core.message.MessageStatusDao;
@@ -125,6 +124,8 @@ public class SignalMessageLogInfoFilterTest {
                 "serviceValue", "serviceValue1",
                 "originalSender", "333");
         String messageTable = "join log.signalMessage signal join signal.userMessage message";
+        String partyFromTable = "left join message.partyInfo.from.fromPartyId partyFrom ";
+        String propsCriteria = "and propsFrom.name = 'originalSender' ";
 
         String result = signalMessageLogInfoFilter.getCountMessageLogQuery(filters);
 

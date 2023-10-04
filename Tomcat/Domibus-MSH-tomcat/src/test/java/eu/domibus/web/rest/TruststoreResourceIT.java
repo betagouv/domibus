@@ -259,9 +259,9 @@ public class TruststoreResourceIT extends AbstractIT {
         MultipartFile multiPartFile = new MockMultipartFile(fileName, fileName, "octetstream", content);
 
         try {
-            truststoreResource.uploadTruststoreFile(multiPartFile, "");
+            truststoreResource.uploadTruststoreFile(multiPartFile, "", false);
         } catch (RequestValidationException ex) {
-            Assert.assertTrue(ex.getMessage().contains("Failed to upload the truststoreFile file since its password was empty."));
+            Assertions.assertTrue(ex.getMessage().contains("Failed to upload the truststoreFile file since its password was empty."));
         }
     }
 
@@ -277,10 +277,10 @@ public class TruststoreResourceIT extends AbstractIT {
             byte[] content = Files.readAllBytes(path);
             MultipartFile multiPartFile = new MockMultipartFile(fileName, fileName, "octetstream", content);
 
-            truststoreResource.uploadTruststoreFile(multiPartFile, "test123");
-            Assert.fail("Expected exception was not raised!");
+            truststoreResource.uploadTruststoreFile(multiPartFile, "test123", false);
+            Assertions.fail("Expected exception was not raised!");
         } catch (RequestValidationException ex) {
-            Assert.assertTrue(ex.getMessage().contains("exceeds the maximum size limit"));
+            Assertions.assertTrue(ex.getMessage().contains("exceeds the maximum size limit"));
         } finally {
             domibusPropertyProvider.setProperty(defaultDomain, DOMIBUS_FILE_UPLOAD_MAX_SIZE, previousFileUploadMaxSize, false);
         }

@@ -5,6 +5,7 @@ import eu.domibus.api.earchive.*;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.TsidUtil;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.earchive.*;
@@ -25,7 +26,6 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
@@ -164,9 +164,7 @@ public class EArchivingJobService {
     public long getMaxEntityIdToArchived(EArchiveRequestType eArchiveRequestType) {
         if (eArchiveRequestType == EArchiveRequestType.SANITIZER) {
             ZonedDateTime dateHour = dateUtil.getDateHour("" + eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage());
-            return Long.parseLong(dateHour
-                    .minusHours(getSanitizerDelay())
-                    .format(ofPattern(DATETIME_FORMAT_DEFAULT, ENGLISH)) + MAX);
+            return tsidUtil.zonedTimeDateToMaxTsid(dateHour.minusHours(getSanitizerDelay()));
         }
 
         return tsidUtil.zonedTimeDateToMaxTsid(ZonedDateTime

@@ -12,7 +12,6 @@ import eu.domibus.core.crypto.MultiDomainCryptoServiceImpl;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.test.common.BrokenMockMultipartFile;
-import eu.domibus.web.rest.KeystoreResource;
 import eu.domibus.web.rest.ro.TrustStoreRO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -108,10 +107,10 @@ public class KeyStoreResourceIT extends AbstractIT {
         MultipartFile multiPartFile = new MockMultipartFile(fileName, fileName, "octetstream", content);
 
         try {
-            storeResource.uploadKeystoreFile(multiPartFile, "test123");
-            Assert.fail("Expected exception was not raised!");
+            storeResource.uploadKeystoreFile(multiPartFile, "test123", false);
+            Assertions.fail("Expected exception was not raised!");
         } catch (RequestValidationException ex) {
-            Assert.assertTrue(ex.getMessage().contains("it was empty"));
+            Assertions.assertTrue(ex.getMessage().contains("it was empty"));
         }
     }
 
@@ -120,10 +119,10 @@ public class KeyStoreResourceIT extends AbstractIT {
         byte[] content = new byte[]{1};
         MultipartFile multiPartFile = new BrokenMockMultipartFile("file.jks", content);
         try {
-            storeResource.uploadKeystoreFile(multiPartFile, "test123");
-            Assert.fail("Expected exception was not raised!");
+            storeResource.uploadKeystoreFile(multiPartFile, "test123", false);
+            Assertions.fail("Expected exception was not raised!");
         } catch (RequestValidationException ex) {
-            Assert.assertTrue(ex.getMessage().contains("could not read the content"));
+            Assertions.assertTrue(ex.getMessage().contains("could not read the content"));
         }
     }
 
@@ -139,10 +138,10 @@ public class KeyStoreResourceIT extends AbstractIT {
             byte[] content = Files.readAllBytes(path);
             MultipartFile multiPartFile = new MockMultipartFile(fileName, fileName, "octetstream", content);
 
-            storeResource.uploadKeystoreFile(multiPartFile, "test123");
-            Assert.fail("Expected exception was not raised!");
+            storeResource.uploadKeystoreFile(multiPartFile, "test123", false);
+            Assertions.fail("Expected exception was not raised!");
         } catch (RequestValidationException ex) {
-            Assert.assertTrue(ex.getMessage().contains("exceeds the maximum size limit"));
+            Assertions.assertTrue(ex.getMessage().contains("exceeds the maximum size limit"));
         }
         finally {
             domibusPropertyProvider.setProperty(defaultDomain, DOMIBUS_FILE_UPLOAD_MAX_SIZE, previousFileUploadMaxSize, false);

@@ -1,8 +1,9 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.*;
-import eu.domibus.api.multitenancy.lock.SynchronizationService;
+import eu.domibus.api.multitenancy.lock.DBClusterSynchronizedRunnable;
 import eu.domibus.api.multitenancy.lock.DbClusterSynchronizedRunnableFactory;
+import eu.domibus.api.multitenancy.lock.SynchronizationService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -96,8 +97,8 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
 
         DBClusterSynchronizedRunnable DBClusterSynchronizedRunnable = dbClusterSynchronizedRunnableFactory.synchronizedRunnable(task, lockKey);
 
-        SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable(DBClusterSynchronizedRunnable, errorHandler);
-        final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, setMDCContextTaskRunnable);
+        SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable((Runnable) DBClusterSynchronizedRunnable, errorHandler);
+        final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, (Runnable) setMDCContextTaskRunnable);
 
         submitRunnable(schedulingTaskExecutor, clearDomainRunnable, errorHandler, waitForTask, timeout, timeUnit);
     }
