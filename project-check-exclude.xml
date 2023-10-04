@@ -144,6 +144,8 @@
         <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-util@.*$</packageUrl>
         <!-- jetty-server is not used in production - used in tests -->
         <cve>CVE-2023-40167</cve>
+        <cve>CVE-2023-36479</cve>
+        <cve>CVE-2023-41900</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -153,6 +155,16 @@
         <!-- jetty-server is not used in production - used in tests -->
         <cve>CVE-2023-26048</cve>
         <cve>CVE-2023-26049</cve>
+        <cve>CVE-2023-40167</cve>
+        <cve>CVE-2023-36479</cve>
+        <cve>CVE-2023-41900</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-client-11.0.12.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-client@.*$</packageUrl>
+        <!-- jetty-server is not used in production - used in tests -->
         <cve>CVE-2023-40167</cve>
         <cve>CVE-2023-36479</cve>
         <cve>CVE-2023-41900</cve>
