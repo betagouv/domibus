@@ -67,7 +67,7 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         propertyNames.add(MessageConstants.FINAL_RECIPIENT);
 
         String authOriginalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
-        LOG.info("Check authorization as [{}]", authOriginalUser == null ? "super user" : authOriginalUser);
+        LOG.debug("Check authorization as [{}]", authOriginalUser == null ? "super user" : authOriginalUser);
 
         if(authOriginalUser != null) {
             check(userMessage, propertyNames, authOriginalUser);
