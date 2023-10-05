@@ -607,6 +607,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-5.1-to-5.1.1-migration.ddl
                             </migrationSqlOutputFile>
+                            <expressionVariables>
+                                <DomibusVersion>5.1.1</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -625,6 +628,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/oracle-5.1-to-5.1.1-migration.ddl
                             </migrationSqlOutputFile>
+                            <expressionVariables>
+                                <DomibusVersion>5.1.1</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <!-- delta 5.1 to 5.1.1 ends here -->
@@ -646,6 +652,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-5.0-to-5.1-migration.ddl
                             </migrationSqlOutputFile>
+                            <expressionVariables>
+                                <DomibusVersion>5.1</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <execution>
