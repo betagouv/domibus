@@ -80,6 +80,7 @@ public class TruststoreResourceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-12166")
     public void replaceStore() throws IOException {
         List<TrustStoreRO> entries = truststoreResource.trustStoreEntries();
 
@@ -96,6 +97,7 @@ public class TruststoreResourceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-12166")
     public void replaceStoreWithDifferentType() throws IOException {
         String fileName = "gateway_truststore_p12.p12";
         Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, fileName);

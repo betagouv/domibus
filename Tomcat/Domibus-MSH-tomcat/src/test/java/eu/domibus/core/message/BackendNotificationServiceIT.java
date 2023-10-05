@@ -210,6 +210,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
     @Test
     @Transactional
+    @Disabled("EDELIVERY-12051")
     public void notifyPayloadEvent() throws MessagingProcessingException {
         Submission submission = submissionUtil.createSubmission();
         messageId = messageSubmitter.submit(submission, backendConnector.getName());

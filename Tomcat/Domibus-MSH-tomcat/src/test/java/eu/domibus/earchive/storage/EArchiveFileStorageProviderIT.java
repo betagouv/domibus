@@ -1,23 +1,16 @@
 package eu.domibus.earchive.storage;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.exceptions.DomibusCoreErrorCode;
-import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.core.earchive.storage.EArchiveFileStorage;
 import eu.domibus.core.earchive.storage.EArchiveFileStorageProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Map;
 import java.util.Set;
-
-import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author François Gautier

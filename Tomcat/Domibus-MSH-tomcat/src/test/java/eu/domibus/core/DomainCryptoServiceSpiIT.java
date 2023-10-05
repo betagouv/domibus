@@ -3,8 +3,8 @@ package eu.domibus.core;
 import eu.domibus.AbstractIT;
 import eu.domibus.core.crypto.spi.DomainCryptoServiceSpi;
 import eu.domibus.core.crypto.spi.DomainSpi;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -20,11 +20,11 @@ public class DomainCryptoServiceSpiIT extends AbstractIT {
     @Test
     public void domainCryptoServiceSpi_init() {
 
-        Assert.assertNull(domainCryptoServiceSpi.getKeyStore());
-        Assert.assertNull(domainCryptoServiceSpi.getTrustStore());
+        Assertions.assertNull(domainCryptoServiceSpi.getKeyStore());
+        Assertions.assertNull(domainCryptoServiceSpi.getTrustStore());
         domainCryptoServiceSpi.setDomain(new DomainSpi("default", "default"));
         domainCryptoServiceSpi.init();
-        Assert.assertNotNull(domainCryptoServiceSpi.getKeyStore());
-        Assert.assertNotNull(domainCryptoServiceSpi.getTrustStore());
+        Assertions.assertNotNull(domainCryptoServiceSpi.getKeyStore());
+        Assertions.assertNotNull(domainCryptoServiceSpi.getTrustStore());
     }
 }

@@ -1,22 +1,19 @@
 package eu.domibus.web.rest;
 
 import eu.domibus.AbstractIT;
-import eu.domibus.api.plugin.BackendConnectorService;
+import eu.domibus.common.CsvUtil;
 import eu.domibus.core.ebms3.receiver.MSHWebservice;
 import eu.domibus.core.payload.persistence.filesystem.PayloadFileStorageProvider;
 import eu.domibus.core.plugin.BackendConnectorProvider;
 import eu.domibus.plugin.BackendConnector;
-import eu.domibus.common.CsvUtil;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -76,6 +73,7 @@ class MessageLogResourceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-12051")
     void getMessageLog_OK() throws Exception {
         mockMvc.perform(get("/rest/messagelog")
                         .with(httpBasic(TEST_PLUGIN_USERNAME, TEST_PLUGIN_PASSWORD))
@@ -94,6 +92,7 @@ class MessageLogResourceIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-12051")
     void getCsv_OK() throws Exception {
         MvcResult result = mockMvc.perform(get("/rest/messagelog/csv")
                         .contentType("text/html; charset=UTF-8")

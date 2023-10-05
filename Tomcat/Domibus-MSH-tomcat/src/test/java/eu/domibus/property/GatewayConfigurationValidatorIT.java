@@ -5,8 +5,8 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.core.property.GatewayConfigurationValidator;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -27,6 +27,6 @@ public class GatewayConfigurationValidatorIT extends AbstractIT {
     public void validateCertificates() {
         gatewayConfigurationValidator.validateCertificates();
 
-        Assert.assertNull(LOG.getMDC(DomibusLogger.MDC_DOMAIN));
+        Assertions.assertNull(LOG.getMDC(DomibusLogger.MDC_DOMAIN));
     }
 }

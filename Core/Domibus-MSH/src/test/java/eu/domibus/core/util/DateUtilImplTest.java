@@ -3,7 +3,6 @@ package eu.domibus.core.util;
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -147,7 +146,7 @@ public class DateUtilImplTest {
     public void getIdPkDateHour() {
         LocalDateTime idPkDateHour = dateUtilImpl.getLocalDateTimeFromDateWithHour(22010110L);
         final LocalDateTime expectedLocalDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0);
-        Assert.assertEquals(expectedLocalDateTime, idPkDateHour);
+        Assertions.assertEquals(expectedLocalDateTime, idPkDateHour);
     }
 
 
@@ -163,12 +162,12 @@ public class DateUtilImplTest {
 
         Integer partitionNameUTC = new Integer(dateUtilImpl.getIdPkDateHourPrefix(currentDate));
 
-        Assert.assertTrue(partitionNameUTC - partitionNameEES > 0);
+        Assertions.assertTrue(partitionNameUTC - partitionNameEES > 0);
     }
 
     @Test
     public void getDateHour() {
         ZonedDateTime dateHour = dateUtilImpl.getDateHour("230918200000000000");
-        Assert.assertEquals(ZonedDateTime.of(LocalDateTime.of(2023, 9, 18, 20, 0), ZoneOffset.UTC), dateHour);
+        Assertions.assertEquals(ZonedDateTime.of(LocalDateTime.of(2023, 9, 18, 20, 0), ZoneOffset.UTC), dateHour);
     }
 }

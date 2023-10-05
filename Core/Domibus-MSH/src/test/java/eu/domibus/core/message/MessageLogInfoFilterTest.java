@@ -114,7 +114,7 @@ public class MessageLogInfoFilterTest {
 
         String filterQueryString = filterQuery.toString();
         Assertions.assertTrue(filterQueryString.contains("log.notificationStatus = :notificationStatus"));
-        Assertions.assertTrue(filterQueryString.contains("partyFrom.value = :fromPartyId"));
+        Assertions.assertTrue(filterQueryString.contains("message.partyInfo.from.fromPartyId IN :fromPartyId"));
         Assertions.assertTrue(filterQueryString.contains("log.sendAttemptsMax = :sendAttemptsMax"));
         Assertions.assertTrue(filterQueryString.contains("propsFrom.value = :originalSender"));
         Assertions.assertTrue(filterQueryString.contains("log.received <= :receivedTo"));
@@ -127,7 +127,7 @@ public class MessageLogInfoFilterTest {
         Assertions.assertTrue(filterQueryString.contains("log.messageStatus = :messageStatus"));
         Assertions.assertTrue(filterQueryString.contains("log.deleted = :deleted"));
         Assertions.assertTrue(filterQueryString.contains("log.received >= :receivedFrom"));
-        Assertions.assertTrue(filterQueryString.contains("partyTo.value = :toPartyId"));
+        Assertions.assertTrue(filterQueryString.contains("message.partyInfo.to.toPartyId IN :toPartyId"));
         Assertions.assertTrue(filterQueryString.contains("log.mshRole = :mshRole"));
 
         Assertions.assertTrue(filterQueryString.contains("log.messageStatus asc"));
@@ -253,11 +253,10 @@ public class MessageLogInfoFilterTest {
         String mainTable = "UserMessageLog log ";
 
         String messageTable = ", UserMessage message left join log.messageInfo info ";
-        String partyFromTable = "left join message.partyInfo.from.fromPartyId partyFrom ";
         Map<String, List<String>> mappings = ImmutableMap.of(
                 "message", Collections.singletonList(messageTable),
                 "info", Collections.singletonList(messageTable),
-                "partyFrom", Arrays.asList(messageTable, partyFromTable));
+                "partyFrom", Arrays.asList(messageTable));
 
         new Expectations(messageLogInfoFilter) {{
             messageLogInfoFilter.createFromMappings();
@@ -269,7 +268,6 @@ public class MessageLogInfoFilterTest {
         StringBuilder result = messageLogInfoFilter.createFromClause(filters);
         Assertions.assertTrue(result.toString().contains(mainTable));
         Assertions.assertTrue(result.toString().contains(messageTable));
-        Assertions.assertTrue(result.toString().contains(partyFromTable));
     }
 
     @Test

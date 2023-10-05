@@ -39,7 +39,7 @@ public class FileUploadMaxSizeChangeListenerTest {
     }
 
     @Test
-    public void testPropertyValueChanged() {
+    public void testPropertyValueChanged_domain() {
         listener.propertyValueChanged("default", DOMIBUS_FILE_UPLOAD_MAX_SIZE, "100");
 
         new FullVerifications() {{
@@ -49,8 +49,28 @@ public class FileUploadMaxSizeChangeListenerTest {
     }
 
     @Test
+    public void testPropertyValueChanged_domainInvalid() {
+        listener.propertyValueChanged("default", DOMIBUS_FILE_UPLOAD_MAX_SIZE, "invalid");
+
+        new FullVerifications() {{
+            multipartResolver.setMaxUploadSize(100);
+            times = 0;
+        }};
+    }
+
+    @Test
+    public void testPropertyValueChanged() {
+        listener.propertyValueChanged(null, DOMIBUS_FILE_UPLOAD_MAX_SIZE, "100");
+
+        new FullVerifications() {{
+            multipartResolver.setMaxUploadSize(100);
+            times = 1;
+        }};
+    }
+
+    @Test
     void testInvalidPropertyValueChanged() {
         Assertions.assertThrows(IllegalArgumentException. class,
-        () -> listener.propertyValueChanged("default", DOMIBUS_FILE_UPLOAD_MAX_SIZE, "invalid"));
+        () -> listener.propertyValueChanged(null, DOMIBUS_FILE_UPLOAD_MAX_SIZE, "invalid"));
     }
 }

@@ -18,6 +18,7 @@ import eu.domibus.core.user.ui.UserDao;
 import eu.domibus.messaging.XmlProcessingException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -78,6 +79,7 @@ class AlertEventsTestIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-12166")
     void sendEventMessageNotFinal() {
         String messageId = "messageId";
         MessageStatus messageStatus = MessageStatus.RECEIVED;

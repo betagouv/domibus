@@ -94,7 +94,7 @@ public class SignalMessageLogInfoFilterTest {
         String resultQueryString = resultQuery.toString();
 
         Assertions.assertFalse(resultQueryString.contains("log.notificationStatus.status = :notificationStatus"));
-        Assertions.assertTrue(resultQueryString.contains("partyFrom.value = :fromPartyId"));
+        Assertions.assertTrue(resultQueryString.contains("message.partyInfo.from.fromPartyId IN :fromPartyId"));
         Assertions.assertFalse(resultQueryString.contains("log.sendAttemptsMax = :sendAttemptsMax"));
         Assertions.assertTrue(resultQueryString.contains("propsFrom.value = :originalSender"));
         Assertions.assertTrue(resultQueryString.contains("log.received <= :receivedTo"));
@@ -124,7 +124,6 @@ public class SignalMessageLogInfoFilterTest {
                 "serviceValue", "serviceValue1",
                 "originalSender", "333");
         String messageTable = "join log.signalMessage signal join signal.userMessage message";
-        String partyFromTable = "left join message.partyInfo.from.fromPartyId partyFrom ";
         String propsCriteria = "and propsFrom.name = 'originalSender' ";
 
         String result = signalMessageLogInfoFilter.getCountMessageLogQuery(filters);
@@ -145,7 +144,6 @@ public class SignalMessageLogInfoFilterTest {
         Assertions.assertTrue(result.contains("message.service IN :serviceValue"));
         Assertions.assertTrue(result.contains(signalMessageLogInfoFilter.getMainTable()));
         Assertions.assertTrue(result.contains(messageTable));
-        Assertions.assertTrue(result.contains(partyFromTable));
         Assertions.assertTrue(result.contains(propsCriteria));
     }
 }
