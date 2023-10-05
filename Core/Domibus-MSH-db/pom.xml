@@ -502,7 +502,7 @@
                     </execution>
                     <!-- partitioning delta from 5.0.4 to 5.0.5 ends here -->
 
-                    <!-- delta 5.0.5 to 5.0.7 starts here -->
+                    <!-- delta 5.0.6 to 5.0.7 starts here -->
                     <execution>
                         <id>generate-mysql-script-delta-5.0.7</id>
                         <phase>generate-resources</phase>
@@ -545,7 +545,7 @@
                             </expressionVariables>
                         </configuration>
                     </execution>
-                    <!-- delta 5.0.5 to 5.0.7 ends here -->
+                    <!-- delta 5.0.6 to 5.0.7 ends here -->
 
                     <!-- delta 5.0.4 to 5.0.5 starts here -->
                     <execution>

@@ -47,7 +47,6 @@ public class DeleteSentFailedMessageIT extends DeleteMessageAbstractIT {
     }
 
     @Test
-//    @Disabled("EDELIVERY-6896 multitenancy related")
     public void testDeleteFailedMessage() throws MessagingProcessingException {
         BackendConnector backendConnector = Mockito.mock(BackendConnector.class);
         Mockito.when(backendConnectorProvider.getBackendConnector(Mockito.any(String.class))).thenReturn(backendConnector);

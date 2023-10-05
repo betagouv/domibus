@@ -10,7 +10,6 @@ import eu.domibus.api.multitenancy.DomainContextProvider;
 import eu.domibus.api.pki.CertificateService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
 import eu.domibus.api.pki.SecurityProfileService;
-import eu.domibus.api.pmode.PModeService;
 import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.SecurityProfile;
 import eu.domibus.common.ErrorCode;
@@ -341,17 +340,6 @@ public class DynamicDiscoveryPModeProvider extends CachingPModeProvider {
 
         //we add the partyTo in the UserMessage
         addPartyToInUserMessage(userMessage, receiverParty);
-
-
-        //we add the certificate in the Domibus truststore, domain specific
-        Domain currentDomain = domainProvider.getCurrentDomain();
-
-        //save certificate in the truststore using synchronisation
-        boolean added = multiDomainCertificateProvider.addCertificate(currentDomain, x509Certificate, certificateCn, true);
-        if (added) {
-            LOG.info("Added public certificate with alias [{}] to the truststore for domain [{}]: [{}] ", certificateCn, currentDomain, x509Certificate);
-        }
-
 
         //update party in the Pmode with the latest discovered values; synchronized
         final String partyName = receiverParty.getValue();

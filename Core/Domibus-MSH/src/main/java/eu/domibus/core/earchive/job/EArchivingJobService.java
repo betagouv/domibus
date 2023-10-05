@@ -163,7 +163,7 @@ public class EArchivingJobService {
     @Transactional(readOnly = true)
     public long getMaxEntityIdToArchived(EArchiveRequestType eArchiveRequestType) {
         if (eArchiveRequestType == EArchiveRequestType.SANITIZER) {
-            ZonedDateTime dateHour = dateUtil.getDateHour("" + eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage());
+            ZonedDateTime dateHour = ZonedDateTime.ofInstant(new Date(tsidUtil.getDateFromTsid(eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage())).toInstant(), ZoneOffset.UTC);
             return tsidUtil.zonedTimeDateToMaxTsid(dateHour.minusHours(getSanitizerDelay()));
         }
 
