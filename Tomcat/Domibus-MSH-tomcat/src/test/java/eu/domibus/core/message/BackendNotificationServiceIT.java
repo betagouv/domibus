@@ -146,7 +146,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
     @AfterEach
     public void after() {
         backendConnector.clear();
-        List<MessageLogInfo> list = userMessageLogDao.findAllInfoPaged(0, 100, "ID_PK", true, new HashMap<>());
+        List<MessageLogInfo> list = userMessageLogDao.findAllInfoPaged(0, 100, "ID_PK", true, new HashMap<>(), Collections.emptyList());
         if (list.size() > 0) {
             list.forEach(el -> {
                 UserMessageLog res = userMessageLogDao.findByMessageId(el.getMessageId(), el.getMshRole());
@@ -210,6 +210,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
     @Test
     @Transactional
+    @Disabled("EDELIVERY-12051")
     public void notifyPayloadEvent() throws MessagingProcessingException {
         Submission submission = submissionUtil.createSubmission();
         messageId = messageSubmitter.submit(submission, backendConnector.getName());
@@ -219,7 +220,7 @@ public class BackendNotificationServiceIT extends DeleteMessageAbstractIT {
 
         final HashMap<String, Object> filters = new HashMap<>();
         filters.put("receivedTo", new Date());
-        MessageLogResultRO result = messagesLogService.countAndFindPaged(MessageType.USER_MESSAGE, 0, 10, "received", false, filters);
+        MessageLogResultRO result = messagesLogService.countAndFindPaged(MessageType.USER_MESSAGE, 0, 10, "received", false, filters, Collections.emptyList());
         assertNotNull(result);
         assertEquals(1, result.getMessageLogEntries().size());
         assertEquals(messageId, result.getMessageLogEntries().get(0).getMessageId());

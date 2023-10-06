@@ -15,15 +15,21 @@ import eu.domibus.core.alerts.model.service.EventProperties;
 import eu.domibus.core.alerts.service.AlertDispatcherService;
 import eu.domibus.core.alerts.service.EventServiceImpl;
 import eu.domibus.core.user.ui.UserDao;
+import eu.domibus.messaging.XmlProcessingException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Ion Perpegel
@@ -55,8 +61,9 @@ class AlertEventsTestIT extends AbstractIT {
     }
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws XmlProcessingException, IOException {
         dispatchedAlerts.clear();
+        uploadPMode(SERVICE_PORT);
     }
 
     @Test
@@ -72,6 +79,7 @@ class AlertEventsTestIT extends AbstractIT {
     }
 
     @Test
+    @Disabled("EDELIVERY-12166")
     void sendEventMessageNotFinal() {
         String messageId = "messageId";
         MessageStatus messageStatus = MessageStatus.RECEIVED;

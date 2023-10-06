@@ -9,7 +9,6 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.pmode.PModeEventListener;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
-import eu.domibus.api.property.DomibusPropertyMetadataManagerSPI;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.common.model.configuration.Process;
 import eu.domibus.common.model.configuration.*;
@@ -27,7 +26,6 @@ import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.plugin.ProcessingType;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -445,7 +443,7 @@ public class CachingPModeProvider extends PModeProvider {
      * @param legFilterCriteria
      * @return Set of {@link LegConfiguration} having no mismatch errors.
      */
-    protected  Set<LegConfiguration> filterMatchingLegConfigurations(List<Process> matchingProcessesList, LegFilterCriteria legFilterCriteria) {
+    protected Set<LegConfiguration> filterMatchingLegConfigurations(List<Process> matchingProcessesList, LegFilterCriteria legFilterCriteria) {
         Set<LegConfiguration> candidateLegs = new LinkedHashSet<>();
         Set<String> mismatchedMpcs = new HashSet<>();
         boolean foundMatchedMpc = false;
@@ -845,7 +843,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public int getRetentionDownloadedByMpcURI(final String mpcURI) {
         Optional<Mpc> mpc = findMpcByQualifiedName(mpcURI);
-        if (mpc.isPresent()){
+        if (mpc.isPresent()) {
             return mpc.get().getRetentionDownloaded();
         }
 
@@ -870,7 +868,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public int getRetentionUndownloadedByMpcURI(final String mpcURI) {
         Optional<Mpc> mpc = findMpcByQualifiedName(mpcURI);
-        if (mpc.isPresent()){
+        if (mpc.isPresent()) {
             return mpc.get().getRetentionUndownloaded();
         }
 
@@ -882,7 +880,7 @@ public class CachingPModeProvider extends PModeProvider {
     @Override
     public int getRetentionSentByMpcURI(final String mpcURI) {
         Optional<Mpc> mpc = findMpcByQualifiedName(mpcURI);
-        if (mpc.isPresent()){
+        if (mpc.isPresent()) {
             return mpc.get().getRetentionSent();
         }
 
@@ -891,9 +889,9 @@ public class CachingPModeProvider extends PModeProvider {
         return -1;
     }
 
-    public int getMetadataRetentionOffsetByMpcURI(String mpcURI){
+    public int getMetadataRetentionOffsetByMpcURI(String mpcURI) {
         Optional<Mpc> mpc = findMpcByQualifiedName(mpcURI);
-        if (mpc.isPresent()){
+        if (mpc.isPresent()) {
             return mpc.get().getMetadataRetentionOffset();
         }
 
@@ -904,7 +902,7 @@ public class CachingPModeProvider extends PModeProvider {
 
     private Optional<Mpc> findMpcByQualifiedName(String mpcURI) {
         Set<Mpc> mpcSet = getConfiguration().getMpcs();
-        if(CollectionUtils.isNotEmpty(mpcSet)){
+        if (CollectionUtils.isNotEmpty(mpcSet)) {
             return mpcSet.stream()
                     .filter(mpc -> equalsIgnoreCase(mpc.getQualifiedName(), mpcURI))
                     .findFirst();
@@ -1134,7 +1132,7 @@ public class CachingPModeProvider extends PModeProvider {
         for (Process process : processes) {
             for (LegConfiguration legConfiguration : process.getLegs()) {
                 LOG.trace("Find Party in leg [{}]", legConfiguration.getName());
-                if (legConfiguration.getService()!= null && equalsIgnoreCase(legConfiguration.getService().getValue(), service)
+                if (legConfiguration.getService() != null && equalsIgnoreCase(legConfiguration.getService().getValue(), service)
                         && legConfiguration.getAction() != null && equalsIgnoreCase(legConfiguration.getAction().getValue(), action)) {
                     result.addAll(getProcessPartiesId(process, getCorrespondingPartiesFn));
                 }

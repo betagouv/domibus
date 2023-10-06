@@ -1,7 +1,9 @@
 package eu.domibus.core.util;
 
 import eu.domibus.api.exceptions.RequestValidationException;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import mockit.Expectations;
+import mockit.Injectable;
 import mockit.Mocked;
 import mockit.Tested;
 import org.junit.jupiter.api.Assertions;
@@ -18,6 +20,9 @@ public class MultiPartFileUtilImplTest {
 
     @Tested
     MultiPartFileUtilImpl multiPartFileUtil;
+
+    @Injectable
+    DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
     void sanitiseFileUpload_empty(final @Mocked MultipartFile file) {

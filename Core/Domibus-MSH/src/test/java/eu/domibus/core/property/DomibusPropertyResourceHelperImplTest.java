@@ -89,7 +89,7 @@ public class DomibusPropertyResourceHelperImplTest {
 
     @Test
     public void getAllWritableProperties() {
-        String name = "domibus.UI";
+        String name = "domibus.ui";
         String testValue = "My Domibus value";
         Boolean showDomain = true;
 
@@ -231,7 +231,7 @@ public class DomibusPropertyResourceHelperImplTest {
 
     @Test
     public void filterProperties() {
-        String name = "domibus.UI";
+        String name = "domibus.ui";
         Boolean showDomain = true;
 
         DomibusPropertiesFilter filter = new DomibusPropertiesFilter();
@@ -252,7 +252,7 @@ public class DomibusPropertyResourceHelperImplTest {
 
     @Test
     public void filterPropertiesSingleTenancy() {
-        String name = "domibus.UI";
+        String name = "domibus.ui";
         Boolean showDomain = false;
 
         DomibusPropertiesFilter filter = new DomibusPropertiesFilter();

@@ -51,31 +51,6 @@ public class MessageLogResourceNonParameterizedTest {
     RequestFilterUtils requestFilterUtils;
 
     @Test
-    public void getCsv_fourCornersModeEnabled(@Injectable MessageLogFilterRequestRO messageLogFilter) {
-        // GIVEN
-        new Expectations(messageLogResource) {{
-            requestFilterUtils.createFilterMap(messageLogFilter);
-            result = createFilterMap();
-            domibusConfigurationService.isFourCornerEnabled();
-            result = true;
-            messageLogResource.exportToCSV((List<?>) any, (Class<?>) any, (Map<String, String>) any, (List<String>) any, anyString);
-            result = any;
-        }};
-
-        // WHEN
-        messageLogResource.getCsv(messageLogFilter);
-
-        // THEN
-        new Verifications() {{
-            List<String> excludedColumns;
-            messageLogResource.exportToCSV((List<?>) any, (Class<?>) any, (Map<String, String>) any, excludedColumns = withCapture(), anyString);
-
-            Assertions.assertTrue(excludedColumns.stream().allMatch(excludedColumn -> !Sets.newHashSet("originalSender", "finalRecipient").contains(excludedColumn)),
-                    "Should have not excluded the Original Sender and the Final Recipient columns when the four corners mode is enabled");
-        }};
-    }
-
-    @Test
     public void getCsv_fourCornersModeDisabled(@Injectable MessageLogFilterRequestRO messageLogFilter) {
 
         HashMap<Object, Object> objectObjectHashMap = new HashMap<>();
@@ -83,8 +58,6 @@ public class MessageLogResourceNonParameterizedTest {
         new Expectations(messageLogResource) {{
             requestFilterUtils.createFilterMap(messageLogFilter);
             result = createFilterMap();
-            domibusConfigurationService.isFourCornerEnabled();
-            result = false;
             messageLogResource.exportToCSV((List<?>) any, (Class<?>) any, (Map<String, String>) any, (List<String>) any, anyString);
             result = any;
         }};

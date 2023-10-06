@@ -2,13 +2,14 @@ package eu.domibus.core.util;
 
 import mockit.Tested;
 import mockit.integration.junit5.JMockitExtension;
-import org.junit.Assert;
+import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.*;
 import java.util.Date;
 import java.util.TimeZone;
@@ -145,6 +146,28 @@ public class DateUtilImplTest {
     public void getIdPkDateHour() {
         LocalDateTime idPkDateHour = dateUtilImpl.getLocalDateTimeFromDateWithHour(22010110L);
         final LocalDateTime expectedLocalDateTime = LocalDateTime.of(2022, 1, 1, 10, 0, 0);
-        Assert.assertEquals(expectedLocalDateTime, idPkDateHour);
+        Assertions.assertEquals(expectedLocalDateTime, idPkDateHour);
+    }
+
+
+    @Test
+    public void getIdPkDateHourPrefixTest() {
+        String DATETIME_FORMAT_DEFAULT = "yyMMddHH";
+        final SimpleDateFormat sdf = new SimpleDateFormat(DATETIME_FORMAT_DEFAULT);
+        sdf.setTimeZone(TimeZone.getTimeZone("EST"));
+
+        Date currentDate = dateUtilImpl.getUtcDate();
+        Date newDate = DateUtils.addMinutes(currentDate, 10);
+        Integer partitionNameEES = new Integer(sdf.format(newDate).substring(0, 8));
+
+        Integer partitionNameUTC = new Integer(dateUtilImpl.getIdPkDateHourPrefix(currentDate));
+
+        Assertions.assertTrue(partitionNameUTC - partitionNameEES > 0);
+    }
+
+    @Test
+    public void getDateHour() {
+        ZonedDateTime dateHour = dateUtilImpl.getDateHour("230918200000000000");
+        Assertions.assertEquals(ZonedDateTime.of(LocalDateTime.of(2023, 9, 18, 20, 0), ZoneOffset.UTC), dateHour);
     }
 }

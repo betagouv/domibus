@@ -8,6 +8,7 @@ import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
+import eu.domibus.api.pmode.PModeEventListener;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.security.X509CertificateService;
 import eu.domibus.api.util.xml.UnmarshallerResult;

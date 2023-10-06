@@ -1,8 +1,9 @@
 package eu.domibus.core.multitenancy;
 
 import eu.domibus.api.multitenancy.*;
-import eu.domibus.api.multitenancy.lock.SynchronizationService;
+import eu.domibus.api.multitenancy.lock.DBClusterSynchronizedRunnable;
 import eu.domibus.api.multitenancy.lock.DbClusterSynchronizedRunnableFactory;
+import eu.domibus.api.multitenancy.lock.SynchronizationService;
 import eu.domibus.api.property.DomibusConfigurationService;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -83,6 +84,23 @@ public class DomainTaskExecutorImpl implements DomainTaskExecutor {
         LOG.trace("Submitting task, waitForTask [{}]", waitForTask);
         final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, task);
         return submitRunnable(schedulingTaskExecutor, clearDomainRunnable, waitForTask, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void submit(Runnable task, Runnable errorHandler, String lockKey) {
+        submit(task, errorHandler, lockKey, true, DEFAULT_WAIT_TIMEOUT_IN_SECONDS, TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void submit(Runnable task, Runnable errorHandler, String lockKey, boolean waitForTask, Long timeout, TimeUnit timeUnit) {
+        LOG.trace("Submitting task with lock file [{}], timeout [{}] expressed in unit [{}]", lockKey, timeout, timeUnit);
+
+        DBClusterSynchronizedRunnable DBClusterSynchronizedRunnable = dbClusterSynchronizedRunnableFactory.synchronizedRunnable(task, lockKey);
+
+        SetMDCContextTaskRunnable setMDCContextTaskRunnable = new SetMDCContextTaskRunnable((Runnable) DBClusterSynchronizedRunnable, errorHandler);
+        final ClearDomainRunnable clearDomainRunnable = new ClearDomainRunnable(domainContextProvider, (Runnable) setMDCContextTaskRunnable);
+
+        submitRunnable(schedulingTaskExecutor, clearDomainRunnable, errorHandler, waitForTask, timeout, timeUnit);
     }
 
     @Override

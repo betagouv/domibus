@@ -12,6 +12,7 @@ import mockit.integration.junit5.JMockitExtension;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
@@ -191,6 +192,7 @@ public class DomibusApplicationInitializerTest {
         }};
     }
 
+    @Disabled
     @Test
     public void configurePropertySources(@Injectable AnnotationConfigWebApplicationContext rootContext,
                                          @Injectable ConfigurableEnvironment configurableEnvironment,

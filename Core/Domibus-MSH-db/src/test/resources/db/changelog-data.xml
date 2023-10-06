@@ -244,4 +244,5 @@
             <column name="LOCK_KEY" value="keystore-synchronization.lock"/>
         </insert>
     </changeSet>
+
 </databaseChangeLog>

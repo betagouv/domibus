@@ -18,10 +18,10 @@ import eu.domibus.core.crypto.spi.model.AuthorizationException;
 import eu.domibus.core.crypto.spi.model.UserMessagePmodeData;
 import eu.domibus.core.message.MessageExchangeService;
 import eu.domibus.core.message.pull.PullContext;
-import eu.domibus.core.pki.PKIUtil;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.util.RegexUtilImpl;
 import eu.domibus.ext.domain.SecurityProfileDTO;
+import eu.domibus.test.common.PKIUtil;
 import mockit.*;
 import mockit.integration.junit5.JMockitExtension;
 import org.hamcrest.CoreMatchers;
@@ -37,7 +37,7 @@ import java.util.Set;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
-import static eu.domibus.core.pki.PKIUtil.*;
+import static eu.domibus.test.common.PKIUtil.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 

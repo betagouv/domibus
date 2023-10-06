@@ -5,6 +5,7 @@ import eu.domibus.api.earchive.*;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.payload.PartInfoService;
 import eu.domibus.api.property.DomibusPropertyProvider;
+import eu.domibus.api.util.DateUtil;
 import eu.domibus.api.util.TsidUtil;
 import eu.domibus.common.model.configuration.LegConfiguration;
 import eu.domibus.core.earchive.*;
@@ -25,7 +26,6 @@ import java.time.ZonedDateTime;
 import java.util.*;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
-import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
@@ -53,12 +53,22 @@ public class EArchivingJobService {
     private final UserMessageLogDao userMessageLogDao;
 
     private final EArchivingEventService eArchivingEventService;
+    private final DateUtil dateUtil;
 
     private final PartInfoService partInfoService;
-
     protected TsidUtil tsidUtil;
 
-    public EArchivingJobService(EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao, DomibusPropertyProvider domibusPropertyProvider, PModeProvider pModeProvider, EArchiveBatchDao eArchiveBatchDao, EArchiveBatchStartDao eArchiveBatchStartDao, NoArgGenerator uuidGenerator, UserMessageLogDao userMessageLogDao, EArchivingEventService eArchivingEventService, PartInfoService partInfoService, TsidUtil tsidUtil) {
+    public EArchivingJobService(EArchiveBatchUserMessageDao eArchiveBatchUserMessageDao,
+                                DomibusPropertyProvider domibusPropertyProvider,
+                                PModeProvider pModeProvider,
+                                EArchiveBatchDao eArchiveBatchDao,
+                                EArchiveBatchStartDao eArchiveBatchStartDao,
+                                NoArgGenerator uuidGenerator,
+                                UserMessageLogDao userMessageLogDao,
+                                EArchivingEventService eArchivingEventService,
+                                PartInfoService partInfoService,
+                                DateUtil dateUtil,
+                                TsidUtil tsidUtil) {
         this.eArchiveBatchUserMessageDao = eArchiveBatchUserMessageDao;
         this.domibusPropertyProvider = domibusPropertyProvider;
         this.pModeProvider = pModeProvider;
@@ -68,6 +78,7 @@ public class EArchivingJobService {
         this.userMessageLogDao = userMessageLogDao;
         this.eArchivingEventService = eArchivingEventService;
         this.partInfoService = partInfoService;
+        this.dateUtil = dateUtil;
         this.tsidUtil = tsidUtil;
     }
 
@@ -152,7 +163,8 @@ public class EArchivingJobService {
     @Transactional(readOnly = true)
     public long getMaxEntityIdToArchived(EArchiveRequestType eArchiveRequestType) {
         if (eArchiveRequestType == EArchiveRequestType.SANITIZER) {
-            return eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage();
+            ZonedDateTime dateHour = ZonedDateTime.ofInstant(new Date(tsidUtil.getDateFromTsid(eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage())).toInstant(), ZoneOffset.UTC);
+            return tsidUtil.zonedTimeDateToMaxTsid(dateHour.minusHours(getSanitizerDelay()));
         }
 
         return tsidUtil.zonedTimeDateToMaxTsid(ZonedDateTime
@@ -173,6 +185,15 @@ public class EArchivingJobService {
         }
         long hours = retryTimeOut / 60L;
         return (hours + 1) * 60;
+    }
+
+    protected long getSanitizerDelay() {
+        Long delay = domibusPropertyProvider.getLongProperty(DOMIBUS_EARCHIVE_SANITY_DELAY);
+        if (delay == null) {
+            LOG.debug("No value found for [{}]. Use no further delay", DOMIBUS_EARCHIVE_SANITY_DELAY);
+            return 0L;
+        }
+        return delay;
     }
 
     protected long getRetryTimeOut() {

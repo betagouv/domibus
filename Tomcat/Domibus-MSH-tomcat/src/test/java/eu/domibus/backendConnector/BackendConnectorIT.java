@@ -31,10 +31,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPMessage;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static eu.domibus.backendConnector.TestFSPluginMock.TEST_FS_PLUGIN;
 import static eu.domibus.backendConnector.TestFSPluginPropertyManager.TEST_FSPLUGIN_DOMAIN_ENABLED;
@@ -124,7 +121,7 @@ public class BackendConnectorIT extends DeleteMessageAbstractIT {
 
     @AfterEach
     public void after() {
-        List<MessageLogInfo> list = userMessageLogDao.findAllInfoPaged(0, 100, "ID_PK", true, new HashMap<>());
+        List<MessageLogInfo> list = userMessageLogDao.findAllInfoPaged(0, 100, "ID_PK", true, new HashMap<>(), new ArrayList<>());
         list.forEach(el -> {
             UserMessageLog res = userMessageLogDao.findByMessageId(el.getMessageId(), el.getMshRole());
             userMessageLogDao.deleteMessageLogs(Arrays.asList(res.getEntityId()));

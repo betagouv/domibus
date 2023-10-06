@@ -1,8 +1,8 @@
 package eu.domibus.core.message;
 
 import com.google.common.collect.ImmutableMap;
-import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.TsidUtil;
+import eu.domibus.core.message.dictionary.*;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -31,7 +31,22 @@ public class MessageLogInfoFilterTest {
     TsidUtil tsidUtil;
 
     @Injectable
-    private DomibusPropertyProvider domibusProperties;
+    ServiceDao serviceDao;
+
+    @Injectable
+    PartyIdDao partyIdDao;
+
+    @Injectable
+    private MessageStatusDao messageStatusDao;
+
+    @Injectable
+    private MshRoleDao mshRoleDao;
+
+    @Injectable
+    private NotificationStatusDao notificationStatusDao;
+
+    @Injectable
+    private ActionDao actionDao;
 
     public static HashMap<String, Object> returnFilters() {
         HashMap<String, Object> filters = new HashMap<>();
@@ -60,12 +75,12 @@ public class MessageLogInfoFilterTest {
 
     @Test
     public void testGetHQLKeyMessageStatus() {
-        Assertions.assertEquals("log.messageStatus.messageStatus", messageLogInfoFilter.getHQLKey("messageStatus"));
+        Assertions.assertEquals("log.messageStatus", messageLogInfoFilter.getHQLKey("messageStatus"));
     }
 
     @Test
     public void testGetHQLKeyFromPartyId() {
-        Assertions.assertEquals("partyFrom.value", messageLogInfoFilter.getHQLKey("fromPartyId"));
+        Assertions.assertEquals("message.partyInfo.from.fromPartyId", messageLogInfoFilter.getHQLKey("fromPartyId"));
     }
 
     @Test
@@ -73,8 +88,8 @@ public class MessageLogInfoFilterTest {
         StringBuilder filterQuery = messageLogInfoFilter.filterQuery("select * from table where z = 1", "messageStatus", false, returnFilters());
 
         String filterQueryString = filterQuery.toString();
-        Assertions.assertTrue(filterQueryString.contains("log.notificationStatus.status = :notificationStatus"));
-        Assertions.assertTrue(filterQueryString.contains("partyFrom.value = :fromPartyId"));
+        Assertions.assertTrue(filterQueryString.contains("log.notificationStatus = :notificationStatus"));
+        Assertions.assertTrue(filterQueryString.contains("message.partyInfo.from.fromPartyId IN :fromPartyId"));
         Assertions.assertTrue(filterQueryString.contains("log.sendAttemptsMax = :sendAttemptsMax"));
         Assertions.assertTrue(filterQueryString.contains("propsFrom.value = :originalSender"));
         Assertions.assertTrue(filterQueryString.contains("log.received <= :receivedTo"));
@@ -84,13 +99,13 @@ public class MessageLogInfoFilterTest {
         Assertions.assertTrue(filterQueryString.contains("log.sendAttempts = :sendAttempts"));
         Assertions.assertTrue(filterQueryString.contains("propsTo.value = :finalRecipient"));
         Assertions.assertTrue(filterQueryString.contains("log.nextAttempt = :nextAttempt"));
-        Assertions.assertTrue(filterQueryString.contains("log.messageStatus.messageStatus = :messageStatus"));
+        Assertions.assertTrue(filterQueryString.contains("log.messageStatus = :messageStatus"));
         Assertions.assertTrue(filterQueryString.contains("log.deleted = :deleted"));
         Assertions.assertTrue(filterQueryString.contains("log.received >= :receivedFrom"));
-        Assertions.assertTrue(filterQueryString.contains("partyTo.value = :toPartyId"));
-        Assertions.assertTrue(filterQueryString.contains("log.mshRole.role = :mshRole"));
+        Assertions.assertTrue(filterQueryString.contains("message.partyInfo.to.toPartyId IN :toPartyId"));
+        Assertions.assertTrue(filterQueryString.contains("log.mshRole = :mshRole"));
 
-        Assertions.assertTrue(filterQueryString.contains("log.messageStatus.messageStatus desc"));
+        Assertions.assertTrue(filterQueryString.contains("log.messageStatus desc"));
     }
 
     @Test
@@ -98,8 +113,8 @@ public class MessageLogInfoFilterTest {
         StringBuilder filterQuery = messageLogInfoFilter.filterQuery("select * from table where z = 1", "messageStatus", true, returnFilters());
 
         String filterQueryString = filterQuery.toString();
-        Assertions.assertTrue(filterQueryString.contains("log.notificationStatus.status = :notificationStatus"));
-        Assertions.assertTrue(filterQueryString.contains("partyFrom.value = :fromPartyId"));
+        Assertions.assertTrue(filterQueryString.contains("log.notificationStatus = :notificationStatus"));
+        Assertions.assertTrue(filterQueryString.contains("message.partyInfo.from.fromPartyId IN :fromPartyId"));
         Assertions.assertTrue(filterQueryString.contains("log.sendAttemptsMax = :sendAttemptsMax"));
         Assertions.assertTrue(filterQueryString.contains("propsFrom.value = :originalSender"));
         Assertions.assertTrue(filterQueryString.contains("log.received <= :receivedTo"));
@@ -109,13 +124,13 @@ public class MessageLogInfoFilterTest {
         Assertions.assertTrue(filterQueryString.contains("log.sendAttempts = :sendAttempts"));
         Assertions.assertTrue(filterQueryString.contains("propsTo.value = :finalRecipient"));
         Assertions.assertTrue(filterQueryString.contains("log.nextAttempt = :nextAttempt"));
-        Assertions.assertTrue(filterQueryString.contains("log.messageStatus.messageStatus = :messageStatus"));
+        Assertions.assertTrue(filterQueryString.contains("log.messageStatus = :messageStatus"));
         Assertions.assertTrue(filterQueryString.contains("log.deleted = :deleted"));
         Assertions.assertTrue(filterQueryString.contains("log.received >= :receivedFrom"));
-        Assertions.assertTrue(filterQueryString.contains("partyTo.value = :toPartyId"));
-        Assertions.assertTrue(filterQueryString.contains("log.mshRole.role = :mshRole"));
+        Assertions.assertTrue(filterQueryString.contains("message.partyInfo.to.toPartyId IN :toPartyId"));
+        Assertions.assertTrue(filterQueryString.contains("log.mshRole = :mshRole"));
 
-        Assertions.assertTrue(filterQueryString.contains("log.messageStatus.messageStatus asc"));
+        Assertions.assertTrue(filterQueryString.contains("log.messageStatus asc"));
     }
 
     @Test
@@ -238,11 +253,10 @@ public class MessageLogInfoFilterTest {
         String mainTable = "UserMessageLog log ";
 
         String messageTable = ", UserMessage message left join log.messageInfo info ";
-        String partyFromTable = "left join message.partyInfo.from.fromPartyId partyFrom ";
         Map<String, List<String>> mappings = ImmutableMap.of(
                 "message", Collections.singletonList(messageTable),
                 "info", Collections.singletonList(messageTable),
-                "partyFrom", Arrays.asList(messageTable, partyFromTable));
+                "partyFrom", Arrays.asList(messageTable));
 
         new Expectations(messageLogInfoFilter) {{
             messageLogInfoFilter.createFromMappings();
@@ -254,7 +268,6 @@ public class MessageLogInfoFilterTest {
         StringBuilder result = messageLogInfoFilter.createFromClause(filters);
         Assertions.assertTrue(result.toString().contains(mainTable));
         Assertions.assertTrue(result.toString().contains(messageTable));
-        Assertions.assertTrue(result.toString().contains(partyFromTable));
     }
 
     @Test

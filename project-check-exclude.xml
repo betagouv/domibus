@@ -35,6 +35,38 @@
 
     <suppress>
         <notes><![CDATA[
+   file name: guava-31.1-jre.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
+        <!-- we don't use com.google.common.io.createTempDir com.google.common.io.FileBackedOutputStream-->
+        <cve>CVE-2023-2976</cve>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-session-core-2.6.3.jar
+   ]]></notes>
+        <!--
+        the features reported with vulnerabilities are not directly used in the project
+        -->
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.session/spring\-session\-core@.*$</packageUrl>
+        <cpe>cpe:/a:vmware:spring_framework</cpe>
+    </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-session-jdbc-2.6.3.jar
+   ]]></notes>
+        <!--
+        the features reported with vulnerabilities are not directly used in the project
+        -->
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.session/spring\-session\-jdbc@.*$</packageUrl>
+        <cpe>cpe:/a:vmware:spring_framework</cpe>
+    </suppress>
+
+    <!-- test modules exclusions start here -->
+    <suppress>
+        <notes><![CDATA[
    file name: tomcat-embed-xxx-yyy.jar
    ]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-.*@.*$</packageUrl>
@@ -95,6 +127,15 @@
         <cve>CVE-2023-41900</cve>
     </suppress>
     <suppress>
+        <!-- jetty-server is not used in production - used in tests -->
+        <notes><![CDATA[
+   file name: jetty-server-9.2.28.v20190418.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-.*$</packageUrl>
+        <cve>CVE-2023-26048</cve>
+        <cve>CVE-2023-26049</cve>
+    </suppress>
+    <suppress>
         <notes><![CDATA[
    file name: http2-common-11.0.12.jar
    ]]></notes>
@@ -146,6 +187,62 @@
         <!--Used in testing environment-->
         <vulnerabilityName>CVE-2023-20883</vulnerabilityName>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-starter-web-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-web@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-starter-json-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-json@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-starter-tomcat-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-tomcat@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-starter-logging-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-logging@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-starter-validation-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter\-validation@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-boot-starter-2.6.14.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/spring\-boot\-starter@.*$</packageUrl>
+        <!-- Used in testing environment, dependency brought by cxf-spring-boot-starter-jaxws-3.5.5.jar-->
+        <cve>CVE-2023-20883</cve>
+    </suppress>
 
     <suppress>
         <notes><![CDATA[
@@ -164,7 +261,14 @@
         <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
         <cve>CVE-2022-45688</cve>
     </suppress>
-
+    <suppress>
+        <notes><![CDATA[
+   file name: json-smart-2.4.8.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/net\.minidev/json\-smart@.*$</packageUrl>
+        <!--Used in testing environment-->
+        <vulnerabilityName>CVE-2023-1370</vulnerabilityName>
+    </suppress>
     <suppress>
         <notes><![CDATA[
    file name: wiremock-3.0.0-beta-10.jar
@@ -178,8 +282,10 @@
    file name: wiremock-2.27.2.jar: jquery-3.4.1.min.js
    ]]></notes>
         <packageUrl regex="true">^pkg:javascript/jquery@.*$</packageUrl>
+        <!--Used in testing environment-->
         <cve>CVE-2020-11022</cve>
         <cve>CVE-2020-11023</cve>
+        <cve>CVE-2020-23064</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -193,6 +299,7 @@
         <vulnerabilityName>Fixed an mXSS-based bypass caused by nested forms inside MathML</vulnerabilityName>
         <vulnerabilityName>Fixed another bypass causing mXSS by using MathML</vulnerabilityName>
         <vulnerabilityName>Fixed several possible mXSS patterns, thanks @hackvertor</vulnerabilityName>
+        <cve>CVE-2020-26870</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -317,6 +424,14 @@
         <!-- Domibus does not use the XML.toJSONObject component of hutool-json v5.8.10 -->
         <cve>CVE-2022-45688</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: spring-security-core-5.8.1.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-core@.*$</packageUrl>
+        <!--Domibus does not use Spring Webflux-->
+        <cve>CVE-2023-34034</cve>
+    </suppress>
 
     <suppress>
         <!-- snakeyaml is not used in production - used in swagger and tests -->
@@ -378,6 +493,14 @@
         <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-core@.*$</packageUrl>
         <!-- The XML.toJSONObject component of hutool-json is not used by Domibus -->
         <cve>CVE-2022-45688</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: woodstox-core-6.4.0.jar (shaded: com.sun.xml.bind.jaxb:isorelax:20090621)
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.sun\.xml\.bind\.jaxb/isorelax@.*$</packageUrl>
+        <!-- In Domibus we do not run the woodstock XML parser on user supplied input -->
+        <cve>CVE-2023-34411</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[
@@ -516,4 +639,30 @@
         <!-- params are received only from the admin user, no unchecked params are passed in-->
         <cve>CVE-2023-39017</cve>
     </suppress>
+
+    <suppress>
+        <notes><![CDATA[
+   file name: bcprov-jdk15on-1.68.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bcprov\-jdk15on@.*$</packageUrl>
+        <!-- We're not using the affected functionality-->
+        <vulnerabilityName>CVE-2023-33201</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: bcprov-jdk18on-1.72.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.bouncycastle/bcprov\-jdk18on@.*$</packageUrl>
+        <!-- We're not using the affected functionality-->
+        <vulnerabilityName>CVE-2023-33201</vulnerabilityName>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: quartz-2.3.2.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.quartz\-scheduler/quartz@.*$</packageUrl>
+        <!-- params are received only from the admin user, no unchecked params are passed in-->
+        <cve>CVE-2023-39017</cve>
+    </suppress>
+
 </suppressions>

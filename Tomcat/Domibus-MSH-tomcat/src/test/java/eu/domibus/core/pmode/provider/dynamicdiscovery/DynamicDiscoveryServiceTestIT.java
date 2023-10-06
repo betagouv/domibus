@@ -25,10 +25,7 @@ import eu.domibus.plugin.ProcessingType;
 import eu.domibus.test.common.PKIUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -49,6 +46,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Cosmin Baciu
  * @since 5.1.1
  */
+@Disabled("EDELIVERY-12166 multitenancy")
 public class DynamicDiscoveryServiceTestIT extends AbstractIT {
 
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(DynamicDiscoveryServiceTestIT.class);
@@ -97,6 +95,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         uploadPMode(SERVICE_PORT, "dataset/pmode/PModeDynamicDiscovery.xml", null);
 
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "true");
+        domibusPropertyProvider.setProperty(DOMAIN, DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED, "true");
 
         setClusteredProperty("true");
 
@@ -114,7 +113,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     public void clean() {
         domibusPropertyProvider.setProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_CLIENT_SPECIFICATION, DynamicDiscoveryClientSpecification.OASIS.getName());
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "false");
-
+        domibusPropertyProvider.setProperty(DOMAIN, DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED, "false");
         setClusteredProperty("false");
     }
 

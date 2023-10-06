@@ -1,6 +1,7 @@
 package eu.domibus.core.plugin.handler;
 
 import eu.domibus.api.message.UserMessageSecurityService;
+import eu.domibus.api.messaging.DuplicateMessageFoundException;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.model.UserMessageLog;
@@ -20,6 +21,7 @@ import mockit.Tested;
 import mockit.Verifications;
 import mockit.integration.junit5.JMockitExtension;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.ApplicationEventPublisher;
@@ -124,6 +126,25 @@ public class MessageRetrieverImplTest {
             errorLogService.convert(errorLogEntry);
             times = 1;
             Assertions.assertNotNull(results);
+        }};
+
+    }
+
+    @Test
+    @Disabled("EDELIVERY-12166")
+    public void testGetErrorsForMessageOk_Exception(@Injectable ErrorLogEntry errorLogEntry, @Injectable UserMessageLog userMessageLog) {
+        List<ErrorLogEntry> list = new ArrayList<>();
+        list.add(errorLogEntry);
+        new Expectations() {{
+            userMessageLogService.findByMessageId(MESS_ID);
+            result = new DuplicateMessageFoundException(MESS_ID);
+        }};
+
+        Assertions.assertThrows(DuplicateMessageException.class, () -> messageRetriever.getErrorsForMessage(MESS_ID));
+
+        new Verifications() {{
+            errorLogService.convert(errorLogEntry);
+            times = 0;
         }};
 
     }

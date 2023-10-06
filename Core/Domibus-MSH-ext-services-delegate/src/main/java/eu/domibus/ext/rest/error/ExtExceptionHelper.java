@@ -3,6 +3,7 @@ package eu.domibus.ext.rest.error;
 import eu.domibus.api.crypto.SameResourceCryptoException;
 import eu.domibus.api.exceptions.DomibusCoreErrorCode;
 import eu.domibus.api.exceptions.DomibusCoreException;
+import eu.domibus.api.exceptions.RequestValidationException;
 import eu.domibus.api.pki.DomibusCertificateException;
 import eu.domibus.api.pmode.PModeValidationException;
 import eu.domibus.api.pmode.ValidationIssue;
@@ -96,6 +97,10 @@ public class ExtExceptionHelper {
     public ResponseEntity<ErrorDTO> handleExtException(AccessDeniedException accessDeniedException) {
         LOG.error("Access denied due to incorrect role:", accessDeniedException);
         return createResponse(accessDeniedException.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    public ResponseEntity<ErrorDTO>handleExtException(RequestValidationException requestValidationException){
+        return createResponse(requestValidationException.getMessage(),HttpStatus.BAD_REQUEST);
     }
 
     public ResponseEntity<ErrorDTO> handleExtException(AuthenticationException authenticationException) {
