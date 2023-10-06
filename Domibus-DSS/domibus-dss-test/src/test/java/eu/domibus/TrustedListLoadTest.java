@@ -38,6 +38,7 @@ import eu.europa.esig.dss.tsl.sync.TrustedListCertificateSourceSynchronizer;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +55,7 @@ import java.util.stream.Collectors;
  * @author Thomas Dussart
  * @since 4.2
  */
+@Disabled("EDELIVERY-12166 bamboo plan stuck")
 public class TrustedListLoadTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(TrustedListLoadTest.class);
