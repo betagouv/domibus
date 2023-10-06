@@ -291,7 +291,7 @@
                     <!-- delta 5.1 to 5.2 ends here -->
 
                     <!-- partitioning starts here -->
-                    <!-- 5.1 starts here -->
+                    <!-- Current Project Version starts here -->
                     <execution>
                         <id>generate-oracle-script-partitioning-5.1</id>
                         <phase>generate-resources</phase>
@@ -310,11 +310,11 @@
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
-                    <!-- 5.1 end here -->
+                    <!-- Current Project Version end here -->
 
                     <!-- partitioning ends here -->
 
-                    <!-- 5.1 starts here -->
+                    <!-- Current project version starts here -->
                     <execution>
                         <id>generate-mysql-script-data</id>
                         <phase>generate-resources</phase>
@@ -459,7 +459,7 @@
                             </migrationSqlOutputFile>
                         </configuration>
                     </execution>
-                    <!-- 5.1 ends here -->
+                    <!-- Current Project Version ends here -->
 
                     <!-- partitioning delta from 5.0.5 to 5.0.6 starts here -->
                     <execution>
