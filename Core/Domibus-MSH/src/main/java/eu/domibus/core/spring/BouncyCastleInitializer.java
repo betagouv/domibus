@@ -28,8 +28,10 @@ public class BouncyCastleInitializer {
     public void registerBouncyCastle() {
         LOG.info("Registering the Bouncy Castle provider as the third highest preferred security provider");
         try {
-            //fix to overcome the problem of multiple Bouncy Castle libraries loaded by other modules
-            Security.removeProvider("BC");
+            //fix to overcome the problem of multiple loaded Bouncy Castle libraries
+            if(Security.getProvider("BC") != null) {
+                Security.removeProvider("BC");
+            }
             Security.insertProviderAt(new BouncyCastleProvider(), HIGHEST_RECOMMENDED_POSITION_IN_ORDER_OF_PREFERENCES);
             LOG.debug("Security providers in order of preferences [{}]", Arrays.toString(Security.getProviders()));
         } catch (SecurityException e) {
