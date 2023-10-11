@@ -8,10 +8,10 @@ package eu.domibus.api.pki;
  */
 public enum CertificateAlgoType {
     RSA("RSA"),
-    X25519("1.3.101.110"),
-    X448("1.3.101.111"),
-    ED25519("1.3.101.112"),
-    ED448("1.3.101.113");
+    X25519("1.3.101.110"),//NOSONAR
+    X448("1.3.101.111"),//NOSONAR
+    ED25519("1.3.101.112"),//NOSONAR
+    ED448("1.3.101.113");//NOSONAR
 
     private final String certificateAlgoType;
 
