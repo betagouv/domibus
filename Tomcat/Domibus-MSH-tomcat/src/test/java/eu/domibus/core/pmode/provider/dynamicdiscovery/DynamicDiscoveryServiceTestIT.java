@@ -101,7 +101,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
     }
 
     private void initializePmodeAndProperties(String pmodeFilePath) throws XmlProcessingException, IOException {
-        uploadPmode(SERVICE_PORT, pmodeFilePath, null);
+        uploadPMode(SERVICE_PORT, pmodeFilePath, null);
 
         domibusPropertyProvider.setProperty(DOMAIN, DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY, "true");
         domibusPropertyProvider.setProperty(DOMAIN, DomibusPropertyMetadataManagerSPI.DOMIBUS_DEPLOYMENT_CLUSTERED, "true");
@@ -422,8 +422,8 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         assertNotNull(userMessageExchangeContext);
     }
 
-    @Test(expected = AuthenticationException.class)
-    public void c1SubmitsMessageToPartyWithExpiredCertificate() throws EbMS3Exception, XmlProcessingException, IOException {
+    @Test
+    public void c1SubmitsMessageToPartyWithExpiredCertificate() throws XmlProcessingException, IOException {
         initializePmodeAndProperties(DYNAMIC_DISCOVERY_PMODE_WITH_SIGN_AND_ENCRYPTION);
 
         //clean up
@@ -432,7 +432,7 @@ public class DynamicDiscoveryServiceTestIT extends AbstractIT {
         final UserMessage userMessage = buildUserMessage(FINAL_RECIPIENT4);
         //it triggers dynamic discovery lookup in SMP  because toParty is empty
         //it throws an exception because the discovered certificate is expired
-        Assertions.assertThrows(AuthenticationException. class,() -> multiDomainPModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PUSH));
+        Assertions.assertThrows(AuthenticationException.class, () -> multiDomainPModeProvider.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, ProcessingType.PUSH));
     }
 
     @Test

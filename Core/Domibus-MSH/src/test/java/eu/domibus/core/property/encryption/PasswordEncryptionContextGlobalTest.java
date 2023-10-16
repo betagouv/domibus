@@ -18,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.io.File;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION;
-import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -26,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @since 4.1.1
  */
 @ExtendWith(JMockitExtension.class)
-public class PasswordEncryptionContextDefaultTest {
+public class PasswordEncryptionContextGlobalTest {
 
     @Injectable
     private DomibusPropertyProvider domibusPropertyProvider;
@@ -53,7 +52,7 @@ public class PasswordEncryptionContextDefaultTest {
             result = true;
         }};
 
-        Assertions.assertTrue(passwordEncryptionContextDefault.isPasswordEncryptionActive());
+        Assertions.assertTrue(passwordEncryptionContextGlobal.isPasswordEncryptionActive());
     }
 
     @Test
@@ -75,7 +74,7 @@ public class PasswordEncryptionContextDefaultTest {
             result = myConfFile;
         }};
 
-        Assertions.assertEquals(myConfFile, passwordEncryptionContextDefault.getConfigurationFileName());
+        Assertions.assertEquals(myConfFile, passwordEncryptionContextGlobal.getConfigurationFileName());
     }
 
     @Test
