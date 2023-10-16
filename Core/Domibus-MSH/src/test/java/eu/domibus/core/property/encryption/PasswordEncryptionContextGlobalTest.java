@@ -16,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_PASSWORD_ENCRYPTION_PROPERTIES;
@@ -46,7 +44,7 @@ public class PasswordEncryptionContextDefaultTest {
     private GlobalPropertyMetadataManager globalPropertyMetadataManager;
 
     @Tested
-    private PasswordEncryptionContextDefault passwordEncryptionContextDefault;
+    private PasswordEncryptionContextGlobal passwordEncryptionContextGlobal;
 
     @Test
     public void isPasswordEncryptionActive() {
@@ -61,7 +59,7 @@ public class PasswordEncryptionContextDefaultTest {
     @Test
     public void getProperty() {
         String myProperty = "myProperty";
-        passwordEncryptionContextDefault.getProperty(myProperty);
+        passwordEncryptionContextGlobal.getProperty(myProperty);
 
         new Verifications() {{
             domibusRawPropertyProvider.getRawPropertyValue(myProperty);
@@ -84,12 +82,12 @@ public class PasswordEncryptionContextDefaultTest {
     public void getEncryptedKeyFile() {
         String encryptionKeyLocation = "home" + File.separator + "location";
 
-        new Expectations(passwordEncryptionContextDefault) {{
-            passwordEncryptionContextDefault.getProperty(DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION);
+        new Expectations(passwordEncryptionContextGlobal) {{
+            passwordEncryptionContextGlobal.getProperty(DOMIBUS_PASSWORD_ENCRYPTION_KEY_LOCATION);
             result = encryptionKeyLocation;
         }};
 
-        final File encryptedKeyFile = passwordEncryptionContextDefault.getEncryptedKeyFile();
+        final File encryptedKeyFile = passwordEncryptionContextGlobal.getEncryptedKeyFile();
         assertEquals(PasswordEncryptionContextAbstract.ENCRYPTED_KEY, encryptedKeyFile.getName());
     }
     

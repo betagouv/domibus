@@ -42,7 +42,7 @@ public class PasswordEncryptionContextFactoryTest {
         Assertions.assertTrue(passwordEncryptionContext instanceof PasswordEncryptionContextDefault);
 
         new Verifications() {{
-            new PasswordEncryptionContextDefault(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService, globalPropertyMetadataManager);
+            new PasswordEncryptionContextGlobal(passwordEncryptionService, domibusRawPropertyProvider, domibusConfigurationService, globalPropertyMetadataManager);
         }};
     }
 
