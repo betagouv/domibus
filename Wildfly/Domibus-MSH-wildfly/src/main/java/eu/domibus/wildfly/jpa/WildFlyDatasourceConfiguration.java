@@ -20,25 +20,27 @@ public class WildFlyDatasourceConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(WildFlyDatasourceConfiguration.class);
 
+    private JndiObjectFactoryBean jndiObjectFactoryBean;
+
     @Bean(DataSourceConstants.DOMIBUS_JDBC_DATA_SOURCE)
     public JndiObjectFactoryBean domibusDatasource(DomibusPropertyProvider domibusPropertyProvider) {
-        JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
-        jndiObjectFactoryBean.setExpectedType(DataSource.class);
-        String jndiName = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME);
-
-        LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME, jndiName);
-        jndiObjectFactoryBean.setJndiName(jndiName);
-        return jndiObjectFactoryBean;
+        return getJndiObjectFactoryBean(domibusPropertyProvider);
     }
 
     @Bean(DataSourceConstants.DOMIBUS_JDBC_QUARTZ_DATA_SOURCE)
     public JndiObjectFactoryBean quartzDatasource(DomibusPropertyProvider domibusPropertyProvider) {
-        JndiObjectFactoryBean jndiObjectFactoryBean = new JndiObjectFactoryBean();
-        jndiObjectFactoryBean.setExpectedType(DataSource.class);
-        String jndiName = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME);
+        return getJndiObjectFactoryBean(domibusPropertyProvider);
+    }
 
-        LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME, jndiName);
-        jndiObjectFactoryBean.setJndiName(jndiName);
+    private synchronized JndiObjectFactoryBean getJndiObjectFactoryBean(DomibusPropertyProvider domibusPropertyProvider) {
+        if (jndiObjectFactoryBean == null) {
+            jndiObjectFactoryBean = new JndiObjectFactoryBean();
+            jndiObjectFactoryBean.setExpectedType(DataSource.class);
+            String jndiName = domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME);
+
+            LOGGER.debug("Configured property [{}] with [{}]", DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME, jndiName);
+            jndiObjectFactoryBean.setJndiName(jndiName);
+        }
         return jndiObjectFactoryBean;
     }
 }
