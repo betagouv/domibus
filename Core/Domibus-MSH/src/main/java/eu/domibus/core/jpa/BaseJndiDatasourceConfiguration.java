@@ -15,7 +15,6 @@ import javax.sql.DataSource;
  * @author Ion Perpegel
  * @since 5.2
  */
-@Configuration
 public class BaseJndiDatasourceConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(BaseJndiDatasourceConfiguration.class);
