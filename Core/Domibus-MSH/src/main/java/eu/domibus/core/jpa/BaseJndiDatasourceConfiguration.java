@@ -15,9 +15,9 @@ import javax.sql.DataSource;
  * @author Ion Perpegel
  * @since 5.2
  *
- * his class should not be annotated with @Configuration because it is done only in weblogic and wildfly servers and not in tomcat
+ * This class should not be annotated with @Configuration because it is done only in weblogic and wildfly servers and not in tomcat
  */
-public class BaseJndiDatasourceConfiguration {
+public abstract class BaseJndiDatasourceConfiguration {
 
     private static final DomibusLogger LOGGER = DomibusLoggerFactory.getLogger(BaseJndiDatasourceConfiguration.class);
 
