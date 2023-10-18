@@ -40,7 +40,7 @@ public class TomcatDatasourceConfiguration extends BaseDatasourceConfiguration {
         return getDefaultDataSource(domibusPropertyProvider);
     }
 
-    private synchronized HikariDataSource getDefaultDataSource(DomibusPropertyProvider domibusPropertyProvider) {
+    private HikariDataSource getDefaultDataSource(DomibusPropertyProvider domibusPropertyProvider) {
         if (defaultDataSource == null) {
             defaultDataSource = getHikariDataSource(domibusPropertyProvider, DOMIBUS_DATASOURCE_DRIVER_CLASS_NAME, DOMIBUS_DATASOURCE_URL, DOMIBUS_DATASOURCE_USER, DOMIBUS_DATASOURCE_PASSWORD,
                     DOMIBUS_DATASOURCE_MAX_LIFETIME, DOMIBUS_DATASOURCE_MAX_POOL_SIZE, DOMIBUS_DATASOURCE_CONNECTION_TIMEOUT, DOMIBUS_DATASOURCE_IDLE_TIMEOUT,
