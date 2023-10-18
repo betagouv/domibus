@@ -33,7 +33,7 @@ public class BaseJndiDatasourceConfiguration {
         return getJndiObjectFactoryBean(domibusPropertyProvider);
     }
 
-    protected synchronized JndiObjectFactoryBean getJndiObjectFactoryBean(DomibusPropertyProvider domibusPropertyProvider) {
+    protected JndiObjectFactoryBean getJndiObjectFactoryBean(DomibusPropertyProvider domibusPropertyProvider) {
         if (jndiObjectFactoryBean == null) {
             jndiObjectFactoryBean = new JndiObjectFactoryBean();
             jndiObjectFactoryBean.setExpectedType(DataSource.class);
