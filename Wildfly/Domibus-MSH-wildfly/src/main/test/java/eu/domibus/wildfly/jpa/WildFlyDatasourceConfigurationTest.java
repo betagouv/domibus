@@ -39,7 +39,7 @@ public class WildFlyDatasourceConfigurationTest {
         String jndiName = "jndi/datasource";
 
         new Expectations() {{
-            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_QUARTZ_JNDI_NAME);
+            domibusPropertyProvider.getProperty(DomibusPropertyMetadataManagerSPI.DOMIBUS_JDBC_DATASOURCE_JNDI_NAME);
             this.result = jndiName;
         }};
 
