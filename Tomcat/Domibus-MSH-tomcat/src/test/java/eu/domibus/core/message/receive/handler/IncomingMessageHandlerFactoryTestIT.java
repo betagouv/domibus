@@ -7,8 +7,8 @@ import eu.domibus.core.message.pull.IncomingPullReceiptHandler;
 import eu.domibus.core.message.pull.IncomingPullRequestHandler;
 import eu.domibus.core.util.MessageUtil;
 import eu.domibus.test.common.SoapSampleUtil;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.xml.soap.SOAPMessage;
@@ -52,7 +52,7 @@ public class IncomingMessageHandlerFactoryTestIT extends AbstractIT {
 
         final Ebms3Messaging secondEbms3Messaging = messageUtil.getMessagingWithDom(soapMessage);
         final IncomingMessageHandler messageHandler = incomingMessageHandlerDefaultFactory.getMessageHandler(soapMessage, secondEbms3Messaging);
-        Assert.assertEquals(incomingUserMessageReceiptHandler, messageHandler);
+        Assertions.assertEquals(incomingUserMessageReceiptHandler, messageHandler);
     }
 
     @Test
@@ -63,7 +63,7 @@ public class IncomingMessageHandlerFactoryTestIT extends AbstractIT {
 
         final Ebms3Messaging secondEbms3Messaging = messageUtil.getMessagingWithDom(soapMessage);
         final IncomingMessageHandler messageHandler = incomingMessageHandlerDefaultFactory.getMessageHandler(soapMessage, secondEbms3Messaging);
-        Assert.assertEquals(incomingMessagePullReceiptHandler, messageHandler);
+        Assertions.assertEquals(incomingMessagePullReceiptHandler, messageHandler);
     }
 
     @Test
@@ -74,7 +74,7 @@ public class IncomingMessageHandlerFactoryTestIT extends AbstractIT {
 
         final Ebms3Messaging secondEbms3Messaging = messageUtil.getMessagingWithDom(soapMessage);
         final IncomingMessageHandler messageHandler = incomingMessageHandlerDefaultFactory.getMessageHandler(soapMessage, secondEbms3Messaging);
-        Assert.assertEquals(incomingUserMessageHandler, messageHandler);
+        Assertions.assertEquals(incomingUserMessageHandler, messageHandler);
     }
 
     @Test
@@ -85,7 +85,7 @@ public class IncomingMessageHandlerFactoryTestIT extends AbstractIT {
 
         final Ebms3Messaging secondEbms3Messaging = messageUtil.getMessagingWithDom(soapMessage);
         final IncomingMessageHandler messageHandler = incomingMessageHandlerDefaultFactory.getMessageHandler(soapMessage, secondEbms3Messaging);
-        Assert.assertEquals(incomingSignalErrorHandler, messageHandler);
+        Assertions.assertEquals(incomingSignalErrorHandler, messageHandler);
     }
 
     @Test
@@ -96,6 +96,6 @@ public class IncomingMessageHandlerFactoryTestIT extends AbstractIT {
 
         final Ebms3Messaging secondEbms3Messaging = messageUtil.getMessagingWithDom(soapMessage);
         final IncomingMessageHandler messageHandler = incomingMessageHandlerDefaultFactory.getMessageHandler(soapMessage, secondEbms3Messaging);
-        Assert.assertEquals(incomingMessagePullRequestHandler, messageHandler);
+        Assertions.assertEquals(incomingMessagePullRequestHandler, messageHandler);
     }
 }
