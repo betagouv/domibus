@@ -23,6 +23,8 @@ import static org.apache.commons.lang3.time.DateUtils.MILLIS_PER_SECOND;
 @Configuration
 public class TomcatDatasourceConfiguration extends BaseDatasourceConfiguration {
 
+    private HikariDataSource defaultDataSource;
+
     @Override
     protected DataSource getReadWriteDataSource(DomibusPropertyProvider domibusPropertyProvider) {
         return getDefaultDataSource(domibusPropertyProvider);
@@ -39,9 +41,12 @@ public class TomcatDatasourceConfiguration extends BaseDatasourceConfiguration {
     }
 
     private HikariDataSource getDefaultDataSource(DomibusPropertyProvider domibusPropertyProvider) {
-        return getHikariDataSource(domibusPropertyProvider, DOMIBUS_DATASOURCE_DRIVER_CLASS_NAME, DOMIBUS_DATASOURCE_URL, DOMIBUS_DATASOURCE_USER, DOMIBUS_DATASOURCE_PASSWORD,
-                DOMIBUS_DATASOURCE_MAX_LIFETIME, DOMIBUS_DATASOURCE_MAX_POOL_SIZE, DOMIBUS_DATASOURCE_CONNECTION_TIMEOUT, DOMIBUS_DATASOURCE_IDLE_TIMEOUT,
-                DOMIBUS_DATASOURCE_MINIMUM_IDLE, DOMIBUS_DATASOURCE_POOL_NAME);
+        if (defaultDataSource == null) {
+            defaultDataSource = getHikariDataSource(domibusPropertyProvider, DOMIBUS_DATASOURCE_DRIVER_CLASS_NAME, DOMIBUS_DATASOURCE_URL, DOMIBUS_DATASOURCE_USER, DOMIBUS_DATASOURCE_PASSWORD,
+                    DOMIBUS_DATASOURCE_MAX_LIFETIME, DOMIBUS_DATASOURCE_MAX_POOL_SIZE, DOMIBUS_DATASOURCE_CONNECTION_TIMEOUT, DOMIBUS_DATASOURCE_IDLE_TIMEOUT,
+                    DOMIBUS_DATASOURCE_MINIMUM_IDLE, DOMIBUS_DATASOURCE_POOL_NAME);
+        }
+        return defaultDataSource;
     }
 
     private HikariDataSource getReplicaDataSource(DomibusPropertyProvider domibusPropertyProvider) {
