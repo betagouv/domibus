@@ -12,6 +12,8 @@ import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.metrics.Counter;
 import eu.domibus.core.metrics.Timer;
+import eu.domibus.logging.DomibusLogger;
+import eu.domibus.logging.DomibusLoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 @Service
 public class ErrorLogServiceImpl implements ErrorLogService {
 
+    private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(ErrorLogServiceImpl.class);
     protected ErrorLogDao errorLogDao;
     protected DomibusPropertyProvider domibusPropertyProvider;
     protected MshRoleDao mshRoleDao;
@@ -46,17 +49,17 @@ public class ErrorLogServiceImpl implements ErrorLogService {
         this.errorLogDao = errorLogDao;
         this.mshRoleDao = mshRoleDao;
     }
-    
+
     public void create(ErrorLogEntry errorLogEntry) {
         errorLogEntryTruncateUtil.truncate(errorLogEntry);
-        if(errorLogEntry.getUserMessage() == null) {
+        if (errorLogEntry.getUserMessage() == null) {
             UserMessage um = new UserMessage();
             um.setEntityId(UserMessage.DEFAULT_USER_MESSAGE_ID_PK);
             errorLogEntry.setUserMessage(um);
         }
         errorLogDao.create(errorLogEntry);
     }
-    
+
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createErrorLog(EbMS3Exception exception, MSHRole mshRole, UserMessage userMessage) {
@@ -80,7 +83,7 @@ public class ErrorLogServiceImpl implements ErrorLogService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void createErrorLog(String messageInErrorId, ErrorCode errorCode, String errorDetail, MSHRole mshRole, UserMessage userMessage) {
         MSHRoleEntity role = mshRoleDao.findOrCreate(mshRole);
-        final ErrorLogEntry errorLogEntry = new ErrorLogEntry(role, messageInErrorId, errorCode, errorDetail);
+        final ErrorLogEntry errorLogEntry = new ErrorLogEntry(role, messageInErrorId, errorCode.getErrorCodeName(), errorDetail);
         errorLogEntry.setUserMessage(userMessage);
         create(errorLogEntry);
     }
@@ -128,7 +131,15 @@ public class ErrorLogServiceImpl implements ErrorLogService {
     @Override
     public ErrorResultImpl convert(ErrorLogEntry errorLogEntry) {
         ErrorResultImpl result = new ErrorResultImpl();
-        result.setErrorCode(errorLogEntry.getErrorCode());
+        final String errorCodeString = errorLogEntry.getErrorCode();
+        result.setErrorCodeAsString(errorCodeString);
+        try {
+            //we try to convert from the error code as string to a standard error code; this conversation fails(normal scenario) if this is custom error code
+            final ErrorCode errorCode = ErrorCode.findBy(errorCodeString);
+            result.setErrorCode(errorCode);
+        } catch (IllegalArgumentException e) {
+            LOG.debug("Could not convert error code string from [{}]", errorCodeString, e);
+        }
         result.setErrorDetail(errorLogEntry.getErrorDetail());
         result.setMessageInErrorId(errorLogEntry.getMessageInErrorId());
         result.setMshRole(eu.domibus.common.MSHRole.valueOf(errorLogEntry.getMshRole().name()));

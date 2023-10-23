@@ -119,7 +119,7 @@ public class FaultInHandlerTest {
     }
 
     private static void assertExceptionIsCorrect(ExpectedFields expectedFields, EbMS3Exception ebms3Exception) {
-        assertEquals(expectedFields.getErrorCode(), ebms3Exception.getErrorCode(), "Incorrect error code");
+        assertEquals(expectedFields.getErrorCode(), ebms3Exception.getEbMS3ErrorCode(), "Incorrect error code");
         assertEquals(expectedFields.getMessage(), ebms3Exception.getMessage(), "Incorrect message");
         assertEquals(expectedFields.getMessage(), ebms3Exception.getErrorDetail(), "Incorrect error detail");
         assertEquals(MESSAGE_ID, ebms3Exception.getRefToMessageId(), "Incorrect message id");

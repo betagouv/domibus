@@ -102,7 +102,7 @@ public class ResponseHandlerTest {
             responseHandler.verifyResponse(soapMessage, MESSAGE_ID);
             Assertions.fail();
         } catch (EbMS3Exception e) {
-           assertThat(e.getErrorCode(), is(ErrorCode.EbMS3ErrorCode.EBMS_0004));
+           assertThat(e.getEbMS3ErrorCode(), is(ErrorCode.EbMS3ErrorCode.EBMS_0004));
            assertThat(e.getErrorDetail(), is(DETAIL));
            assertThat(e.getRefToMessageId(), is(MESSAGE_ID));
            assertThat(e.getMshRole(), is(MSHRole.SENDING));

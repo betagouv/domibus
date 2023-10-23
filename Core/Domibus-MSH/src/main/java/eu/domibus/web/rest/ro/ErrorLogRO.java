@@ -15,7 +15,7 @@ public class ErrorLogRO implements Serializable {
     private String errorSignalMessageId;
     private MSHRole mshRole;
     private String messageInErrorId;
-    private ErrorCode errorCode;
+    private String errorCode;
     private String errorDetail;
     private Date timestamp;
     private Date notified;
@@ -68,11 +68,11 @@ public class ErrorLogRO implements Serializable {
         this.mshRole = mshRole;
     }
 
-    public ErrorCode getErrorCode() {
+    public String getErrorCode() {
         return errorCode;
     }
 
-    public void setErrorCode(ErrorCode errorCode) {
+    public void setErrorCode(String errorCode) {
         this.errorCode = errorCode;
     }
 }

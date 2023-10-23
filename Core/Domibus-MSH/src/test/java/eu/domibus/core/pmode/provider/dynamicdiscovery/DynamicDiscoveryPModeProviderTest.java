@@ -4,11 +4,9 @@ import eu.domibus.api.cache.DomibusLocalCacheService;
 import eu.domibus.api.model.*;
 import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainContextProvider;
-import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.multitenancy.DomainTaskExecutor;
 import eu.domibus.api.pki.KeystorePersistenceService;
 import eu.domibus.api.pki.MultiDomainCryptoService;
-import eu.domibus.api.pmode.PModeEventListener;
 import eu.domibus.api.property.encryption.PasswordDecryptionService;
 import eu.domibus.api.security.X509CertificateService;
 import eu.domibus.api.util.xml.UnmarshallerResult;
@@ -51,14 +49,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.UUID;
 
-import static eu.domibus.api.cache.DomibusLocalCacheService.DYNAMIC_DISCOVERY_ENDPOINT;
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.certificate.CertificateTestUtils.loadCertificateFromJKSFile;
 import static org.junit.jupiter.api.Assertions.*;
@@ -292,7 +287,7 @@ public class DynamicDiscoveryPModeProviderTest {
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, null);
             fail();
         } catch (EbMS3Exception ex) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getEbMS3ErrorCode());
             assertEquals(("Sender party could not be found for the value  " + partyId), ex.getErrorDetail());
         }
 
@@ -302,7 +297,7 @@ public class DynamicDiscoveryPModeProviderTest {
             classUnderTest.findUserMessageExchangeContext(userMessage, MSHRole.SENDING, false, null);
             fail();
         } catch (EbMS3Exception ex) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, ex.getErrorCode());
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, ex.getEbMS3ErrorCode());
             assertEquals("No matching dynamic discovery processes found for message.", ex.getErrorDetail());
         }
     }

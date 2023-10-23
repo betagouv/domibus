@@ -385,7 +385,7 @@ public class CsvServiceImplTest {
     private List<ErrorLogRO> getErrorLogList(Date date) {
         List<ErrorLogRO> result = new ArrayList<>();
         ErrorLogRO errorLogRO = new ErrorLogRO();
-        errorLogRO.setErrorCode(ErrorCode.EBMS_0001);
+        errorLogRO.setErrorCode(ErrorCode.EBMS_0001.getErrorCodeName());
         errorLogRO.setErrorDetail("errorDetail");
         errorLogRO.setErrorSignalMessageId("signalMessageId");
         errorLogRO.setMessageInErrorId("messageInErrorId");

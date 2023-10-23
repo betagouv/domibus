@@ -261,7 +261,7 @@ public class AbstractEbms3UserMessageSenderTest {
         new FullVerifications(abstractUserMessageSender) {{
             EbMS3Exception ebMS3ExceptionActual;
             reliabilityChecker.handleEbms3Exception(ebMS3ExceptionActual = withCapture(), userMessage);
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, ebMS3ExceptionActual.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, ebMS3ExceptionActual.getEbMS3ErrorCode());
             Assertions.assertEquals("Policy configuration invalid", ebMS3ExceptionActual.getErrorDetail());
             Assertions.assertEquals(MSHRole.SENDING, ebMS3ExceptionActual.getMshRole());
         }};
@@ -425,7 +425,7 @@ public class AbstractEbms3UserMessageSenderTest {
 
             EbMS3Exception ebMS3ExceptionActual;
             reliabilityChecker.handleEbms3Exception(ebMS3ExceptionActual = withCapture(), userMessage);
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0004, ebMS3ExceptionActual.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0004, ebMS3ExceptionActual.getEbMS3ErrorCode());
             Assertions.assertEquals("Problem occurred during marshalling", ebMS3ExceptionActual.getErrorDetail());
             Assertions.assertEquals(MSHRole.SENDING, ebMS3ExceptionActual.getMshRole());
 

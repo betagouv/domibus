@@ -170,7 +170,7 @@ public class PullRequestHandlerImplTest {
 
             EbMS3Exception exception;
             messageBuilder.getSoapMessage(exception = withCapture());
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0006, exception.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0006, exception.getEbMS3ErrorCode());
         }};
     }
 
@@ -197,7 +197,7 @@ public class PullRequestHandlerImplTest {
             EbMS3Exception e;
             reliabilityChecker.handleEbms3Exception(e = withCapture(), userMessage);
             times = 1;
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0101, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0101, e.getEbMS3ErrorCode());
             Ebms3Error faultInfo;
             messageBuilder.buildSOAPFaultMessage(faultInfo = withCapture());
             times = 1;
@@ -232,7 +232,7 @@ public class PullRequestHandlerImplTest {
             EbMS3Exception e;
             reliabilityChecker.handleEbms3Exception(e = withCapture(), userMessage);
             times = 1;
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getEbMS3ErrorCode());
             Ebms3Error faultInfo;
             messageBuilder.buildSOAPFaultMessage(faultInfo = withCapture());
             times = 1;

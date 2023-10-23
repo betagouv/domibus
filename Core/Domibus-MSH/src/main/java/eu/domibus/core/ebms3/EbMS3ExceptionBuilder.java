@@ -19,6 +19,12 @@ public class EbMS3ExceptionBuilder {
     private boolean recoverable = DEFAULT_RECOVERABLE;
     private String signalMessageId;
 
+    protected String origin;
+    protected String errorCode;
+    protected String severity;
+    protected String category;
+    protected String shortDescription;
+
     public static EbMS3ExceptionBuilder getInstance() {
         return new EbMS3ExceptionBuilder();
     }
@@ -30,6 +36,13 @@ public class EbMS3ExceptionBuilder {
         ebMS3Exception.setMshRole(mshRole);
         ebMS3Exception.setRecoverable(recoverable);
         ebMS3Exception.setSignalMessageId(signalMessageId);
+
+        ebMS3Exception.setOrigin(origin);
+        ebMS3Exception.setErrorCode(errorCode);
+        ebMS3Exception.setSeverity(severity);
+        ebMS3Exception.setCategory(category);
+        ebMS3Exception.setShortDescription(shortDescription);
+
         return ebMS3Exception;
     }
 
@@ -53,6 +66,31 @@ public class EbMS3ExceptionBuilder {
 
     public EbMS3ExceptionBuilder message(String message) {
         this.message = message;
+        return this;
+    }
+
+    public EbMS3ExceptionBuilder origin(String origin) {
+        this.origin = origin;
+        return this;
+    }
+
+    public EbMS3ExceptionBuilder errorCode(String errorCode) {
+        this.errorCode = errorCode;
+        return this;
+    }
+
+    public EbMS3ExceptionBuilder severity(String severity) {
+        this.severity = severity;
+        return this;
+    }
+
+    public EbMS3ExceptionBuilder shortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
+        return this;
+    }
+
+    public EbMS3ExceptionBuilder category(String category) {
+        this.category = category;
         return this;
     }
 

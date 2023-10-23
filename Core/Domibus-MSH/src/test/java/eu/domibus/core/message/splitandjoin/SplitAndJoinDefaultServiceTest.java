@@ -1141,7 +1141,7 @@ public class SplitAndJoinDefaultServiceTest {
             splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
             fail();
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0048, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0048, e.getEbMS3ErrorCode());
         }
 
         new FullVerifications() {
@@ -1226,7 +1226,7 @@ public class SplitAndJoinDefaultServiceTest {
             splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
             fail("Not possible to use SplitAndJoin without PMode leg configuration");
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0002, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0002, e.getEbMS3ErrorCode());
         }
 
         new FullVerifications() {
@@ -1253,7 +1253,7 @@ public class SplitAndJoinDefaultServiceTest {
             splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
             fail("Not possible to use SplitAndJoin with database payloads");
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0002, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0002, e.getEbMS3ErrorCode());
         }
 
         new FullVerifications() {
@@ -1289,7 +1289,7 @@ public class SplitAndJoinDefaultServiceTest {
             splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
             fail();
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0040, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0040, e.getEbMS3ErrorCode());
         }
 
         new FullVerifications() {
@@ -1322,7 +1322,7 @@ public class SplitAndJoinDefaultServiceTest {
             splitAndJoinDefaultService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
             fail();
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0051, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0051, e.getEbMS3ErrorCode());
         }
 
         new FullVerifications() {

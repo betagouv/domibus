@@ -127,9 +127,7 @@ public class BackendNotificationService {
         }
 
         final Map<String, String> errorProperties = new HashMap<>();
-        if (errorResult.getErrorCode() != null) {
-            errorProperties.put(MessageConstants.ERROR_CODE, errorResult.getErrorCode().getErrorCodeName());
-        }
+        errorProperties.put(MessageConstants.ERROR_CODE, errorResult.getErrorCodeAsString());
         errorProperties.put(MessageConstants.ERROR_DETAIL, errorResult.getErrorDetail());
         NotificationType notificationType = NotificationType.MESSAGE_RECEIVED_FAILURE;
         if (userMessage.isMessageFragment()) {
@@ -231,6 +229,7 @@ public class BackendNotificationService {
             createMessageDeleteBatchEvent(backend, individualMessageDeletedEvents);
         });
     }
+
     protected List<MessageDeletedEvent> getAllMessageIdsForBackend(String backend, final List<UserMessageLogDto> userMessageLogs) {
         List<MessageDeletedEvent> messageIds = userMessageLogs
                 .stream()

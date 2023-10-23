@@ -18,7 +18,7 @@ import java.util.ResourceBundle;
 
 /**
  * @author Christian Koch, Stefan Mueller
- *         This is the implementation of a ebMS3 Error Message
+ * This is the implementation of a ebMS3 Error Message
  */
 @WebFault(name = "ebMS3Error")
 public class EbMS3Exception extends Exception {
@@ -50,6 +50,12 @@ public class EbMS3Exception extends Exception {
     private MSHRole mshRole;
     private boolean recoverable = DEFAULT_RECOVERABLE;
     private String signalMessageId;
+
+    protected String origin;
+    protected String errorCode;
+    protected String severity;
+    protected String category;
+    protected String shortDescription;
 
     protected EbMS3Exception(final ErrorCode.EbMS3ErrorCode ebMS3ErrorCode, final String message, final Throwable cause) {
         super(message, cause);
@@ -89,26 +95,54 @@ public class EbMS3Exception extends Exception {
     }
 
     public String getOrigin() {
-        return this.ebMS3ErrorCode.getCode().getOrigin();
+        if (StringUtils.isNotBlank(origin)) {
+            return origin;
+        }
+        if (this.ebMS3ErrorCode != null) {
+            return this.ebMS3ErrorCode.getCode().getOrigin();
+        }
+        return null;
     }
 
-    public ErrorCode.EbMS3ErrorCode getErrorCode() {
+    public ErrorCode.EbMS3ErrorCode getEbMS3ErrorCode() {
         return ebMS3ErrorCode;
     }
 
     public ErrorCode getErrorCodeObject() {
-        return ebMS3ErrorCode.getCode().getErrorCode();
+        if(ebMS3ErrorCode != null) {
+            return ebMS3ErrorCode.getCode().getErrorCode();
+        }
+        return null;
     }
 
     public String getShortDescription() {
-        return this.ebMS3ErrorCode.getShortDescription();
+        if (StringUtils.isNotBlank(shortDescription)) {
+            return shortDescription;
+        }
+        if (this.ebMS3ErrorCode != null) {
+            return this.ebMS3ErrorCode.getShortDescription();
+        }
+        return null;
     }
+
     public String getSeverity() {
-        return this.ebMS3ErrorCode.getSeverity();
+        if (StringUtils.isNotBlank(severity)) {
+            return severity;
+        }
+        if (this.ebMS3ErrorCode != null) {
+            return this.ebMS3ErrorCode.getSeverity();
+        }
+        return null;
     }
 
     public String getCategory() {
-        return this.ebMS3ErrorCode.getCategory().name();
+        if (StringUtils.isNotBlank(category)) {
+            return category;
+        }
+        if (this.ebMS3ErrorCode != null) {
+            return this.ebMS3ErrorCode.getCategory().name();
+        }
+        return null;
     }
 
     //this is a hack to avoid a classCastException in @see WebFaultOutInterceptor
@@ -123,18 +157,21 @@ public class EbMS3Exception extends Exception {
 
         final Ebms3Error ebMS3Error = new Ebms3Error();
 
-        ebMS3Error.setOrigin(this.ebMS3ErrorCode.getCode().getOrigin());
-        ebMS3Error.setErrorCode(this.ebMS3ErrorCode.getCode().getErrorCode().getErrorCodeName());
-        ebMS3Error.setSeverity(this.ebMS3ErrorCode.getSeverity());
+        ebMS3Error.setOrigin(getOrigin());
+        ebMS3Error.setErrorCode(getErrorCode());
+        ebMS3Error.setSeverity(getSeverity());
         ebMS3Error.setErrorDetail((this.errorDetail != null ? getErrorDetail() : ""));
-        ebMS3Error.setCategory(this.ebMS3ErrorCode.getCategory().name());
+        ebMS3Error.setCategory(getCategory());
         ebMS3Error.setRefToMessageInError(this.refToMessageId);
         ebMS3Error.setShortDescription(this.getShortDescription());
-        Ebms3Description ebms3Description = new Ebms3Description();
-        ebms3Description.setValue(this.getDescription().getValue());
-        ebms3Description.setLang(this.getDescription().getLang());
-        ebMS3Error.setDescription(ebms3Description);
 
+        //we have the long description only for standard ebms3 error codes in MessagesBundle.properties
+        if(ebMS3ErrorCode != null) {
+            Ebms3Description ebms3Description = new Ebms3Description();
+            ebms3Description.setValue(this.getDescription().getValue());
+            ebms3Description.setLang(this.getDescription().getLang());
+            ebMS3Error.setDescription(ebms3Description);
+        }
 
         return ebMS3Error;
     }
@@ -164,5 +201,34 @@ public class EbMS3Exception extends Exception {
     }
 
 
+    public void setOrigin(String origin) {
+        this.origin = origin;
+    }
+
+    public String getErrorCode() {
+        if (StringUtils.isNotBlank(errorCode)) {
+            return errorCode;
+        }
+        if (this.ebMS3ErrorCode != null) {
+            return this.ebMS3ErrorCode.getCode().getErrorCode().getErrorCodeName();
+        }
+        return null;
+    }
+
+    public void setErrorCode(String errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public void setSeverity(String severity) {
+        this.severity = severity;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public void setShortDescription(String shortDescription) {
+        this.shortDescription = shortDescription;
+    }
 }
 

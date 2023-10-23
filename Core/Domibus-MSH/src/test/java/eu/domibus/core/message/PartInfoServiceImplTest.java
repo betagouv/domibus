@@ -130,7 +130,7 @@ public class PartInfoServiceImplTest {
             partInfoService.checkPartInfoCharset(userMessage, Collections.singletonList(partInfo));
             fail("EBMS3Exception was expected!!");
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getEbMS3ErrorCode());
         }
 
         new FullVerifications() {

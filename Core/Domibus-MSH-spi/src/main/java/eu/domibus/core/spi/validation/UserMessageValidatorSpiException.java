@@ -8,6 +8,11 @@ package eu.domibus.core.spi.validation;
  */
 public class UserMessageValidatorSpiException extends RuntimeException {
 
+    /**
+     * We use a string so that we can throw custom ebMS3 exceptions
+     */
+    protected Ebms3ErrorSpi ebms3ErrorCode;
+
     public UserMessageValidatorSpiException() {
     }
 
@@ -21,5 +26,13 @@ public class UserMessageValidatorSpiException extends RuntimeException {
 
     public UserMessageValidatorSpiException(Throwable cause) {
         super(cause);
+    }
+
+    public Ebms3ErrorSpi getEbms3ErrorCode() {
+        return ebms3ErrorCode;
+    }
+
+    public void setEbms3ErrorCode(Ebms3ErrorSpi ebms3ErrorCode) {
+        this.ebms3ErrorCode = ebms3ErrorCode;
     }
 }

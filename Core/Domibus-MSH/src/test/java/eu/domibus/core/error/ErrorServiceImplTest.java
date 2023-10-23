@@ -90,7 +90,7 @@ public class ErrorServiceImplTest {
         List<? extends ErrorResult> result = errorService.getErrors("MESS_ID", MSHRole.RECEIVING);
 
         Assertions.assertEquals(1, result.size());
-        Assertions.assertEquals(errorLogEntry.getErrorCode(), result.get(0).getErrorCode());
+        Assertions.assertEquals(errorLogEntry.getErrorCode(), result.get(0).getErrorCode().getErrorCodeName());
         Assertions.assertEquals(errorLogEntry.getErrorDetail(), result.get(0).getErrorDetail());
     }
 }

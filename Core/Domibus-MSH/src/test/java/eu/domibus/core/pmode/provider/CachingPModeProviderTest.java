@@ -694,7 +694,7 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.findPullLegName("agreementName", "senderParty", "receiverParty", "service", "action", "mpc", new Role("rn", "rv"), new Role("rn", "rv"));
             fail();
         } catch (EbMS3Exception exc) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, exc.getErrorCode());
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, exc.getEbMS3ErrorCode());
         }
     }
 
@@ -734,7 +734,7 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc", new Role("rn", "rv"), new Role("rn", "rv"));
             fail();
         } catch (EbMS3Exception exc) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, exc.getErrorCode());
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, exc.getEbMS3ErrorCode());
         }
     }
 
@@ -759,7 +759,7 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.findPullLegName("", "somesender", "somereceiver", "someservice", "someaction", "somempc", new Role("rn", "rv"), new Role("rn", "rv"));
             fail();
         } catch (EbMS3Exception exc) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, exc.getErrorCode());
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, exc.getEbMS3ErrorCode());
         }
     }
 
@@ -1118,7 +1118,7 @@ public class CachingPModeProviderTest {
         try {
             cachingPModeProvider.findActionName("action");
         } catch (EbMS3Exception ex) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, ex.getErrorCode());
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, ex.getEbMS3ErrorCode());
         }
     }
 
@@ -1132,7 +1132,7 @@ public class CachingPModeProviderTest {
         try {
             cachingPModeProvider.findMpc("no_mpc");
         } catch (EbMS3Exception ex) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, ex.getErrorCode());
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, ex.getEbMS3ErrorCode());
         }
     }
 
@@ -1146,7 +1146,7 @@ public class CachingPModeProviderTest {
         try {
             cachingPModeProvider.findServiceName(serviceEntity);
         } catch (EbMS3Exception ex) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, ex.getErrorCode());
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, ex.getEbMS3ErrorCode());
         }
     }
 
@@ -1162,7 +1162,7 @@ public class CachingPModeProviderTest {
         try {
             cachingPModeProvider.findAgreement(agreementRef);
         } catch (EbMS3Exception ex) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, ex.getErrorCode());
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0001, ex.getEbMS3ErrorCode());
         }
     }
 
@@ -1479,7 +1479,7 @@ public class CachingPModeProviderTest {
         }};
 
         EbMS3Exception ex = assertThrows(EbMS3Exception.class, () -> cachingPModeProvider.findUserMessageExchangeContext(userMessage, mshRole1, true, null));
-        assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
+        assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getEbMS3ErrorCode());
         assertEquals("Sender party could not be found for the value  " + partyId1, ex.getErrorDetail());
         assertEquals(mshRole1, ex.getMshRole());
     }
@@ -1495,7 +1495,7 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.findSenderParty(userMessage);
             Assertions.fail("expected error that sender party is missing");
         } catch (EbMS3Exception ex) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getEbMS3ErrorCode());
             assertEquals("Mandatory field From PartyId is not provided.", ex.getErrorDetail());
         }
     }
@@ -1543,7 +1543,7 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.findUserMessageExchangeContext(userMessage, mshRole1, true, null);
             Assertions.fail("expected error that receiver party is missing");
         } catch (EbMS3Exception ex) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getErrorCode());
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, ex.getEbMS3ErrorCode());
             assertEquals("Mandatory field To PartyId is not provided.", ex.getErrorDetail());
             assertEquals(mshRole1, ex.getMshRole());
         }
@@ -1585,7 +1585,7 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.findInitiatorRole(userMessage);
             Assertions.fail("expected error that sender role should be provided");
         } catch (EbMS3Exception e) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getEbMS3ErrorCode());
             assertEquals("Mandatory field Sender Role is not provided.", e.getErrorDetail());
         }
     }
@@ -1614,7 +1614,7 @@ public class CachingPModeProviderTest {
             cachingPModeProvider.findResponderRole(userMessage);
             Assertions.fail("expected error that responder role should be provided");
         } catch (EbMS3Exception e) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getEbMS3ErrorCode());
             assertEquals("Mandatory field Receiver Role is not provided.", e.getErrorDetail());
         }
     }

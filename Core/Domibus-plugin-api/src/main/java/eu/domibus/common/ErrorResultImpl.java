@@ -1,5 +1,7 @@
 package eu.domibus.common;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Date;
 
 /**
@@ -12,6 +14,8 @@ public class ErrorResultImpl implements ErrorResult {
     private MSHRole mshRole;
     private String messageInErrorId;
     private ErrorCode errorCode;
+
+    private String errorCodeAsString;
     private String ErrorDetail;
     private Date timestamp;
     private Date notified;
@@ -43,6 +47,14 @@ public class ErrorResultImpl implements ErrorResult {
         return errorCode;
     }
 
+    @Override
+    public String getErrorCodeAsString() {
+        if (StringUtils.isNotBlank(errorCodeAsString)) {
+            return errorCodeAsString;
+        }
+        return ErrorResult.super.getErrorCodeAsString();
+    }
+
     public void setErrorCode(ErrorCode errorCode) {
         this.errorCode = errorCode;
     }
@@ -72,5 +84,9 @@ public class ErrorResultImpl implements ErrorResult {
 
     public void setNotified(Date notified) {
         this.notified = notified;
+    }
+
+    public void setErrorCodeAsString(String errorCodeAsString) {
+        this.errorCodeAsString = errorCodeAsString;
     }
 }

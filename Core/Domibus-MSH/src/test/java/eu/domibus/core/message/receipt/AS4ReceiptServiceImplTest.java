@@ -208,7 +208,7 @@ public class AS4ReceiptServiceImplTest {
             as4ReceiptService.generateReceipt(soapRequestMessage, userMessage, ReplyPattern.RESPONSE, false, false, false);
             fail("Expected Transformer exception to be raised !!!");
         } catch (EbMS3Exception e) {
-            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0201, e.getErrorCode());
+            assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0201, e.getEbMS3ErrorCode());
         }
 
         new Verifications() {{

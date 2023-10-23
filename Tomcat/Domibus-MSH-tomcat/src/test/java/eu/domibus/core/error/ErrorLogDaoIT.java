@@ -62,7 +62,7 @@ public class ErrorLogDaoIT extends AbstractIT {
         MSHRoleEntity mshRole1 = mshRoleDao.findOrCreate(mshRole);
         errorLogEntry.setMshRole(mshRole1);
         errorLogEntry.setMessageInErrorId(messageInErrorId);
-        errorLogEntry.setErrorCode(errorCode);
+        errorLogEntry.setErrorCode(errorCode.getErrorCodeName());
         errorLogEntry.setErrorDetail(errorDetail);
         errorLogEntry.setTimestamp(timestamp);
         errorLogEntry.setUserMessage(byEntityId);
