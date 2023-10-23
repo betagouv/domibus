@@ -137,9 +137,7 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
     protected Boolean doIsDatabaseSchemaForDomainValid(Domain domain) {
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
-
             String databaseSchema = getDatabaseSchema(domain);
-
             try {
                 setSchema(connection, databaseSchema);
             } catch (PersistenceException | FaultyDatabaseSchemaNameException e) {
@@ -155,7 +153,6 @@ public class DbSchemaUtilImpl implements DbSchemaUtil {
                 LOG.warn("Could not find table TB_USER_MESSAGE for domain [{}], so it is not a proper schema.", domain.getCode());
                 return false;
             }
-
         } catch (SQLException e) {
             LOG.warn("Could not create a connection for domain [{}].", domain);
             return false;

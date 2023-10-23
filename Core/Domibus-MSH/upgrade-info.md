@@ -6,15 +6,16 @@
                 - In all eDeliveryAS4Policy xml files, the hardcoded algorithm suite name defined in AsymmetricBinding/Policy/AlgorithSuite/ (e.g Basic128GCMSha256MgfSha256) was replaced with the placeholder: ${algorithmSuitePlaceholder} which will be automatically replaced in code according to the security setup
                 - Replace/update all policy files that have the AsymmetricBinding/Policy/AlgorithSuite tag defined(e.g. eDeliveryAS4Policy.xml, eDeliveryAS4Policy_BST.xml, eDeliveryAS4Policy_BST_PKIP.xml,eDeliveryAS4Policy_IS.xml, signOnly.xml etc.) to accomodate this change
                 The policy xml config files can be found in the Domibus distribution inside the file domibus-msh-distribution-5.1.1-application_server_name-configuration.zip under the folder /policies or inside the file domibus-msh-distribution-5.1.1-application_server_name-full.zip under the folder domibus/conf/domibus/policies
-  ## Domibus 5.1.1 (from 5.1)
-                - remove property domibus.fourcornermodel.enabled and add properties domibus.ui.pages.messageLogs.landingPage.enabled and domibus.ui.pages.messageLogs.search.advanced.enabled to control the message log admin page in regards with high performance requirements
+## Domibus 5.1.1 (from 5.1)
+                - Replace the Domibus war and the default plugin(s) config file(s), property file(s) and jar(s)
+                - Replace the default dss extension jar into "/domibus/conf/domibus/extensions/lib"
+                - Run the appropriate DB migration script (mysql-5.1-to-5.1.1-migration.ddl for MySQL or oracle-5.1-to-5.1.1-migration.ddl for Oracle)
+                - Remove property domibus.fourcornermodel.enabled if configured
                 - In all eDeliveryAS4Policy xml files, the hardcoded algorithm suite name defined in AsymmetricBinding/Policy/AlgorithSuite/ (e.g Basic128GCMSha256MgfSha256) was replaced with the placeholder: ${algorithmSuitePlaceholder} which will be automatically replaced in code according to the security setup
                 - Replace/update all policy files that have the AsymmetricBinding/Policy/AlgorithSuite tag defined(e.g. eDeliveryAS4Policy.xml, eDeliveryAS4Policy_BST.xml, eDeliveryAS4Policy_BST_PKIP.xml,eDeliveryAS4Policy_IS.xml, signOnly.xml etc.) to accomodate this change
                 The policy xml config files can be found in the Domibus distribution inside the file domibus-msh-distribution-5.1.1-application_server_name-configuration.zip under the folder /policies or inside the file domibus-msh-distribution-5.1.1-application_server_name-full.zip under the folder domibus/conf/domibus/policies
-                - Run the appropriate DB migration script (mysql-5.1-to-5.1.1-migration.ddl for MySQL or oracle-5.1-to-5.1.1-migration.ddl for Oracle)
                 - Update all the domibus.UI.title.name domain property names to domibus.ui.title.name
                 - Update all the property names prefixed with domibus.metrics.sl4j to domibus.metrics.slf4j
-
   ## Domibus 5.1 (from 5.0.6)
                 - Replace the Domibus war
                 - Replace the default plugin(s) property file(s) and jar(s) into "conf/domibus/plugins/config" respectively into "conf/domibus/plugins/lib"
