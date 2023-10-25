@@ -1,6 +1,7 @@
 Domibus 5.2
 - Executing keystore operations in cluster mode with database sync and in non-cluster mode with java synchronization mechanism
 - Upgraded Tomcat 9 to the latest version 9.0.80
+- Possibility to throw custom ebMS3 error codes in the UserMessageValidatorSpi
 Domibus 5.1.1
 - Removed the SQL scripts from the full distributions of Tomcat and Wildfly. The archive with these scripts can be downloaded separately
 - Fixed the dynamic discovery mechanism for a high concurrency scenario
