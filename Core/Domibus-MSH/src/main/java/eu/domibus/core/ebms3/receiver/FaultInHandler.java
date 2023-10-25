@@ -1,8 +1,10 @@
 package eu.domibus.core.ebms3.receiver;
 
+import eu.domibus.api.ebms3.model.Ebms3Error;
 import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.common.Ebms3ErrorExt;
 import eu.domibus.common.ErrorCode;
 import eu.domibus.core.crypto.spi.model.AuthenticationException;
 import eu.domibus.core.ebms3.EbMS3Exception;
@@ -16,6 +18,7 @@ import eu.domibus.core.message.UserMessageErrorCreator;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
 import eu.domibus.core.util.SoapUtil;
+import eu.domibus.ext.exceptions.UserMessageExtException;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
@@ -100,7 +103,13 @@ public class FaultInHandler extends AbstractFaultHandler {
         final Exception exception = (Exception) context.get(Exception.class.getName());
         EbMS3Exception ebMS3Exception = getEBMS3Exception(exception, messageId);
 
-        SOAPMessage soapMessageWithEbMS3Error = getSoapMessage(ebMS3Exception);
+        if (ebMS3Exception == null) {
+            LOG.warn("ebMSException is null on this stage and shouldn't");
+            throw new MissingResourceException("ebMSException is null on this stage and shouldn't", EbMS3Exception.class.getName(), "ebMS3Exception");
+        }
+        final Ebms3Error ebms3Error = ebMS3Exception.getFaultInfoError();
+
+        SOAPMessage soapMessageWithEbMS3Error = getSoapMessage(ebms3Error);
         context.setMessage(soapMessageWithEbMS3Error);
 
         soapUtil.logRawXmlMessageWhenEbMS3Error(soapMessageWithEbMS3Error);
@@ -149,6 +158,21 @@ public class FaultInHandler extends AbstractFaultHandler {
                     ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
                             .ebMS3ErrorCode(ErrorCode.EbMS3ErrorCode.EBMS_0101)
                             .message(cause.getMessage())
+                            .refToMessageId(messageId)
+                            .cause(cause)
+                            .mshRole(MSHRole.RECEIVING)
+                            .build();
+                } else if (cause instanceof UserMessageExtException && ((UserMessageExtException) cause).getEbmsError() != null) {
+                    final UserMessageExtException userMessageExtException = (UserMessageExtException) cause;
+                    final Ebms3ErrorExt ebmsError = userMessageExtException.getEbmsError();
+
+                    ebMS3Exception = EbMS3ExceptionBuilder.getInstance()
+                            .origin(ebmsError.getOrigin())
+                            .errorCode(ebmsError.getErrorCode())
+                            .message(ebmsError.getErrorDetail())
+                            .severity(ebmsError.getSeverity())
+                            .category(ebmsError.getCategory())
+                            .shortDescription(ebmsError.getShortDescription())
                             .refToMessageId(messageId)
                             .cause(cause)
                             .mshRole(MSHRole.RECEIVING)
@@ -232,16 +256,11 @@ public class FaultInHandler extends AbstractFaultHandler {
         return ebMS3Exception;
     }
 
-    private SOAPMessage getSoapMessage(EbMS3Exception ebMS3Exception) {
-        if (ebMS3Exception == null) {
-            LOG.warn("ebMSException is null on this stage and shouldn't");
-            throw new MissingResourceException("ebMSException is null on this stage and shouldn't", EbMS3Exception.class.getName(), "ebMS3Exception");
-        }
-
+    private SOAPMessage getSoapMessage(Ebms3Error ebms3Error) {
         // at this point an EbMS3Exception is available in any case
         SOAPMessage soapMessageWithEbMS3Error = null;
         try {
-            soapMessageWithEbMS3Error = this.messageBuilder.buildSOAPFaultMessage(ebMS3Exception.getFaultInfoError());
+            soapMessageWithEbMS3Error = this.messageBuilder.buildSOAPFaultMessage(ebms3Error);
         } catch (final EbMS3Exception e) {
             errorLogService.createErrorLog(e, MSHRole.RECEIVING, null);
         }
@@ -271,9 +290,8 @@ public class FaultInHandler extends AbstractFaultHandler {
         UserMessage userMessage = ebms3Converter.convertFromEbms3(ebms3Messaging.getUserMessage());
 
         final Map<String, String> properties = new HashMap<>();
-        if (faultCause.getErrorCode() != null) {
-            properties.put(MessageConstants.ERROR_CODE, faultCause.getErrorCode().name());
-        }
+        final String errorCode = faultCause.getErrorCode();
+        properties.put(MessageConstants.ERROR_CODE, errorCode);
         properties.put(MessageConstants.ERROR_DETAIL, faultCause.getErrorDetail());
         backendNotificationService.fillEventProperties(userMessage, properties);
         backendNotificationService.notifyMessageReceivedFailure(userMessage, userMessageErrorCreator.createErrorResult(faultCause));

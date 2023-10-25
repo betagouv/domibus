@@ -109,7 +109,7 @@ public class BackendMessageValidatorTest {
             backendMessageValidatorObj.validateMessageId(messageId2, MSHRole.SENDING);
             Assertions.fail("Expected exception EBMS_0009 was not raised!");
         } catch (EbMS3Exception e2) {
-            Assertions.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
+            Assertions.assertEquals("EBMS:0009", e2.getEbMS3ErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
         /*Message Id with leading and/or trailing whitespaces should throw error*/
 
@@ -120,7 +120,7 @@ public class BackendMessageValidatorTest {
             backendMessageValidatorObj.validateMessageId(messageId4, MSHRole.SENDING);
             Assertions.fail("Expected exception EBMS_0009 was not raised!");
         } catch (EbMS3Exception e2) {
-            Assertions.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
+            Assertions.assertEquals("EBMS:0009", e2.getEbMS3ErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
         /*Message Id containing non printable control characters should result in error*/
 
@@ -130,7 +130,7 @@ public class BackendMessageValidatorTest {
             backendMessageValidatorObj.validateMessageId(messageId5, MSHRole.SENDING);
             Assertions.fail("Expected exception EBMS_0009 was not raised!");
         } catch (EbMS3Exception e2) {
-            Assertions.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
+            Assertions.assertEquals("EBMS:0009", e2.getEbMS3ErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
 
         /*Message Id containing non printable control characters should result in error*/
@@ -147,7 +147,7 @@ public class BackendMessageValidatorTest {
             backendMessageValidatorObj.validateMessageId(messageId6, MSHRole.SENDING);
             Assertions.fail("Expected exception EBMS_0003 was not raised!");
         } catch (EbMS3Exception e2) {
-            Assertions.assertEquals("EBMS:0003", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
+            Assertions.assertEquals("EBMS:0003", e2.getEbMS3ErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
         /*Message id more than 255 characters long should result in error*/
     }
@@ -190,7 +190,7 @@ public class BackendMessageValidatorTest {
             backendMessageValidatorObj.validateRefToMessageId(refTomessageId2);
             Assertions.fail("Expected exception EBMS_0009 was not raised!");
         } catch (EbMS3Exception e2) {
-            Assertions.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
+            Assertions.assertEquals("EBMS:0009", e2.getEbMS3ErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
         /*Message Id with leading and/or trailing whitespaces should throw error*/
 
@@ -201,7 +201,7 @@ public class BackendMessageValidatorTest {
             backendMessageValidatorObj.validateRefToMessageId(refTomessageId4);
             Assertions.fail("Expected exception EBMS_0009 was not raised!");
         } catch (EbMS3Exception e2) {
-            Assertions.assertEquals("EBMS:0009", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
+            Assertions.assertEquals("EBMS:0009", e2.getEbMS3ErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
         /*Message Id containing non printable control characters should result in error*/
 
@@ -216,7 +216,7 @@ public class BackendMessageValidatorTest {
             backendMessageValidatorObj.validateRefToMessageId(refTomessageId5);
             Assertions.fail("Expected exception EBMS_0009 was not raised!");
         } catch (EbMS3Exception e2) {
-            Assertions.assertEquals("EBMS:0003", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
+            Assertions.assertEquals("EBMS:0003", e2.getEbMS3ErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
         /*Message Id containing non printable control characters should result in error*/
 
@@ -232,7 +232,7 @@ public class BackendMessageValidatorTest {
             backendMessageValidatorObj.validateRefToMessageId(refTomessageId6);
             Assertions.fail("Expected exception EBMS_0009 was not raised!");
         } catch (EbMS3Exception e2) {
-            Assertions.assertEquals("EBMS:0003", e2.getErrorCode().getCode().getErrorCode().getErrorCodeName());
+            Assertions.assertEquals("EBMS:0003", e2.getEbMS3ErrorCode().getCode().getErrorCode().getErrorCodeName());
         }
         /*Message id more than 255 characters long should result in error*/
 
@@ -346,7 +346,7 @@ public class BackendMessageValidatorTest {
             backendMessageValidatorObj.validateInitiatorParty(gatewayParty, from);
             Assertions.fail("It should throw " + EbMS3Exception.class.getCanonicalName());
         } catch (EbMS3Exception ex) {
-            assert (ex.getErrorCode().equals(ErrorCode.EbMS3ErrorCode.EBMS_0010));
+            assert (ex.getEbMS3ErrorCode().equals(ErrorCode.EbMS3ErrorCode.EBMS_0010));
             assert (ex.getErrorDetail().contains("does not correspond to the access point's name"));
             assert (ex.getMshRole().equals(MSHRole.SENDING));
         }
@@ -420,7 +420,7 @@ public class BackendMessageValidatorTest {
             backendMessageValidatorObj.validatePartiesRoles(fromRole, toRole);
             Assertions.fail("It should throw " + EbMS3Exception.class.getCanonicalName());
         } catch (EbMS3Exception ex) {
-            assert (ex.getErrorCode().equals(ErrorCode.EbMS3ErrorCode.EBMS_0010));
+            assert (ex.getEbMS3ErrorCode().equals(ErrorCode.EbMS3ErrorCode.EBMS_0010));
             assert (ex.getErrorDetail().contains("The initiator party's role is the same as the responder party's one"));
         }
 

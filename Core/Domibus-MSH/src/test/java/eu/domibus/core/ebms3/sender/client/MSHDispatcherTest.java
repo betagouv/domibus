@@ -210,7 +210,7 @@ public class MSHDispatcherTest {
             Assertions.fail("Webservice Exception was expected");
         } catch (Exception e) {
             Assertions.assertTrue(e instanceof EbMS3Exception);
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0005, ((EbMS3Exception) e).getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0005, ((EbMS3Exception) e).getEbMS3ErrorCode());
         }
 
     }
@@ -247,7 +247,7 @@ public class MSHDispatcherTest {
             Assertions.fail("Webservice Exception was expected");
         } catch (Exception e) {
             Assertions.assertTrue(e instanceof EbMS3Exception);
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0103, ((EbMS3Exception) e).getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0103, ((EbMS3Exception) e).getEbMS3ErrorCode());
         }
 
     }
@@ -284,7 +284,7 @@ public class MSHDispatcherTest {
             Assertions.fail("Webservice Exception was expected");
         } catch (Exception e) {
             Assertions.assertTrue(e instanceof EbMS3Exception);
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0005, ((EbMS3Exception) e).getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0005, ((EbMS3Exception) e).getEbMS3ErrorCode());
         }
 
     }

@@ -5,6 +5,7 @@ import eu.domibus.api.ebms3.model.Ebms3Messaging;
 import eu.domibus.api.ebms3.model.Ebms3UserMessage;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.model.UserMessage;
+import eu.domibus.common.Ebms3ErrorExt;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.mapper.Ebms3Converter;
@@ -12,10 +13,15 @@ import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.plugin.notification.BackendNotificationService;
 import eu.domibus.core.pmode.NoMatchingPModeFoundException;
 import eu.domibus.core.util.SoapUtil;
+import eu.domibus.ext.exceptions.DomibusErrorCode;
+import eu.domibus.ext.exceptions.UserMessageExtException;
 import eu.domibus.messaging.XmlProcessingException;
 import mockit.*;
+import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.jaxws.handler.soap.SOAPMessageContextImpl;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
+import org.apache.cxf.message.MessageImpl;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,73 +48,40 @@ public class FaultInHandlerIT extends AbstractIT {
     @Autowired
     private FaultInHandler faultInHandler;
 
-    @Injectable
-    private SoapUtil soapUtil;
-
-    @Injectable
-    private ErrorLogService errorLogService;
-
-    @Injectable
-    private Ebms3Converter ebms3Converter;
-
-    @Injectable
-    private BackendNotificationService backendNotificationService;
-
-    @BeforeEach
-    public void before() throws XmlProcessingException, IOException {
-        uploadPMode();
-
-        ReflectionTestUtils.setField(faultInHandler, "soapUtil", soapUtil);
-        ReflectionTestUtils.setField(faultInHandler, "errorLogService", errorLogService);
-        ReflectionTestUtils.setField(faultInHandler, "ebms3Converter", ebms3Converter);
-        ReflectionTestUtils.setField(faultInHandler, "backendNotificationService", backendNotificationService);
+    @Test
+    void testHandleFaultNullContext() {
+        Assertions.assertThrows(MissingResourceException.class, () -> faultInHandler.handleFault(null));
     }
 
     @Test
-    void testHandleFaultNullContext(){
-        Assertions.assertThrows(MissingResourceException. class,() -> faultInHandler.handleFault(null));
+    public void getEBMS3ExceptionWithUserMessageExtException() {
+        UserMessageExtException userMessageExtException = new UserMessageExtException(DomibusErrorCode.DOM_001, "my UserMessageExtException detail");
+
+        Ebms3ErrorExt ebms3Error = new Ebms3ErrorExt();
+        final String errorCode = "COS-1";
+        final String errorDetail = "COS-1 detail";
+        final String myCategory = "myCategory";
+        final String mySeverity = "mySeverity";
+        final String myOrigin = "myOrigin";
+        final String myShortDescription = "myShortDescription";
+
+        ebms3Error.setErrorCode(errorCode);
+        ebms3Error.setErrorDetail(errorDetail);
+        ebms3Error.setCategory(myCategory);
+        ebms3Error.setSeverity(mySeverity);
+        ebms3Error.setOrigin(myOrigin);
+        ebms3Error.setShortDescription(myShortDescription);
+
+        userMessageExtException.setEbmsError(ebms3Error);
+        Exception myException = new Exception(userMessageExtException);
+        String messageId = null;
+        final EbMS3Exception ebms3Exception = faultInHandler.getEBMS3Exception(myException, messageId);
+        assertEquals(errorCode, ebms3Exception.getErrorCode());
+        assertEquals(errorDetail, ebms3Exception.getErrorDetail());
+        assertEquals(myCategory, ebms3Exception.getCategory());
+        assertEquals(mySeverity, ebms3Exception.getSeverity());
+        assertEquals(myOrigin, ebms3Exception.getOrigin());
+        assertEquals(myShortDescription, ebms3Exception.getShortDescription());
     }
 
-    @Test
-    @Disabled("EDELIVERY-6896")
-    public void test(@Mocked PhaseInterceptorChain phaseInterceptorChain, @Mocked Message message, @Mocked SOAPMessageContext context, @Mocked Exchange exchange){
-        NoMatchingPModeFoundException cause = new NoMatchingPModeFoundException(MESSAGE_ID);
-        EbMS3Exception ebms3Exception = faultInHandler.getEBMS3Exception(new Exception(cause), MESSAGE_ID);
-
-        new Expectations() {{
-            phaseInterceptorChain.getCurrentMessage();
-            result = message;
-
-            message.getContextualProperty(anyString);
-            result = MESSAGE_ID;
-
-            context.get(Exception.class.getName());
-            //todo fga returns(ebms3Exception);
-
-            message.getExchange().get(EMBS3_MESSAGING_OBJECT);
-            result = new Ebms3Messaging();
-
-            ebms3Converter.convertFromEbms3((Ebms3UserMessage) any);
-            result = new UserMessage();
-        }};
-
-        faultInHandler.handleFault(context);
-
-        new Verifications(){{
-            SOAPMessage soapMessageWithEbMS3Error;
-            context.setMessage(soapMessageWithEbMS3Error = withCapture());
-            assertEquals(EBMS_0010, ebms3Exception.getErrorCode(), "Incorrect error code");
-
-            soapUtil.logRawXmlMessageWhenEbMS3Error(soapMessageWithEbMS3Error);
-
-            errorLogService.createErrorLog((Ebms3Messaging)any, MSHRole.RECEIVING, null);
-
-            Map<String, String> properties;
-            backendNotificationService.fillEventProperties((UserMessage) any, properties = withCapture());
-            assertEquals(EBMS_0010.name(), properties.get(ERROR_CODE));
-            assertTrue(properties.containsKey(ERROR_DETAIL));
-
-            backendNotificationService.notifyMessageReceivedFailure((UserMessage) any, (ErrorResult) any);
-        }};
-    }
 }

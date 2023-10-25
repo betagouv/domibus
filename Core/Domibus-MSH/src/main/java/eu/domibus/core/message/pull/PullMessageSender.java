@@ -234,7 +234,7 @@ public class PullMessageSender {
     }
 
     private void checkConnectionProblem(EbMS3Exception e, String mpcName) {
-        if (e.getErrorCode() == ErrorCode.EbMS3ErrorCode.EBMS_0005) {
+        if (e.getEbMS3ErrorCode() == ErrorCode.EbMS3ErrorCode.EBMS_0005) {
             LOG.warn("ConnectionFailure ", e);
             pullFrequencyHelper.increaseError(mpcName);
         } else {

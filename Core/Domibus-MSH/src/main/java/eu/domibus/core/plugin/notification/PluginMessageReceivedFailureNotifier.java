@@ -34,19 +34,4 @@ public class PluginMessageReceivedFailureNotifier implements PluginEventNotifier
     public void notifyPlugin(MessageReceiveFailureEvent messageEvent, BackendConnector<?, ?> backendConnector) {
         backendConnectorDelegate.messageReceiveFailed(backendConnector, messageEvent);
     }
-
-
-    protected ErrorResultImpl getErrorResult(String messageId, Map<String, String> properties) {
-        final String errorCode = properties.get(MessageConstants.ERROR_CODE);
-        final String errorDetail = properties.get(MessageConstants.ERROR_DETAIL);
-        ErrorResultImpl errorResult = new ErrorResultImpl();
-        try {
-            errorResult.setErrorCode(ErrorCode.findBy(errorCode));
-        } catch (IllegalArgumentException e) {
-            LOG.warn("Could not find error code for [" + errorCode + "]");
-        }
-        errorResult.setErrorDetail(errorDetail);
-        errorResult.setMessageInErrorId(messageId);
-        return errorResult;
-    }
 }

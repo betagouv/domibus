@@ -38,9 +38,8 @@ public class ErrorLogEntry extends AbstractBaseEntity {
     @Column(name = "MESSAGE_IN_ERROR_ID")
     private String messageInErrorId;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "ERROR_CODE")
-    private ErrorCode errorCode;
+    private String errorCode;
 
     @Column(name = "ERROR_DETAIL")
     private String errorDetail;
@@ -70,12 +69,12 @@ public class ErrorLogEntry extends AbstractBaseEntity {
     public ErrorLogEntry(final EbMS3Exception ebms3Exception) {
         this.messageInErrorId = ebms3Exception.getRefToMessageId();
         this.errorSignalMessageId = ebms3Exception.getSignalMessageId();
-        this.errorCode = ebms3Exception.getErrorCodeObject();
+        this.errorCode = ebms3Exception.getErrorCode();
         this.errorDetail = ebms3Exception.getErrorDetail();
         this.timestamp = new Date();
     }
 
-    public ErrorLogEntry(MSHRoleEntity mshRole, String messageInErrorId, ErrorCode errorCode, String errorDetail) {
+    public ErrorLogEntry(MSHRoleEntity mshRole, String messageInErrorId, String errorCode, String errorDetail) {
         this.mshRole = mshRole;
         this.messageInErrorId = messageInErrorId;
         this.errorCode = errorCode;
@@ -87,7 +86,6 @@ public class ErrorLogEntry extends AbstractBaseEntity {
      * Creates an ErrorLogEntry from an ebMS3 signal message
      *
      * @param messaging Signal message containing the error
-     * @param role      Role of the MSH
      * @return the new error log entry
      */
     public static ErrorLogEntry parse(final Ebms3Messaging messaging) {
@@ -96,7 +94,7 @@ public class ErrorLogEntry extends AbstractBaseEntity {
         final ErrorLogEntry errorLogEntry = new ErrorLogEntry();
         errorLogEntry.setTimestamp(messaging.getSignalMessage().getMessageInfo().getTimestamp());
         errorLogEntry.setErrorSignalMessageId(messaging.getSignalMessage().getMessageInfo().getMessageId());
-        errorLogEntry.setErrorCode(ErrorCode.findBy(error.getErrorCode()));
+        errorLogEntry.setErrorCode(error.getErrorCode());
         errorLogEntry.setMessageInErrorId(error.getRefToMessageInError());
         errorLogEntry.setErrorDetail(error.getErrorDetail());
 
@@ -173,11 +171,11 @@ public class ErrorLogEntry extends AbstractBaseEntity {
         this.messageInErrorId = refToMessageId;
     }
 
-    public ErrorCode getErrorCode() {
+    public String getErrorCode() {
         return this.errorCode;
     }
 
-    public void setErrorCode(final ErrorCode errorCode) {
+    public void setErrorCode(final String errorCode) {
         this.errorCode = errorCode;
     }
 

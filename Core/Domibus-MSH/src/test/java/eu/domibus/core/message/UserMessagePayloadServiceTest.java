@@ -148,7 +148,7 @@ public class UserMessagePayloadServiceTest {
             userMessagePayloadService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
             fail("Expecting error that - More than one Partinfo referencing the soap body found!");
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0003, e.getEbMS3ErrorCode());
         }
 
         new Verifications() {
@@ -243,7 +243,7 @@ public class UserMessagePayloadServiceTest {
             userMessagePayloadService.handlePayloads(soapRequestMessage, ebms3Messaging, null);
             fail("Expected Ebms3 exception that no matching payload was found!");
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0011, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0011, e.getEbMS3ErrorCode());
         }
 
         new FullVerifications() {{

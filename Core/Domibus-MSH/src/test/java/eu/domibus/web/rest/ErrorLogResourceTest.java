@@ -54,7 +54,7 @@ public class ErrorLogResourceTest {
         final List<ErrorLogEntry> resultList = new ArrayList<>();
         ErrorLogEntry errorLogEntry = new ErrorLogEntry();
         errorLogEntry.setEntityId(1);
-        errorLogEntry.setErrorCode(ErrorCode.EBMS_0001);
+        errorLogEntry.setErrorCode(ErrorCode.EBMS_0001.getErrorCodeName());
         errorLogEntry.setErrorDetail("errorDetail");
         errorLogEntry.setErrorSignalMessageId("errorSignalMessageId");
         errorLogEntry.setMessageInErrorId("refToMessageId");
@@ -105,7 +105,7 @@ public class ErrorLogResourceTest {
         errorLogEntry.setErrorDetail(errorDetailStr);
         errorLogEntry.setErrorSignalMessageId(signalMessageIdStr);
         errorLogEntry.setMessageInErrorId(refToMessageIdStr);
-        errorLogEntry.setErrorCode(ErrorCode.EBMS_0001);
+        errorLogEntry.setErrorCode(ErrorCode.EBMS_0001.getErrorCodeName());
         MSHRoleEntity mshRole = new MSHRoleEntity();
         mshRole.setRole(MSHRole.RECEIVING);
         errorLogEntry.setMshRole(mshRole);
@@ -118,7 +118,7 @@ public class ErrorLogResourceTest {
         errorLogRO.setErrorDetail(errorDetailStr);
         errorLogRO.setErrorSignalMessageId(signalMessageIdStr);
         errorLogRO.setMessageInErrorId(refToMessageIdStr);
-        errorLogRO.setErrorCode(ErrorCode.EBMS_0001);
+        errorLogRO.setErrorCode(ErrorCode.EBMS_0001.getErrorCodeName());
         errorLogRO.setMshRole(MSHRole.RECEIVING);
         errorLogRO.setTimestamp(date);
         errorLogRO.setNotified(date);

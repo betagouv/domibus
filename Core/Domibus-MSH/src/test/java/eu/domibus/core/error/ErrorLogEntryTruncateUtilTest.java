@@ -18,7 +18,7 @@ public class ErrorLogEntryTruncateUtilTest {
         final String transformedmessageId = "-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789";
         final String errorDetail = "error detail";
 
-        ErrorLogEntry errorLogEntry = new ErrorLogEntry(null, messageId, ErrorCode.EBMS_0010, errorDetail);
+        ErrorLogEntry errorLogEntry = new ErrorLogEntry(null, messageId, ErrorCode.EBMS_0010.getErrorCodeName(), errorDetail);
 
         new ErrorLogEntryTruncateUtil().truncate(errorLogEntry);
 
@@ -32,7 +32,7 @@ public class ErrorLogEntryTruncateUtilTest {
         final String transformedErrorDetail = "-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789-01234567890123456789012345678901234567890123456789";
         final String messageID = "messageId";
 
-        ErrorLogEntry errorLogEntry = new ErrorLogEntry(null, messageID, ErrorCode.EBMS_0010, errorDetail);
+        ErrorLogEntry errorLogEntry = new ErrorLogEntry(null, messageID, ErrorCode.EBMS_0010.getErrorCodeName(), errorDetail);
 
         new ErrorLogEntryTruncateUtil().truncate(errorLogEntry);
 

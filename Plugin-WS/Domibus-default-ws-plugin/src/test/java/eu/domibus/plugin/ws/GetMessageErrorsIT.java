@@ -48,7 +48,7 @@ public class GetMessageErrorsIT extends AbstractBackendWSIT {
         ErrorLogEntry logEntry = new ErrorLogEntry();
         logEntry.setMessageInErrorId(messageId);
         logEntry.setMshRole(mshRoleDao.findOrCreate(MSHRole.SENDING));
-        logEntry.setErrorCode(ErrorCode.EBMS_0004);
+        logEntry.setErrorCode(ErrorCode.EBMS_0004.getErrorCodeName());
 
         logEntry.setUserMessage(testMessage.getUserMessage());
         logEntry.setTimestamp(new Date());

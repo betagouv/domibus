@@ -2,6 +2,7 @@
 package eu.domibus.common;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import java.util.Date;
 
 
@@ -21,32 +22,39 @@ public interface ErrorResult {
     MSHRole getMshRole();
 
     /**
-     *
      * @return the internal ID of the erroneous message
      */
     String getMessageInErrorId();
 
     /**
-     *
      * @return the ebMS3 error code
      */
     ErrorCode getErrorCode();
 
     /**
-     *
+     * Return the ebMS3 error code as string
+     */
+    default String getErrorCodeAsString() {
+        final ErrorCode errorCode = getErrorCode();
+        if (errorCode != null) {
+            return errorCode.getErrorCodeName();
+        }
+        return null;
+    }
+
+
+    /**
      * @return the error detail message as produced by the MSH generating the error
      */
     String getErrorDetail();
 
 
     /**
-     *
      * @return the time when this error was generated/received
      */
     Date getTimestamp();
 
     /**
-     *
      * @return the time the corresponding backend plugin was made aware of this error or null
      * if there was no corresponding backend found or the corresponding PMode is set to not
      * forward error messages. This is controlled by PMode[1].errorHandling.Report.ProcessErrorNotifyConsumer

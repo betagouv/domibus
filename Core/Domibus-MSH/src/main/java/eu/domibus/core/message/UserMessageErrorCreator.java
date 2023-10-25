@@ -1,12 +1,10 @@
 package eu.domibus.core.message;
 
-import eu.domibus.common.ErrorCode;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.ErrorResultImpl;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
-import org.apache.wss4j.common.ext.WSSecurityException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,10 +21,11 @@ public class UserMessageErrorCreator {
         ErrorResultImpl result = new ErrorResultImpl();
         result.setMshRole(eu.domibus.common.MSHRole.RECEIVING);
         result.setMessageInErrorId(ebm3Exception.getRefToMessageId());
+        result.setErrorCodeAsString(ebm3Exception.getErrorCode());
         try {
             result.setErrorCode(ebm3Exception.getErrorCodeObject());
         } catch (IllegalArgumentException e) {
-            LOG.warn("Could not find error code for [" + ebm3Exception.getErrorCode() + "]");
+            LOG.warn("Could not find error code for [" + ebm3Exception.getEbMS3ErrorCode() + "]");
         }
         result.setErrorDetail(ebm3Exception.getErrorDetail());
         return result;

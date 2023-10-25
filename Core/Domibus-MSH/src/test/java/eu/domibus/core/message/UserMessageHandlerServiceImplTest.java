@@ -454,7 +454,7 @@ public class UserMessageHandlerServiceImplTest {
             fail();
         } catch (Exception e) {
             Assertions.assertTrue(e instanceof EbMS3Exception, "Expecting Ebms3 exception");
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, ((EbMS3Exception) e).getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, ((EbMS3Exception) e).getEbMS3ErrorCode());
         }
 
         new FullVerifications() {{
@@ -480,7 +480,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessageHandlerService.persistReceivedMessage(soapRequestMessage, legConfiguration, pmodeKey, userMessage, null, null, "", null, () -> {});
             fail("Exception for compression failure expected!");
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0303, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0303, e.getEbMS3ErrorCode());
         }
 
         new FullVerifications() {{
@@ -658,7 +658,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessageHandlerService.saveReceivedMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, null, null, () -> {});
             fail();
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0303, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0303, e.getEbMS3ErrorCode());
         }
 
         new FullVerifications() {{
@@ -697,7 +697,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessageHandlerService.saveReceivedMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, null, null, () -> {});
             fail();
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getEbMS3ErrorCode());
         }
 
         new FullVerifications() {{
@@ -741,7 +741,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessageHandlerService.saveReceivedMessage(request, legConfiguration, pmodeKey, null, backendName, userMessage, null, null, () -> {});
             fail();
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0010, e.getEbMS3ErrorCode());
         }
 
         new FullVerifications() {{
@@ -858,7 +858,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
             fail("Not possible to use SplitAndJoin without PMode leg configuration");
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0002, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0002, e.getEbMS3ErrorCode());
         }
 
         new FullVerifications() {
@@ -882,7 +882,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
             fail("Not possible to use SplitAndJoin with database payloads");
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0002, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0002, e.getEbMS3ErrorCode());
         }
 
         new FullVerifications() {
@@ -915,7 +915,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
             fail();
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0040, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0040, e.getEbMS3ErrorCode());
         }
 
         new FullVerifications() {
@@ -945,7 +945,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
             fail();
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0051, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0051, e.getEbMS3ErrorCode());
         }
 
         new FullVerifications() {
@@ -1039,7 +1039,7 @@ public class UserMessageHandlerServiceImplTest {
             userMessageHandlerService.validateUserMessageFragment(userMessage, messageGroupEntity, ebms3MessageFragmentType, legConfiguration);
             fail();
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0048, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0048, e.getEbMS3ErrorCode());
         }
 
         new FullVerifications() {

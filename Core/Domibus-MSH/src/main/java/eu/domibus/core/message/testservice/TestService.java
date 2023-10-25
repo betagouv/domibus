@@ -301,7 +301,7 @@ public class TestService {
         }
         return new TestErrorsInfoRO(
                 errorLogEntries.stream()
-                        .map(err -> new TestMessageErrorRo(err.getErrorCode().getErrorCodeName(), err.getErrorDetail()))
+                        .map(err -> new TestMessageErrorRo(err.getErrorCode(), err.getErrorDetail()))
                         .collect(Collectors.toList())
         );
     }

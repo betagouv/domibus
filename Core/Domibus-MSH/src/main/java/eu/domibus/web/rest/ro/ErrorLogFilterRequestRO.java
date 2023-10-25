@@ -1,6 +1,5 @@
 package eu.domibus.web.rest.ro;
 
-import eu.domibus.common.ErrorCode;
 import eu.domibus.api.model.MSHRole;
 import eu.domibus.api.validators.CustomWhiteListed;
 
@@ -26,7 +25,7 @@ public class ErrorLogFilterRequestRO implements Serializable {
 
     private String messageInErrorId;
 
-    private ErrorCode errorCode;
+    private String errorCode;
 
     @CustomWhiteListed(permitted = ":/=?&")
     private String errorDetail;
@@ -87,11 +86,11 @@ public class ErrorLogFilterRequestRO implements Serializable {
         this.messageInErrorId = messageInErrorId;
     }
 
-    public ErrorCode getErrorCode() {
+    public String getErrorCode() {
         return errorCode;
     }
 
-    public void setErrorCode(ErrorCode errorCode) {
+    public void setErrorCode(String errorCode) {
         this.errorCode = errorCode;
     }
 

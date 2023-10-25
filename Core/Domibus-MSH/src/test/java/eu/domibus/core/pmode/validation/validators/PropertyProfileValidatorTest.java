@@ -146,7 +146,7 @@ public class PropertyProfileValidatorTest {
             propertyProfileValidator.checkDuplicateMessageProperties(modifiablePropertyList, messagePropertiesSet);
             Assertions.fail();
         } catch (EbMS3Exception e) {
-            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0052, e.getErrorCode());
+            Assertions.assertEquals(ErrorCode.EbMS3ErrorCode.EBMS_0052, e.getEbMS3ErrorCode());
             Assertions.assertEquals("Duplicate Message property found for property name [originalSender]", e.getMessage());
         }
 
