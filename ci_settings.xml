@@ -43,6 +43,7 @@
         <activeProfile>UI</activeProfile>
         <activeProfile>weblogic-ecas</activeProfile>
         <activeProfile>weblogic</activeProfile>
+        <activeProfile>weblogic14</activeProfile>
         <activeProfile>wildfly</activeProfile>
     </activeProfiles>
 </settings>

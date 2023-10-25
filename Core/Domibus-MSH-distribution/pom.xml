@@ -305,6 +305,42 @@
             </build>
         </profile>
         <profile>
+            <id>weblogic14</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <dependencies>
+                            <dependency>
+                                <groupId>${project.groupId}</groupId>
+                                <artifactId>domibus-MSH-weblogic</artifactId>
+                                <version>${project.version}</version>
+                                <type>war</type>
+                            </dependency>
+                        </dependencies>
+                        <executions>
+                            <execution>
+                                <id>make-assembly-weblogic</id>
+                                <configuration>
+                                    <descriptors>
+                                        <descriptor>src/main/assembly/weblogic/weblogic-configuration-only.xml</descriptor>
+                                        <descriptor>src/main/assembly/weblogic/weblogic-war.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                                <!-- bound to verify because we need to execute cargo-package first
+                                    which is in pre-integration-test -->
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>weblogic-ecas</id>
             <build>
                 <plugins>

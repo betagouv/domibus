@@ -15,15 +15,15 @@
     <packaging>pom</packaging>
     <name>Weblogic modules</name>
 
-    <properties>
-        <com.oracle.weblogic.version>12.2.1.4.0</com.oracle.weblogic.version>
-    </properties>
-
     <modules>
         <module>Domibus-MSH-taskexecutor-weblogic</module>
         <module>Domibus-MSH-jms-weblogic</module>
         <module>Domibus-MSH-weblogic-common</module>
     </modules>
+
+    <properties>
+        <com.oracle.weblogic.version>12.2.1.4.0</com.oracle.weblogic.version>
+    </properties>
 
     <profiles>
         <profile>
@@ -31,6 +31,15 @@
             <modules>
                 <module>Domibus-MSH-weblogic</module>
             </modules>
+        </profile>
+        <profile>
+            <id>weblogic14</id>
+            <modules>
+                <module>Domibus-MSH-weblogic</module>
+            </modules>
+            <properties>
+                <com.oracle.weblogic.version>14.1.1.0</com.oracle.weblogic.version>
+            </properties>
         </profile>
         <profile>
             <id>weblogic-ecas</id>
