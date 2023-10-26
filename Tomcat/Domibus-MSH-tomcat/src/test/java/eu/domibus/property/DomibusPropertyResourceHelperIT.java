@@ -4,6 +4,7 @@ import eu.domibus.AbstractIT;
 import eu.domibus.api.property.DomibusProperty;
 import eu.domibus.api.property.DomibusPropertyException;
 import eu.domibus.api.property.DomibusPropertyMetadata;
+import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.core.property.DomibusPropertiesFilter;
 import eu.domibus.core.property.DomibusPropertyResourceHelperImpl;
 import eu.domibus.core.property.GlobalPropertyMetadataManager;
@@ -30,6 +31,9 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
 
     @Autowired
     private GlobalPropertyMetadataManager globalPropertyMetadataManager;
+
+    @Autowired
+    private DomibusPropertyProvider domibusPropertyProvider;
 
     @Test
     public void setProperty_readonly() {
@@ -171,5 +175,13 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
         DomibusProperty result = configurationPropertyResourceHelper.getProperty(DOMIBUS_PROXY_HTTP_PORT);
         Assertions.assertEquals(StringUtils.EMPTY, result.getValue());
         Assertions.assertEquals(StringUtils.EMPTY, result.getUsedValue());
+    }
+
+    @Test
+    public void testGetDecimalProperty() {
+        Double propVal = domibusPropertyProvider.getDecimalProperty(DOMIBUS_UI_MESSAGE_LOGS_DEFAULT_INTERVAL);
+        DomibusProperty result = configurationPropertyResourceHelper.getProperty(DOMIBUS_UI_MESSAGE_LOGS_DEFAULT_INTERVAL);
+        Assert.assertEquals(propVal.toString(), result.getValue());
+        Assert.assertEquals(propVal.toString(), result.getUsedValue());
     }
 }

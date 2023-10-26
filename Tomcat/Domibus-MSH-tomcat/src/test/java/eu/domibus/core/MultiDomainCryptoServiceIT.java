@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
+import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
 import static eu.domibus.core.crypto.MultiDomainCryptoServiceImpl.DOMIBUS_TRUSTSTORE_NAME;
 
 /**
@@ -86,6 +87,44 @@ public class MultiDomainCryptoServiceIT extends MultiDomainCryptoServiceBase {
         Assertions.assertNotEquals(initialStoreEntries.size(), newStoreEntries.size());
     }
 
+    @Test
+    public void replaceTrustStoreWithDifferentTypeAndPassword() throws IOException {
+        Domain domain = DomainService.DEFAULT_DOMAIN;
+        String initialLocation = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+        String initialType = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
+        String initialPassword = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+
+        String newStoreName = "gateway_truststore_diffPass.p12";
+        String newStorePassword = "test1234";
+
+        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, newStoreName);
+        byte[] content = Files.readAllBytes(path);
+        KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, newStoreName, content, newStorePassword);
+
+        KeyStore initialStore = multiDomainCryptoService.getTrustStore(domain);
+        KeyStoreContentInfo initialStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
+        List<TrustStoreEntry> initialStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+
+        multiDomainCryptoService.replaceTrustStore(domain, storeInfo);
+
+        String newLocation = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
+        String newType = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_TYPE);
+        String newPassword = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
+
+        // initial properties didn't change
+        Assert.assertEquals(initialLocation, newLocation);
+        Assert.assertEquals(initialType, newType);
+        Assert.assertEquals(initialPassword, newPassword);
+
+        // can still open the store
+        KeyStore newStore = multiDomainCryptoService.getTrustStore(domain);
+        List<TrustStoreEntry> newStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
+        KeyStoreContentInfo newStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
+
+        Assert.assertNotEquals(initialStore, newStore);
+        Assert.assertNotEquals(initialStoreContent.getContent(), newStoreContent.getContent());
+        Assert.assertNotEquals(initialStoreEntries.size(), newStoreEntries.size());
+    }
     @Test
     @Disabled("EDELIVERY-6896")
     public void getTrustStoreEntries() {

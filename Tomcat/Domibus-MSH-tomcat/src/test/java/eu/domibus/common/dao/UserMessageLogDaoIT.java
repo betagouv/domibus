@@ -7,6 +7,8 @@ import eu.domibus.api.util.TsidUtil;
 import eu.domibus.common.MessageDaoTestUtil;
 import eu.domibus.api.earchive.EArchiveBatchUserMessage;
 import eu.domibus.core.message.MessageLogInfo;
+import eu.domibus.core.message.MessageStatusDao;
+import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.dictionary.MpcDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;

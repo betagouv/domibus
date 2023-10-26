@@ -359,12 +359,11 @@ public class CertificateServiceImpl implements CertificateService {
         return createTrustStoreEntry(alias, cert);
     }
 
-    @Override
     public boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo, boolean checkEqual) {
         String storeName = persistenceInfo.getName();
-        KeyStore store = getStore(persistenceInfo);
+        KeyStore diskStore = getStore(persistenceInfo);
 
-        LOG.debug("Preparing to replace the current store [{}] having entries [{}].", storeName, getStoreEntries(store));
+        LOG.debug("Preparing to replace the current store [{}] having entries [{}].", storeName, getStoreEntries(diskStore));
         if (StringUtils.isEmpty(storeInfo.getType())) {
             storeInfo.setType(certificateHelper.getStoreType(storeInfo.getFileName()));
         }
@@ -536,6 +535,19 @@ public class CertificateServiceImpl implements CertificateService {
         }
     }
 
+    protected void copyStoreCertificates(KeyStore srcStore, KeyStore destStore) {
+        try {
+            final Enumeration<String> aliases = srcStore.aliases();
+            while (aliases.hasMoreElements()) {
+                final String alias = aliases.nextElement();
+                final X509Certificate certificate = (X509Certificate) srcStore.getCertificate(alias);
+                destStore.setCertificateEntry(alias, certificate);
+                LOG.debug("Copy certificate [{}] named [{}]", certificate, alias);
+            }
+        } catch (Exception e) {
+            throw new DomibusCertificateException("Error while copying certificates from source store", e);
+        }
+    }
 
     protected boolean doAddCertificatesAndSave(KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
         LOG.info("Adding certificates [{}] to [{}]", certificates.stream().map(certificateEntry -> certificateEntry.getAlias()).collect(Collectors.toList()), persistenceInfo.getFileLocation());

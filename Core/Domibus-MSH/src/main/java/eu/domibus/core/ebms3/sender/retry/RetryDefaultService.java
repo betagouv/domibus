@@ -6,13 +6,13 @@ import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.TsidUtil;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.pull.MessagingLock;
 import eu.domibus.core.message.pull.MessagingLockDao;
 import eu.domibus.core.message.pull.PullMessageService;
-import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -21,12 +21,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_RETRY_TIMEOUT_DELAY;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -57,10 +56,10 @@ public class RetryDefaultService implements RetryService {
     private MessagingLockDao messagingLockDao;
 
     @Autowired
-    PModeProvider pModeProvider;
+    private PModeProvider pModeProvider;
 
     @Autowired
-    UpdateRetryLoggingService updateRetryLoggingService;
+    private UpdateRetryLoggingService updateRetryLoggingService;
 
     @Autowired
     TsidUtil tsidUtil;
@@ -162,13 +161,13 @@ public class RetryDefaultService implements RetryService {
     }
 
     /**
-     * Method call by job to to delete messages marked as failed.
+     * Method call by job to delete messages marked as failed.
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void bulkDeletePullMessages() {
         final List<MessagingLock> deletedLocks = messagingLockDao.findDeletedMessages();
-        LOG.trace("Delete unecessary locks");
+        LOG.trace("Delete unnecessary locks");
         for (MessagingLock deletedLock : deletedLocks) {
             pullMessageService.deleteInNewTransaction(deletedLock.getMessageId());
         }
