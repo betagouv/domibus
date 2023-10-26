@@ -21,16 +21,15 @@
         <module>Domibus-MSH-weblogic-common</module>
     </modules>
 
-    <properties>
-        <com.oracle.weblogic.version>12.2.1.4.0</com.oracle.weblogic.version>
-    </properties>
-
     <profiles>
         <profile>
             <id>weblogic</id>
             <modules>
                 <module>Domibus-MSH-weblogic</module>
             </modules>
+            <properties>
+                <com.oracle.weblogic.version>12.2.1.4.0</com.oracle.weblogic.version>
+            </properties>
         </profile>
         <profile>
             <id>weblogic14</id>
