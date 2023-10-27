@@ -21,8 +21,7 @@ public class ConfigurationDAO extends BasicDao<Configuration> {
         super(Configuration.class);
     }
 
-
-    @Transactional(readOnly = true)
+    @Transactional
     public boolean configurationExists() {
         final TypedQuery<Long> query = this.em.createNamedQuery("Configuration.count", Long.class);
 
@@ -34,7 +33,7 @@ public class ConfigurationDAO extends BasicDao<Configuration> {
         return query.getSingleResult();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Configuration readEager() {
         final TypedQuery<Configuration> query = this.em.createNamedQuery("Configuration.getConfiguration", Configuration.class);
 

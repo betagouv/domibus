@@ -27,7 +27,7 @@ public class MessagesLogServiceHelperImpl implements MessagesLogServiceHelper {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public long calculateNumberOfMessages(MessageLogDaoBase dao, Map<String, Object> filters, MessageLogResultRO result) {
         long count;
         boolean isEstimated;

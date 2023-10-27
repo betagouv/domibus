@@ -55,7 +55,7 @@ public class MessagesLogServiceImpl implements MessagesLogService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public long countMessages(MessageType messageType, Map<String, Object> filters) {
         MessageLogDao dao = getMessageLogDao(messageType);
         return dao.countEntries(filters);
@@ -65,7 +65,7 @@ public class MessagesLogServiceImpl implements MessagesLogService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true) //Ion
     public MessageLogResultRO countAndFindPaged(MessageType messageType, int from, int max, String column, boolean asc, Map<String, Object> filters, List<String> fields) {
         MessageLogResultRO result = new MessageLogResultRO();
 
