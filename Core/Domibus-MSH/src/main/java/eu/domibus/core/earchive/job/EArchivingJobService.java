@@ -82,7 +82,7 @@ public class EArchivingJobService {
         this.tsidUtil = tsidUtil;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional //Ion??
     public EArchiveBatchStart getContinuousStartDate(EArchiveRequestType eArchiveRequestType) {
         EArchiveBatchStart byReference = eArchiveBatchStartDao.findByReference(getEArchiveBatchStartId(eArchiveRequestType));
         Hibernate.initialize(byReference);
@@ -160,7 +160,7 @@ public class EArchivingJobService {
         return eArchiveBatchDao.merge(entity);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional //Ion??
     public long getMaxEntityIdToArchived(EArchiveRequestType eArchiveRequestType) {
         if (eArchiveRequestType == EArchiveRequestType.SANITIZER) {
             ZonedDateTime dateHour = ZonedDateTime.ofInstant(new Date(tsidUtil.getDateFromTsid(eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage())).toInstant(), ZoneOffset.UTC);
@@ -243,7 +243,7 @@ public class EArchivingJobService {
         return Arrays.stream(StringUtils.split(mpcs, ',')).map(StringUtils::trim).collect(toList());
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true) //Ion??
     public List<EArchiveBatchUserMessage> findMessagesForArchivingAsc(long lastUserMessageLogId, long maxEntityIdToArchived, int batchMaxSize, int batchPayloadMaxSize) {
         List<EArchiveBatchUserMessage> messagesForArchiving = userMessageLogDao.findMessagesForArchivingAsc(lastUserMessageLogId, maxEntityIdToArchived, batchMaxSize);
         if (batchPayloadMaxSize == 0) {

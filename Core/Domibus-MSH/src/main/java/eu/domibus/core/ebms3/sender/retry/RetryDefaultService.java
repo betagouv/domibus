@@ -113,7 +113,7 @@ public class RetryDefaultService implements RetryService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional //Ion
     public List<Long> getMessagesNotAlreadyScheduled() {
         List<Long> result = new ArrayList<>();
 

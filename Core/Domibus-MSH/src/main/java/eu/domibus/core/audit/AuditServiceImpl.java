@@ -69,7 +69,7 @@ public class AuditServiceImpl implements AuditService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true) //Ion
     public List<AuditLog> listAudit(final Set<String> auditTargets, final Set<String> actions, final Set<String> users,
                                     final Date from, final Date to, final int start, final int max, boolean domain) {
         List<Audit> auditList;
@@ -85,7 +85,7 @@ public class AuditServiceImpl implements AuditService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true) //Ion
     public Long countAudit(final Set<String> auditTargetName,
                            final Set<String> action,
                            final Set<String> user,
@@ -103,7 +103,7 @@ public class AuditServiceImpl implements AuditService {
      */
     @Override
     @Cacheable(cacheManager = DomibusCacheConstants.CACHE_MANAGER, value = "auditTarget")
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true) //Ion
     public List<String> listAuditTarget() {
         Set<Class<?>> typesAnnotatedWith = getFiltereAuditTargets();
         return typesAnnotatedWith.stream().

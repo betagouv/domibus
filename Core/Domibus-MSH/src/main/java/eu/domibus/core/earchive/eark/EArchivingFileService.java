@@ -61,7 +61,7 @@ public class EArchivingFileService {
         this.objectMapper = objectMapper;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional //Ion??
     @Timer(clazz = EArchivingFileService.class, value = "earchive_getArchivingFiles")
     @Counter(clazz = EArchivingFileService.class, value = "earchive_getArchivingFiles")
     public Map<String, ArchivingFileDTO> getArchivingFiles(Long entityId) {

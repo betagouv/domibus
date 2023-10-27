@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @since 4.1
  */
 @ExtendWith(JMockitExtension.class)
-public class RetryDefaultEbms3ServiceTest {
+public class RetryDefaultServiceTest {
 
     public static final String MESSAGE_ID_1 = "queued123@domibus.eu";
     public static final String MESSAGE_ID_2 = "queued456@domibus.eu";
