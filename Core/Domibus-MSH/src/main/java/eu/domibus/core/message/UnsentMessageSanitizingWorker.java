@@ -5,6 +5,7 @@ import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.security.AuthUtils;
 import eu.domibus.api.util.DateUtil;
+import eu.domibus.core.ebms3.sender.retry.RetryDefaultService;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.scheduler.DomibusQuartzJobBean;
 import eu.domibus.logging.DomibusLogger;
@@ -51,6 +52,9 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
     @Autowired
     private PModeProvider pModeProvider;
 
+    @Autowired
+    RetryDefaultService retryDefaultService;
+
     @Override
     protected void executeJob(JobExecutionContext context, Domain domain) throws JobExecutionException {
         LOG.debug("SendEnqueuedMessageSanitizingWorker to be executed");
@@ -73,7 +77,7 @@ public class UnsentMessageSanitizingWorker extends DomibusQuartzJobBean {
             return;
         }
 
-        long maxEntityId = dateUtil.getMaxEntityId(MINUTES.toSeconds(retryIgnoreMinutes));
+        long maxEntityId = retryDefaultService.createMaxEntityId((int)MINUTES.toSeconds(retryIgnoreMinutes));
         List<String> unsentMessageIds = userMessageLogDao.findUnsentMessageIds(minutesAgo, maxEntityId);
 
         if (unsentMessageIds == null || unsentMessageIds.isEmpty()) {

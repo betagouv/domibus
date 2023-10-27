@@ -369,7 +369,7 @@ public class CertificateServiceImpl implements CertificateService {
         }
         try {
             KeyStore uploadedStore = loadStore(storeInfo);
-            if (checkEqual && securityUtil.areKeystoresIdentical(uploadedStore, store)) {
+            if (checkEqual && securityUtil.areKeystoresIdentical(uploadedStore, diskStore)) {
                 LOG.info("Current store [{}] is identical with the new one, so no replacing.", storeName);
                 return false;
             }
@@ -382,7 +382,7 @@ public class CertificateServiceImpl implements CertificateService {
                 copyStoreCertificates(uploadedStore, destStore);
                 keystorePersistenceService.saveStore(destStore, persistenceInfo);
             }
-            LOG.info("Store [{}] successfully replaced with entries [{}].", storeName, getStoreEntries(store));
+            LOG.info("Store [{}] successfully replaced with entries [{}].", storeName, getStoreEntries(diskStore));
 
             auditService.addStoreReplacedAudit(storeName);
             return true;
@@ -519,20 +519,6 @@ public class CertificateServiceImpl implements CertificateService {
         KeyStore instance = KeyStore.getInstance(storeType);
         instance.load(null, null);
         return instance;
-    }
-
-    protected void copyStoreCertificates(KeyStore srcStore, KeyStore destStore) {
-        try {
-            final Enumeration<String> aliases = srcStore.aliases();
-            while (aliases.hasMoreElements()) {
-                final String alias = aliases.nextElement();
-                final X509Certificate certificate = (X509Certificate) srcStore.getCertificate(alias);
-                destStore.setCertificateEntry(alias, certificate);
-                LOG.debug("Copy certificate [{}] named [{}]", certificate, alias);
-            }
-        } catch (Exception e) {
-            throw new DomibusCertificateException("Error while copying certificates from source store", e);
-        }
     }
 
     protected void copyStoreCertificates(KeyStore srcStore, KeyStore destStore) {

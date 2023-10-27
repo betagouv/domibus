@@ -13,6 +13,7 @@ import eu.domibus.core.message.UserMessageLogDao;
 import eu.domibus.core.message.pull.MessagingLock;
 import eu.domibus.core.message.pull.MessagingLockDao;
 import eu.domibus.core.message.pull.PullMessageService;
+import eu.domibus.core.pmode.provider.LegConfigurationPerMpc;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,10 +59,10 @@ public class RetryDefaultService implements RetryService {
     private MessagingLockDao messagingLockDao;
 
     @Autowired
-    private PModeProvider pModeProvider;
+    PModeProvider pModeProvider;
 
     @Autowired
-    private UpdateRetryLoggingService updateRetryLoggingService;
+    UpdateRetryLoggingService updateRetryLoggingService;
 
     @Autowired
     TsidUtil tsidUtil;
@@ -190,21 +193,21 @@ public class RetryDefaultService implements RetryService {
         return maxRetry;
     }
 
-    protected long createMaxEntityId(int delay) {
+    public long createMaxEntityId(int delay) {
         final ZonedDateTime zonedDateTime = ZonedDateTime
                 .now(ZoneOffset.UTC)
                 .minusMinutes(delay);
         return tsidUtil.zonedTimeDateToMaxTsid(zonedDateTime);
     }
 
-    protected long createMinEntityId(int delay) {
+    public long createMinEntityId(int delay) {
         final ZonedDateTime zonedDateTime = ZonedDateTime
                 .now(ZoneOffset.UTC)
                 .minusMinutes(delay);
         return tsidUtil.zonedTimeDateToTsid(zonedDateTime);
     }
 
-    protected long getCurrentTimeMaxEntityId() {
+    public long getCurrentTimeMaxEntityId() {
         return createMaxEntityId(0);
     }
 

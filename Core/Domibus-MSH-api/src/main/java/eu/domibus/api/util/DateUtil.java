@@ -73,6 +73,8 @@ public interface DateUtil {
 
     String getCurrentTime(DateTimeFormatter dateTimeFormatter);
 
+    String getCurrentTime();
+
     /**
      * Returns a past {@code Date} that reflects an instant of time that is minutes ago from the current system {@code Date}.
      * The exact number of minutes into the past is passed in as a parameter and must be a positive non-zero value;  a
@@ -120,13 +122,4 @@ public interface DateUtil {
      * @return
      */
     String getIdPkDateHourPrefix(Date value);
-
-    long getMaxEntityId(ZonedDateTime instant, long delayInSeconds);
-
-    long getMinEntityId(ZonedDateTime instant, long delayInSeconds);
-
-    long getMaxEntityId(long delayInSeconds);
-
-    long getMinEntityId(long delayInSeconds);
-
 }

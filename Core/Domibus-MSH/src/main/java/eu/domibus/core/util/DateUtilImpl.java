@@ -19,10 +19,6 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
-import static eu.domibus.api.model.DomibusDatePrefixedSequenceIdGeneratorGenerator.*;
-import static java.time.format.DateTimeFormatter.ofPattern;
-import static java.util.Locale.ENGLISH;
-
 /**
  * @author Cosmin Baciu
  * @author Sebastian-Ion TINCU
@@ -112,6 +108,7 @@ public class DateUtilImpl implements DateUtil {
                 .minusMinutes(minutesIntoThePast)
                 .toInstant());
     }
+
     /**
      * {@inheritDoc}
      */
