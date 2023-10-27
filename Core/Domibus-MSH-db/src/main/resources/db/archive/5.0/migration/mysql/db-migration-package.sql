@@ -901,7 +901,7 @@ CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_msg_status_rec(in_message_status VARC
 
 CREATE PROCEDURE MIGRATE_42_TO_50_get_tb_d_agreement_rec(in_agreement_type VARCHAR(255), in_agreement_value VARCHAR(255), OUT out_id_pk BIGINT)
     sp: BEGIN
-        IF in_agreement_type IS NULL AND in_agreement_value IS NULL THEN
+        IF (in_agreement_type IS NULL or in_agreement_type = '') AND (in_agreement_value IS NULL or in_agreement_value = '') THEN
             CALL MIGRATE_42_TO_50_log_verbose('No record added into TB_D_AGREEMENT');
             LEAVE sp;
         END IF;
