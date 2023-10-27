@@ -10,7 +10,6 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -62,47 +61,22 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
             LOG.debug("Unsecured login is allowed");
             return;
         }
-        List<String> propertyNames = new ArrayList<>();
-        propertyNames.add(MessageConstants.ORIGINAL_SENDER);
-        propertyNames.add(MessageConstants.FINAL_RECIPIENT);
 
         String authOriginalUser = authUtils.getOriginalUserWithUnsecureLoginAllowed();
         LOG.debug("Check authorization as [{}]", authOriginalUser == null ? "super user" : authOriginalUser);
 
         if(authOriginalUser != null) {
-            check(userMessage, propertyNames, authOriginalUser);
+            check(userMessage, propertyName, authOriginalUser);
         }
         LOG.trace("Could validate originalUser for [{}]", authOriginalUser);
     }
 
-    private void check(UserMessage userMessage, List<String> propertyNames, String authOriginalUser) {
-        /* check the message belongs to the authenticated user */
-        boolean found = false;
-        for (String propName : propertyNames) {
-            String originalUser = userMessageServiceHelper.getPropertyValue(userMessage, propName);
-            if (StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            LOG.debug("Could not validate originalUser for [{}]", authOriginalUser);
-            throw new AccessDeniedException("You are not allowed to handle this message [" + userMessage.getMessageId() + "]. You are authorized as [" + authOriginalUser + "]");
-        }
-    }
-
-    public void validateUserAccessWithUnsecureLoginAllowed(UserMessage userMessage, String authOriginalUser, String propertyName) {
-        if (StringUtils.isBlank(authOriginalUser)) {
-            LOG.trace("OriginalUser is [{}] admin", authOriginalUser);
-            return;
-        }
-
-        LOG.trace("OriginalUser is [{}] not admin", authOriginalUser);
+    public void check(UserMessage userMessage, String authOriginalUser, String propertyName) {
         /* check the message belongs to the authenticated user */
         String originalUser = userMessageServiceHelper.getPropertyValue(userMessage, propertyName);
         if (!StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
-            LOG.debug("User [{}] is trying to submit/access a message having as final recipient: [{}]", authOriginalUser, originalUser);
-            throw new AuthenticationException("You are not allowed to handle this message. You are authorized as [" + authOriginalUser + "]");
+            LOG.debug("Could not validate originalUser. User [{}] is trying to submit/access a message having the originalUser: [{}]", authOriginalUser, originalUser);
+            throw new AuthenticationException("You are not allowed to handle this message ["+ userMessage.getMessageId() + "].. You are authorized as [" + authOriginalUser + "]");
         }
     }
 
