@@ -42,7 +42,7 @@ public class AllUsersManagementServiceImpl extends UserManagementServiceImpl {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public List<User> findUsers() {
         List<User> allUsers = new ArrayList<>();
 
@@ -66,7 +66,7 @@ public class AllUsersManagementServiceImpl extends UserManagementServiceImpl {
      * @param pageSize page size.
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public List<User> findUsersWithFilters(AuthRole authRole, String userName, String deleted, int page, int pageSize) {
         List<User> allUsers = new ArrayList<>();
 

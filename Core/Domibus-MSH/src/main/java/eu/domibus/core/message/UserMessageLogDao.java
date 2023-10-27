@@ -229,7 +229,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public UserMessageLog findByEntityId(final Long entityId) {
         try {
             final UserMessageLog userMessageLog = super.read(entityId);
@@ -244,7 +244,7 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public UserMessageLog findByEntityIdSafely(final Long entityId) {
         try {
             final UserMessageLog userMessageLog = findByEntityId(entityId);
@@ -370,12 +370,12 @@ public class UserMessageLogDao extends MessageLogDao<UserMessageLog> {
         return getMessagesOlderThan(date, mpc, expiredSentMessagesLimit, "UserMessageLog.findSentUserMessagesWithPayloadNotClearedOlderThan", eArchiveIsActive);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public int getAllMessagesWithStatus(String mpc, MessageStatus messageStatus, String partitionName) {
         return getMessagesNewerThan(null, mpc, messageStatus, partitionName);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public int getMessagesNewerThan(Date startDate, String mpc, MessageStatus messageStatus, String partitionName) {
         String sqlString = "select count(*) from " +
                 "             TB_USER_MESSAGE_LOG PARTITION ($PARTITION) " +

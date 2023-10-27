@@ -45,7 +45,7 @@ public class UserMessageDao extends BasicDao<UserMessage> {
         super(UserMessage.class);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public UserMessage findByEntityId(Long entityId) {
         final UserMessage userMessage = super.read(entityId);
 

@@ -84,7 +84,7 @@ public class UserManagementServiceImpl implements UserService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public List<eu.domibus.api.user.User> findUsers() {
         return findUsers(this::getDomainForUser);
     }
@@ -93,7 +93,7 @@ public class UserManagementServiceImpl implements UserService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public List<eu.domibus.api.user.UserRole> findUserRoles() {
         LOG.debug("Retrieving user roles");
         List<UserRole> userRolesEntities = userRoleDao.listRoles();
@@ -262,7 +262,7 @@ public class UserManagementServiceImpl implements UserService {
      * @param pageSize page size.
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public List<eu.domibus.api.user.User> findUsersWithFilters(AuthRole authRole, String userName, String deleted, int page, int pageSize) {
         return findUsersWithFilters(authRole, userName, deleted, page, pageSize, this::getDomainForUser);
     }
@@ -278,7 +278,7 @@ public class UserManagementServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public long countUsers(AuthRole authRole, String userName, String deleted) {
         Map<String, Object> filters = createFilterMap(userName, deleted, authRole);
         return userFilteringDao.countEntries(filters);

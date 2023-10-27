@@ -182,7 +182,7 @@ public class UserMessageDefaultService implements UserMessageService {
     protected EntityManager em;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public String getFinalRecipient(String messageId, MSHRole mshRole) {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
@@ -193,7 +193,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public String getOriginalSender(String messageId, MSHRole mshRole) {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
@@ -204,14 +204,14 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public List<String> getFailedMessages(String finalRecipient, String originalUser) {
         LOG.debug("Provided finalRecipient is [{}]", finalRecipient);
         return userMessageLogDao.findFailedMessages(finalRecipient, originalUser);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public Long getFailedMessageElapsedTime(String messageId) {
         final UserMessageLog userMessageLog = getFailedMessage(messageId);
         final Date failedDate = userMessageLog.getFailed();
@@ -432,20 +432,20 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public eu.domibus.api.usermessage.domain.UserMessage getMessage(String messageId, MSHRole mshRole) {
         final UserMessage userMessageByMessageId = getMessageEntity(messageId, mshRole);
         return messageCoreMapper.userMessageToUserMessageApi(userMessageByMessageId);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public UserMessage getMessageEntity(String messageId, MSHRole role) {
         return userMessageDao.findByMessageId(messageId, role);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public UserMessage getMessageEntity(Long messageEntityId) {
         return userMessageDao.findByEntityId(messageEntityId);
     }
@@ -688,7 +688,7 @@ public class UserMessageDefaultService implements UserMessageService {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public void checkCanGetMessageContent(String messageId, MSHRole mshRole) {
         UserMessageLog message = userMessageLogDao.findByMessageId(messageId, mshRole);
         if (message == null) {
@@ -708,7 +708,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public byte[] getMessageAsBytes(String messageId, MSHRole mshRole) throws MessageNotFoundException {
         UserMessage userMessage = getUserMessageById(messageId, mshRole);
         auditService.addMessageDownloadedAudit(messageId, mshRole);
@@ -717,7 +717,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public byte[] getMessageWithAttachmentsAsZip(String messageId, MSHRole mshRole) throws MessageNotFoundException, IOException {
         checkCanGetMessageContent(messageId, mshRole);
         Map<String, InputStream> message = getMessageContentWithAttachments(messageId, mshRole);
@@ -725,7 +725,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public byte[] getMessageEnvelopesAsZip(String messageId, MSHRole mshRole) {
         Map<String, InputStream> envelopes = nonRepudiationService.getMessageEnvelopes(messageId, mshRole);
         if (envelopes.isEmpty()) {
@@ -741,19 +741,19 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public String getUserMessageEnvelope(String userMessageId, MSHRole mshRole) {
         return nonRepudiationService.getUserMessageEnvelope(userMessageId, mshRole);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public String getSignalMessageEnvelope(String userMessageId, MSHRole mshRole) {
         return nonRepudiationService.getSignalMessageEnvelope(userMessageId, mshRole);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public UserMessage getByMessageId(String messageId) {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
@@ -782,7 +782,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public UserMessage getByMessageId(String messageId, MSHRole mshRole) throws MessageNotFoundException {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
@@ -792,7 +792,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public UserMessage getByMessageEntityId(long messageEntityId) throws MessageNotFoundException {
         final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
         if (userMessage == null) {
