@@ -108,7 +108,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public Submission browseMessage(String messageId) {
         checkMessageAuthorization(messageId);
 
@@ -121,7 +121,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public Submission browseMessage(String messageId, eu.domibus.common.MSHRole mshRole) throws eu.domibus.api.messaging.MessageNotFoundException {
         checkMessageAuthorization(messageId, mshRole);
 
@@ -134,7 +134,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public Submission browseMessage(final Long messageEntityId) {
         checkMessageAuthorization(messageEntityId);
 
@@ -161,7 +161,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public eu.domibus.common.MessageStatus getStatus(String messageId, eu.domibus.common.MSHRole mshRole) {
         try {
             MSHRole role = MSHRole.valueOf(mshRole.name());
@@ -176,7 +176,7 @@ public class MessageRetrieverImpl implements MessageRetriever {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public eu.domibus.common.MessageStatus getStatus(final Long messageEntityId) {
         try {
             userMessageSecurityService.checkMessageAuthorizationWithUnsecureLoginAllowed(messageEntityId);

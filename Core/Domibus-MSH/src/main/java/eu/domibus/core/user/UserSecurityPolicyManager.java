@@ -96,7 +96,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void validateHistory(final String userName, final String password) throws DomibusCoreException {
         int oldPasswordsToCheck = domibusPropertyProvider.getIntegerProperty(getPasswordHistoryPolicyProperty());
         if (oldPasswordsToCheck == 0) {
@@ -304,7 +304,7 @@ public abstract class UserSecurityPolicyManager<U extends UserEntityBase> {
         getUserDao().update(users);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void validateUniqueUser(String userId) throws UserManagementException {
         if (domibusConfigurationService.isMultiTenantAware()) {
             //check to see if it is a domain user

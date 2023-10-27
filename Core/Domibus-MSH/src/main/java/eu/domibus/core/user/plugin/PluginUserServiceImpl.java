@@ -62,7 +62,7 @@ public class PluginUserServiceImpl implements PluginUserService {
     PluginUserPasswordHistoryDao pluginUserPasswordHistoryDao;
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public List<AuthenticationEntity> findUsers(AuthType authType, AuthRole authRole, String originalUser, String userName, int page, int pageSize) {
         Map<String, Object> filters = createFilterMap(authType, authRole, originalUser, userName);
         List<AuthenticationEntity> users = authenticationDAO.findPaged(page * pageSize, pageSize, "entityId", true, filters);
@@ -70,7 +70,7 @@ public class PluginUserServiceImpl implements PluginUserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)//Ion
     public long countUsers(AuthType authType, AuthRole authRole, String originalUser, String userName) {
         Map<String, Object> filters = createFilterMap(authType, authRole, originalUser, userName);
         return authenticationDAO.countEntries(filters);
