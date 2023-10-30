@@ -1,5 +1,6 @@
 package eu.domibus.core;
 
+import eu.domibus.api.multitenancy.Domain;
 import eu.domibus.api.multitenancy.DomainService;
 import eu.domibus.api.pki.CertificateEntry;
 import eu.domibus.api.pki.KeyStoreContentInfo;
@@ -97,7 +98,7 @@ public class MultiDomainCryptoServiceIT extends MultiDomainCryptoServiceBase {
         String newStoreName = "gateway_truststore_diffPass.p12";
         String newStorePassword = "test1234";
 
-        Path path = Paths.get(domibusConfigurationService.getConfigLocation(), KEYSTORES, newStoreName);
+        Path path = getPath(newStoreName);
         byte[] content = Files.readAllBytes(path);
         KeyStoreContentInfo storeInfo = certificateHelper.createStoreContentInfo(DOMIBUS_TRUSTSTORE_NAME, newStoreName, content, newStorePassword);
 
@@ -112,18 +113,18 @@ public class MultiDomainCryptoServiceIT extends MultiDomainCryptoServiceBase {
         String newPassword = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD);
 
         // initial properties didn't change
-        Assert.assertEquals(initialLocation, newLocation);
-        Assert.assertEquals(initialType, newType);
-        Assert.assertEquals(initialPassword, newPassword);
+        Assertions.assertEquals(initialLocation, newLocation);
+        Assertions.assertEquals(initialType, newType);
+        Assertions.assertEquals(initialPassword, newPassword);
 
         // can still open the store
         KeyStore newStore = multiDomainCryptoService.getTrustStore(domain);
         List<TrustStoreEntry> newStoreEntries = multiDomainCryptoService.getTrustStoreEntries(domain);
         KeyStoreContentInfo newStoreContent = multiDomainCryptoService.getTrustStoreContent(domain);
 
-        Assert.assertNotEquals(initialStore, newStore);
-        Assert.assertNotEquals(initialStoreContent.getContent(), newStoreContent.getContent());
-        Assert.assertNotEquals(initialStoreEntries.size(), newStoreEntries.size());
+        Assertions.assertNotEquals(initialStore, newStore);
+        Assertions.assertNotEquals(initialStoreContent.getContent(), newStoreContent.getContent());
+        Assertions.assertNotEquals(initialStoreEntries.size(), newStoreEntries.size());
     }
     @Test
     @Disabled("EDELIVERY-6896")

@@ -181,7 +181,7 @@ public class DomibusPropertyResourceHelperIT extends AbstractIT {
     public void testGetDecimalProperty() {
         Double propVal = domibusPropertyProvider.getDecimalProperty(DOMIBUS_UI_MESSAGE_LOGS_DEFAULT_INTERVAL);
         DomibusProperty result = configurationPropertyResourceHelper.getProperty(DOMIBUS_UI_MESSAGE_LOGS_DEFAULT_INTERVAL);
-        Assert.assertEquals(propVal.toString(), result.getValue());
-        Assert.assertEquals(propVal.toString(), result.getUsedValue());
+        Assertions.assertEquals(propVal.toString(), result.getValue());
+        Assertions.assertEquals(propVal.toString(), result.getUsedValue());
     }
 }
