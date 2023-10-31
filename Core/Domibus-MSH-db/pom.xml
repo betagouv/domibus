@@ -569,24 +569,6 @@
                             </expressionVariables>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>generate-oracle-script-delta-5.0.5</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>updateSQL</goal>
-                        </goals>
-                        <configuration>
-                            <changeLogFile>
-                                src/main/resources/db/archive/5.0.5/migration/oracle/changelog-5.0.5-delta.xml
-                            </changeLogFile>
-                            <url>
-                                offline:oracle?version=11.2.0&amp;changeLogFile=${project.build.directory}/liquibase/changelog-5.0.5-delta.oracle
-                            </url>
-                            <migrationSqlOutputFile>
-                                ${project.build.directory}/sql-scripts/oracle-5.0.4-to-5.0.5-migration-fix.ddl
-                            </migrationSqlOutputFile>
-                        </configuration>
-                    </execution>
                     <!-- delta 5.0.4 to 5.0.5 ends here -->
 
                     <!-- delta 5.1.1.1 to 5.1.2 starts here -->
@@ -606,6 +588,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-5.1.1.1-to-5.1.2-migration.ddl
                             </migrationSqlOutputFile>
+                            <expressionVariables>
+                                <DomibusVersion>5.1.2</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -624,6 +609,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/oracle-5.1.1.1-to-5.1.2-migration.ddl
                             </migrationSqlOutputFile>
+                            <expressionVariables>
+                                <DomibusVersion>5.1.2</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <!-- delta 5.1.1.1 to 5.1.2 ends here -->
@@ -645,6 +633,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/mysql-5.1-to-5.1.1.1-migration.ddl
                             </migrationSqlOutputFile>
+                            <expressionVariables>
+                                <DomibusVersion>5.1.1.1</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -663,6 +654,9 @@
                             <migrationSqlOutputFile>
                                 ${project.build.directory}/sql-scripts/oracle-5.1-to-5.1.1.1-migration.ddl
                             </migrationSqlOutputFile>
+                            <expressionVariables>
+                                <DomibusVersion>5.1.1.1</DomibusVersion>
+                            </expressionVariables>
                         </configuration>
                     </execution>
                     <!-- delta 5.1 to 5.1.1.1 ends here -->

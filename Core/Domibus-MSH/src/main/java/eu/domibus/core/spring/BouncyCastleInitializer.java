@@ -38,11 +38,14 @@ public class BouncyCastleInitializer {
     public void registerBouncyCastle() {
         LOG.info("Registering the Bouncy Castle provider at position [{}] in the list of security providers.", bouncyCastlePosition);
         try {
+            //fix to overcome the problem of multiple loaded Bouncy Castle libraries
+            if(Security.getProvider("BC") != null) {
+                Security.removeProvider("BC");
+            }
             Security.insertProviderAt(new BouncyCastleProvider(), bouncyCastlePosition);
             LOG.info("Security providers in order of preferences [{}]", Arrays.toString(Security.getProviders()));
         } catch (SecurityException e) {
-            LOG.error("An error registering Bouncy Castle provider at position [{}] in the list of security providers",
-                    bouncyCastlePosition, e);
+            LOG.error("An error registering Bouncy Castle provider at position [{}] in the list of security providers", bouncyCastlePosition, e);
         }
     }
 
