@@ -22,7 +22,7 @@ import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
- * A worker that picks up unsent messages that are still in ${@code SEND_ENQUEUED} and ${@code WAITING_FOR_RETRY} states
+ * A worker that picks up unsent messages that are still in {@code SEND_ENQUEUED} and {@code WAITING_FOR_RETRY} states
  * and tries to dispatch them again. Recent messages are ignored by specifying an interval in minutes that should be
  * ignored when looking up for stuck messages.
  *
