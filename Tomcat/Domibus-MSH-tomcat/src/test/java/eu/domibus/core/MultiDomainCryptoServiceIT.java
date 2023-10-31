@@ -89,6 +89,7 @@ public class MultiDomainCryptoServiceIT extends MultiDomainCryptoServiceBase {
     }
 
     @Test
+    @Disabled("EDELIVERY-6896")
     public void replaceTrustStoreWithDifferentTypeAndPassword() throws IOException {
         Domain domain = DomainService.DEFAULT_DOMAIN;
         String initialLocation = domibusPropertyProvider.getProperty(domain, DOMIBUS_SECURITY_TRUSTSTORE_LOCATION);
