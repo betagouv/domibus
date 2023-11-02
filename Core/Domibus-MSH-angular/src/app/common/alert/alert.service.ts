@@ -11,6 +11,12 @@ import {
 import {MatSnackBar} from '@angular/material';
 import {AlertComponent} from './alert.component';
 
+enum MessageType {
+  ERROR = 'error',
+  WARNING = 'warning',
+  INFO = 'info'
+}
+
 @Injectable()
 export class AlertService {
   private subject = new Subject<any>();
@@ -36,19 +42,30 @@ export class AlertService {
   }
 
   public exception(message: string, error: any) {
+    return this.handleAlertMessage(message, error, MessageType.ERROR);
+  }
+
+  private handleAlertMessage(message: string, error: any, messageType: MessageType) {
     if (error && error.handled) {
       return;
     }
 
     const errMsg = this.formatError(error, message);
-    this.displayErrorMessage(errMsg, false, 0);
+    this.displayErrorMessage(errMsg, false, 0, messageType);
     return Promise.resolve();
   }
 
   public error(message: string, keepAfterNavigationChange = false, fadeTime: number = 0) {
     const errMsg = this.formatError(message);
+    this.displayErrorMessage(errMsg, keepAfterNavigationChange, fadeTime, MessageType.ERROR);
+  }
 
-    this.displayErrorMessage(errMsg, keepAfterNavigationChange, fadeTime);
+  public info(message: string, error: any) {
+    return this.handleAlertMessage(message, error, MessageType.INFO);
+  }
+
+  public warning(message: string, error: any) {
+    return this.handleAlertMessage(message, error, MessageType.WARNING);
   }
 
   // called from the alert component explicitly by the user
@@ -77,12 +94,11 @@ export class AlertService {
     return message;
   }
 
-  private displayErrorMessage(errMsg: string, keepAfterNavigationChange: boolean, fadeTime: number) {
-
+  private displayErrorMessage(errMsg: string, keepAfterNavigationChange: boolean, fadeTime: number, messageType: MessageType) {
     this.needsExplicitClosing = keepAfterNavigationChange;
     this.matSnackBar.openFromComponent(AlertComponent, {
       data: {message: errMsg, service: this},
-      panelClass: 'error',
+      panelClass: messageType,
       verticalPosition: 'top',
     });
 
