@@ -71,12 +71,12 @@ public class UserMessageSecurityDefaultService implements UserMessageSecuritySer
         LOG.trace("Could validate originalUser for [{}]", authOriginalUser);
     }
 
-    public void check(UserMessage userMessage, String authOriginalUser, String propertyName) {
+    public void check(UserMessage userMessage, String propertyName, String authOriginalUser) {
         /* check the message belongs to the authenticated user */
         String originalUser = userMessageServiceHelper.getPropertyValue(userMessage, propertyName);
         if (!StringUtils.equalsIgnoreCase(originalUser, authOriginalUser)) {
             LOG.debug("Could not validate originalUser. User [{}] is trying to submit/access a message having the originalUser: [{}]", authOriginalUser, originalUser);
-            throw new AuthenticationException("You are not allowed to handle this message ["+ userMessage.getMessageId() + "].. You are authorized as [" + authOriginalUser + "]");
+            throw new AuthenticationException("You are not allowed to handle this message [" + userMessage.getMessageId() + "].. You are authorized as [" + authOriginalUser + "]");
         }
     }
 
