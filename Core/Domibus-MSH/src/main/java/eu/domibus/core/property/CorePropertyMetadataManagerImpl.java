@@ -78,6 +78,7 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             new DomibusPropertyMetadata(DOMIBUS_PULL_REQUEST_SEND_PER_JOB_CYCLE_PER_MPC, Type.NUMERIC, Module.MSH, false, Usage.DOMAIN, true, true, false, true),
 
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED, Type.BOOLEAN),
+            DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SECURITY_PROVIDER_BOUNCY_CASTLE_POSITION, Type.POSITIVE_INTEGER),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_SCHEMAFACTORY, Type.CLASS),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_UI_SESSION_SECURE, Type.BOOLEAN),
             DomibusPropertyMetadata.getReadOnlyGlobalProperty(DOMIBUS_UI_SESSION_TIMEOUT, Type.NUMERIC),
@@ -438,7 +439,8 @@ public class CorePropertyMetadataManagerImpl implements DomibusPropertyMetadataM
             //End distributed cache properties
 
             new DomibusPropertyMetadata(DOMIBUS_MESSAGE_TEST_DELIVERY, Type.BOOLEAN, Usage.DOMAIN, true),
-
+            new DomibusPropertyMetadata(DOMIBUS_MESSAGES_STUCK_CRON, Type.CRON, Usage.DOMAIN, true),
+            new DomibusPropertyMetadata(DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES, Type.NUMERIC, Usage.DOMAIN, true),
     }).collect(Collectors.toMap(x -> x.getName(), x -> x));
 
     /**

@@ -233,5 +233,10 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         public void updatePassword(String password) {
             setTlsTrustStorePassword(password);
         }
+
+        @Override
+        public String toString() {
+            return getName() + ":" + getFileLocation() + ":" + getType() + ":" + getPassword();
+        }
     }
 }
