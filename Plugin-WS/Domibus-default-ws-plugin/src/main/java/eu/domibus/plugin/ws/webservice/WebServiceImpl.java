@@ -99,8 +99,6 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     private DateExtService dateUtil;
 
-    private MetricRegistry metricRegistry;
-
     public WebServiceImpl(MessageAcknowledgeExtService messageAcknowledgeExtService,
                           WebServiceExceptionFactory webServicePluginExceptionFactory,
                           WSMessageLogService wsMessageLogService,
@@ -122,7 +120,6 @@ public class WebServiceImpl implements WebServicePluginInterface {
         this.messageExtService = messageExtService;
         this.wsPlugin = wsPlugin;
         this.dateUtil = dateUtil;
-        this.metricRegistry = metricRegistry;
     }
 
     /**
