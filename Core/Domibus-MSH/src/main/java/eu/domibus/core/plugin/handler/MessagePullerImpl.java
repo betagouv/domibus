@@ -1,6 +1,8 @@
 package eu.domibus.core.plugin.handler;
 
 import eu.domibus.core.message.MessageExchangeService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.plugin.handler.MessagePuller;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,8 @@ public class MessagePullerImpl implements MessagePuller {
 
     @Override
     @Transactional
+    @Timer(clazz = MessagePullerImpl.class, value = "initiatePull")
+    @Counter(clazz = MessagePullerImpl.class, value = "initiatePull")
     public void initiatePull(String mpc) {
         messageExchangeService.initiatePullRequest(mpc);
     }

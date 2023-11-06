@@ -1,8 +1,11 @@
 package eu.domibus.plugin.ws.webservice;
 
+import com.codahale.metrics.MetricRegistry;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
 import eu.domibus.ext.services.*;
@@ -96,6 +99,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
 
     private DateExtService dateUtil;
 
+    private MetricRegistry metricRegistry;
+
     public WebServiceImpl(MessageAcknowledgeExtService messageAcknowledgeExtService,
                           WebServiceExceptionFactory webServicePluginExceptionFactory,
                           WSMessageLogService wsMessageLogService,
@@ -105,7 +110,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
                           AuthenticationExtService authenticationExtService,
                           MessageExtService messageExtService,
                           WSPluginImpl wsPlugin,
-                          DateExtService dateUtil) {
+                          DateExtService dateUtil,
+                          MetricRegistry metricRegistry) {
         this.messageAcknowledgeExtService = messageAcknowledgeExtService;
         this.webServicePluginExceptionFactory = webServicePluginExceptionFactory;
         this.wsMessageLogService = wsMessageLogService;
@@ -116,6 +122,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
         this.messageExtService = messageExtService;
         this.wsPlugin = wsPlugin;
         this.dateUtil = dateUtil;
+        this.metricRegistry = metricRegistry;
     }
 
     /**
@@ -493,6 +500,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @Timer(clazz = WebServiceImpl.class, value = "markMessageAsDownloaded")
+    @Counter(clazz = WebServiceImpl.class, value = "markMessageAsDownloaded")
     public void markMessageAsDownloaded(MarkMessageAsDownloadedRequest markMessageAsDownloadedRequest,
                                         Holder<MarkMessageAsDownloadedResponse> markMessageAsDownloadedResponse,
                                         Holder<Messaging> ebMSHeaderInfo) throws MarkMessageAsDownloadedFault {
@@ -523,6 +532,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @Timer(clazz = WebServiceImpl.class, value = "retrieveMessage")
+    @Counter(clazz = WebServiceImpl.class, value = "retrieveMessage")
     public void retrieveMessage(RetrieveMessageRequest retrieveMessageRequest,
                                 Holder<RetrieveMessageResponse> retrieveMessageResponse,
                                 Holder<Messaging> ebMSHeaderInfo) throws RetrieveMessageFault {

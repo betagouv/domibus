@@ -14,6 +14,8 @@ import eu.domibus.core.error.ErrorLogService;
 import eu.domibus.core.message.MessagingService;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLogDefaultService;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.messaging.DuplicateMessageException;
@@ -69,6 +71,8 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     @Transactional
+    @Timer(clazz = MessageRetrieverImpl.class, value = "download")
+    @Counter(clazz = MessageRetrieverImpl.class, value = "download")
     public Submission downloadMessage(String messageId) throws MessageNotFoundException {
         return downloadMessage(messageId, true);
     }
