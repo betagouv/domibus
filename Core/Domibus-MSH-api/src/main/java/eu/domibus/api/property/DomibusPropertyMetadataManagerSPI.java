@@ -391,6 +391,7 @@ public interface DomibusPropertyMetadataManagerSPI {
     String DOMIBUS_METRICS_MONITOR_CACHED_THREADS = "domibus.metrics.monitor.cached.threads";
     String DOMIBUS_METRICS_MONITOR_JMS_QUEUES = "domibus.metrics.monitor.jms.queues";
     String DOMIBUS_SECURITY_EXT_AUTH_PROVIDER_ENABLED = "domibus.security.ext.auth.provider.enabled";
+    String DOMIBUS_SECURITY_PROVIDER_BOUNCY_CASTLE_POSITION = "domibus.security.provider.bouncyCastle.position";
     String DOMIBUS_JMX_PASSWORD = "domibus.jmx.password"; //NOSONAR
     String DOMIBUS_JMX_USER = "domibus.jmx.user";
     String WEBLOGIC_MANAGEMENT_SERVER = "weblogic.management.server";
@@ -458,6 +459,8 @@ public interface DomibusPropertyMetadataManagerSPI {
 
     //Start distributed cache properties
     String DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_TTL = "domibus.cache.distributed.ttl";
+    String DOMIBUS_MESSAGES_STUCK_CRON = "domibus.messages.stuck.cron";
+    String DOMIBUS_MESSAGES_STUCK_IGNORE_RECENT_MINUTES = "domibus.messages.stuck.ignore.recent.minutes";
 
     String DOMIBUS_DISTRIBUTED_CACHE_DEFAULT_SIZE = "domibus.cache.distributed.size";
     String DOMIBUS_DISTRIBUTED_CACHE_MAX_IDLE = "domibus.cache.distributed.idle.max";

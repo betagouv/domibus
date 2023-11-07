@@ -359,18 +359,17 @@ public class CertificateServiceImpl implements CertificateService {
         return createTrustStoreEntry(alias, cert);
     }
 
-    @Override
     public boolean replaceStore(KeyStoreContentInfo storeInfo, KeystorePersistenceInfo persistenceInfo, boolean checkEqual) {
         String storeName = persistenceInfo.getName();
-        KeyStore store = getStore(persistenceInfo);
+        KeyStore diskStore = getStore(persistenceInfo);
 
-        LOG.debug("Preparing to replace the current store [{}] having entries [{}].", storeName, getStoreEntries(store));
+        LOG.debug("Preparing to replace the current store [{}] having entries [{}].", storeName, getStoreEntries(diskStore));
         if (StringUtils.isEmpty(storeInfo.getType())) {
             storeInfo.setType(certificateHelper.getStoreType(storeInfo.getFileName()));
         }
         try {
             KeyStore uploadedStore = loadStore(storeInfo);
-            if (checkEqual && securityUtil.areKeystoresIdentical(uploadedStore, store)) {
+            if (checkEqual && securityUtil.areKeystoresIdentical(uploadedStore, diskStore)) {
                 LOG.info("Current store [{}] is identical with the new one, so no replacing.", storeName);
                 return false;
             }
@@ -383,7 +382,7 @@ public class CertificateServiceImpl implements CertificateService {
                 copyStoreCertificates(uploadedStore, destStore);
                 keystorePersistenceService.saveStore(destStore, persistenceInfo);
             }
-            LOG.info("Store [{}] successfully replaced with entries [{}].", storeName, getStoreEntries(store));
+            LOG.info("Store [{}] successfully replaced with entries [{}].", storeName, getStoreEntries(diskStore));
 
             auditService.addStoreReplacedAudit(storeName);
             return true;
@@ -535,7 +534,6 @@ public class CertificateServiceImpl implements CertificateService {
             throw new DomibusCertificateException("Error while copying certificates from source store", e);
         }
     }
-
 
     protected boolean doAddCertificatesAndSave(KeystorePersistenceInfo persistenceInfo, List<CertificateEntry> certificates, boolean overwrite) {
         LOG.info("Adding certificates [{}] to [{}]", certificates.stream().map(certificateEntry -> certificateEntry.getAlias()).collect(Collectors.toList()), persistenceInfo.getFileLocation());

@@ -39,5 +39,13 @@ export class TLSTruststoreComponent extends BaseTruststoreComponent implements O
     super.ngOnInit();
   }
 
+  protected onLoadDataError(error) {
+    if (error.error.message.includes('TLS truststore is not available since client authentication is not enabled')) {
+      this.alertService.info(`Error loading data for '${this.name}' component:`, error);
+    } else {
+      this.alertService.exception(`Error loading data for '${this.name}' component:`, error);
+      error.handled = true;
+    }
+  }
 
 }

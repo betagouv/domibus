@@ -85,11 +85,11 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
 
     @Override
     public List<TrustStoreEntry> getTrustStoreEntries() {
-        String errorMessage = "Could not find or read the client authentication file.";
+        String errorMessage = "TLS truststore is not available since client authentication is not enabled. Please refer to the Admin Guide for more details";
         try {
             if (domibusConfigurationService.isMultiTenantAware()) {
                 final String domainName = domainProvider.getCurrentDomain().getName();
-                errorMessage = "Could not find or read the client authentication file for domain [" + domainName + "]";
+                errorMessage = "TLS truststore is not available since client authentication is not enabled for domain [" + domainName + "]. Please refer to the Admin Guide for more details";
             }
             return certificateService.getStoreEntries(getPersistenceInfo());
         } catch (ConfigurationException | NoKeyStoreContentInformationException ex) {
@@ -232,6 +232,11 @@ public class TLSCertificateManagerImpl implements TLSCertificateManager {
         @Override
         public void updatePassword(String password) {
             setTlsTrustStorePassword(password);
+        }
+
+        @Override
+        public String toString() {
+            return getName() + ":" + getFileLocation() + ":" + getType() + ":" + getPassword();
         }
     }
 }
