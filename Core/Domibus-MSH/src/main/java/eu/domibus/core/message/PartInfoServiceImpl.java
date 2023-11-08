@@ -77,7 +77,7 @@ public class PartInfoServiceImpl implements PartInfoService {
     }
 
     @Override
-    @Transactional(readOnly = true)//Ion
+    @Transactional(readOnly = true)
     public PartInfo findPartInfo(Long messageEntityId, String cid) {
         return partInfoDao.findPartInfoByUserMessageEntityIdAndCid(messageEntityId, getCid(cid));
     }
@@ -96,7 +96,7 @@ public class PartInfoServiceImpl implements PartInfoService {
     }
 
     @Override
-    @Transactional(readOnly = true)//Ion
+    @Transactional(readOnly = true)
     public Long findPartInfoTotalLength(long entityId) {
         List<Long> list = partInfoDao.findPartInfoLengthByUserMessageEntityId(entityId);
         return list.stream().filter(el -> el != null).mapToLong(Long::longValue).sum();

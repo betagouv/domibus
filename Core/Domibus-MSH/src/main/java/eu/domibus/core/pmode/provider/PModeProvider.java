@@ -96,7 +96,7 @@ public abstract class PModeProvider {
 
     public abstract boolean hasLegWithSplittingConfiguration();
 
-    @Transactional(readOnly = true) //Ion
+    @Transactional(readOnly = true) 
     public byte[] getPModeFile(long id) {
         final ConfigurationRaw rawConfiguration = getRawConfiguration(id);
         if (rawConfiguration == null) {
@@ -112,12 +112,12 @@ public abstract class PModeProvider {
         return new byte[0];
     }
 
-    @Transactional //Ion
+    @Transactional 
     public ConfigurationRaw getRawConfiguration(long id) {
         return this.configurationRawDAO.getConfigurationRaw(id);
     }
 
-    @Transactional //Ion
+    @Transactional 
     public PModeArchiveInfo getCurrentPmode() {
         final ConfigurationRaw currentRawConfiguration = this.configurationRawDAO.getCurrentRawConfiguration();
         if (currentRawConfiguration != null) {
@@ -136,7 +136,7 @@ public abstract class PModeProvider {
         configurationRawDAO.deleteById(id);
     }
 
-    @Transactional(readOnly = true) //Ion
+    @Transactional(readOnly = true) 
     public List<PModeArchiveInfo> getRawConfigurationList() {
         return this.configurationRawDAO.getDetailedConfigurationRaw();
     }

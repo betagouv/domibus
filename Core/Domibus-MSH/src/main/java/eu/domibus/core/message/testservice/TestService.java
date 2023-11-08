@@ -133,7 +133,7 @@ public class TestService {
      * @return TestServiceMessageInfoRO
      * @throws TestServiceException
      */
-    @Transactional(readOnly = true)//Ion
+    @Transactional(readOnly = true)
     public TestServiceMessageInfoRO getLastTestSentWithErrors(String senderPartyId, String partyId) throws TestServiceException {
         TestServiceMessageInfoRO result = getLastTestSent(senderPartyId, partyId);
         if (result == null) {
@@ -157,7 +157,7 @@ public class TestService {
      * @return TestServiceMessageInfoRO
      * @throws TestServiceException
      */
-    @Transactional(readOnly = true)//Ion
+    @Transactional(readOnly = true)
     public TestServiceMessageInfoRO getLastTestSent(String senderPartyId, String partyId) {
         LOG.debug("Getting last sent test message for partyId [{}]", partyId);
 
@@ -181,7 +181,7 @@ public class TestService {
      * @return TestServiceMessageInfoRO
      * @throws TestServiceException
      */
-    @Transactional(readOnly = true)//Ion
+    @Transactional(readOnly = true)
     public TestServiceMessageInfoRO getLastTestReceivedWithErrors(String senderPartyId, String partyId, String userMessageId) throws TestServiceException {
         TestServiceMessageInfoRO result = getLastTestReceived(senderPartyId, partyId, userMessageId);
         if (result == null) {
@@ -201,7 +201,7 @@ public class TestService {
      * @param senderPartyId
      * @return TestServiceMessageInfoRO
      */
-    @Transactional(readOnly = true)//Ion
+    @Transactional(readOnly = true)
     public TestServiceMessageInfoRO getLastTestReceived(String senderPartyId, String partyId, String userMessageId) {
         LOG.debug("Getting last received signal for a test message from partyId [{}]", partyId);
 
@@ -236,7 +236,7 @@ public class TestService {
         }
     }
 
-    @Transactional(readOnly = true)//Ion
+    @Transactional(readOnly = true)
     public TestErrorsInfoRO getErrorsDetails(String userMessageId) {
         TestErrorsInfoRO result;
         TestErrorsInfoRO errorDetails = getErrorsForMessage(userMessageId);

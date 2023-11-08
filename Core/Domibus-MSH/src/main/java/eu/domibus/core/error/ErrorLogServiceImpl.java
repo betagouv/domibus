@@ -104,7 +104,7 @@ public class ErrorLogServiceImpl implements ErrorLogService {
     }
 
     @Override
-    @Transactional(readOnly = true) //Ion
+    @Transactional(readOnly = true) 
     public List<ErrorLogEntry> findPaged(final int from, final int max, final String sortColumn, final boolean asc, final Map<String, Object> filters) {
         return errorLogDao.findPaged(from, max, sortColumn, asc, filters);
     }
@@ -150,7 +150,7 @@ public class ErrorLogServiceImpl implements ErrorLogService {
     }
 
     @Override
-    @Transactional(readOnly = true) //Ion
+    @Transactional(readOnly = true) 
     public long countEntries(Map<String, Object> filters) {
         return errorLogDao.countEntries(filters);
     }

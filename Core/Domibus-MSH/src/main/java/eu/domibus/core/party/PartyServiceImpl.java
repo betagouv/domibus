@@ -87,7 +87,7 @@ public class PartyServiceImpl implements PartyService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(readOnly = true) //Ion
+    @Transactional(readOnly = true) 
     public List<Party> getParties(final String name,
                                   final String endPoint,
                                   final String partyId,
@@ -582,7 +582,7 @@ public class PartyServiceImpl implements PartyService {
     }
 
     @Override
-    @Transactional(readOnly = true)//Ion
+    @Transactional(readOnly = true)
     public List<eu.domibus.api.process.Process> getAllProcesses() {
         //Retrieve all processes, needed in UI console to be able to check
         List<eu.domibus.common.model.configuration.Process> allProcesses;

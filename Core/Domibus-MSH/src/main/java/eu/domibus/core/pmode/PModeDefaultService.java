@@ -54,7 +54,7 @@ public class PModeDefaultService implements PModeService {
     DynamicDiscoveryLookupService dynamicDiscoveryLookupService;
 
     @Override
-    @Transactional //Ion
+    @Transactional 
     public LegConfiguration getLegConfiguration(Long messageEntityId) {
         final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
         boolean isPull = mpcService.forcePullOnMpc(userMessage);

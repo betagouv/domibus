@@ -115,7 +115,7 @@ public class RetryDefaultService implements RetryService {
     }
 
     @Override
-    @Transactional //Ion
+    @Transactional 
     public List<Long> getMessagesNotAlreadyScheduled() {
         List<Long> result = new ArrayList<>();
 

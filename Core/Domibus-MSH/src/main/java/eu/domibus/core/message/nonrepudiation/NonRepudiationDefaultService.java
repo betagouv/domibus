@@ -134,7 +134,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     }
 
     @Override
-    @Transactional(readOnly = true)//Ion
+    @Transactional(readOnly = true)
     public String getUserMessageEnvelope(String messageId, MSHRole mshRole) {
         UserMessage userMessage = getUserMessageById(messageId, mshRole);
 
@@ -150,7 +150,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     }
 
     @Override
-    @Transactional(readOnly = true)//Ion
+    @Transactional(readOnly = true)
     public String getSignalMessageEnvelope(String userMessageId, MSHRole mshRole) {
         RawEnvelopeDto rawEnvelopeDto = signalMessageRawEnvelopeDao.findSignalMessageByUserMessageId(userMessageId, mshRole);
         if (rawEnvelopeDto == null) {
@@ -167,7 +167,7 @@ public class NonRepudiationDefaultService implements NonRepudiationService {
     }
 
     @Override
-    @Transactional(readOnly = true)//Ion
+    @Transactional(readOnly = true)
     public Map<String, InputStream> getMessageEnvelopes(String messageId, MSHRole mshRole) {
         Map<String, InputStream> result = new HashMap<>();
 
