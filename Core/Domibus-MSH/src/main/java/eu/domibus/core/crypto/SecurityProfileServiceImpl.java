@@ -18,6 +18,8 @@ import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.neethi.Policy;
+import org.apache.wss4j.common.WSS4JConstants;
+import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.policy.model.AlgorithmSuite;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +33,6 @@ import java.security.cert.X509Certificate;
  */
 @Service
 public class SecurityProfileServiceImpl implements SecurityProfileService {
-
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityProfileServiceImpl.class);
 
     protected final DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader;
@@ -43,6 +44,9 @@ public class SecurityProfileServiceImpl implements SecurityProfileService {
     protected final MultiDomainCryptoService multiDomainCertificateProvider;
 
     protected final DomainContextProvider domainContextProvider;
+
+    public static final String ENCRYPTION_METHOD_ALGORITHM_RSA = "http://www.w3.org/2009/xmlenc11#rsa-oaep";
+    public static final String ENCRYPTION_METHOD_ALGORITHM_ECC = "http://www.w3.org/2001/04/xmlenc#kw-aes128";
 
     public SecurityProfileServiceImpl(DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader,
                                       PolicyService policyService,
@@ -144,6 +148,25 @@ public class SecurityProfileServiceImpl implements SecurityProfileService {
         } catch (KeyStoreException e) {
             String exceptionMessage = String.format("Failed to get signing certificate for sender [%s] from truststore: %s", acknowledgementSenderName, e.getMessage());
             throw new eu.domibus.api.security.CertificateException(DomibusCoreErrorCode.DOM_005, exceptionMessage);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public SecurityProfile getSecurityProfileBasedOnMessageAlgorithms(String signatureAlgorithm, String encryptionAlgorithm) throws WSSecurityException {
+        if (signatureAlgorithm.equalsIgnoreCase(WSS4JConstants.RSA_SHA256) &&
+                encryptionAlgorithm.equalsIgnoreCase(ENCRYPTION_METHOD_ALGORITHM_RSA)) {
+            return SecurityProfile.RSA;
+        } else if (signatureAlgorithm.equalsIgnoreCase(WSS4JConstants.ECDSA_SHA256) &&
+                encryptionAlgorithm.equalsIgnoreCase(ENCRYPTION_METHOD_ALGORITHM_ECC)) {
+            return SecurityProfile.ECC;
+        }
+        else {
+            LOG.error("No Security Profile can be determined for signatureAlgorithm: [{}] and encryptionAlgorithm: [{}]",
+                    signatureAlgorithm, encryptionAlgorithm);
+            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "No Security Profile can be determined for signatureAlgorithm: " +
+                    signatureAlgorithm + "and encryptionAlgorithm: " + encryptionAlgorithm);
         }
     }
 }

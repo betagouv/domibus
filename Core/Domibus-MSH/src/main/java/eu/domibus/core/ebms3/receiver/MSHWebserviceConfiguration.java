@@ -50,6 +50,7 @@ public class MSHWebserviceConfiguration {
                         Wss4JMultiDomainCryptoProvider wss4JMultiDomainCryptoProvider,
                         DomibusReadyInterceptor domibusReadyInterceptor,
                         SetDomainInInterceptor setDomainInInterceptor,
+                        AbortChainInterceptor abortChainInterceptor,
                         TrustSenderInterceptor trustSenderInterceptor,
                         SetPolicyInServerInterceptor setPolicyInServerInterceptor,
                         PropertyValueExchangeInterceptor propertyValueExchangeInterceptor,
@@ -65,7 +66,7 @@ public class MSHWebserviceConfiguration {
         EndpointImpl endpoint = new EndpointImpl(domibusBus, mshWebservice);
         Map<String, Object> endpointProperties = getEndpointProperties(ehCacheTokenStore, simpleKeystorePasswordCallback, wss4JMultiDomainCryptoProvider);
         endpoint.setProperties(endpointProperties);
-        endpoint.setInInterceptors(Arrays.asList(domibusReadyInterceptor, setDomainInInterceptor, trustSenderInterceptor, setPolicyInServerInterceptor, propertyValueExchangeInterceptor, httpHeaderInInterceptor));
+        endpoint.setInInterceptors(Arrays.asList(domibusReadyInterceptor, setDomainInInterceptor, abortChainInterceptor, trustSenderInterceptor, setPolicyInServerInterceptor, propertyValueExchangeInterceptor, httpHeaderInInterceptor));
         endpoint.setOutInterceptors(Arrays.asList(clearMDCInterceptor, setPolicyOutInterceptorServer, saveRawPulledMessageInterceptor,
                 httpHeaderOutInterceptor, saveRawEnvelopeInterceptor, messageResponseSentBackendNotifierInterceptor));
         endpoint.setOutFaultInterceptors(Arrays.asList(setCodeValueFaultOutInterceptor, clearMDCInterceptor));
