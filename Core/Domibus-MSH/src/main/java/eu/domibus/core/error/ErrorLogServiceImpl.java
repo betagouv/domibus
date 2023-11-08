@@ -110,20 +110,20 @@ public class ErrorLogServiceImpl implements ErrorLogService {
     }
 
     @Override
-    @Transactional //Ion??
+    @Transactional
     public List<? extends ErrorResult> getErrors(String messageId, MSHRole mshRole) {
         List<ErrorLogEntry> errorsForMessage = errorLogDao.getErrorsForMessage(messageId, mshRole);
         return errorsForMessage.stream().map(this::convert).collect(Collectors.toList());
     }
 
     @Override
-    @Transactional //Ion??
+    @Transactional
     public List<ErrorLogEntry> getErrorsForMessage(String messageId, MSHRole role) {
         return errorLogDao.getErrorsForMessage(messageId, role);
     }
 
     @Override
-    @Transactional //Ion??
+    @Transactional
     public List<ErrorLogEntry> getErrorsForMessage(String messageId) {
         return errorLogDao.getErrorsForMessage(messageId);
     }
