@@ -1,5 +1,7 @@
 package eu.domibus.core.ebms3;
 
+import eu.domibus.api.exceptions.DomibusCoreErrorCode;
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.exceptions.XmlProcessingException;
 import eu.domibus.api.security.SecurityProfileException;
 import eu.domibus.api.util.SoapElementsExtractorUtil;
@@ -142,7 +144,7 @@ public class SoapElementsExtractorUtilImpl implements SoapElementsExtractorUtil 
      * {@inheritDoc}
      */
     @Override
-    public String getSoapMessageAsString(SoapMessage soapMessage) {
+    public String getSoapMessageAsString(SoapMessage soapMessage) throws DomibusCoreException {
         String soapMessageAsText = null;
         try (InputStream inputStream = soapMessage.getContent(InputStream.class);
              CachedOutputStream outputStream = new CachedOutputStream()) {
@@ -160,8 +162,9 @@ public class SoapElementsExtractorUtilImpl implements SoapElementsExtractorUtil 
                         rawMessage.indexOf("</env:Envelope>") + "</env:Envelope>".length());
             }
         } catch (IOException e) {
-            LOG.error("Could not retrieve the SOAP Message as an XML", e);
-            return null;
+            String errorMessage = "Could not retrieve the SOAP Message as an XML " + e;
+            LOG.error(errorMessage);
+            throw new DomibusCoreException(DomibusCoreErrorCode.DOM_007, errorMessage);
         }
         return soapMessageAsText;
     }

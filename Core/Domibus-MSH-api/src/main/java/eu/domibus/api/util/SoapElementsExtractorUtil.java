@@ -1,5 +1,6 @@
 package eu.domibus.api.util;
 
+import eu.domibus.api.exceptions.DomibusCoreException;
 import eu.domibus.api.exceptions.XmlProcessingException;
 import eu.domibus.api.security.SecurityProfileException;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -49,7 +50,8 @@ public interface SoapElementsExtractorUtil {
      * Reads a cxf SoapMessage and returns the entire content of the message as XML
      *
      * @param soapMessage the SoapMessage that will be transformed to XML
+     * @throws DomibusCoreException conversion exception, if the cxf SoapMessage can't be transformed into XML
      * @return the entire XML content of the SoapMessage
      */
-    String getSoapMessageAsString(SoapMessage soapMessage);
+    String getSoapMessageAsString(SoapMessage soapMessage) throws DomibusCoreException;
 }
