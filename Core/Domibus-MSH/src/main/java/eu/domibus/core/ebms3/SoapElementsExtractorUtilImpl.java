@@ -119,14 +119,15 @@ public class SoapElementsExtractorUtilImpl implements SoapElementsExtractorUtil 
 
             Element securityHeader = (Element) doc.getDocumentElement().getElementsByTagName(WSSE_SECURITY).item(0);
             if (securityHeader == null) {
-                String errorMessage = "Soap Security Header is null";
-                LOG.error(errorMessage);
+                String errorMessage = "Soap Security Header is null in message";
+                LOG.error(errorMessage + ": " + messageAsXmlString);
                 throw new XmlProcessingException(errorMessage);
             }
             return securityHeader;
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            LOG.error("Could not extract security header from Soap Message");
-            throw new XmlProcessingException("Could not retrieve security header from Soap Message");
+            String errorMessage = "Could not extract security header from Soap Message";
+            LOG.error(errorMessage + ": " + messageAsXmlString);
+            throw new XmlProcessingException(errorMessage);
         }
     }
 
