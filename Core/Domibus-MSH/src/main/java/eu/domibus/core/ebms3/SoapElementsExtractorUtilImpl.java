@@ -160,10 +160,8 @@ public class SoapElementsExtractorUtilImpl implements SoapElementsExtractorUtil 
                 IOUtils.copy(inputStream, outputStream);
 
                 outputStream.flush();
-                inputStream.close();
 
                 soapMessage.setContent(InputStream.class, outputStream.getInputStream());
-                outputStream.close();
 
                 String rawMessage = new String(outputStream.getBytes());
                 soapMessageAsText = rawMessage.substring(rawMessage.indexOf("<env:Envelope"),

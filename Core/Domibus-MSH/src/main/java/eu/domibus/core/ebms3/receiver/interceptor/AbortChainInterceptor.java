@@ -17,8 +17,9 @@ import javax.ws.rs.HttpMethod;
 import java.io.IOException;
 
 /**
- * Interceptor that aborts the interceptor chain when a request containing a http get method is detected
+ * Interceptor that aborts the interceptor chain when a request containing an http get method is detected
  * @since 5.2
+ * @author Lucian Furca
  */
 @Service
 public class AbortChainInterceptor extends AbstractSoapInterceptor {
