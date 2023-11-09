@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -107,7 +108,7 @@ public class SoapElementsExtractorUtilImpl implements SoapElementsExtractorUtil 
      * {@inheritDoc}
      */
     @Override
-    public Element extractSecurityHeaderElement(SoapMessage soapMessage) throws XmlProcessingException {
+    public Element extractSecurityHeaderElement(SoapMessage soapMessage) throws XmlProcessingException, SecurityProfileException {
         String messageAsXmlString = getSoapMessageAsString(soapMessage);
         try (StringReader stringReader = new StringReader(messageAsXmlString)){
             DocumentBuilderFactory dbFactory = xmlUtil.getDocumentBuilderFactoryNamespaceAware();
@@ -117,7 +118,13 @@ public class SoapElementsExtractorUtilImpl implements SoapElementsExtractorUtil 
             Document doc = builder.parse(inputSource);
             doc.getDocumentElement().normalize();
 
-            Element securityHeader = (Element) doc.getDocumentElement().getElementsByTagName(WSSE_SECURITY).item(0);
+            NodeList securityHeaders = doc.getDocumentElement().getElementsByTagName(WSSE_SECURITY);
+            if (securityHeaders.getLength() > 1) {
+                String errorMessage = "Domibus does not support messages with multiple Security Headers";
+                LOG.error(errorMessage);
+                throw new SecurityProfileException(errorMessage);
+            }
+            Element securityHeader = (Element) securityHeaders.item(0);
             if (securityHeader == null) {
                 String errorMessage = "Soap Security Header is null in message";
                 LOG.error(errorMessage + ": " + messageAsXmlString);

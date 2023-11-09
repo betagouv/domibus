@@ -42,9 +42,10 @@ public interface SoapElementsExtractorUtil {
      *
      * @param soapMessage the SoapMessage from which the security header is extracted
      * @throws XmlProcessingException if the security header can't be extracted, or if the obtained security header is null
+     * @throws SecurityProfileException if the message contains multiple Security Headers, since this is not supported by Domibus
      * @return the Security Header Element
      */
-    Element extractSecurityHeaderElement(SoapMessage soapMessage) throws XmlProcessingException;
+    Element extractSecurityHeaderElement(SoapMessage soapMessage) throws XmlProcessingException, SecurityProfileException;
 
     /**
      * Reads a cxf SoapMessage and returns the entire content of the message as XML
