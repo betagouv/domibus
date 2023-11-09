@@ -42,11 +42,7 @@ public class SoapElementsExtractorUtilImpl implements SoapElementsExtractorUtil 
     public static final String ENCRYPTION_METHOD = "EncryptionMethod";
     public static final String AGREEMENT_METHOD = "AgreementMethod";
     public static final QName KEY_INFO = new QName("http://www.w3.org/2000/09/xmldsig#", "KeyInfo");
-
-    public static final String ENCRYPTION_METHOD_ALGORITHM_RSA = "http://www.w3.org/2009/xmlenc11#rsa-oaep";
-    public static final String ENCRYPTION_METHOD_ALGORITHM_ECC = "http://www.w3.org/2001/04/xmlenc#kw-aes128";
     public static final String SIGNATURE = "Signature";
-
     public static final String SIGNED_INFO = "SignedInfo";
     public static final String SIGNATURE_METHOD = "SignatureMethod";
 

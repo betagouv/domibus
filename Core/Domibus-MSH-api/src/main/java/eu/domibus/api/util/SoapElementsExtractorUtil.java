@@ -13,6 +13,9 @@ import org.w3c.dom.Element;
  */
 public interface SoapElementsExtractorUtil {
 
+    String ENCRYPTION_METHOD_ALGORITHM_RSA = "http://www.w3.org/2009/xmlenc11#rsa-oaep";
+    String ENCRYPTION_METHOD_ALGORITHM_ECC = "http://www.w3.org/2001/04/xmlenc#kw-aes128";
+
     /**
      * Extracts the encryption method algorithm string from a cxf SoapMessage
      *

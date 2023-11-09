@@ -9,6 +9,7 @@ import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.SecurityProfile;
+import eu.domibus.api.util.SoapElementsExtractorUtil;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader;
 import eu.domibus.core.ebms3.ws.policy.PolicyService;
@@ -34,7 +35,6 @@ import java.security.cert.X509Certificate;
 @Service
 public class SecurityProfileServiceImpl implements SecurityProfileService {
     private static final DomibusLogger LOG = DomibusLoggerFactory.getLogger(SecurityProfileServiceImpl.class);
-
     protected final DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader;
 
     protected final PolicyService policyService;
@@ -44,9 +44,6 @@ public class SecurityProfileServiceImpl implements SecurityProfileService {
     protected final MultiDomainCryptoService multiDomainCertificateProvider;
 
     protected final DomainContextProvider domainContextProvider;
-
-    public static final String ENCRYPTION_METHOD_ALGORITHM_RSA = "http://www.w3.org/2009/xmlenc11#rsa-oaep";
-    public static final String ENCRYPTION_METHOD_ALGORITHM_ECC = "http://www.w3.org/2001/04/xmlenc#kw-aes128";
 
     public SecurityProfileServiceImpl(DomibusAlgorithmSuiteLoader domibusAlgorithmSuiteLoader,
                                       PolicyService policyService,
@@ -156,10 +153,10 @@ public class SecurityProfileServiceImpl implements SecurityProfileService {
      */
     public SecurityProfile getSecurityProfileBasedOnMessageAlgorithms(String signatureAlgorithm, String encryptionAlgorithm) throws WSSecurityException {
         if (signatureAlgorithm.equalsIgnoreCase(WSS4JConstants.RSA_SHA256) &&
-                encryptionAlgorithm.equalsIgnoreCase(ENCRYPTION_METHOD_ALGORITHM_RSA)) {
+                encryptionAlgorithm.equalsIgnoreCase(SoapElementsExtractorUtil.ENCRYPTION_METHOD_ALGORITHM_RSA)) {
             return SecurityProfile.RSA;
         } else if (signatureAlgorithm.equalsIgnoreCase(WSS4JConstants.ECDSA_SHA256) &&
-                encryptionAlgorithm.equalsIgnoreCase(ENCRYPTION_METHOD_ALGORITHM_ECC)) {
+                encryptionAlgorithm.equalsIgnoreCase(SoapElementsExtractorUtil.ENCRYPTION_METHOD_ALGORITHM_ECC)) {
             return SecurityProfile.ECC;
         }
         else {
