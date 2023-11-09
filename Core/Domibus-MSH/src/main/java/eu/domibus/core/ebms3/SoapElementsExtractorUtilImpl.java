@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3;
 
 import eu.domibus.api.exceptions.XmlProcessingException;
+import eu.domibus.api.security.SecurityProfileException;
 import eu.domibus.api.util.SoapElementsExtractorUtil;
 import eu.domibus.api.util.xml.XMLUtil;
 import eu.domibus.logging.DomibusLogger;
@@ -9,7 +10,6 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.wss4j.common.WSS4JConstants;
-import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.dom.WSConstants;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
@@ -55,7 +55,7 @@ public class SoapElementsExtractorUtilImpl implements SoapElementsExtractorUtil 
      * {@inheritDoc}
      */
     @Override
-    public String getEncryptionAlgorithm(SoapMessage soapMessage) throws WSSecurityException, XmlProcessingException {
+    public String getEncryptionAlgorithm(SoapMessage soapMessage) throws SecurityProfileException, XmlProcessingException {
         Node soapSecurityHeader = extractSecurityHeaderElement(soapMessage);
 
         Element encryptedKeyElement = getChildElementByName(soapSecurityHeader, WSConstants.ENCRYPTED_KEY.getLocalPart());
@@ -70,8 +70,10 @@ public class SoapElementsExtractorUtilImpl implements SoapElementsExtractorUtil 
             Element agreementMethodElement = getChildElementByName(keyInfoElement, AGREEMENT_METHOD);
             return agreementMethodElement.getAttributes().getNamedItem(ALGORITHM_ATTRIBUTE).getLocalName();
         } else {
-            LOG.error("Invalid encryption method algorithm: [{}]", encryptionMethodAlgorithm);
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Invalid encryption method algorithm: " + encryptionMethodAlgorithm);
+            String errorMessage = "Invalid encryption method algorithm: " + encryptionMethodAlgorithm +
+                    ", it does not correspond to any security profile";
+            LOG.error(errorMessage);
+            throw new SecurityProfileException(errorMessage);
         }
     }
 
@@ -79,7 +81,7 @@ public class SoapElementsExtractorUtilImpl implements SoapElementsExtractorUtil 
      * {@inheritDoc}
      */
     @Override
-    public String getSignatureAlgorithm(SoapMessage soapMessage) throws WSSecurityException, XmlProcessingException {
+    public String getSignatureAlgorithm(SoapMessage soapMessage) throws SecurityProfileException, XmlProcessingException {
         Node soapSecurityHeader = extractSecurityHeaderElement(soapMessage);
 
         Element signatureElement = getChildElementByName(soapSecurityHeader, SIGNATURE);
@@ -92,8 +94,10 @@ public class SoapElementsExtractorUtilImpl implements SoapElementsExtractorUtil 
             case WSS4JConstants.ECDSA_SHA256:
                 return signatureMethodAlgorithm;
             default:
-                LOG.error("Invalid signature method algorithm: [{}]", signatureMethodAlgorithm);
-                throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Invalid signature method algorithm: " + signatureMethodAlgorithm);
+                String errorMessage = "Invalid signature method algorithm " + signatureMethodAlgorithm +
+                        ", it does not correspond to any security profile";
+                LOG.error(errorMessage);
+                throw new SecurityProfileException(errorMessage);
         }
     }
 
@@ -101,7 +105,7 @@ public class SoapElementsExtractorUtilImpl implements SoapElementsExtractorUtil 
      * {@inheritDoc}
      */
     @Override
-    public Element extractSecurityHeaderElement(SoapMessage soapMessage) throws WSSecurityException, XmlProcessingException {
+    public Element extractSecurityHeaderElement(SoapMessage soapMessage) throws XmlProcessingException {
         String messageAsXmlString = getSoapMessageAsString(soapMessage);
         try (StringReader stringReader = new StringReader(messageAsXmlString)){
             DocumentBuilderFactory dbFactory = xmlUtil.getDocumentBuilderFactoryNamespaceAware();
@@ -119,8 +123,8 @@ public class SoapElementsExtractorUtilImpl implements SoapElementsExtractorUtil 
             }
             return securityHeader;
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            LOG.error("Could not extract security header from Soap Message: ", e);
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "Could not retrieve security header from Soap Message");
+            LOG.error("Could not extract security header from Soap Message");
+            throw new XmlProcessingException("Could not retrieve security header from Soap Message");
         }
     }
 
@@ -131,7 +135,7 @@ public class SoapElementsExtractorUtilImpl implements SoapElementsExtractorUtil 
             }
         }
         LOG.error("[{}] element is null", nodeName);
-        throw new XmlProcessingException("The following xml element is null: " + nodeName);
+        throw new XmlProcessingException("The xml element " + nodeName + " is null.");
     }
 
     /**
