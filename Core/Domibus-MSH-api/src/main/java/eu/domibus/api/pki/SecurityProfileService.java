@@ -4,7 +4,7 @@ import eu.domibus.api.model.UserMessage;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.SecurityProfile;
-import org.apache.wss4j.common.ext.WSSecurityException;
+import eu.domibus.api.security.SecurityProfileException;
 
 /**
  * Provides services needed by the Security Profiles feature
@@ -55,8 +55,8 @@ public interface SecurityProfileService {
      *
      * @param signatureAlgorithm the signatureAlgorithm from the message
      * @param encryptionAlgorithm the encryptionAlgorithm from the message
-     * @throws PModeException is thrown when the signature algorithm and encryption algorithm do not match with a security profile
+     * @throws SecurityProfileException is thrown when the signature algorithm and encryption algorithm do not match with a security profile
      * @return the determined Security Profile
      */
-    SecurityProfile getSecurityProfileBasedOnMessageAlgorithms(String signatureAlgorithm, String encryptionAlgorithm) throws WSSecurityException;
+    SecurityProfile getSecurityProfileBasedOnMessageAlgorithms(String signatureAlgorithm, String encryptionAlgorithm) throws SecurityProfileException;
 }

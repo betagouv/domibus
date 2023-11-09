@@ -9,6 +9,7 @@ import eu.domibus.api.pki.SecurityProfileService;
 import eu.domibus.api.pmode.PModeException;
 import eu.domibus.api.security.CertificatePurpose;
 import eu.domibus.api.security.SecurityProfile;
+import eu.domibus.api.security.SecurityProfileException;
 import eu.domibus.api.util.SoapElementsExtractorUtil;
 import eu.domibus.core.ebms3.EbMS3Exception;
 import eu.domibus.core.ebms3.ws.algorithm.DomibusAlgorithmSuiteLoader;
@@ -20,7 +21,6 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.neethi.Policy;
 import org.apache.wss4j.common.WSS4JConstants;
-import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.policy.model.AlgorithmSuite;
 import org.springframework.stereotype.Service;
 
@@ -151,7 +151,7 @@ public class SecurityProfileServiceImpl implements SecurityProfileService {
     /**
      * {@inheritDoc}
      */
-    public SecurityProfile getSecurityProfileBasedOnMessageAlgorithms(String signatureAlgorithm, String encryptionAlgorithm) throws WSSecurityException {
+    public SecurityProfile getSecurityProfileBasedOnMessageAlgorithms(String signatureAlgorithm, String encryptionAlgorithm) throws SecurityProfileException {
         if (signatureAlgorithm.equalsIgnoreCase(WSS4JConstants.RSA_SHA256) &&
                 encryptionAlgorithm.equalsIgnoreCase(SoapElementsExtractorUtil.ENCRYPTION_METHOD_ALGORITHM_RSA)) {
             return SecurityProfile.RSA;
@@ -160,10 +160,10 @@ public class SecurityProfileServiceImpl implements SecurityProfileService {
             return SecurityProfile.ECC;
         }
         else {
-            LOG.error("No Security Profile can be determined for signatureAlgorithm: [{}] and encryptionAlgorithm: [{}]",
+            LOG.error("No Security Profile can be determined for signature algorithm: [{}] and encryption algorithm: [{}]",
                     signatureAlgorithm, encryptionAlgorithm);
-            throw new WSSecurityException(WSSecurityException.ErrorCode.FAILURE, "No Security Profile can be determined for signatureAlgorithm: " +
-                    signatureAlgorithm + "and encryptionAlgorithm: " + encryptionAlgorithm);
+            throw new SecurityProfileException("No Security Profile can be determined for signature algorithm: " + signatureAlgorithm +
+                    " and encryption algorithm: " + encryptionAlgorithm);
         }
     }
 }
