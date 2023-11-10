@@ -52,7 +52,7 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<Command> findCommandsByServerName(String serverName) {
         LOG.debug("Find commands by serverName [{}]", serverName);
         final List<CommandEntity> commands = commandDao.findCommandsByServerName(serverName);

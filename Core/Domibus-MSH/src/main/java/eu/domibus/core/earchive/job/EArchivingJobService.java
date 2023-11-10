@@ -84,7 +84,7 @@ public class EArchivingJobService {
         this.tsidUtil = tsidUtil;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public EArchiveBatchStart getContinuousStartDate(EArchiveRequestType eArchiveRequestType) {
         EArchiveBatchStart byReference = eArchiveBatchStartDao.findByReference(getEArchiveBatchStartId(eArchiveRequestType));
         Hibernate.initialize(byReference);
@@ -162,7 +162,7 @@ public class EArchivingJobService {
         return eArchiveBatchDao.merge(entity);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public long getMaxEntityIdToArchived(EArchiveRequestType eArchiveRequestType) {
         if (eArchiveRequestType == EArchiveRequestType.SANITIZER) {
             ZonedDateTime dateHour = ZonedDateTime.ofInstant(new Date(tsidUtil.getDateFromTsid(eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage())).toInstant(), ZoneOffset.UTC);

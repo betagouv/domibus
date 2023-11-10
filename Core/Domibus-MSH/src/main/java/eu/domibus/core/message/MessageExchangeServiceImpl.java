@@ -163,7 +163,7 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public MessageStatusEntity retrieveMessageRestoreStatus(final String messageId, MSHRole role) {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId, role);
         try {

@@ -81,7 +81,7 @@ public class CachingPModeProvider extends PModeProvider {
         configurationLock = ConfigurationLockContainer.getForDomain(domain);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Configuration getConfiguration() {
         if (this.configuration == null) {
             synchronized (configurationLock) {

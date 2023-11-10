@@ -201,7 +201,6 @@ public class MshWebServiceTestIT extends AbstractIT {
         String filename = "SOAPMessage2.xml";
         String messageId = UUID.randomUUID() + "@domibus.eu";
         try {
-
             mshWebserviceTest.invoke(soapSampleUtil.createSOAPMessage(filename, messageId));
             fail();
         } catch (RuntimeException e) {
@@ -210,7 +209,7 @@ public class MshWebServiceTestIT extends AbstractIT {
             //do nothing
         }
 
-        UserMessageLog byMessageId = userMessageLogService.findByMessageId(messageId);
+        UserMessageLog byMessageId = userMessageLogService.findByMessageId(messageId, MSHRole.RECEIVING);
 
         assertNull(byMessageId);
         ReflectionTestUtils.setField(backendNotificationService, "jmsManager", saveField);

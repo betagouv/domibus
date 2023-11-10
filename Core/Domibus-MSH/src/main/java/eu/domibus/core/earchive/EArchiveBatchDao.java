@@ -73,7 +73,7 @@ public class EArchiveBatchDao extends BasicDao<EArchiveBatchEntity> {
         query.executeUpdate();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional 
     public List<EArchiveBatchEntity> findBatchesByStatus(List<EArchiveBatchStatus> statuses, Integer pageSize) {
         TypedQuery<EArchiveBatchEntity> query = this.em.createNamedQuery("EArchiveBatchEntity.findByStatus", EArchiveBatchEntity.class);
         query.setParameter("STATUSES", statuses);

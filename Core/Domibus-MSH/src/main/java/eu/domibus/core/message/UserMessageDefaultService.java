@@ -754,7 +754,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public UserMessage getByMessageId(String messageId) {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
@@ -783,7 +783,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public UserMessage getByMessageId(String messageId, MSHRole mshRole) throws MessageNotFoundException {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
@@ -793,7 +793,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public UserMessage getByMessageEntityId(long messageEntityId) throws MessageNotFoundException {
         final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
         if (userMessage == null) {

@@ -71,7 +71,7 @@ public class PartInfoServiceImpl implements PartInfoService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<PartInfo> findPartInfo(UserMessage userMessage) {
         return partInfoDao.findPartInfoByUserMessageEntityId(userMessage.getEntityId());
     }
@@ -90,7 +90,7 @@ public class PartInfoServiceImpl implements PartInfoService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<PartInfo> findPartInfo(long entityId) {
         return partInfoDao.findPartInfoByUserMessageEntityId(entityId);
     }
@@ -193,7 +193,7 @@ public class PartInfoServiceImpl implements PartInfoService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<String> findFileSystemPayloadFilenames(List<Long> userMessageEntityIds) {
         return partInfoDao.findFileSystemPayloadFilenames(userMessageEntityIds);
     }
