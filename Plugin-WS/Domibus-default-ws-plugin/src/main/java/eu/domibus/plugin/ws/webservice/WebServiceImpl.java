@@ -1,6 +1,5 @@
 package eu.domibus.plugin.ws.webservice;
 
-import com.codahale.metrics.MetricRegistry;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.DomainDTO;
@@ -108,8 +107,7 @@ public class WebServiceImpl implements WebServicePluginInterface {
                           AuthenticationExtService authenticationExtService,
                           MessageExtService messageExtService,
                           WSPluginImpl wsPlugin,
-                          DateExtService dateUtil,
-                          MetricRegistry metricRegistry) {
+                          DateExtService dateUtil) {
         this.messageAcknowledgeExtService = messageAcknowledgeExtService;
         this.webServicePluginExceptionFactory = webServicePluginExceptionFactory;
         this.wsMessageLogService = wsMessageLogService;
@@ -132,6 +130,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
      */
     @SuppressWarnings("ValidExternallyBoundObject")
     @Override
+    @Timer(clazz = WebServiceImpl.class, value = "submitMessage")
+    @Counter(clazz = WebServiceImpl.class, value = "submitMessage")
     public SubmitResponse submitMessage(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
         LOG.debug("Received message");
 
@@ -497,8 +497,6 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
-    @Timer(clazz = WebServiceImpl.class, value = "markMessageAsDownloaded")
-    @Counter(clazz = WebServiceImpl.class, value = "markMessageAsDownloaded")
     public void markMessageAsDownloaded(MarkMessageAsDownloadedRequest markMessageAsDownloadedRequest,
                                         Holder<MarkMessageAsDownloadedResponse> markMessageAsDownloadedResponse,
                                         Holder<Messaging> ebMSHeaderInfo) throws MarkMessageAsDownloadedFault {

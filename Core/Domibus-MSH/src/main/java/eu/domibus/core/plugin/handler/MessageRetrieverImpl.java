@@ -71,14 +71,14 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     @Transactional
-    @Timer(clazz = MessageRetrieverImpl.class, value = "download")
-    @Counter(clazz = MessageRetrieverImpl.class, value = "download")
     public Submission downloadMessage(String messageId) throws MessageNotFoundException {
         return downloadMessage(messageId, true);
     }
 
     @Override
     @Transactional
+    @Timer(clazz = MessageRetrieverImpl.class, value = "downloadMessage")
+    @Counter(clazz = MessageRetrieverImpl.class, value = "downloadMessage")
     public Submission downloadMessage(final String messageId, boolean markAsDownloaded) throws MessageNotFoundException {
         checkMessageAuthorization(messageId, eu.domibus.common.MSHRole.RECEIVING);
 
@@ -93,6 +93,8 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     @Transactional
+    @Timer(clazz = MessageRetrieverImpl.class, value = "downloadMessage")
+    @Counter(clazz = MessageRetrieverImpl.class, value = "downloadMessage")
     public Submission downloadMessage(final Long messageEntityId, boolean markAsDownloaded) throws MessageNotFoundException {
         return downloadMessage(messageEntityId);
     }

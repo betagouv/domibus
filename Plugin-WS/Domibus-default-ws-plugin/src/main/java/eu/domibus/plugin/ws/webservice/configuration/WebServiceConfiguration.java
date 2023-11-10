@@ -1,6 +1,5 @@
 package eu.domibus.plugin.ws.webservice.configuration;
 
-import com.codahale.metrics.MetricRegistry;
 import eu.domibus.ext.services.*;
 import eu.domibus.logging.DomibusLogger;
 import eu.domibus.logging.DomibusLoggerFactory;
@@ -72,8 +71,7 @@ public class WebServiceConfiguration {
                                          AuthenticationExtService authenticationExtService,
                                          MessageExtService messageExtService,
                                          WSPluginImpl wsPlugin,
-                                         DateExtService dateUtil,
-                                         MetricRegistry metricRegistry) {
+                                         DateExtService dateUtil) {
         return new WebServiceImpl(messageAcknowledgeExtService,
                 webServicePluginExceptionFactory,
                 wsMessageLogService,
@@ -83,8 +81,7 @@ public class WebServiceConfiguration {
                 authenticationExtService,
                 messageExtService,
                 wsPlugin,
-                dateUtil,
-                metricRegistry);
+                dateUtil);
     }
 
 
