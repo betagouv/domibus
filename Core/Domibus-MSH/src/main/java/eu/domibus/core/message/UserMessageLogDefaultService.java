@@ -2,7 +2,6 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
 import eu.domibus.api.usermessage.UserMessageLogService;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
@@ -166,12 +165,6 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
     public MessageStatus getMessageStatus(final Long messageEntityId) {
         return userMessageLogDao.getMessageStatus(messageEntityId);
     }
-
-//    @Override
-//    @Transactional(readOnly = true)
-//    public UserMessageLog findByMessageId(String messageId) {
-//        return userMessageLogDao.findByMessageId(messageId);
-//    }
 
     @Override
     @Transactional
