@@ -127,6 +127,15 @@
         <cve>CVE-2023-41900</cve>
     </suppress>
     <suppress>
+        <notes><![CDATA[
+   file name: jetty-io-11.0.12.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-io@.*$</packageUrl>
+        <!-- jetty-server is not used in production - used in tests -->
+        <cve>CVE-2023-36478</cve>
+        <cve>CVE-2023-44487</cve>
+    </suppress>
+    <suppress>
         <!-- jetty-server is not used in production - used in tests -->
         <notes><![CDATA[
    file name: jetty-server-9.2.28.v20190418.jar
@@ -137,7 +146,15 @@
         <cve>CVE-2023-40167</cve>
         <cve>CVE-2023-36479</cve>
     </suppress>
-
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-server-11.0.12.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-server@.*$</packageUrl>
+        <!-- jetty-server is not used in production - used in tests -->
+        <cve>CVE-2023-36478</cve>
+        <cve>CVE-2023-44487</cve>
+    </suppress>
     <suppress>
         <notes><![CDATA[
    file name: http2-common-11.0.12.jar
