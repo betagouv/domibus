@@ -93,14 +93,14 @@ public class MessageRetrieverImpl implements MessageRetriever {
 
     @Override
     @Transactional
-    @Timer(clazz = MessageRetrieverImpl.class, value = "downloadMessage")
-    @Counter(clazz = MessageRetrieverImpl.class, value = "downloadMessage")
     public Submission downloadMessage(final Long messageEntityId, boolean markAsDownloaded) throws MessageNotFoundException {
         return downloadMessage(messageEntityId);
     }
 
     @Override
     @Transactional
+    @Timer(clazz = MessageRetrieverImpl.class, value = "downloadMessage")
+    @Counter(clazz = MessageRetrieverImpl.class, value = "downloadMessage")
     public Submission downloadMessage(final Long messageEntityId) throws MessageNotFoundException {
         checkMessageAuthorization(messageEntityId);
 

@@ -26,6 +26,9 @@ import eu.domibus.core.ebms3.ws.policy.PolicyService;
 import eu.domibus.core.generator.id.MessageIdGenerator;
 import eu.domibus.core.message.nonrepudiation.UserMessageRawEnvelopeDao;
 import eu.domibus.core.message.pull.*;
+import eu.domibus.core.metrics.Counter;
+import eu.domibus.core.metrics.Timer;
+import eu.domibus.core.plugin.handler.MessagePullerImpl;
 import eu.domibus.core.pmode.provider.PModeProvider;
 import eu.domibus.core.pulling.PullRequest;
 import eu.domibus.core.pulling.PullRequestDao;
@@ -183,6 +186,8 @@ public class MessageExchangeServiceImpl implements MessageExchangeService {
      */
     @Override
     @Transactional
+    @Timer(clazz = MessageExchangeServiceImpl.class, value = "initiatePullRequest")
+    @Counter(clazz = MessageExchangeServiceImpl.class, value = "initiatePullRequest")
     public void initiatePullRequest() {
         initiatePullRequest(null);
     }
