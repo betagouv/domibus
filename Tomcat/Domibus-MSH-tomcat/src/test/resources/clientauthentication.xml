@@ -5,6 +5,8 @@
     <security:keyManagers keyPassword="test123">
 		<security:keyStore type="JKS" password="test123" file="${domibus.config.location}/keystores/gateway_keystore.jks"/>
 	</security:keyManagers>
+<!--    Commission RPMs support only RSA ciphers for TLSv1.2-->
+<!--    This affects EU-Send MSH endpoints and OOTS project while connecting to some customers that enable only TLSv1.2 and RSA ciphers on their MSH endpoint-->
 <!--    <security:cipherSuitesFilter>-->
 <!--        <security:exclude>.*_RSA_.*</security:exclude>-->
 <!--    </security:cipherSuitesFilter>-->
