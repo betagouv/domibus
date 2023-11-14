@@ -4,6 +4,12 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!--
+        IMPORTANT:
+            This file is used for the integration tests (H2 database). Make the same changes in the domibus-sql repo.
+    -->
+
     <changeSet author="migueti" id="EDELIVERY-3425">
 
         <createTable tableName="QRTZ_BLOB_TRIGGERS">
