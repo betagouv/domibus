@@ -231,6 +231,15 @@
         <cve>CVE-2023-36478</cve>
         <cve>CVE-2023-44487</cve>
     </suppress>
+    <suppress>
+        <notes><![CDATA[
+   file name: jetty-alpn-client-11.0.12.jar
+   ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.eclipse\.jetty/jetty\-alpn\-client@.*$</packageUrl>
+        <!-- jetty-server is not used in production - used in tests -->
+        <cve>CVE-2023-36478</cve>
+        <cve>CVE-2023-44487</cve>
+    </suppress>
 
     <suppress>
         <notes><![CDATA[
