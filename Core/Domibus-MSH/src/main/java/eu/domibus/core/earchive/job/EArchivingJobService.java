@@ -24,8 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.*;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
@@ -82,7 +84,7 @@ public class EArchivingJobService {
         this.tsidUtil = tsidUtil;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public EArchiveBatchStart getContinuousStartDate(EArchiveRequestType eArchiveRequestType) {
         EArchiveBatchStart byReference = eArchiveBatchStartDao.findByReference(getEArchiveBatchStartId(eArchiveRequestType));
         Hibernate.initialize(byReference);
@@ -160,7 +162,7 @@ public class EArchivingJobService {
         return eArchiveBatchDao.merge(entity);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public long getMaxEntityIdToArchived(EArchiveRequestType eArchiveRequestType) {
         if (eArchiveRequestType == EArchiveRequestType.SANITIZER) {
             ZonedDateTime dateHour = ZonedDateTime.ofInstant(new Date(tsidUtil.getDateFromTsid(eArchiveBatchStartDao.findByReference(EArchivingDefaultService.CONTINUOUS_ID).getLastPkUserMessage())).toInstant(), ZoneOffset.UTC);

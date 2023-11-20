@@ -96,7 +96,7 @@ public abstract class PModeProvider {
 
     public abstract boolean hasLegWithSplittingConfiguration();
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true) 
     public byte[] getPModeFile(long id) {
         final ConfigurationRaw rawConfiguration = getRawConfiguration(id);
         if (rawConfiguration == null) {
@@ -112,12 +112,12 @@ public abstract class PModeProvider {
         return new byte[0];
     }
 
-    @Transactional(readOnly = true)
+    @Transactional 
     public ConfigurationRaw getRawConfiguration(long id) {
         return this.configurationRawDAO.getConfigurationRaw(id);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional 
     public PModeArchiveInfo getCurrentPmode() {
         final ConfigurationRaw currentRawConfiguration = this.configurationRawDAO.getCurrentRawConfiguration();
         if (currentRawConfiguration != null) {
@@ -136,7 +136,7 @@ public abstract class PModeProvider {
         configurationRawDAO.deleteById(id);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true) 
     public List<PModeArchiveInfo> getRawConfigurationList() {
         return this.configurationRawDAO.getDetailedConfigurationRaw();
     }
@@ -583,5 +583,7 @@ public abstract class PModeProvider {
     public abstract Agreement getAgreementRef(String serviceValue);
 
     public abstract LegConfigurationPerMpc getAllLegConfigurations();
+
+    public abstract int getMaxRetryTimeout();
 
 }

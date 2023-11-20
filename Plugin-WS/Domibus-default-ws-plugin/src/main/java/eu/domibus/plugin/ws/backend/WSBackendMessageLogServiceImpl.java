@@ -43,7 +43,7 @@ public class WSBackendMessageLogServiceImpl implements WSBackendMessageLogServic
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<WSBackendMessageLogEntity> findAllWithFilter(String messageId, String originalSender, String finalRecipient, LocalDateTime receivedFrom, LocalDateTime receivedTo, int maxPendingMessagesRetrieveCount) {
         return wsBackendMessageLogDao.findAllFailedWithFilter(messageId, originalSender,
                 finalRecipient, receivedFrom, receivedTo, maxPendingMessagesRetrieveCount);

@@ -2,7 +2,6 @@ package eu.domibus.core.message;
 
 import eu.domibus.api.model.*;
 import eu.domibus.api.usermessage.UserMessageLogService;
-import eu.domibus.core.alerts.configuration.common.AlertConfigurationService;
 import eu.domibus.core.alerts.service.EventService;
 import eu.domibus.core.message.dictionary.MshRoleDao;
 import eu.domibus.core.message.dictionary.NotificationStatusDao;
@@ -150,31 +149,25 @@ public class UserMessageLogDefaultService implements UserMessageLogService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public MessageStatus getMessageStatus(String messageId, MSHRole mshRole) {
         return userMessageLogDao.getMessageStatus(messageId, mshRole);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public MessageStatus getMessageStatusById(String messageId) {
         return userMessageLogDao.getMessageStatusById(messageId);
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public MessageStatus getMessageStatus(final Long messageEntityId) {
         return userMessageLogDao.getMessageStatus(messageEntityId);
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public UserMessageLog findByMessageId(String messageId) {
-        return userMessageLogDao.findByMessageId(messageId);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public UserMessageLog findByMessageId(String messageId, MSHRole mshRole) {
         return userMessageLogDao.findByMessageId(messageId, mshRole);
     }

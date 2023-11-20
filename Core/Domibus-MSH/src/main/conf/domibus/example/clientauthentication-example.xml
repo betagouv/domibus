@@ -12,8 +12,10 @@
         <security:keyStore type="JKS" password="123456"
                            file="${domibus.config.location}/keystore_blue.jks"/>
     </security:keyManagers>
-    <security:cipherSuitesFilter>
-        <security:exclude>.*_RSA_.*</security:exclude>
-    </security:cipherSuitesFilter>
+<!--    This affects existing endpoints that enable only TLSv1.2 and RSA ciphers-->
+<!--    TLSv1.2 and RSA ciphers are still to this day part of the recommended suites by current open standards-->
+<!--    <security:cipherSuitesFilter>-->
+<!--        <security:exclude>.*_RSA_.*</security:exclude>-->
+<!--    </security:cipherSuitesFilter>-->
 </http-conf:tlsClientParameters>
 

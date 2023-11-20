@@ -6,6 +6,11 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
     <!-- IMPORTANT: this is the full script, add your changes inside in the right section -->
 
+    <!--
+        IMPORTANT:
+            This file is used for the integration tests (H2 database). Make the same changes in the domibus-sql repo.
+    -->
+
     <!-- properties - to be used in column definitions -->
     <include file="common/changelog-properties-v2.xml" relativeToChangelogFile="true"/>
 

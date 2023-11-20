@@ -130,24 +130,6 @@ public class MessageRetrieverImplTest {
 
     }
 
-    @Test
-    @Disabled("EDELIVERY-12166")
-    public void testGetErrorsForMessageOk_Exception(@Injectable ErrorLogEntry errorLogEntry, @Injectable UserMessageLog userMessageLog) {
-        List<ErrorLogEntry> list = new ArrayList<>();
-        list.add(errorLogEntry);
-        new Expectations() {{
-            userMessageLogService.findByMessageId(MESS_ID);
-            result = new DuplicateMessageFoundException(MESS_ID);
-        }};
-
-        Assertions.assertThrows(DuplicateMessageException.class, () -> messageRetriever.getErrorsForMessage(MESS_ID));
-
-        new Verifications() {{
-            errorLogService.convert(errorLogEntry);
-            times = 0;
-        }};
-
-    }
 
     @Test
     public void browseMessage(@Injectable UserMessage userMessage) {

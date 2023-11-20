@@ -6,6 +6,7 @@ import eu.domibus.api.model.UserMessageLog;
 import eu.domibus.api.property.DomibusPropertyProvider;
 import eu.domibus.api.util.TsidUtil;
 import eu.domibus.common.model.configuration.LegConfiguration;
+import eu.domibus.core.message.MessageStatusDao;
 import eu.domibus.core.message.UserMessageDao;
 import eu.domibus.core.message.UserMessageDefaultService;
 import eu.domibus.core.message.UserMessageLogDao;
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_MSH_RETRY_TIMEOUT_DELAY;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
  * @author Christian Koch, Stefan Mueller
@@ -113,7 +115,7 @@ public class RetryDefaultService implements RetryService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional 
     public List<Long> getMessagesNotAlreadyScheduled() {
         List<Long> result = new ArrayList<>();
 
@@ -162,13 +164,13 @@ public class RetryDefaultService implements RetryService {
     }
 
     /**
-     * Method call by job to to delete messages marked as failed.
+     * Method call by job to delete messages marked as failed.
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void bulkDeletePullMessages() {
         final List<MessagingLock> deletedLocks = messagingLockDao.findDeletedMessages();
-        LOG.trace("Delete unecessary locks");
+        LOG.trace("Delete unnecessary locks");
         for (MessagingLock deletedLock : deletedLocks) {
             pullMessageService.deleteInNewTransaction(deletedLock.getMessageId());
         }
@@ -191,21 +193,21 @@ public class RetryDefaultService implements RetryService {
         return maxRetry;
     }
 
-    protected long createMaxEntityId(int delay) {
+    public long createMaxEntityId(int delay) {
         final ZonedDateTime zonedDateTime = ZonedDateTime
                 .now(ZoneOffset.UTC)
                 .minusMinutes(delay);
         return tsidUtil.zonedTimeDateToMaxTsid(zonedDateTime);
     }
 
-    protected long createMinEntityId(int delay) {
+    public long createMinEntityId(int delay) {
         final ZonedDateTime zonedDateTime = ZonedDateTime
                 .now(ZoneOffset.UTC)
                 .minusMinutes(delay);
         return tsidUtil.zonedTimeDateToTsid(zonedDateTime);
     }
 
-    protected long getCurrentTimeMaxEntityId() {
+    public long getCurrentTimeMaxEntityId() {
         return createMaxEntityId(0);
     }
 

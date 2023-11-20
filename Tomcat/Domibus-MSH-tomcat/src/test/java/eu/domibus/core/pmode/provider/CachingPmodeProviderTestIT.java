@@ -11,6 +11,7 @@ import eu.domibus.common.model.configuration.Mpc;
 import eu.domibus.core.property.DomibusPropertyResourceHelperImpl;
 import eu.domibus.messaging.XmlProcessingException;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +20,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 import static eu.domibus.api.property.DomibusPropertyMetadataManagerSPI.DOMIBUS_DYNAMICDISCOVERY_USE_DYNAMIC_DISCOVERY;
-import static org.junit.jupiter.api.Assertions.*;
+
 
 
 /**
@@ -62,12 +65,12 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
         final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
 
         List<String> list = pModeProvider.findPartiesByInitiatorServiceAndAction("domibus-blue", Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, getPushMeps());
-        assertEquals(1, list.size());
-        assertTrue(list.contains("domibus-red"));
+        Assertions.assertEquals(1, list.size());
+        Assertions.assertTrue(list.contains("domibus-red"));
 
         List<String> list2 = pModeProvider.findPartiesByResponderServiceAndAction("domibus-red", Ebms3Constants.TEST_SERVICE, Ebms3Constants.TEST_ACTION, getPushMeps());
-        assertEquals(1, list2.size());
-        assertTrue(list2.contains("domibus-blue"));
+        Assertions.assertEquals(1, list2.size());
+        Assertions.assertTrue(list2.contains("domibus-blue"));
     }
 
     private List<MessageExchangePattern> getPushMeps() {
@@ -95,8 +98,8 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
 
         boolean matchedMpc = pmodeProvider.checkMpcMismatch(legConfiguration, legFilterCriteria, mismatchedMPcs);
 
-        assertEquals(mismatchedMPcs.size(), 1);
-        assertFalse(matchedMpc);
+        Assertions.assertEquals(mismatchedMPcs.size(), 1);
+        Assertions.assertFalse(matchedMpc);
         configurationPropertyResourceHelper.setPropertyValue(DOMIBUS_PMODE_LEGCONFIGURATION_MPC_VALIDATION_ENABLED, true, initialValue.getValue());
     }
 
@@ -151,4 +154,47 @@ public class CachingPmodeProviderTestIT extends AbstractIT {
 //        assertEquals(1, legConfigurationList.size());
 //        assertEquals("tc1Action", legConfigurationList.iterator().next().getAction().getName());
 //    }
+
+    @Test
+    public void getMaxRetryTimeout_defaultRetryAwareness() throws Exception {
+        // GIVEN
+        uploadPMode();
+        final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
+
+        // WHEN
+        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout();
+
+        // THEN
+        Assertions.assertEquals(12, maxRetryTimeout);
+    }
+
+    @Test
+    public void getMaxRetryTimeout_customRetryAwareness() throws Exception {
+        // GIVEN
+        Map<String, String> replacements = new HashMap<>();
+        replacements.put("retry=\".*\"", "retry=\"2;4;CONSTANT\"");
+        uploadPMode(null, replacements);
+        final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
+
+        // WHEN
+        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout();
+
+        // THEN
+        Assertions.assertEquals(2, maxRetryTimeout);
+    }
+
+    @Test
+    public void getMaxRetryTimeout_noRetryAwareness() throws Exception {
+        // GIVEN
+        Map<String, String> replacements = new HashMap<>();
+        replacements.put("retry=\".*\"", "");
+        uploadPMode(null, replacements);
+        final CachingPModeProvider pmodeProvider = (CachingPModeProvider) pModeProviderFactory.createDomainPModeProvider(domainContextProvider.getCurrentDomain());
+
+        // WHEN
+        int maxRetryTimeout = pModeProvider.getMaxRetryTimeout();
+
+        // THEN
+        Assertions.assertEquals(0, maxRetryTimeout);
+    }
 }

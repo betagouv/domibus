@@ -97,6 +97,18 @@ public class DateUtilImpl implements DateUtil {
         return getCurrentTime(DEFAULT_FORMATTER);
     }
 
+    @Override
+    public Date getDateMinutesAgo(int minutesIntoThePast) throws DomibusDateTimeException {
+        if (minutesIntoThePast <= 0) {
+            throw new DomibusDateTimeException("Please provide a positive values that's greater than 0 for specifying the number of minutes into the past: minutesIntoThePast=" + minutesIntoThePast);
+        }
+
+        return Date.from(ZonedDateTime
+                .now(ZoneOffset.UTC)
+                .minusMinutes(minutesIntoThePast)
+                .toInstant());
+    }
+
     /**
      * {@inheritDoc}
      */

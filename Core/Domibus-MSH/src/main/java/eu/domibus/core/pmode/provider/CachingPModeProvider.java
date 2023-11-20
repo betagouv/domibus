@@ -81,7 +81,7 @@ public class CachingPModeProvider extends PModeProvider {
         configurationLock = ConfigurationLockContainer.getForDomain(domain);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public Configuration getConfiguration() {
         if (this.configuration == null) {
             synchronized (configurationLock) {
@@ -1282,6 +1282,21 @@ public class CachingPModeProvider extends PModeProvider {
             legs.add(legConfiguration);
         }
         return new LegConfigurationPerMpc(result);
+    }
+
+    @Override
+    public int getMaxRetryTimeout() {
+        final LegConfigurationPerMpc legConfigurationPerMpc = getAllLegConfigurations();
+        List<LegConfiguration> legConfigurations = new ArrayList<>();
+        legConfigurationPerMpc.values().stream().forEach(legConfigurations::addAll);
+
+        int maxRetry = legConfigurations.stream()
+                .map(legConfiguration -> legConfiguration.getReceptionAwareness().getRetryTimeout())
+                .max(Comparator.naturalOrder())
+                .orElse(-1);
+
+        LOG.debug("Got max retryTimeout [{}]", maxRetry);
+        return maxRetry;
     }
 
     @Override

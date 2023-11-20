@@ -3,6 +3,8 @@ package eu.domibus.plugin.ws.webservice;
 import eu.domibus.common.ErrorResult;
 import eu.domibus.common.MSHRole;
 import eu.domibus.ext.domain.DomainDTO;
+import eu.domibus.ext.domain.metrics.Counter;
+import eu.domibus.ext.domain.metrics.Timer;
 import eu.domibus.ext.exceptions.AuthenticationExtException;
 import eu.domibus.ext.exceptions.MessageAcknowledgeExtException;
 import eu.domibus.ext.services.*;
@@ -128,6 +130,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
      */
     @SuppressWarnings("ValidExternallyBoundObject")
     @Override
+    @Timer(clazz = WebServiceImpl.class, value = "submitMessage")
+    @Counter(clazz = WebServiceImpl.class, value = "submitMessage")
     public SubmitResponse submitMessage(SubmitRequest submitRequest, Messaging ebMSHeaderInfo) throws SubmitMessageFault {
         LOG.debug("Received message");
 
@@ -523,6 +527,8 @@ public class WebServiceImpl implements WebServicePluginInterface {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, timeout = 300, rollbackFor = RetrieveMessageFault.class)
     @MDCKey(value = {DomibusLogger.MDC_MESSAGE_ID, DomibusLogger.MDC_MESSAGE_ROLE, DomibusLogger.MDC_MESSAGE_ENTITY_ID}, cleanOnStart = true)
+    @Timer(clazz = WebServiceImpl.class, value = "retrieveMessage")
+    @Counter(clazz = WebServiceImpl.class, value = "retrieveMessage")
     public void retrieveMessage(RetrieveMessageRequest retrieveMessageRequest,
                                 Holder<RetrieveMessageResponse> retrieveMessageResponse,
                                 Holder<Messaging> ebMSHeaderInfo) throws RetrieveMessageFault {

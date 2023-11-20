@@ -65,7 +65,7 @@ public class MessagesLogServiceImpl implements MessagesLogService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true) 
     public MessageLogResultRO countAndFindPaged(MessageType messageType, int from, int max, String column, boolean asc, Map<String, Object> filters, List<String> fields) {
         MessageLogResultRO result = new MessageLogResultRO();
 

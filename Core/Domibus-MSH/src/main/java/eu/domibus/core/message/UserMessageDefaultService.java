@@ -230,8 +230,9 @@ public class UserMessageDefaultService implements UserMessageService {
         if (userMessageLog == null) {
             throw new MessageNotFoundException(messageId, MSHRole.SENDING);
         }
-        if (MessageStatus.SEND_ENQUEUED != userMessageLog.getMessageStatus()) {
-            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not [" + MessageStatus.SEND_ENQUEUED + "]");
+        if (!EnumSet.of(MessageStatus.SEND_ENQUEUED, MessageStatus.WAITING_FOR_RETRY).contains(userMessageLog.getMessageStatus())) {
+            throw new UserMessageException(DomibusCoreErrorCode.DOM_001, MESSAGE + messageId + "] status is not ["
+                    + MessageStatus.SEND_ENQUEUED + "] nor [" + MessageStatus.WAITING_FOR_RETRY + "]");
         }
 
         int resendButtonReceivedMinutes = domibusPropertyProvider.getIntegerProperty(DOMIBUS_RESEND_BUTTON_ENABLED_RECEIVED_MINUTES);
@@ -753,7 +754,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public UserMessage getByMessageId(String messageId) {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId);
         if (userMessage == null) {
@@ -782,7 +783,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public UserMessage getByMessageId(String messageId, MSHRole mshRole) throws MessageNotFoundException {
         final UserMessage userMessage = userMessageDao.findByMessageId(messageId, mshRole);
         if (userMessage == null) {
@@ -792,7 +793,7 @@ public class UserMessageDefaultService implements UserMessageService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public UserMessage getByMessageEntityId(long messageEntityId) throws MessageNotFoundException {
         final UserMessage userMessage = userMessageDao.findByEntityId(messageEntityId);
         if (userMessage == null) {

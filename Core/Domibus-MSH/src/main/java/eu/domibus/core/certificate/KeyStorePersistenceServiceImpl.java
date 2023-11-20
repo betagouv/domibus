@@ -114,6 +114,12 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
 
     @Override
     public void saveStore(KeyStoreContentInfo contentInfo, KeystorePersistenceInfo persistenceInfo) {
+        if (!StringUtils.equalsIgnoreCase(contentInfo.getType(), persistenceInfo.getType())
+                || !StringUtils.equalsIgnoreCase(contentInfo.getPassword(), persistenceInfo.getPassword())) {
+            throw new DomibusCertificateException(
+                    String.format("Cannot override store [%s] because password and/or type differ from the one on disk. The type should be [%s]",
+                            persistenceInfo.getName(), persistenceInfo.getType()));
+        }
         saveStore(contentInfo.getContent(), contentInfo.getType(), persistenceInfo);
         if (!StringUtils.equals(contentInfo.getPassword(), persistenceInfo.getPassword())) {
             persistenceInfo.updatePassword(contentInfo.getPassword());
@@ -189,7 +195,7 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
         try {
             if (StringUtils.equals(storeType, persistenceInfo.getType())) {
                 // same store type: just persist it
-                Files.write(Paths.get(storeFileLocation), storeContent);
+            Files.write(Paths.get(storeFileLocation), storeContent);
             } else {
                 // different store type: store name changes, so type and location properties must be also changed
                 String fileExtension = certificateHelper.getStoreFileExtension(storeType);
@@ -253,6 +259,11 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
         }
 
         @Override
+        public String toString() {
+            return getName() + ":" + getFileLocation() + ":" + getType() + ":" + getPassword();
+        }
+
+        @Override
         public void updatePassword(String password) {
             domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_TRUSTSTORE_PASSWORD, password);
         }
@@ -290,6 +301,11 @@ public class KeyStorePersistenceServiceImpl implements KeystorePersistenceServic
         public void updateTypeAndFileLocation(String type, String fileLocation) {
             domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEYSTORE_TYPE, type);
             domibusPropertyProvider.setProperty(DOMIBUS_SECURITY_KEYSTORE_LOCATION, fileLocation);
+        }
+
+        @Override
+        public String toString() {
+            return getName() + ":" + getFileLocation() + ":" + getType() + ":" + getPassword();
         }
 
         @Override

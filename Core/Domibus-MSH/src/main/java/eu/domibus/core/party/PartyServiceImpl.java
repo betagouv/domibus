@@ -87,7 +87,7 @@ public class PartyServiceImpl implements PartyService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true) 
     public List<Party> getParties(final String name,
                                   final String endPoint,
                                   final String partyId,
@@ -115,7 +115,7 @@ public class PartyServiceImpl implements PartyService {
      * {@inheritDoc}
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public String getGatewayPartyIdentifier() {
         String result = null;
         eu.domibus.common.model.configuration.Party gatewayParty = pModeProvider.getGatewayParty();
@@ -127,7 +127,7 @@ public class PartyServiceImpl implements PartyService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<String> getGatewayPartyIdentifiers() {
         String result = null;
         eu.domibus.common.model.configuration.Party gatewayParty = pModeProvider.getGatewayParty();
@@ -757,7 +757,7 @@ public class PartyServiceImpl implements PartyService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<String> findPushToPartyNamesForTest() {
         String selfParty = getGatewayPartyIdentifier();
         List<MessageExchangePattern> meps = getPushMeps();
@@ -765,7 +765,7 @@ public class PartyServiceImpl implements PartyService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<String> findPushFromPartyNamesForTest() {
         String selfParty = getGatewayPartyIdentifier();
         List<MessageExchangePattern> meps = getPushMeps();
