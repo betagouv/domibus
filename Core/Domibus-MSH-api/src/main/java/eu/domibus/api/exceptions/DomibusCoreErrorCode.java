@@ -54,6 +54,14 @@ public enum DomibusCoreErrorCode {
      * Duplicate found exception
      */
     DOM_011("011"),
+    /**
+     * Xml processing exception
+     */
+    DOM_012("012"),
+    /**
+     * Security profile exception
+     */
+    DOM_013("013"),
     ;
 
     private final String errorCode;

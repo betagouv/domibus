@@ -22,18 +22,14 @@ import eu.domibus.logging.DomibusLoggerFactory;
 import eu.domibus.logging.DomibusMessageCode;
 import eu.domibus.messaging.MessageConstants;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
-import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.neethi.Policy;
 import org.apache.neethi.builders.converters.ConverterException;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.HttpMethod;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 import java.io.ByteArrayInputStream;
@@ -63,7 +59,7 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     protected final UserMessageErrorCreator userMessageErrorCreator;
 
-    private final SecurityProfileService securityProfileService;
+    protected final SecurityProfileService securityProfileService;
 
     public SetPolicyInServerInterceptor(ServerInMessageLegConfigurationFactory serverInMessageLegConfigurationFactory,
                                         TestMessageValidator testMessageValidator, Ebms3Converter ebms3Converter,
@@ -78,25 +74,9 @@ public class SetPolicyInServerInterceptor extends SetPolicyInInterceptor {
 
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
-        final String httpMethod = (String) message.get("org.apache.cxf.request.method");
-        //TODO add the below logic to a separate interceptor
-        if (StringUtils.containsIgnoreCase(httpMethod, HttpMethod.GET)) {
-            LOG.debug("Detected GET request on MSH: aborting the interceptor chain");
-            message.getInterceptorChain().abort();
-
-            final HttpServletResponse response = (HttpServletResponse) message.get(AbstractHTTPDestination.HTTP_RESPONSE);
-            response.setStatus(HttpServletResponse.SC_OK);
-            try {
-                response.getWriter().println(domibusVersionService.getBuildDetails());
-            } catch (IOException ex) {
-                throw new Fault(ex);
-            }
-            return;
-        }
-
         String policyName = null;
         String messageId = null;
-        LegConfiguration legConfiguration = null;
+        LegConfiguration legConfiguration;
         Ebms3Messaging ebms3Messaging = null;
 
         try {
