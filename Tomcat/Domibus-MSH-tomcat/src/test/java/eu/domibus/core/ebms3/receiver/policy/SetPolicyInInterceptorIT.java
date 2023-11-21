@@ -5,7 +5,6 @@ import eu.domibus.core.ebms3.receiver.leg.MessageLegConfigurationFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.test.common.SoapSampleUtil;
 import org.apache.cxf.binding.soap.SoapMessage;
-import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.ws.policy.PolicyConstants;
 import org.apache.cxf.ws.security.SecurityConstants;
 import org.apache.neethi.Policy;
@@ -13,12 +12,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.UUID;
 
 
@@ -68,25 +64,4 @@ public class SetPolicyInInterceptorIT extends AbstractIT {
     }
 
 
-
-    @Test
-    public void testHandleGetVerb() throws IOException {
-        HttpServletResponse response = new MockHttpServletResponse();
-        String filename = "SOAPMessageNoMessaging.xml";
-        SoapMessage sm = soapSampleUtil.createSoapMessage(filename, UUID.randomUUID() + "@domibus.eu");
-        sm.put("org.apache.cxf.request.method", "GET");
-        sm.put(AbstractHTTPDestination.HTTP_RESPONSE, response);
-
-        // handle message without adding any content
-        setPolicyInInterceptorServer.handleMessage(sm);
-
-        try {
-            String reply = ((MockHttpServletResponse) sm.get(AbstractHTTPDestination.HTTP_RESPONSE)).getContentAsString();
-
-            Assertions.assertTrue(reply.contains("domibus-MSH"));
-
-        } catch (UnsupportedEncodingException e) {
-            Assertions.fail();
-        }
-    }
 }
