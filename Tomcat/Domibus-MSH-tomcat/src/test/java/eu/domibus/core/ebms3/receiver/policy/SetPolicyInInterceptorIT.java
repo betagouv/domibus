@@ -1,6 +1,7 @@
 package eu.domibus.core.ebms3.receiver.policy;
 
 import eu.domibus.AbstractIT;
+import eu.domibus.core.ebms3.receiver.interceptor.AbortChainInterceptor;
 import eu.domibus.core.ebms3.receiver.leg.MessageLegConfigurationFactory;
 import eu.domibus.messaging.XmlProcessingException;
 import eu.domibus.test.common.SoapSampleUtil;
@@ -35,6 +36,9 @@ public class SetPolicyInInterceptorIT extends AbstractIT {
     SetPolicyInServerInterceptor setPolicyInInterceptorServer;
 
     @Autowired
+    AbortChainInterceptor abortChainInterceptor;
+
+    @Autowired
     MessageLegConfigurationFactory serverInMessageLegConfigurationFactory;
 
     @BeforeEach
@@ -67,8 +71,6 @@ public class SetPolicyInInterceptorIT extends AbstractIT {
         Assertions.assertThrows(org.apache.cxf.interceptor.Fault. class,() -> setPolicyInInterceptorServer.handleMessage(sm));
     }
 
-
-
     @Test
     public void testHandleGetVerb() throws IOException {
         HttpServletResponse response = new MockHttpServletResponse();
@@ -78,7 +80,7 @@ public class SetPolicyInInterceptorIT extends AbstractIT {
         sm.put(AbstractHTTPDestination.HTTP_RESPONSE, response);
 
         // handle message without adding any content
-        setPolicyInInterceptorServer.handleMessage(sm);
+        abortChainInterceptor.handleMessage(sm);
 
         try {
             String reply = ((MockHttpServletResponse) sm.get(AbstractHTTPDestination.HTTP_RESPONSE)).getContentAsString();
