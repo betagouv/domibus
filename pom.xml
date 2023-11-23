@@ -60,7 +60,7 @@
         <jaxws-rt.version>2.3.6</jaxws-rt.version>
         <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
         <glassfish.javax.el.version>3.0.1-b12</glassfish.javax.el.version>
-        <h2.version>2.1.214</h2.version>
+        <h2.version>2.2.220</h2.version>
         <liquibase.version>4.17.0</liquibase.version>
         <mysql.connector.java.version>8.0.32</mysql.connector.java.version>
         <!-- wiremock 3.x is needed for junit5 to be updated in final version asap        -->
