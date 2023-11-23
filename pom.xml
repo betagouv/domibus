@@ -174,7 +174,7 @@
         <maven.compiler.source>${jdk.version}</maven.compiler.source>
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
         <enforcer-api.version>3.3.0</enforcer-api.version>
-        <maven-core.version>3.1.1</maven-core.version>
+        <maven-core.version>3.8.1</maven-core.version>
         <javassist.version>3.28.0-GA</javassist.version>
         <project.scm.id>edelivery-scm</project.scm.id>
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
